@@ -70,3 +70,9 @@
 
 
 **Independent post-audit qualification, 16 October 2026:** [Source audit and first validation gates](SOURCE_AUDIT_AND_FIRST_VALIDATION_GATES_20261016.md). A green source/test CI does not mean the measured empirical model was fitted. Current RNA pilot abstains; tucatinib code awaits legitimate original numerical source data.
+
+
+## E2 verified breakthrough — true measured original data (16 October 2026)
+- Source **US EPA Liu et al 2021**: DOI https://doi.org/10.23719/1519197, paper https://doi.org/10.1080/00498254.2020.1867929. Official xlsx SHA256 cfc9dc334064ea61e99ca6fd39c2c8ef7c621d000a37c4da2c95f26ca85e36dd. Genuine 100 human donor **exact two-ID matches** between original qPCR transcript (Table 3) and original CYP metabolic activity (Figure 2). Per-CYP n=94–100; eight measured activity endpoints. **Real** source-data leave-one-donor-out fitting completed: 7/8 prespecified transcript additions improved over age+sex (CYP2E1 not), four uncorrected bootstrap CI excluding zero. No clinical PK nor full RNAseq. See [complete original measured RNA→activity validation](EPA_100_DONOR_TRANSCRIPT_CYP_VALIDATION_20261016.md).
+- Original paper Table 1 **tucatinib 21 donor HLM proteins, activities and measured apparent microsomal CLint**, excluded 150-donor pooled reference; numerical source data manually used locally. Four published CYP/CL Spearman reproduced; 21 donor LODO MAE 6.246 reference vs 2.041 proteins vs 1.940 enzyme activity (µL/min/mg protein). See [original measured protein→clearance validation](TUCATINIB_21_DONOR_MEASURED_VALIDATION_20261016.md).
+- Treat both results as **preclinical mechanistic functional metabolism** only. The PGx/clinical comparator and transcript/multiomic patient dose/concentration linkage are still missing. Peng GSE289636 scRNA remains blocked by processed GEO metadata-only content and 0.19 TB original raw SRA; no invented RNA values.
