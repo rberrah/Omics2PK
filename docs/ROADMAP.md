@@ -2,6 +2,15 @@
 
 This list follows the earlier MultiOmics → SWEET → Pillar A → Pillar B R2 discussions. **When inspected the Omics2PK repository was empty; there was no pre-existing to-do file to read.** The plan below has therefore been reconstructed and must be reconciled with the owner's priorities.
 
+## P0 Degraeve Wiley original supplement acquired — clinical per-patient data still absent
+
+- [x] User supplied original **3,905,302-byte** `cpt3077-sup-0001-supinfo.zip`, exact original SHA256 verified locally. Real three-file inventory: study methods no individual table; 8 PowerPoint figures / 7 embedded Prism9 OLE source graphs; original S1/S2/S3 aggregate Word tables (15/30/5 rows).
+- [x] Extract scientific qualification: original 100 participants → 3 microbiome QC exclusions + 4 eligibility exclusions = 93, stool 16S and measured TAC C0, no true patient concentration-time table or subject↔93 SRA BioSample crosswalk in official ZIP.
+- [x] Different original outcomes **must not be conflated:** supplement Table S3 models daily TAC **DOSE**, R² in-sample 18.5→26.3→34.9→38.1%; article Table 2 models **estimated AUC/(dose/kg)**, R² in-sample up to **52.1%**. Neither is held-out validation.
+- [x] Add original SHA-gated **local-only** methods/graph/table scanner with synthetic-only source integrity and anti-copy tests. Source archive and potential patient-level GraphPad data **never committed** to public repo.
+- [ ] **The only remaining clinically material source request is the author's pseudonymized original 93-patient PK table + patient↔ENA16S↔ASV count matrix crosswalk**, with LSS measured vs imputed sampling flags. See [original actual supplement analysis](DEGRAEVE_WILEY_UPLOADED_SUPPLEMENT_AUDIT_20261016.md) / [issue #28](https://github.com/rberrah/Omics2PK/issues/28).
+- [ ] Omics→observed C0/dose with age+hct+PGx reference **only once real exact patient IDs exist**; PopPK CL/F and Cmax/Tmax/AUC NCA need timed original clinical concentration series, beyond the cross-sectional n93 study. E4 dynamic covariates require a separate truly repeated molecular study.
+
 ## New verified public PK source audit: 93 TAC microbiomes and 3-analyte APAP (2026-10-16)
 
 - [x] Original `PRJNA929904` ENA index: **93 original microbiome 16S specimens**, 93 CYP3A5 nonexpressers in Degraeve CPT 2024. Clinical C0 exists, but AUC0–24 was **limited-sampling ML-estimated with cohort-median imputation**, not dense observed NCA. Source 93 microbiome IDs do **not** create a verified subject/C0/AUC crosswalk. Both publisher original supplement URL routes returned HTTP 403; request official supplemental ZIP or original author table.
