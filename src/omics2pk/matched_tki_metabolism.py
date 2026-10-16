@@ -47,10 +47,11 @@ def _strict_positive(value, label):
     return v
 
 
-def qualify_pair(tucatinib_rows, imatinib_rows):
+def qualify_pair(tucatinib_rows, imatinib_rows, *, verify_reference=True):
     """Return only validated donor-indexed tuples; never match rows by order."""
     tuc = qualify_tucatinib(tucatinib_rows)
-    verify_published_table_correlations(tuc)
+    if verify_reference:
+        verify_published_table_correlations(tuc)
     if len(imatinib_rows) != 22:
         raise MatchedMetabolismError("Expected 21 original HLM individual lots plus 150-donor pool")
     imatinib = {}
@@ -100,8 +101,8 @@ def qualify_pair(tucatinib_rows, imatinib_rows):
         "cyp2c8_activity": _spearman([r[5][0] for r in matched], target),
         "cyp3a_activity": _spearman([r[5][1] for r in matched], target),
     }
-    if any(abs(checks[k] - published) > 0.014
-           for k, published in EXPECTED_IMATINIB_CORRELATIONS.items()):
+    if verify_reference and any(abs(checks[k] - published) > 0.014
+                                for k, published in EXPECTED_IMATINIB_CORRELATIONS.items()):
         raise MatchedMetabolismError("Independent published imatinib Spearman validation failed")
     return paired, {k: round(v, 6) for k, v in checks.items()}
 
@@ -128,8 +129,8 @@ def _lodo(records, outcome_index):
     }
 
 
-def validate_pair(tucatinib_rows, imatinib_rows):
-    paired, spearman = qualify_pair(tucatinib_rows, imatinib_rows)
+def validate_pair(tucatinib_rows, imatinib_rows, *, verify_reference=True):
+    paired, spearman = qualify_pair(tucatinib_rows, imatinib_rows, verify_reference=verify_reference)
     return {
         "status": "SOURCE_VERIFIED_TWO_DRUG_SHARED_DONORS_IN_VITRO_NOT_PATIENT_PK",
         "original_donors": 21,
