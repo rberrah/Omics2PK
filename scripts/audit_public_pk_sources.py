@@ -171,6 +171,11 @@ def pmc_cloud_metadata(data: bytes) -> dict:
         "license_code": obj.get("license_code"),
         "is_pmc_openaccess": obj.get("is_pmc_openaccess"),
         "n_media_entries": len(urls),
+        "target_media_url_shapes": [{"scheme": urlparse(u).scheme,
+                                      "host": urlparse(u).hostname,
+                                      "path": urlparse(u).path}
+                                     for u in urls if any(
+                                       filename in u for filename,_ in EXPECTED_PMC_SUPPLEMENTS.values())][:8],
         "listed_target_supplements": supplement_filenames,
         "source_distribution": "official PMC 2026 AWS metadata, no downloaded donor data",
     }
@@ -282,7 +287,9 @@ def main():
                       "accessible": report["format_verified_count"],
                       "total": report["source_count"],
                       "source_states": {k: (v["state"] + ": " + v.get("error_type", "") + " " + v.get("detail", "")[:200]) for k, v in report["sources"].items()},
-                      "wegler_cloud_public_metadata": report["sources"].get("wegler_cloud_metadata", {}).get("metadata_only", {})},
+                      "wegler_cloud_public_metadata": report["sources"].get("wegler_cloud_metadata", {}).get("metadata_only", {}),
+                      "cloud_fallback_diagnostics": {k: v.get("cloud_fallback") for k, v in report["sources"].items() if v.get("cloud_fallback")},
+                      "yin_public_metadata": report["sources"].get("yin_battail_metadata", {}).get("metadata_only", {})},
                      indent=2))
     if args.strict_sources and report["format_verified_count"] != len(SOURCES):
         return 2
