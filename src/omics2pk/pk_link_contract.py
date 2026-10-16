@@ -6,7 +6,6 @@ estimate a PopPK model, adjust for clinical/PGx confounders, or imply causality.
 """
 from __future__ import annotations
 
-from collections import Counter
 from datetime import datetime
 from math import isfinite
 from typing import Mapping, Sequence
@@ -54,6 +53,8 @@ def qualify_clinical_link(
     max_omics_lag_hours: float,
     selected_modality: str,
     selection_rule: str = "most_recent_before_dose",
+    required_modalities: Sequence[str] | None = None,
+    max_cross_modality_gap_hours: float | None = None,
 ) -> dict:
     """Validate identifiers and a BEFORE-DOSE molecular covariate for each PK sample.
 
@@ -67,6 +68,20 @@ def qualify_clinical_link(
         raise PKLinkError("Modality must be explicitly RNA, PROTEIN, METABOLITE or MULTIOMICS")
     if selection_rule != "most_recent_before_dose":
         raise PKLinkError("Unregistered temporal selection rule")
+    if selected_modality == "MULTIOMICS":
+        if required_modalities is None:
+            raise PKLinkError("MULTIOMICS requires explicit protocol-frozen modalities")
+        requested = tuple(str(x).upper() for x in required_modalities)
+        if len(set(requested)) != len(requested) or not (2 <= len(requested) <= 3):
+            raise PKLinkError("MULTIOMICS requires 2 or 3 distinct assay modalities")
+        if not set(requested) <= {"RNA", "PROTEIN", "METABOLITE"}:
+            raise PKLinkError("Unsupported multiomics assay modality")
+        cross_gap = _pos(max_cross_modality_gap_hours, "max_cross_modality_gap_hours")
+    else:
+        if required_modalities is not None or max_cross_modality_gap_hours is not None:
+            raise PKLinkError("Cross-modality configuration is only valid for MULTIOMICS")
+        requested = (selected_modality,)
+        cross_gap = None
     max_lag = _pos(max_omics_lag_hours, "max_omics_lag_hours")
     if max_lag > 24 * 365:
         raise PKLinkError("Unreasonably large molecular-state lookback window")
@@ -130,11 +145,8 @@ def qualify_clinical_link(
             raise PKLinkError("Concentration and dose subject IDs disagree")
         if when <= dose_time:
             raise PKLinkError("Concentration was not collected after its dose")
-        if selected_modality == "MULTIOMICS":
-            required = {"RNA", "PROTEIN", "METABOLITE"}
-        else:
-            required = {selected_modality}
-        for assay in required:
+        assay_times = []
+        for assay in requested:
             earlier = [(sid, t) for sid, t in sample_groups.get((person, assay), [])
                        if t <= dose_time and 0 <= (dose_time - t).total_seconds() / 3600 <= max_lag]
             if not earlier:
@@ -144,7 +156,12 @@ def qualify_clinical_link(
             most_recent = max(t for _, t in earlier)
             if sum(t == most_recent for _, t in earlier) != 1:
                 raise PKLinkError("Ambiguous most-recent omics assay timestamp")
+            assay_times.append(most_recent)
             lag_hours.append((dose_time - most_recent).total_seconds() / 3600)
+        if cross_gap is not None:
+            time_gap = (max(assay_times) - min(assay_times)).total_seconds() / 3600
+            if time_gap > cross_gap:
+                raise PKLinkError("Assay modalities are too far apart in time")
         intervals.append((when - dose_time).total_seconds() / 3600)
         matched += 1
     if matched == 0:
@@ -157,6 +174,8 @@ def qualify_clinical_link(
         "status": "TEMPORAL_IDENTITY_GATE_ONLY_NOT_POPPK_VALIDATION",
         "drug": target,
         "modality": selected_modality,
+        "required_modalities": list(requested),
+        "max_cross_modality_gap_hours": cross_gap,
         "selection_rule": selection_rule,
         "max_omics_lag_hours": max_lag,
         "n_omics_samples": len(samples),
