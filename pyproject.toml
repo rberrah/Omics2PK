@@ -15,3 +15,6 @@ omics2pk = "omics2pk.cli:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[project.optional-dependencies]
+sweet-inductive = ["numpy==2.3.5"]
