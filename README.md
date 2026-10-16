@@ -44,6 +44,12 @@ The first original **measured patient-level multi-occasion exposure descriptors*
 
 New paired biological/PK source high priority: **Phapale et al. 2010 29 healthy volunteers**, tacrolimus up to 72h **after** 1,256 urine metabolite signals collected **before** treatment; same-person original matrix and exact numeric time profiles await author/Wiley supplement inspection. **He et al. 2022 109 renal recipients** have triple D7/M1/M3 blood metabolomics and trough TDM predose, but per-visit numeric source/ID export is not yet verified; primary PD target is T cell activity, not PK. `He 2022` original supplement URL currently responds with HTML to a generic PMC attachment request, not raw ZIP. Do not overstate these studies' numerical E3/E4 reproducibility. See [public source audit](docs/PUBLIC_PREDOSE_TAC_NCA_AND_MAVO_LONGITUDINAL_RESULTS_20261016.md) and [issue #31](https://github.com/rberrah/Omics2PK/issues/31).
 
+## User-provided complete 2010 tacrolimus pharmacometabolomics supplements (audited October 2026)
+
+The user supplied **all thirteen genuine Phapale et al. 2010 CPT supporting .doc files**, SHA256 of the original ZIP `b180d49fcde75d24b6d1812be001dbfa648c9565d0f5bb7100e1bc7d5c299a77`. All original scientific figure/table/method files were privately reviewed. They reproduce PLS/LC-MS methodological evidence, including quantile normalization, VIP selection, internal 7-fold validation and 20 permutations, and four named candidate metabolites. **However, the 29-person×1,256 predose urine data matrix, individual 0–72 h tacrolimus C(t) numerical profiles, and same-subject omic/PK identifiers are NOT provided**, so Omics→clinical NCA/PopPK performance remains **unverified**. A local SHA-gated source audit script and synthetic-only CI are included; **the copyrighted original ZIP and any clinical observations are never committed**.
+
+See [all 13 original supplements and methods scientific audit](docs/PHAPALE_2010_ALL_13_ORIGINAL_SUPPLEMENTS_AUDIT_20261016.md) and [exact remaining Phapale/He data request #31](https://github.com/rberrah/Omics2PK/issues/31). The second uploaded ZIP was a byte-for-byte duplicate of previously audited Degraeve 2024 methods, not He et al. 2022's longitudinal metabolomics.
+
 ## What is executable today
 
 - Offline inspection of the **MultiOmics DOWNSTREAM_EXCHANGE_V1** directory: checks SHA-256, study-data access declaration, assay/sample/subject and feature-ID matching, finite numeric matrices and recorded processing scale.
