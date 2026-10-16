@@ -39,6 +39,16 @@ Autres problèmes vérifiés :
 
 **Important :** l'outil R de MultiOmics sait déjà analyser une *tendance longitudinale omique* (`condition * time`, modèle mixte via `lmerTest`, BH par famille) avec protocoles et tests dédiés. La lacune observée est l'**interopérabilité temporelle des résultats individuels exportés**, pas nécessairement l'incapacité scientifique de MultiOmics à analyser des séries longitudinales.
 
+## 2bis. Test indépendant du ZIP complet, tel que remis à l'utilisateur
+
+Le code du véritable **packager ZIP JS de MultiOmics** a aussi été exécuté avec les fichiers de démonstration synthétiques ; `provenance/manifest.json` et ses empreintes SHA-256 ont été confrontés aux membres archivés, et `source/projet_reproductible.json` aux `exchange/samples.csv`.
+
+**Résultat : les 49 temps de visite catégoriels T0/T12 demeurent dans les fichiers sources du ZIP**, avec les huit identités biologiques. En revanche, **0/49 sont reportés dans l'export d'échange, et aucun temps chiffré utilisable** n'est ajouté. Le ZIP complet n'est donc PAS irrémédiablement dépourvu de temporalité : cette information est seulement manquante **dans le contrat standardisé V1 utilisé pour l'interopérabilité**. On peut récupérer les libellés du projet original sans inventer une unité ; toute conversion h/j exige le protocole authentique.
+
+Ce test d'intégration examine le **générateur de dossiers original sur une simulation technique** et non un vrai résultat clinique ou un parcours utilisateur Playwright connecté à R. Il ne prouve aucun lien Omics–C(t).
+
+Preuve CI : https://github.com/rberrah/Omics2PK/actions/runs/38954285830.
+
 ## 3. Modifications minimales demandées à l'agent MultiOmics
 
 ### Priorité P0 — conserver la vraie chronologie, sans attribuer d'unités fictives
