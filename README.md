@@ -45,6 +45,8 @@ Never commit the generated SWEET inputs for controlled or clinical subjects: the
 - [Wegler measured CLint source qualification and Yin SWEET source gates](docs/PUBLIC_PK_SOURCE_QUALIFICATION.md)
 - [Thesis-aligned Omics→PK evidence ladder and future site plan](docs/OMICS_TO_PK_THESIS_PROOF_AND_SITE_PLAN.md)
 - [Wegler 2021 PDF/proteome source-schema results and data availability blocker](docs/WEGLER_SOURCE_STRUCTURE_RESULTS_20261016.md)
+- [**First real transcript→drug-metabolizing enzyme activity validation, 100 donor-matched livers (8 CYP outcomes)**](docs/EPA_100_DONOR_TRANSCRIPT_CYP_VALIDATION_20261016.md)
+- [**First real CYP proteomics→microsomal tucatinib clearance validation, 21 donor-held-out folds**](docs/TUCATINIB_21_DONOR_MEASURED_VALIDATION_20261016.md)
 - [Independent original-source audit and actual first validation gates (including mandatory RNA ABSTAIN)](docs/SOURCE_AUDIT_AND_FIRST_VALIDATION_GATES_20261016.md)
 - [Qualified public Omics×PK data catalogue: in-vitro CLint, RNA functional assays, clinical TDM](docs/PUBLIC_OMICS_PK_DATASET_CATALOGUE_20261016.md)
 - [Research roadmap and decision gates](docs/ROADMAP.md)
