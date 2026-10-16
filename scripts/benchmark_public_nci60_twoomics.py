@@ -75,7 +75,7 @@ def load_dataset(folder: Path):
     ids = tuple(r["subject_id"] for r in record)
     classes = tuple(r["cancer_class"] for r in record)
     y = np.array([float(r["y"]) for r in record], dtype=float)
-    if (len(ids) != 47 or len(set(ids)) != 48 or
+    if (len(ids) != 47 or len(set(ids)) != 47 or
             not np.isfinite(y).all() or any(not c for c in classes)):
         raise ValueError("Expected 47 unique, measured, lineage-qualified cell lines")
     rid, rn, rna = read_table(folder / "rna.csv")
