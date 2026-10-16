@@ -41,7 +41,16 @@ class ObservedMavoglurantTests(unittest.TestCase):
             observed_curve(events)
         events=fake()
         events[1]["MDV"]=1
-        with self.assertRaisesRegex(OriginalPKCurveError,"MDV"):
+        with self.assertRaisesRegex(OriginalPKCurveError,"3 real"):
             observed_curve(events)
+
+    def test_mdv_flagged_numeric_row_is_not_automatically_observed_pk(self):
+        events=fake()
+        events[1]["MDV"]=1
+        events.append({"EVID":0,"MDV":0,"TIME":4.0,"DV":1.0})
+        q=observed_curve(events)
+        self.assertEqual(q["n_original_EVID0_MDV1_excluded"],1)
+        self.assertEqual(q["n_original_samples"],3)
+        self.assertEqual(q["first_original_observation_time_h"],1.0)
 
 if __name__=="__main__":unittest.main()
