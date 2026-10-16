@@ -19,7 +19,7 @@ except ModuleNotFoundError as exc:
 class TwoOmicsTests(unittest.TestCase):
     def test_holdout_never_affects_training_normalization_selection_or_pca(self):
         rng = np.random.default_rng(17)
-        data = rng.normal(size=(48, 320))
+        data = rng.normal(size=(47, 320))
         data[:3, 0] = np.nan
         initial = fit_view(data[:36], data[36:], RNA_CAP)
         changed = data[36:].copy()
@@ -45,7 +45,7 @@ class TwoOmicsTests(unittest.TestCase):
     def test_rejects_misaligned_modality_subjects(self):
         with tempfile.TemporaryDirectory() as tmp:
             folder = Path(tmp)
-            ids = [f"LINE{i:02d}" for i in range(48)]
+            ids = [f"LINE{i:02d}" for i in range(47)]
             with (folder / "response.csv").open("w", newline="") as f:
                 w = csv.writer(f)
                 w.writerow(["subject_id", "cancer_class", "y"])
@@ -70,13 +70,13 @@ class TwoOmicsTests(unittest.TestCase):
 
     def test_all_comparators_evaluate_same_48_and_report_only_aggregates(self):
         rng = np.random.default_rng(108)
-        ids = tuple(f"L{i:02d}" for i in range(48))
-        classes = tuple(["CNS"]*24 + ["RENAL"]*24)
-        rna = rng.normal(size=(48, 320))
-        metab = rng.normal(size=(48, 130))
-        y = rng.normal(size=48)
+        ids = tuple(f"L{i:02d}" for i in range(47))
+        classes = tuple(["CNS"]*24 + ["RENAL"]*23)
+        rna = rng.normal(size=(47, 320))
+        metab = rng.normal(size=(47, 130))
+        y = rng.normal(size=47)
         report = evaluate(ids, classes, y, rna, metab, repeats=1)
-        self.assertEqual(report["n_biological_cell_lines"], 48)
+        self.assertEqual(report["n_biological_cell_lines"], 47)
         self.assertEqual(len(report["metrics"]), 16)
         self.assertEqual(report["selected_feature_count_per_outer_fold"]["rna"], [300]*5)
         self.assertNotIn("L00", str(report))
