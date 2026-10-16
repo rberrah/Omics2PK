@@ -7,6 +7,7 @@ on:
       - "tests/test_public_same_subject_evidence_gates.py"
       - "src/omics2pk/same_subject_evidence_gates.py"
       - "scripts/validate_public_tacrolimus_36_c0_baseline.py"
+      - "scripts/audit_public_tacrolimus_2026_sra_metadata.py"
       - "tests/test_public_tacrolimus_36_clinical_baseline.py"
       - ".github/workflows/public-omics-pk-source-matching.yml"
   push:
@@ -47,3 +48,14 @@ jobs:
         run: python -m scripts.audit_public_tacrolimus_paired_omics_2026
       - name: First real original 36 liver transplant C0/D clinical-only held-patient-out baseline
         run: python -m scripts.validate_public_tacrolimus_36_c0_baseline
+
+  original-human-tacrolimus-SRA-metadata:
+    runs-on: ubuntu-latest
+    timeout-minutes: 9
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+      - name: Audit public PRJNA1416570 SRA specimen and run counts but do not claim clinical PK barcode crosswalk
+        run: python -m scripts.audit_public_tacrolimus_2026_sra_metadata
