@@ -25,10 +25,10 @@ This list follows the earlier MultiOmics → SWEET → Pillar A → Pillar B R2 
 
 ## P2 — public measured-data pilots
 - [x] Public pharmacological pilot: mixOmics NCI-60 60 cell lines, 48 ABC transporters and **measured doxorubicin GI50** (chosen before predictions); M1/M1bis/M2 plus expression/PCA/Ridge, negative controls and histology adjustment. **No MAE improvement over mean or tumor type**; report in docs/RESULTS_NCI60_DOXORUBICIN_20261016.md.
-- [x] Public NCI-60 cross-study RNA + metabolite GI50 pilot: 48 syntax-only matches, **47 histology-concordant** lines (MDA-MB-435 excluded). 17,987 RNA/280 metabolites. No incremental metabolomic MAE gain across fixed PCA/Ridge or XGBoost on matched lines. Research-only draft PR #9 and docs/RESULTS_NCI60_TWOOMICS_20261016.md. Not same-sample multiomics or clinical PK.
+- [x] Public NCI-60 cross-study RNA + metabolite GI50 pilot: 48 syntax-only matches, **47 histology-concordant** lines (MDA-MB-435 excluded). 17,987 RNA/280 metabolites. No incremental metabolomic MAE gain across fixed PCA/Ridge or XGBoost on matched lines. Research-only merged PR #9 and docs/RESULTS_NCI60_TWOOMICS_20261016.md. Not same-sample multiomics or clinical PK.
 - [ ] Sensitivity to full-cohort upstream preprocessing, tumor-stratified held-out splits, feature caps and bootstrap uncertainty for the cross-study pilot.
-- [ ] Yin/Battail: reproduce patient-specific network + response analysis. A measured response, **not measured PK**.
-- [ ] Wegler et al.: matched liver donor proteome + measured CLint for five probe drugs; **no SWEET without RNA**.
+- [ ] Yin/Battail: independently reproduce patient-specific network + response analysis (public Zenodo metadata source format audit created). A measured response, **not measured PK**. See docs/PUBLIC_PK_SOURCE_QUALIFICATION.md.
+- [ ] Wegler et al.: qualify verifiable per-donor protein and measured CLint joins from official PMC supplements (source-format inventory implemented) before any fit. 15 original donors, five probe drugs; **no SWEET without RNA**. See docs/PUBLIC_PK_SOURCE_QUALIFICATION.md.
 - [ ] Search additional public paired RNA+PK and RNA+PD cohorts; inventory licensing, IDs and dates.
 - [ ] Ask P&T whether existing **ABIS/ISBA** clinical PK records can be *legally* joined to BIOMARGIN omics for the same recipients, with appropriate timings. Do not claim BIOMARGIN itself supplies PK.
 
