@@ -7,7 +7,10 @@ on:
       - "scripts/benchmark_public_nci60_twoomics.py"
       - "tests/test_nci60_twoomics.py"
       - ".github/workflows/nci60-twoomics-gi50.yml"
+      - "docs/NCI60_TWOOMICS_BENCHMARK.md"
+      - "docs/RESULTS_NCI60_TWOOMICS_20261016.md"
   push:
+    branches: [main]
     paths:
       - "scripts/export_public_nci60_twoomics.R"
       - "scripts/benchmark_public_nci60_twoomics.py"
