@@ -105,6 +105,13 @@ def main() -> None:
                    if p.strip()]
     if len(patient_ids) != len(set(patient_ids)) or not patient_ids:
         raise ReproductionError("Duplicated/empty published patient list")
+    with (example / "expression.txt").open("r", encoding="utf-8") as stream:
+        header = stream.readline().strip().split("\t")
+    if not header or header[0] != "gene" or len(set(header[1:])) != len(header[1:]):
+        raise ReproductionError("Invalid published expression header")
+    cohort_sample_count = len(header) - 1
+    if not set(patient_ids).issubset(set(header[1:])):
+        raise ReproductionError("Target patient(s) missing from expression cohort")
 
     with tempfile.TemporaryDirectory(prefix="omics2pk-official-sweet-") as d:
         temp = Path(d)
@@ -119,8 +126,8 @@ def main() -> None:
         weights = compare_csv(
             weight, example / "weight.txt",
             ["patient", "sample_weight"], "sample_weight")
-        if weights["compared"] != len(patient_ids):
-            raise ReproductionError("Official weights do not cover all samples")
+        if weights["compared"] != cohort_sample_count:
+            raise ReproductionError("Official weights do not cover complete expression reference cohort")
 
         run_script([sys.executable, str(upstream / SCRIPTS[1]),
                     "-f", str(example / "expression.txt"),
@@ -167,7 +174,8 @@ def main() -> None:
     report = {
         "upstream_repository": "https://github.com/SysMednet/SWEET",
         "upstream_commit": UPSTREAM_SHA,
-        "sample_count": len(patient_ids),
+        "reference_cohort_sample_count": cohort_sample_count,
+        "requested_network_count": len(patient_ids),
         "sample_weights": weights,
         "first_patient_edge_scores": edges,
         "first_patient_z_scores": zs,
