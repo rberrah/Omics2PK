@@ -1,6 +1,6 @@
-"""Source reachability audit: only PMC/EPMC original XML, no donor values emitted.
+"""Manually triggered source reachability audit: official EPMC/PMC OAI only.
 
-A remote 403, non-article HTML, missing DOI, or unsupported licence means
+A remote HTTP error, non-article XML, missing DOI, or unsupported licence means
 ABSTAIN. Never substitute figure-derived pseudo-measurements or sample sums.
 """
 from __future__ import annotations
@@ -12,7 +12,6 @@ from xml.etree import ElementTree as ET
 
 SOURCES = {
     "europepmc": "https://www.ebi.ac.uk/europepmc/webservices/rest/PMC12861138/fullTextXML",
-    "pmc": "https://pmc.ncbi.nlm.nih.gov/articles/PMC12861138/?report=xml",
     "pmc_official_oai": (
         "https://pmc.ncbi.nlm.nih.gov/api/oai/v1/mh/?verb=GetRecord"
         "&identifier=oai%3Apubmedcentral.nih.gov%3A12861138&metadataPrefix=pmc"
