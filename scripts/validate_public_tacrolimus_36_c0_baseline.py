@@ -98,8 +98,14 @@ def qualify_clinical_rows(raw):
         mg_kg=_num(r[8],"daily dose mg/kg")
         trough=_num(r[9],"tacrolimus C0")
         cd=_num(r[10],"dose-adjusted concentration")
-        if not (18<=age<=110 and 30<=weight<=180 and 100<=height<=220 and 0.1<=trough<=100):
-            raise TacrolimusClinicalSourceError("Clinically implausible original source value or invalid units")
+        if not 18<=age<=110:
+            raise TacrolimusClinicalSourceError("Source age outside adult clinical inclusion bounds")
+        if not 30<=weight<=180:
+            raise TacrolimusClinicalSourceError("Source weight outside expected adult range")
+        if not 100<=height<=220:
+            raise TacrolimusClinicalSourceError("Source height outside expected adult range")
+        if not 0.1<=trough<=100:
+            raise TacrolimusClinicalSourceError("Source tacrolimus C0 outside expected ng/mL range")
         if abs(dose/weight-mg_kg)>max(0.025*mg_kg,0.01):
             raise TacrolimusClinicalSourceError("Source dose per kg and measured weight inconsistent")
         computed=trough/mg_kg
