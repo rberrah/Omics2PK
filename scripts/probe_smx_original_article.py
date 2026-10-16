@@ -13,6 +13,10 @@ from xml.etree import ElementTree as ET
 SOURCES = {
     "europepmc": "https://www.ebi.ac.uk/europepmc/webservices/rest/PMC12861138/fullTextXML",
     "pmc": "https://pmc.ncbi.nlm.nih.gov/articles/PMC12861138/?report=xml",
+    "pmc_official_oai": (
+        "https://pmc.ncbi.nlm.nih.gov/api/oai/v1/mh/?verb=GetRecord"
+        "&identifier=oai%3Apubmedcentral.nih.gov%3A12861138&metadataPrefix=pmc"
+    ),
 }
 DOI="10.1016/j.dmd.2025.100195"
 MAX_BYTES=3_000_000
@@ -22,14 +26,23 @@ def inspect_xml(data):
     if len(data)>MAX_BYTES or b"<!DOCTYPE" in data[:10000] or b"<!ENTITY" in data[:10000]:
         raise ValueError("Unrecognized/oversize XML article")
     root=ET.fromstring(data)
-    if root.tag!="article":
+    if root.tag.endswith("OAI-PMH"):
+        errors=[n.attrib.get("code","unknown") for n in root.iter()
+                if n.tag.split("}")[-1]=="error"]
+        if errors:
+            raise ValueError("PMC_OAI_FULL_TEXT_PERMISSION_OR_SOURCE_ERROR:"+",".join(errors))
+        articles=[n for n in root.iter() if n.tag.split("}")[-1]=="article"]
+        if len(articles)!=1:
+            raise ValueError("PMC OAI did not provide one licensed full-text article")
+        root=articles[0]
+    if root.tag.split("}")[-1]!="article":
         raise ValueError("Not an NLM JATS article")
     ids={x.attrib.get("pub-id-type"): (x.text or "").strip()
-         for x in root.iter("article-id")}
+         for x in root.iter() if x.tag.split("}")[-1]=="article-id"}
     if ids.get("doi")!=DOI or ids.get("pmc")!="12861138":
         raise ValueError("Unrecognized DOI/PMC article")
     tables=[]
-    for table in root.iter("table-wrap"):
+    for table in root.iter() if table.tag.split("}")[-1]=="table-wrap":
         trows=list(table.iter("tr"))
         text=" ".join(table.itertext()).lower()
         tables.append({"n_data_rows":len(trows)-1,
