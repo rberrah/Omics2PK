@@ -6,6 +6,7 @@ on:
       - "scripts/probe_public_real_pk.py"
       - "scripts/qualify_peng_phh_source.py"
       - "scripts/validate_peng_rna_activity.py"
+      - "scripts/diagnose_peng_expression_values.py"
       - "src/omics2pk/phh_cyp_evidence.py"
       - "tests/test_phh_cyp_evidence.py"
       - "tests/test_qualify_peng_phh_source.py"
@@ -36,6 +37,8 @@ jobs:
         run: python -m unittest discover -s tests -p 'test_qualify_peng_phh_source.py' -v
       - name: Verify actual six-donor GEO plus native PHH functional supplement
         run: python -m scripts.qualify_peng_phh_source
+      - name: Determine original GEO RNA matrix count semantics before normalization
+        run: python -m scripts.diagnose_peng_expression_values
 
   exploratory-measured-cyp:
     runs-on: ubuntu-latest
