@@ -61,14 +61,18 @@ def word_table_counts(blob: bytes) -> dict:
         all_content = " ".join(x for cells in blocks for x in cells)
         # Some tables are images or layout, not numerical assays
         data.append({
+            "table_index_zero_based":len(data),
             "rows":len(rows),
+            "first_row_labels":[x[:90] for x in blocks[0]],
+            "first_column_labels":[x[0][:85] if x else "" for x in blocks],
             "first_three_row_cell_counts":[len(x) for x in blocks[:3]],
             "contains_cyp_marker": bool(re.search(r"CYP(?:2B6|2C9|2C19|2D6|3A4|3A5)",all_content,re.I)),
             "contains_metabolic_terms": bool(re.search(r"(?:clearance|substrate|metabolite|MFR|SCR)",all_content,re.I)),
             "donor_code_tokens": sorted({
                 b for b in EXPECTED_BATCHES if re.search(r"\b(?:PHH[-_ ]?)?"+re.escape(b)+r"\b",all_content,re.I)
             }),
-            "numeric_cell_count":sum(bool(re.fullmatch(r"-?\d+(?:\.\d+)?",cell)) for cells in blocks for cell in cells),
+            "strict_numeric_cell_count":sum(bool(re.fullmatch(r"-?\d+(?:\.\d+)?",cell)) for cells in blocks for cell in cells),
+            "cells_containing_numeric_patterns":sum(bool(re.search(r"(?<![A-Za-z])\d+(?:\.\d+)?",cell)) for cells in blocks for cell in cells),
         })
     return {"table_count":len(data),"tables":data}
 
