@@ -55,12 +55,12 @@ def audit_geo(series):
                 key=s.split("\t",1)[0]
                 headers[key]+=1
                 if key == "!Sample_geo_accession":
-                    sample_count = len(s.split("\\t")) - 1
+                    sample_count = len(s.split("\t")) - 1
                 if key == "!Sample_title":
-                    values=s.split("\\t")[1:]
+                    values=s.split("\t")[1:]
                     n_samples_with_visit_titles=sum(bool(re.search(r"(?i)(day|hour|time|baseline|week)",t)) for t in values)
                 if key.startswith("!Sample_characteristics"):
-                    first=(s.split("\\t",1)[1].split("\\t",1)[0] if "\\t" in s else "")
+                    first=(s.split("\t",1)[1].split("\t",1)[0] if "\t" in s else "")
                     if ":" in first:
                         source_characteristic_names.add(first.split(":",1)[0].strip().lower())
                 # Only Series metadata and SAMPLE COUNT are preserved, never the
