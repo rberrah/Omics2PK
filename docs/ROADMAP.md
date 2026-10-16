@@ -14,10 +14,12 @@ This list follows the earlier MultiOmics → SWEET → Pillar A → Pillar B R2 
 ## P1 — reproducibility and SWEET
 - [x] Pin the upstream SWEET SHA (`cf064eb5f5b996c40bba3cce507384f6c0fdecb5`) in documentation; upstream code is **not** redistributed.
 - [x] Implement strict SWEET edge-output reader and tabular **M1bis feature export** with synthetic tests (not network inference).
-- [ ] Reproduce official example sample weights, all relevant edge scores and optional z-scores numerically.
+- [x] Reproduce official SWEET sample weights (80/80), one full individual raw edge set (4,753/4,753), and global summary. **Archived z-scores differ (4,753/4,753); tracked in issue #4; never claim complete equivalence.**
 - [ ] Audit SWEET handling of zero variance, zeros, missing values, and the -z flag.
-- [ ] Define a **strict out-of-sample procedure**: independent reference for a completely new patient or label the original method transductive.
-- [ ] Compare stability to sample count, preprocessing, batch, tissue and threshold selection.
+- [x] Prototype a clearly labeled **non-equivalent SWEET-inspired** training-frozen reference and query-only network (PR #3).
+- [x] Add subject-disjoint training leave-one-out/cross-fitting and outer train/test feature construction, with negative leakage tests (PR #3).
+- [ ] Validate a genuine out-of-sample extension mathematically and compare against published SWEET; current prototype uses selected genes for sample weighting instead of the genome-wide input.
+- [ ] Compare stability to sample count, preprocessing, batch, tissue and threshold selection. A 60/20 public expression-only smoke test is present in PR #3; no PK endpoints.
 
 ## P2 — public measured-data pilots
 - [ ] Yin/Battail: reproduce patient-specific network + response analysis. A measured response, **not measured PK**.
