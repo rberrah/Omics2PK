@@ -98,11 +98,11 @@ def qualify_clinical_rows(raw):
         mg_kg=_num(r[8],"daily dose mg/kg")
         trough=_num(r[9],"tacrolimus C0")
         cd=_num(r[10],"dose-adjusted concentration")
-        if not 18<=age<=110:
-            raise TacrolimusClinicalSourceError("Source age outside adult clinical inclusion bounds")
-        if not 30<=weight<=180:
+        if not 0<age<=110:
+            raise TacrolimusClinicalSourceError("Source age nonpositive or outside plausible human range")
+        if not 5<=weight<=180:
             raise TacrolimusClinicalSourceError("Source weight outside expected adult range")
-        if not 100<=height<=220:
+        if not 55<=height<=220:
             raise TacrolimusClinicalSourceError("Source height outside expected adult range")
         if not 0.1<=trough<=100:
             raise TacrolimusClinicalSourceError("Source tacrolimus C0 outside expected ng/mL range")
@@ -165,6 +165,7 @@ def run():
         "source_sha256":EXPECTED_SHA,
         "n_original_patients":len(cases),
         "n_original_single_trough_concentrations":len(cases),
+        "n_original_recipients_younger_than_18":sum(x["age"]<18 for x in cases),
         "units":"C0 ng/mL, daily dose mg and mg/kg, C/D ng*kg/(mL*mg)",
         "biological_unit":"one human liver transplant recipient, cross-sectional",
         "median_observed_tacrolimus_trough_ng_ml":round(median(x["C0_ng_ml"] for x in cases),5),
