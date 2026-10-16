@@ -215,4 +215,10 @@ def run_local_csv(path):
     if len(payload) > 300_000:
         raise NATSourceError("Unexpected source size; original table is only 26 donors")
     rows = list(csv.DictReader(payload.decode("utf-8-sig").splitlines()))
-    return {**evaluate(rows), "local_curation_sha256":hashlib.sha256(payload).hexdigest()}
+    # This local import avoids a module-import cycle while requiring independent
+    # article-reported rank correlations for ALL real CSV source analyses.
+    from omics2pk.smx_nat_original_jats import published_source_validation
+    published_checks=published_source_validation(rows)
+    return {**evaluate(rows),
+            "published_source_associations_verified":published_checks,
+            "local_curation_sha256":hashlib.sha256(payload).hexdigest()}
