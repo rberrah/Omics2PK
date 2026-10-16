@@ -42,3 +42,34 @@ Future qualified data harmonization must explicitly distinguish:
 5. Compare transcriptomics-only, metabolomics-only, both, and SWEET
    features with/without evidence priors, *without choosing positive
    outcomes post hoc*.
+
+
+## Actual source audit results (2026-10-16)
+
+Reproducible GitHub Actions evidence:
+https://github.com/rberrah/Omics2PK/actions/runs/38911376280
+
+- MixOmics drug/ABC cell lines: **60**.
+- IntLIM sample metadata: **58**; RNA matrix: **57**; metabolite matrix: **58**.
+- **11** exact four-way string matches.
+- **48** four-way matches using solely punctuation and uppercase
+  normalization with explicit no-collision testing.
+- **12** source drug lines remain unresolved by this syntactic operation:
+  A549, H226, H23, H322M, H460, H522, HL60, MCF7ADRr,
+  MDAMB231, MDAN, RXF393, SKMEL2.
+
+The unmatched IntLIM identifiers include A549/ATCC, HL-60(TB),
+MDA-MB-231/ATCC, NCI-H226, NCI-H23, NCI-H322M, NCI-H460,
+NCI-H522, NCI/ADR-RES and RXF-393. These require a
+**source-verifiable per-cell-line mapping**, not an invented merge.
+Particularly, historically changing cell-line identities and
+reclassifications (e.g. putative breast-derived resistant lines)
+must not be assumed to be synonyms.
+
+**Decision:** 48 syntactic matching line IDs make a guarded exploratory
+joint cohort technically plausible. This does not establish that the
+gene-expression and metabolomic measurements were collected on the
+same biological specimen, at the same time, or in equal culture
+conditions as the GI50 experiment. No predictive model has been
+run on the joined data. A reviewed identity crosswalk and
+provenance/cancer-type stratification remain blocking gates.
