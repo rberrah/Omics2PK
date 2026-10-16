@@ -1,15 +1,19 @@
 """Synthetic-only checks: per-human posterior, exact IV physics and convergence."""
 import math
 import unittest
-import numpy as np
+import importlib.util
 
-from omics2pk.adaptive_iv_nlme import (
-    MarginalLikelihoodError, adaptive_subject_loglik,
-    adaptive_total_loglik, log_concentration_per_record,
-)
-from omics2pk.iv_pk_structural import iv_2c_ng_ml
-from scripts.benchmark_mavoglurant_iv_nlme import _data, _marginal_loglike
-from scripts.benchmark_mavoglurant_iv_adaptive_nlme import fit_adaptive
+PK_NUMERICS_AVAILABLE = bool(importlib.util.find_spec("numpy") and
+                             importlib.util.find_spec("scipy"))
+if PK_NUMERICS_AVAILABLE:
+    import numpy as np
+    from omics2pk.adaptive_iv_nlme import (
+        MarginalLikelihoodError, adaptive_subject_loglik,
+        adaptive_total_loglik, log_concentration_per_record,
+    )
+    from omics2pk.iv_pk_structural import iv_2c_ng_ml
+    from scripts.benchmark_mavoglurant_iv_nlme import _data, _marginal_loglike
+    from scripts.benchmark_mavoglurant_iv_adaptive_nlme import fit_adaptive
 
 
 def profiles(n=5):
@@ -29,6 +33,7 @@ def profiles(n=5):
     return records
 
 
+@unittest.skipUnless(PK_NUMERICS_AVAILABLE, 'Optional pinned PK numerical extras not installed')
 class AdaptiveMarginalTests(unittest.TestCase):
     def test_analytic_iv_2c_matches_zero_eta(self):
         data = _data(profiles())
