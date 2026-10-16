@@ -1,0 +1,28 @@
+name: Original SMX article XML source audit
+on:
+  pull_request:
+    paths:
+      - 'scripts/probe_smx_original_article.py'
+      - 'src/omics2pk/smx_nat_original_jats.py'
+      - 'src/omics2pk/smx_nat_local_validation.py'
+      - 'tests/test_smx_nat_original_jats.py'
+      - 'scripts/validate_smx_nat_original_jats.py'
+      - '.github/workflows/smx-original-source-audit.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source-probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+      - name: Install core package (no online data dependency)
+        run: python -m pip install -e .
+      - name: Synthetic parser and publication-association fail-closed contract
+        run: python -m unittest discover -s tests -p 'test_smx_nat_original_jats.py' -v
+      - name: Audit live source; absence is an explicit ABSTAIN, never a numeric success
+        run: python -m scripts.probe_smx_original_article

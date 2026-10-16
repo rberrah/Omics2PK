@@ -180,6 +180,32 @@ def evaluate(original_rows):
             "model_MAE_matched_cases":round(mean(model_errors),6),
             "delta_MAE_model_minus_baseline":round(mean(model_errors)-mean(base_errors),6),
         }
+    # Distinct assays and genotyping are not observed on the same 26 people.
+    # Comparisons between arms require identical complete-case biological donors.
+    arms=("clinical","nat_probes","nat2_proteins","nat2_genotype")
+    common=[p for p in people if all(_model_data(p,arm) is not None for arm in arms)]
+    if len(common)<10:
+        output["strict_four_arm_shared_donor_comparison"]={
+            "status":"ABSTAIN_INSUFFICIENT_IDENTICAL_COMPLETE_CASE_DONORS",
+            "n_identical_complete_cases":len(common),
+        }
+    else:
+        losses={name:[] for name in ("baseline",*arms)}
+        for index,heldout in enumerate(common):
+            training=[p for i,p in enumerate(common) if i!=index]
+            ys=[p["y"] for p in training]
+            y=heldout["y"]
+            losses["baseline"].append(abs(y-mean(ys)))
+            for arm in arms:
+                prediction=_ridge([_model_data(p,arm) for p in training],ys,
+                                  _model_data(heldout,arm))
+                losses[arm].append(abs(prediction-y))
+        output["strict_four_arm_shared_donor_comparison"]={
+            "status":"IDENTICAL_DONOR_LODO_EXPLORATORY",
+            "n_identical_complete_cases":len(common),
+            "MAE":{name:round(mean(errors),6) for name,errors in losses.items()},
+            "interpretation":"Identical donor subset; no independent population validation",
+        }
     output["original_rows_redistributed"]=False
     return output
 
@@ -189,4 +215,10 @@ def run_local_csv(path):
     if len(payload) > 300_000:
         raise NATSourceError("Unexpected source size; original table is only 26 donors")
     rows = list(csv.DictReader(payload.decode("utf-8-sig").splitlines()))
-    return {**evaluate(rows), "local_curation_sha256":hashlib.sha256(payload).hexdigest()}
+    # This local import avoids a module-import cycle while requiring independent
+    # article-reported rank correlations for ALL real CSV source analyses.
+    from omics2pk.smx_nat_original_jats import published_source_validation
+    published_checks=published_source_validation(rows)
+    return {**evaluate(rows),
+            "published_source_associations_verified":published_checks,
+            "local_curation_sha256":hashlib.sha256(payload).hexdigest()}
