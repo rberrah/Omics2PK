@@ -1,0 +1,41 @@
+name: Original public omics and PK source matching qualification
+on:
+  pull_request:
+    paths:
+      - "scripts/audit_geo_apap_longitudinal_rna.py"
+      - "scripts/audit_public_tacrolimus_paired_omics_2026.py"
+      - "tests/test_public_same_subject_evidence_gates.py"
+      - "src/omics2pk/same_subject_evidence_gates.py"
+      - ".github/workflows/public-omics-pk-source-matching.yml"
+  push:
+    branches: [main]
+    paths:
+      - "scripts/audit_geo_apap_longitudinal_rna.py"
+      - "scripts/audit_public_tacrolimus_paired_omics_2026.py"
+      - "tests/test_public_same_subject_evidence_gates.py"
+      - "src/omics2pk/same_subject_evidence_gates.py"
+      - ".github/workflows/public-omics-pk-source-matching.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  human-rna-timeline:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+      - name: Original NCBI GEO human APAP longitudinal expression sample matrix metadata
+        run: python -m scripts.audit_geo_apap_longitudinal_rna
+  original-human-tacrolimus-omics:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+      - name: Original 2026 CC BY tacrolimus 36 patient PK gut-omics clinical supplement source
+        run: python -m scripts.audit_public_tacrolimus_paired_omics_2026
