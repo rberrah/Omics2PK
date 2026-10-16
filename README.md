@@ -36,7 +36,7 @@ Never commit the generated SWEET inputs for controlled or clinical subjects: the
 - [Native MultiOmics producer integration validation](docs/NATIVE_MULTIOMICS_INTEGRATION.md)
 - [Public measured pharmacology evidence matrix](docs/EVIDENCE_MATRIX.md)
 - [Doxorubicin observed-response negative benchmark results](docs/RESULTS_NCI60_DOXORUBICIN_20261016.md)
-- [NCI-60 cross-study RNA + metabolite GI50 protocol (exploratory, PR #9)](docs/NCI60_TWOOMICS_BENCHMARK.md)
+- [NCI-60 cross-study 47-line RNA + metabolite GI50 protocol (exploratory, PR #9)](docs/NCI60_TWOOMICS_BENCHMARK.md)
 - [Research roadmap and decision gates](docs/ROADMAP.md)
 - [Comparative methods protocol: ML vs PopPK, SWEET and evidence graphs](docs/PROTOCOL.md)
 - [Data security, local-only computation and publication](docs/DEPLOYMENT_AND_PUBLICATION.md)
