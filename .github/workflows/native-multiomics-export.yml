@@ -5,6 +5,10 @@ on:
       - ".github/workflows/native-multiomics-export.yml"
       - "scripts/build_native_multiomics_exchange.mjs"
       - "scripts/verify_native_multiomics_export.py"
+      - "src/omics2pk/multiomics_pk_readiness.py"
+      - "src/omics2pk/nca_targets.py"
+      - "tests/test_multiomics_pk_readiness.py"
+      - "scripts/audit_multiomics_pk_readiness.py"
   pull_request:
     paths:
       - ".github/workflows/native-multiomics-export.yml"
@@ -22,7 +26,7 @@ jobs:
       - uses: actions/checkout@v5
         with:
           repository: rberrah/MultiOmics
-          ref: 5a71db3bce5990b96cc487c329e36b7cc055cda9
+          ref: 33f6853c4d852ac67f5c7dafa51e7213d2dc3bd6
           path: upstream/multiomics
           persist-credentials: false
       - uses: actions/setup-node@v5
@@ -34,7 +38,9 @@ jobs:
       - run: python -m pip install -e .
       - name: Generate native exchange with actual MultiOmics browser producer
         run: node scripts/build_native_multiomics_exchange.mjs ./tmp_generated_exchange
-      - name: Validate with Omics2PK and assert RAW counts are refused by SWEET
+      - name: Contract tests for genuine measured NCA and temporal omics anti-leakage
+        run: python -m unittest discover -s tests -p 'test_multiomics_pk_readiness.py' -v
+      - name: Validate actual MultiOmics V1 producer and assert raw counts and missing time are blocked
         run: python scripts/verify_native_multiomics_export.py ./tmp_generated_exchange
       - name: Do not retain assay-level synthetic demo matrices as CI artifacts
         run: rm -rf ./tmp_generated_exchange
