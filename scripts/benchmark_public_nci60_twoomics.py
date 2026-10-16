@@ -204,6 +204,25 @@ def evaluate(ids, classes, y, rna, met, repeats=3):
             "paired_delta_mae_vs_tumor_only": round(float(diff.mean()), 6),
             "descriptive_cell_line_bootstrap_95pct_delta": [round(float(lo), 6), round(float(hi), 6)]
         }
+    # Direct paired incremental-metabolomics contrasts on the same biological lines.
+    # Positive values mean that adding metabolites WORSENS MAE.
+    comparisons = {
+        "pca_ridge_joint_minus_rna": ("rna_metab_pca3", "rna_pca3"),
+        "tumor_pca_ridge_joint_minus_rna": ("tumor_rna_metab_pca3", "tumor_rna_pca3"),
+        "xgboost_joint_minus_rna": ("rna_metab_xgboost", "rna_xgboost"),
+        "tumor_xgboost_joint_minus_rna": ("tumor_rna_metab_xgboost", "tumor_rna_xgboost"),
+    }
+    incremental = {}
+    for label, (joint, rna_only) in comparisons.items():
+        joint_error = np.abs(preds[joint] - y[None, :]).mean(axis=0)
+        rna_error = np.abs(preds[rna_only] - y[None, :]).mean(axis=0)
+        per_line = joint_error - rna_error
+        low, high = np.quantile(per_line[draws].mean(axis=1), [0.025, 0.975])
+        incremental[label] = {
+            "paired_mae_difference": round(float(per_line.mean()), 6),
+            "descriptive_cell_line_bootstrap_95pct": [
+                round(float(low), 6), round(float(high), 6)]
+        }
     # Outputs contain no row-level assay measurements, labels, or observed responses.
     return {
         "analysis": "exploratory cross-study cell-line identity-linked data; NOT contemporaneous paired omics",
@@ -230,6 +249,7 @@ def evaluate(ids, classes, y, rna, met, repeats=3):
             "Technical replicates collapsed upstream; IntLIM metabolite preprocessing is upstream",
             "Nonlinear and full-omics results are exploratory, not a mechanism or clinical claim",
         ],
+        "incremental_metabolomics_contrasts": incremental,
         "metrics": stats
     }
 
@@ -245,7 +265,8 @@ def main():
     args.out.write_text(json.dumps(result, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     print(json.dumps({"analysis":result["analysis"],"n":47,"repeats":args.repeats,
                       "models":{k: {"mae":v["mae"],"delta_vs_tumor":v["paired_delta_mae_vs_tumor_only"]}
-                                for k,v in result["metrics"].items()}}, indent=2))
+                                for k,v in result["metrics"].items()},
+                      "incremental_metabolomics": result["incremental_metabolomics_contrasts"]}, indent=2))
 
 
 if __name__ == "__main__":
