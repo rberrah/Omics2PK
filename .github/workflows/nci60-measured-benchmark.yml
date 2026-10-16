@@ -40,10 +40,14 @@ jobs:
         run: Rscript scripts/export_public_multidrug.R upstream/mixomics ./temp_public_source
       - name: Run fixed-model, outer-held-out comparison
         run: python scripts/benchmark_public_multidrug.py --data temp_public_source --out public_measured_gi50_benchmark.json
+      - name: Exploratory histology and repeated-fold sensitivity (not independent replicates)
+        run: python scripts/benchmark_public_multidrug.py --data temp_public_source --out public_measured_gi50_sensitivity_3repeats.json --repeats 3
       - name: Only aggregate metrics are retained
         run: rm -rf temp_public_source
       - uses: actions/upload-artifact@v6
         with:
           name: nci60-observed-doxorubicin-comparator-metrics-only
-          path: public_measured_gi50_benchmark.json
+          path: |
+            public_measured_gi50_benchmark.json
+            public_measured_gi50_sensitivity_3repeats.json
           retention-days: 14
