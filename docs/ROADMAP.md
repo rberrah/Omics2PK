@@ -7,9 +7,10 @@ This list follows the earlier MultiOmics → SWEET → Pillar A → Pillar B R2 
 - [x] Validate native MultiOmics DOWNSTREAM_EXCHANGE_V1 locally (SHA, patient IDs, features, missingness and omic coverage).
 - [x] Prepare original SWEET input format from normalized RNA only; never infer networks without running a qualified method.
 - [x] Add synthetic-only unit tests and offline CI.
-- [ ] Run the actual public **MultiOmics** ZIP/exchange production output through this CLI (no copied production patient data).
+- [x] Run the **actual MultiOmics JavaScript export producer** using its three bundled synthetic demo omics and validate the generated exchange with Omics2PK. PR #5; 8 longitudinal subjects, 49 assays, one technical RNA repeat; not yet a browser ZIP end-to-end test.
+- [ ] Run an actual user-downloaded portable browser ZIP end to end (separate from the validated native JavaScript producer); avoid uploading any user or clinical data.
 - [x] Propose explicit PolyForm NC / CC BY-NC-SA licensing on the draft PR, with attribution and scope/exceptions.
-- [ ] Confirm institutional/coauthor rights before merging or redistributing any third-party code.
+- [ ] Confirm institutional/coauthor rights before redistributing any third-party code. Upstream SWEET sources are not vendored.
 
 ## P1 — reproducibility and SWEET
 - [x] Pin the upstream SWEET SHA (`cf064eb5f5b996c40bba3cce507384f6c0fdecb5`) in documentation; upstream code is **not** redistributed.
@@ -17,9 +18,10 @@ This list follows the earlier MultiOmics → SWEET → Pillar A → Pillar B R2 
 - [x] Reproduce official SWEET sample weights (80/80), one full individual raw edge set (4,753/4,753), and global summary. **Archived z-scores differ (4,753/4,753); tracked in issue #4; never claim complete equivalence.**
 - [ ] Audit SWEET handling of zero variance, zeros, missing values, and the -z flag.
 - [x] Prototype a clearly labeled **non-equivalent SWEET-inspired** training-frozen reference and query-only network (PR #3).
-- [x] Add subject-disjoint training leave-one-out/cross-fitting and outer train/test feature construction, with negative leakage tests (PR #3).
+- [x] Add subject-disjoint training leave-one-out/cross-fitting and outer train/test feature construction, with negative leakage tests (PR #3, merged).
+- [x] Separate genome-wide sample weights (100 official example genes) from a targeted edge panel (25 fixed-order genes), and compare against the official transductive equation. Public diagnostic: 60 train/20 held-out, one clipped weight, ~27.1% relative Frobenius difference for one test network. No outcomes or clinical validation.
 - [ ] Validate a genuine out-of-sample extension mathematically and compare against published SWEET; current prototype uses selected genes for sample weighting instead of the genome-wide input.
-- [ ] Compare stability to sample count, preprocessing, batch, tissue and threshold selection. A 60/20 public expression-only smoke test is present in PR #3; no PK endpoints.
+- [ ] Compare stability to sample count, preprocessing, batch, tissue and threshold selection. Initial 60/20 public expression-only diagnostic is in merged PR #3, but no PK endpoints, no cross-fold preprocessing calibration, and no biological claims.
 
 ## P2 — public measured-data pilots
 - [ ] Yin/Battail: reproduce patient-specific network + response analysis. A measured response, **not measured PK**.
