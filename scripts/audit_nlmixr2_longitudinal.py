@@ -23,7 +23,7 @@ COMMIT="f2cfb01ade88d4d30e66f56b19efce2a2c6e26bd"
 SOURCES={
     "theo_sd": ("data/theo_sd.rda",144),
     "theo_md": ("data/theo_md.rda",348),
-    "warfarin": ("data/warfarin.rda",519),
+    "warfarin": ("data/warfarin.rda",515),
     "mavoglurant": ("data/mavoglurant.rda",2678),
 }
 
@@ -56,6 +56,10 @@ def source_report():
                 extra["original_source_truly_repeated_dose_simulated_after_day1"]=True
                 extra["cannot_count_simulated_events_as_human_clinical_repeats"]=True
             if name=="warfarin":
+                extra["published_package_reference_says_rows"]=519
+                extra["frozen_original_rda_actual_rows"]=515
+                extra["discrepancy_to_resolve_before_benchmark"]=True
+                extra["cannot_claim_519_actual_pk_pd_records"]=True
                 dvid=next((x for x in columns if x.lower()=="dvid"),None)
                 extra["DV_contains_both_PK_concentration_and_PCA_PD"]=bool(dvid)
                 extra["dvid_category_count"]=len(df[dvid].dropna().unique()) if dvid else None
