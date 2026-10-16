@@ -31,9 +31,13 @@ def fixture():
 
 
 def qc(parts=None, modality="RNA"):
+    opts = {}
+    if modality == "MULTIOMICS":
+        opts = {"required_modalities": ("RNA", "PROTEIN", "METABOLITE"),
+                "max_cross_modality_gap_hours": 3}
     return qualify_clinical_link(*(parts or fixture()),
                                  drug="tacrolimus", max_omics_lag_hours=48,
-                                 selected_modality=modality)
+                                 selected_modality=modality, **opts)
 
 
 class TemporalPKLinkTests(unittest.TestCase):
@@ -77,6 +81,29 @@ class TemporalPKLinkTests(unittest.TestCase):
                                      collected_at=date, modality=modality))
         result = qc(parts, "MULTIOMICS")
         self.assertEqual(result["n_matched_assay_links"], 6)
+
+    def test_two_modality_cross_omics_is_valid_and_gap_is_enforced(self):
+        parts = list(fixture())
+        for subj, date in (("SYNTH-01", "2026-01-01T11:00:00+01:00"),
+                           ("SYNTH-02", "2026-01-02T08:00:00+01:00")):
+            parts[0].append(dict(sample_id=subj+"-PROT", subject_id=subj,
+                                 modality="PROTEIN", collected_at=date))
+        report = qualify_clinical_link(*parts, drug="tacrolimus",
+            max_omics_lag_hours=48, selected_modality="MULTIOMICS",
+            required_modalities=("RNA", "PROTEIN"),
+            max_cross_modality_gap_hours=2)
+        self.assertEqual(report["required_modalities"], ["RNA", "PROTEIN"])
+        self.assertEqual(report["n_matched_assay_links"], 4)
+        with self.assertRaisesRegex(PKLinkError, "too far apart"):
+            qualify_clinical_link(*parts, drug="tacrolimus",
+                max_omics_lag_hours=48, selected_modality="MULTIOMICS",
+                required_modalities=("RNA", "PROTEIN"),
+                max_cross_modality_gap_hours=0.5)
+
+    def test_requires_predeclared_modalities_not_implicit_all_three(self):
+        with self.assertRaisesRegex(PKLinkError, "explicit protocol"):
+            qualify_clinical_link(*fixture(), drug="tacrolimus",
+                max_omics_lag_hours=48, selected_modality="MULTIOMICS")
 
     def test_too_old_molecular_profile_does_not_link(self):
         with self.assertRaisesRegex(PKLinkError, "No pre-dose"):
