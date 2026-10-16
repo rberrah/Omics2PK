@@ -5,6 +5,8 @@ on:
       - "src/omics2pk/inductive_sweet.py"
       - "tests/test_inductive_sweet.py"
       - "pyproject.toml"
+      - "scripts/pilot_inductive_public.py"
+      - "tests/test_crossfit.py"
       - ".github/workflows/inductive-sweet.yml"
   push:
     paths:
@@ -25,3 +27,17 @@ jobs:
           python-version: "3.11"
       - run: python -m pip install -e '.[sweet-inductive]'
       - run: python -m unittest discover -s tests -p test_inductive_sweet.py -v
+      - run: python -m unittest discover -s tests -p test_crossfit.py -v
+      - uses: actions/checkout@v5
+        with:
+          repository: SysMednet/SWEET
+          ref: cf064eb5f5b996c40bba3cce507384f6c0fdecb5
+          path: upstream/sweet
+          persist-credentials: false
+      - name: Public expression-only inductive diagnostic
+        run: python scripts/pilot_inductive_public.py --upstream upstream/sweet --report public_inductive_diagnostic.json
+      - uses: actions/upload-artifact@v6
+        with:
+          name: public-inductive-diagnostic
+          path: public_inductive_diagnostic.json
+          retention-days: 14
