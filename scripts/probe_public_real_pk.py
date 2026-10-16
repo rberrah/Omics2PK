@@ -37,6 +37,8 @@ def main():
                     info["bot_challenge"]=b"captcha" in raw.lower()
                 if name.endswith("aws") and raw.lstrip().startswith(b"{"):
                     d=json.loads(raw);info["media_count"]=len(d.get("media_urls",[]))
+                    info["metadata_keys"]=sorted(d.keys())
+                    info["media_basenames"]=[u.split("/")[-1] for u in d.get("media_urls",[])]
                     info["supplement_docx_count"]=sum(u.endswith(".docx") for u in d.get("media_urls",[]))
                     info["license"]=str(d.get("license",""))[:120]
                 result[name]=info
