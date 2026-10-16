@@ -1,4 +1,4 @@
-"""Synthetic integrity tests for 48-line cross-study, real-endpoint benchmark."""
+"""Synthetic integrity tests for 47-line cross-study, real-endpoint benchmark."""
 import csv
 import tempfile
 import unittest
