@@ -100,9 +100,21 @@ def _archive_provenance():
 
 
 def run():
-    source=ena_index()
+    try:
+        source=ena_index()
+        status="PUBLIC_93_HUMAN_TAC_16S_SEQUENCE_INDEX_NO_MATCHED_CLINICAL_PK_RECORDS_YET"
+    except (HTTPError,URLError,TimeoutError,OSError) as exc:
+        # An ENA 500 is transient unavailability, NOT missing experimental
+        # data and NOT a successful current verification. Stay fail-closed.
+        source={
+            "original_source_verified":False,
+            "status":"SOURCE_ENDPOINT_TEMPORARILY_UNAVAILABLE",
+            "failure_type":type(exc).__name__,
+            "n_original_distinct_sequence_samples":None,
+        }
+        status="ABSTAIN_TRANSIENT_ORIGINAL_ENA_SOURCE_UNAVAILABLE"
     return {
-        "status":"PUBLIC_93_HUMAN_TAC_16S_SEQUENCE_INDEX_NO_MATCHED_CLINICAL_PK_RECORDS_YET",
+        "status":status,
         "original_article_doi":DOI,
         "original_bioproject":PROJECT,
         "original_clinical_trial":"NCT04360031",
