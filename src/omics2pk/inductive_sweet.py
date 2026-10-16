@@ -84,7 +84,7 @@ def fit_frozen_reference(
         raise InductiveNetworkError("Full weight expression and gene IDs must be supplied together")
     wx = x.copy() if weight_expression is None else _matrix(weight_expression)
     wgenes = genes if weight_genes is None else tuple(weight_genes)
-    if (wx.shape != (len(wgenes), n if (n := len(subjects)) else 0)
+    if (wx.shape != (len(wgenes), len(subjects))
             or not wgenes or len(set(wgenes)) != len(wgenes)
             or not set(genes).issubset(set(wgenes))
             or any(not isinstance(g, str) or not g.strip() for g in wgenes)):
@@ -105,7 +105,7 @@ def fit_frozen_reference(
     digest.update("\n".join(subjects).encode())
     digest.update(tissue.encode())
     digest.update(x.tobytes(order="C"))
-    digest.update("\\n".join(wgenes).encode())
+    digest.update("\n".join(wgenes).encode())
     digest.update(wx.tobytes(order="C"))
     digest.update(str(float(k)).encode())
     x.setflags(write=False)
