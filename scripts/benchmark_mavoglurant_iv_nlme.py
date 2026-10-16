@@ -203,7 +203,7 @@ def run_original():
             "population_RMSLE": evaluation["2C_NLME_IIV_CL"]["heldout_root_mean_person_mse_log"],
             "joint_NLL_per_person": evaluation["2C_NLME_IIV_CL"]["joint_negative_log_likelihood_per_person"],
         }
-        for nodes in (7, 15)
+        for nodes in (7, 15, 21, 31)
         for evaluation in [heldout_iiv_cl_comparison(profiles, gh_nodes=nodes)]
     }
     if (report["n_biological_humans"], report["n_qualified_occasions"],
