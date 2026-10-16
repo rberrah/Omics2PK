@@ -1,0 +1,29 @@
+name: Public true predose omics to PK original source triage
+on:
+  pull_request:
+    paths:
+      - "scripts/audit_public_predose_metabolomics_tac_pk_sources.py"
+      - "tests/test_public_predose_metabolomics_tac_pk_sources.py"
+      - ".github/workflows/public-predose-omics-pk-sources.yml"
+  push:
+    branches: [main]
+    paths:
+      - "scripts/audit_public_predose_metabolomics_tac_pk_sources.py"
+      - "tests/test_public_predose_metabolomics_tac_pk_sources.py"
+      - ".github/workflows/public-predose-omics-pk-sources.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  predose-metabolomic-PK-source-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+      - name: Tests of source-only scientific matrix structural visibility
+        run: python -m unittest discover -s tests -p 'test_public_predose_metabolomics_tac_pk_sources.py' -v
+      - name: Fetch original public MDPI metabolomics archives and audit linked PK patient matrix without exporting source rows
+        run: python -m scripts.audit_public_predose_metabolomics_tac_pk_sources
