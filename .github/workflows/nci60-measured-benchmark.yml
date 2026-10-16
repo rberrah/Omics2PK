@@ -1,0 +1,53 @@
+name: Measured GI50 benchmark — NCI-60 doxorubicin (public, exploratory)
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "scripts/export_public_multidrug.R"
+      - "scripts/benchmark_public_multidrug.py"
+      - "tests/test_public_measured_benchmark.py"
+      - ".github/workflows/nci60-measured-benchmark.yml"
+  pull_request:
+    paths:
+      - "scripts/export_public_multidrug.R"
+      - "scripts/benchmark_public_multidrug.py"
+      - "tests/test_public_measured_benchmark.py"
+      - ".github/workflows/nci60-measured-benchmark.yml"
+permissions:
+  contents: read
+jobs:
+  measured-pilot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/checkout@v5
+        with:
+          repository: mixOmics-org/mixOmics
+          ref: 9f9fd66b69105fdb618b54588b638b567e85c0d6
+          path: upstream/mixomics
+          persist-credentials: false
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          r-version: "release"
+          use-public-rspm: true
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+      - run: python -m pip install -e '.[benchmark]'
+      - run: python -m unittest discover -s tests -p test_public_measured_benchmark.py -v
+      - name: Export prespecified doxorubicin observed-response pairs
+        run: Rscript scripts/export_public_multidrug.R upstream/mixomics ./temp_public_source
+      - name: Run fixed-model, outer-held-out comparison
+        run: python scripts/benchmark_public_multidrug.py --data temp_public_source --out public_measured_gi50_benchmark.json
+      - name: Exploratory histology and repeated-fold sensitivity (not independent replicates)
+        run: python scripts/benchmark_public_multidrug.py --data temp_public_source --out public_measured_gi50_sensitivity_3repeats.json --repeats 3
+      - name: Only aggregate metrics are retained
+        run: rm -rf temp_public_source
+      - uses: actions/upload-artifact@v6
+        with:
+          name: nci60-observed-doxorubicin-comparator-metrics-only
+          path: |
+            public_measured_gi50_benchmark.json
+            public_measured_gi50_sensitivity_3repeats.json
+          retention-days: 14
