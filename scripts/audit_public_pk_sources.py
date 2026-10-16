@@ -24,6 +24,11 @@ WEGLER_PMID = "33739838"
 WEGLER_PMCID = "PMC8041379"
 YIN_ZENODO_RECORD = 15723817
 MAX_BYTES = 9_000_000
+EXPECTED_PMC_SUPPLEMENTS = {
+    "wegler_si_methods_pdf": ("mp1c00053_si_001.pdf", "pdf"),
+    "wegler_s1_proteomics": ("mp1c00053_si_002.xlsx", "xlsx"),
+    "wegler_s2_bioinformatics": ("mp1c00053_si_003.xlsx", "xlsx"),
+}
 # Restrict all requests to explicit source URLs, not user supplied redirects.
 SOURCES = {
     "wegler_si_methods_pdf": (
@@ -46,7 +51,18 @@ SOURCES = {
 
 def bounded_http(url: str, limit: int = MAX_BYTES) -> bytes:
     """Bounded and explicit public download; an upstream error is reported, not hidden."""
-    if url not in {value[0] for value in SOURCES.values()}:
+    parsed = urlparse(url)
+    approved_static = url in {value[0] for value in SOURCES.values()}
+    approved_s3 = (
+        parsed.scheme == "https"
+        and parsed.hostname == "pmc-oa-opendata.s3.amazonaws.com"
+        and parsed.path.startswith("/PMC8041379.1/")
+        and parsed.path.rsplit("/", 1)[-1] in {
+            filename for filename, _ in EXPECTED_PMC_SUPPLEMENTS.values()
+        }
+        and not parsed.fragment
+    )
+    if not (approved_static or approved_s3):
         raise ValueError("Unapproved public data URL")
     request = urllib.request.Request(url, headers={
         "User-Agent": "Omics2PK-research-source-inventory/0.1 (+https://github.com/rberrah/Omics2PK)",
@@ -88,8 +104,17 @@ def workbook_structure(data: bytes) -> dict:
 
 def zenodo_metadata(data: bytes) -> dict:
     obj = json.loads(data.decode("utf-8"))
-    if not isinstance(obj, dict) or int(obj.get("id", -1)) != YIN_ZENODO_RECORD:
-        raise ValueError("Zenodo record mismatch: actual ID %s, DOI %s, concept DOI %s" % (obj.get("id"), obj.get("doi"), obj.get("conceptdoi")) if isinstance(obj, dict) else "Zenodo malformed record")
+    if not isinstance(obj, dict):
+        raise ValueError("Zenodo malformed record")
+    real_id = int(obj.get("id", -1))
+    concept_doi = str(obj.get("conceptdoi") or "")
+    # This cited DOI is a concept DOI: an API GET can resolve to a concrete
+    # version. Keep the exact version ID + DOI in the metadata report.
+    if real_id != YIN_ZENODO_RECORD and concept_doi != (
+        "10.5281/zenodo.%s" % YIN_ZENODO_RECORD
+    ):
+        raise ValueError("Zenodo record mismatch: actual ID %s, DOI %s, concept DOI %s"
+                         % (real_id, obj.get("doi"), concept_doi))
     metadata = obj.get("metadata", {})
     if not isinstance(metadata, dict):
         raise ValueError("Missing record metadata")
@@ -103,7 +128,9 @@ def zenodo_metadata(data: bytes) -> dict:
     names = [str(f.get("key", f.get("filename", ""))) for f in raw_files if isinstance(f, dict)]
     names = [x for x in names if x]
     return {
-        "record_id": YIN_ZENODO_RECORD,
+        "record_id": real_id,
+        "cited_concept_record": YIN_ZENODO_RECORD,
+        "concept_doi": concept_doi or None,
         "doi": obj.get("doi") or metadata.get("doi"),
         "title": str(metadata.get("title", ""))[:180],
         "n_public_file_entries": len(raw_files),
@@ -165,6 +192,7 @@ def validate_payload(kind: str, data: bytes) -> dict:
 
 def audit(fetch=bounded_http) -> dict:
     results = {}
+    cloud_payload = None
     for name, (url, fmt) in SOURCES.items():
         try:
             data = fetch(url)
@@ -181,6 +209,44 @@ def audit(fetch=bounded_http) -> dict:
         else:
             results[name] = {"state": "FORMAT_VERIFIED", "source_url": url,
                              "metadata_only": metadata}
+            if name == "wegler_cloud_metadata":
+                cloud_payload = data
+    # The historical /bin/ paths now return 404 for this article. Only use
+    # supplement object links *actually listed* in the validated 2026 NLM
+    # metadata; never guess an S3 object path or donor-level file content.
+    if cloud_payload is not None:
+        source_obj = json.loads(cloud_payload.decode("utf-8"))
+        listed = source_obj.get("media_urls") or []
+        if isinstance(listed, dict):
+            listed = list(listed.values())
+        candidate_urls = []
+        for entry in listed:
+            candidate = entry if isinstance(entry, str) else (
+                (entry.get("url") or entry.get("href")) if isinstance(entry, dict) else None
+            )
+            if isinstance(candidate, str):
+                candidate_urls.append(candidate)
+        for name, (filename, fmt) in EXPECTED_PMC_SUPPLEMENTS.items():
+            matches = [u for u in candidate_urls if urlparse(u).path.endswith("/" + filename)]
+            if len(matches) != 1:
+                continue
+            url = matches[0]
+            try:
+                payload = fetch(url)
+                info = validate_payload(fmt, payload)
+            except (ValueError, OSError, urllib.error.URLError, TimeoutError,
+                    ET.ParseError, zipfile.BadZipFile) as exc:
+                results[name]["cloud_fallback"] = {
+                    "state": "UNAVAILABLE_OR_INVALID", "error_type": type(exc).__name__,
+                    "detail": str(exc)[:120]
+                }
+            else:
+                results[name] = {
+                    "state": "FORMAT_VERIFIED",
+                    "source_url": url,
+                    "source_distribution": "verified PMC 2026 AWS metadata media_urls",
+                    "metadata_only": info,
+                }
     accessible = sum(item["state"] == "FORMAT_VERIFIED" for item in results.values())
     return {
         "project": "Omics2PK",
