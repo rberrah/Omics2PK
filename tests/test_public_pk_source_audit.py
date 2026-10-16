@@ -44,7 +44,7 @@ class PrimarySourceGateTests(unittest.TestCase):
         self.assertEqual(out["record_id"], 15723817)
         self.assertEqual(out["n_public_file_entries"], 2)
         valid["id"] = 1111111
-        with self.assertRaisesRegex(ValueError, "not the cited"):
+        with self.assertRaisesRegex(ValueError, "Zenodo record mismatch"):
             zenodo_metadata(json.dumps(valid).encode())
 
     def test_blocking_conditions_preserved_even_when_all_sources_exist(self):
