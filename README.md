@@ -12,6 +12,7 @@ Omics2PK connects the reproducible outputs of [MultiOmics](https://github.com/rb
 - Experimental training-frozen **SWEET-inspired** network proposal (distinct from upstream SWEET), with subject-level LOO/cross-fitted and held-out features, optionally separating genome-wide sample weights from targeted edge genes. Public 80-sample expression-only diagnostic, but no PK endpoint or validated causal interpretation.
 - CI that executes the **real native MultiOmics exporter** on its bundled three-omic synthetic demo: 8 longitudinal subjects, 49 assays, raw RNA strictly blocked from SWEET.
 - Research-only **real observed pharmacological benchmark** using 60 NCI-60 cell lines and predeclared doxorubicin GI50, with raw/PCA/network and fixed XGBoost (M1/M1bis/M2), negative shuffled-network control and tumor-type-adjusted baselines. **No observed primary MAE improvement; tumor-type-only is strongest.** Not clinical PK or verified biological mechanism.
+- Additional cross-study observed GI50 study: **47 tumor-lineage-concordant NCI-60 cell lines**, 17,987 RNA features and 280 metabolites, with fixed RNA-only, metabolite-only, joint and tumor-adjusted Ridge/XGBoost comparisons. **No measured benefit of adding metabolomics to RNA in primary MAE**; one reclassified cell line explicitly excluded. These assays are NOT same-time or same-specimen multiomics.
 - Unit tests using synthetic data; no private patient files or cloud PK inference in GitHub Actions.
 
 **Not implemented yet:** a *scientifically validated* inductive SWEET method (the implemented experimental method is explicitly *SWEET-inspired*), drug-specific mechanistic patient scores, Pillar-A overlays, XGBoost/PopPK fits, and clinical validation. The pinned upstream regression check reproduces raw example networks but flags an official z-score archive mismatch (issue #4). Treat the outputs as input preparation only.
@@ -36,6 +37,8 @@ Never commit the generated SWEET inputs for controlled or clinical subjects: the
 - [Native MultiOmics producer integration validation](docs/NATIVE_MULTIOMICS_INTEGRATION.md)
 - [Public measured pharmacology evidence matrix](docs/EVIDENCE_MATRIX.md)
 - [Doxorubicin observed-response negative benchmark results](docs/RESULTS_NCI60_DOXORUBICIN_20261016.md)
+- [NCI-60 cross-study 47-line RNA + metabolite GI50 protocol (exploratory, PR #9)](docs/NCI60_TWOOMICS_BENCHMARK.md)
+- [Observed cross-study NCI-60 two-omics negative benchmark results (47 cell lines)](docs/RESULTS_NCI60_TWOOMICS_20261016.md)
 - [Research roadmap and decision gates](docs/ROADMAP.md)
 - [Comparative methods protocol: ML vs PopPK, SWEET and evidence graphs](docs/PROTOCOL.md)
 - [Data security, local-only computation and publication](docs/DEPLOYMENT_AND_PUBLICATION.md)
