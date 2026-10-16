@@ -120,5 +120,55 @@ class CrossfitTests(unittest.TestCase):
                     self.split(folds=folds)
 
 
+    def test_full_weight_gene_universe_is_separate_and_query_is_subject_specific(self):
+        rng = np.random.default_rng(20261017)
+        all_genes = self.genes + tuple(f"EXTRA_{j}" for j in range(24))
+        all_expr = np.vstack([self.x, rng.normal(size=(24, len(self.ids)))])
+        r = build_outer_split_features(
+            self.x, genes=self.genes, subject_ids=self.ids,
+            train_ids=self.train, test_ids=self.test, tissue="liver",
+            weight_expression=all_expr, weight_genes=all_genes)
+        self.assertEqual(r["n_weight_genes"], 40)
+        self.assertEqual(len(r["training"]), 13)
+        self.assertEqual(len(r["test"]), 5)
+        self.assertTrue(all(rec["reference_n"] == 12 for rec in r["training"]))
+        self.assertTrue(all(rec["reference_n"] == 13 for rec in r["test"]))
+        # A perturbation in another held-out subject's full-gene profile cannot
+        # alter any training feature or another held-out prediction.
+        changed = all_expr.copy()
+        changed[19:, -1] += np.linspace(-2.0, 3.0, 21)
+        r2 = build_outer_split_features(
+            self.x, genes=self.genes, subject_ids=self.ids,
+            train_ids=self.train, test_ids=self.test, tissue="liver",
+            weight_expression=changed, weight_genes=all_genes)
+        self.assertEqual(r["training"], r2["training"])
+        self.assertEqual(r["test"][:-1], r2["test"][:-1])
+        self.assertEqual(r["outer_reference_fingerprint"], r2["outer_reference_fingerprint"])
+
+    def test_full_gene_alignment_and_missing_query_are_rejected(self):
+        rng = np.random.default_rng(123)
+        wgenes = self.genes + ("EXTRA",)
+        wx = np.vstack([self.x[:, :13], rng.normal(size=(1, 13))])
+        ref = fit_frozen_reference(
+            self.x[:, :13], genes=self.genes, subject_ids=self.train,
+            tissue="liver", weight_expression=wx, weight_genes=wgenes)
+        with self.assertRaisesRegex(InductiveNetworkError, "full aligned"):
+            predict_network(ref, self.x[:, 13], subject_id=self.test[0],
+                            genes=self.genes, tissue="liver")
+        with self.assertRaisesRegex(InductiveNetworkError, "full aligned"):
+            predict_network(ref, self.x[:, 13], subject_id=self.test[0],
+                            genes=self.genes, tissue="liver",
+                            weight_query=np.r_[self.x[:, 13], 0.7],
+                            weight_genes=tuple(reversed(wgenes)))
+        with self.assertRaisesRegex(InductiveNetworkError, "must be supplied together"):
+            fit_frozen_reference(
+                self.x[:, :13], genes=self.genes, subject_ids=self.train,
+                tissue="liver", weight_expression=wx)
+        with self.assertRaisesRegex(InductiveNetworkError, "include edge genes"):
+            fit_frozen_reference(
+                self.x[:, :13], genes=self.genes, subject_ids=self.train,
+                tissue="liver", weight_expression=wx,
+                weight_genes=self.genes[:-1] + ("EXTRA", "OTHER"))
+
 if __name__ == "__main__":
     unittest.main()
