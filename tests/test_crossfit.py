@@ -170,5 +170,37 @@ class CrossfitTests(unittest.TestCase):
                 tissue="liver", weight_expression=wx,
                 weight_genes=self.genes[:-1] + ("EXTRA", "OTHER"))
 
+    def test_weighted_network_equation_matches_independent_numpy_oracle(self):
+        rng = np.random.default_rng(881)
+        full_genes = self.genes + tuple(f"OTHER_{i}" for i in range(36))
+        weight_values = np.vstack([self.x, rng.normal(size=(36, len(self.ids)))])
+        ref = fit_frozen_reference(
+            self.x[:, :13], genes=self.genes, subject_ids=self.train,
+            tissue="liver", weight_expression=weight_values[:, :13],
+            weight_genes=full_genes)
+        predicted, info = predict_network(
+            ref, self.x[:, 13], subject_id=self.test[0],
+            genes=self.genes, tissue="liver",
+            weight_query=weight_values[:, 13], weight_genes=full_genes)
+        # Independent translation of the documented frozen-reference formula.
+        base = np.corrcoef(self.x[:, :13])
+        contrasted = np.corrcoef(
+            np.column_stack([self.x[:, :13], self.x[:, 13]]))
+        corr = np.corrcoef(weight_values[:, :13].T)
+        ref_means = (corr.sum(axis=1) - 1) / 12
+        augmented_w = np.corrcoef(
+            np.column_stack([weight_values[:, :13], weight_values[:, 13]]).T)
+        query_similarity = augmented_w[-1, :-1].mean()
+        clipped_position = np.clip(
+            (query_similarity - ref_means.min() + 0.01) /
+            (ref_means.max() - ref_means.min() + 0.01), 0, 1)
+        manual_weight = 0.1 * 13 * clipped_position
+        expected = base + manual_weight * (contrasted - base)
+        expected = (expected + expected.T) * 0.5
+        np.fill_diagonal(expected, 0.0)
+        np.testing.assert_allclose(predicted, expected, atol=1e-12, rtol=1e-12)
+        self.assertAlmostEqual(info["weight"], float(manual_weight), places=12)
+        self.assertTrue(info["uses_full_weight_expression"])
+
 if __name__ == "__main__":
     unittest.main()
