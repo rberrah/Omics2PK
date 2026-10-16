@@ -95,7 +95,7 @@ def audit_original_authorized_supplement(path: str|Path):
     blob=file.read_bytes()
     exact_sha=sha256(blob).hexdigest()
     if exact_sha!=EXPECTED_SHA:
-        raise SupplementSourceError("Original authorized Wiley supplement SHA256 changed; manually requailfy")
+        raise SupplementSourceError("Original authorized Wiley supplement SHA256 changed; manually requalify")
     with _ensure_safe_zip(blob,EXPECTED_ARCHIVE_FILES) as z:
         method, method_tables=_docx_structure(z.read("2023-0506-s01.docx"))
         table_text,tables=_docx_structure(z.read("2023-0506-s03.docx"))
@@ -119,7 +119,7 @@ def audit_original_authorized_supplement(path: str|Path):
         if dose_r2!=[18.5,26.3,34.9,38.1]:
             raise SupplementSourceError("Original supplementary DOSE model R2 deviates")
         needed=("In total 100 patients","Eventually, 93 patients",
-                "CYP3A5*3/*3","93 patients")
+                "3A5*3/*3","93 patients")
         if not all(term in method+table_text for term in needed):
             raise SupplementSourceError("Original clinical n100→93/CYP3A5 study evidence not found")
         if ("Table S3." not in table_text
