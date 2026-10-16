@@ -9,9 +9,11 @@ Omics2PK connects the reproducible outputs of [MultiOmics](https://github.com/rb
 - Offline inspection of the **MultiOmics DOWNSTREAM_EXCHANGE_V1** directory: checks SHA-256, study-data access declaration, assay/sample/subject and feature-ID matching, finite numeric matrices and recorded processing scale.
 - Conversion of suitable **normalized transcriptomic** matrices into the input files expected by the original SWEET implementation: expression.txt, patient.txt, gene.txt. The converter rejects unaddressed missing data, repeated subjects, incompatible namespaces and mixed tissues.
 - Strict quality control of **already-computed SWEET** edge lists and extraction of descriptive network features for the proposed M1bis arm (network-wide edge statistics, per-gene signed/absolute strength). No mechanistic or CYP activity interpretation.
-- Unit tests using entirely synthetic fixture files. No remote uploads or patient files in GitHub Actions.
+- Experimental training-frozen **SWEET-inspired** network proposal (distinct from upstream SWEET), with subject-level LOO/cross-fitted and held-out features, optionally separating genome-wide sample weights from targeted edge genes. Public 80-sample expression-only diagnostic, but no PK endpoint or validated causal interpretation.
+- CI that executes the **real native MultiOmics exporter** on its bundled three-omic synthetic demo: 8 longitudinal subjects, 49 assays, raw RNA strictly blocked from SWEET.
+- Unit tests using synthetic data; no private patient files or cloud PK inference in GitHub Actions.
 
-**Not implemented yet:** a validated inductive SWEET method (the separate PR #3 is explicitly *SWEET-inspired*), drug-specific mechanistic patient scores, Pillar-A overlays, XGBoost/PopPK fits, and clinical validation. The pinned upstream regression check reproduces raw example networks but flags an official z-score archive mismatch (issue #4). Treat the outputs as input preparation only.
+**Not implemented yet:** a *scientifically validated* inductive SWEET method (the implemented experimental method is explicitly *SWEET-inspired*), drug-specific mechanistic patient scores, Pillar-A overlays, XGBoost/PopPK fits, and clinical validation. The pinned upstream regression check reproduces raw example networks but flags an official z-score archive mismatch (issue #4). Treat the outputs as input preparation only.
 
 ## Run locally
 
@@ -30,6 +32,7 @@ Never commit the generated SWEET inputs for controlled or clinical subjects: the
 
 - [SWEET network outputs and scientific caveats](docs/SWEET_OUTPUTS.md)
 - [Experimental frozen-reference networks and leakage controls](docs/INDUCTIVE_SWEET_RESEARCH.md)
+- [Native MultiOmics producer integration validation](docs/NATIVE_MULTIOMICS_INTEGRATION.md)
 - [Research roadmap and decision gates](docs/ROADMAP.md)
 - [Comparative methods protocol: ML vs PopPK, SWEET and evidence graphs](docs/PROTOCOL.md)
 - [Data security, local-only computation and publication](docs/DEPLOYMENT_AND_PUBLICATION.md)
