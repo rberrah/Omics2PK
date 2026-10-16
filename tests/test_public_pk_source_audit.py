@@ -4,7 +4,7 @@ import json
 import unittest
 import zipfile
 from scripts.audit_public_pk_sources import (
-    SOURCES, audit, validate_payload, workbook_structure, zenodo_metadata
+    SOURCES, audit, validate_payload, workbook_structure, zenodo_metadata, official_pmc_media_https
 )
 
 
@@ -75,6 +75,16 @@ class PrimarySourceGateTests(unittest.TestCase):
         self.assertIn("mp1c00053_si_002.xlsx", report["sources"]["wegler_cloud_metadata"]["metadata_only"]["listed_target_supplements"])
         self.assertGreaterEqual(len(report["blocking_conditions"]), 4)
         self.assertNotIn("measured_clint", json.dumps(report))
+
+    def test_pmc_official_s3_uri_translation_rejects_other_objects(self):
+        good = official_pmc_media_https(
+            "s3://pmc-oa-opendata/PMC8041379.1/mp1c00053_si_002.xlsx?md5=abc"
+        )
+        self.assertEqual(good, "https://pmc-oa-opendata.s3.amazonaws.com/PMC8041379.1/mp1c00053_si_002.xlsx?md5=abc")
+        with self.assertRaisesRegex(ValueError, "Unapproved"):
+            official_pmc_media_https(
+                "s3://pmc-oa-opendata/PMC99999.1/mp1c00053_si_002.xlsx"
+            )
 
     def test_pmc_2026_official_media_fallback_after_legacy_404(self):
         fixed = ("https://pmc-oa-opendata.s3.amazonaws.com/PMC8041379.1/")
