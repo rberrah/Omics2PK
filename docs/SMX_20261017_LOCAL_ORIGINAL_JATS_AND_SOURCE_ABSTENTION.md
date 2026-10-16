@@ -30,7 +30,7 @@ Le service PMC Author Manuscript Dataset donne accès sous conditions au XML des
 2. Si une **copie de Table 1 est consultée et reportée localement dans un CSV**, sans redistribuer la reproduction intégrale du tableau :
     `python -m scripts.validate_local_smx_nat /private/lanphier_table1.csv`
 
-   Contrat de colonnes : `donor_id,row_kind,source_doi,na_smx_pmol_min_million_cells,na_paba_pmol_min_million_cells,na_smz_pmol_min_million_cells,nat2_peptide_eflnshllpk_pmol_mg,nat2_peptide_dntdlvefk_pmol_mg,nat2_genotype_phenotype,age_years,sex,bmi`. Pour ce second chemin CSV, **la vérification indépendante des quatre corrélations publiées reste à ajouter à l'entrée CLI**. Aucune mesure originale n'est stockée dans GitHub.
+   Contrat de colonnes : `donor_id,row_kind,source_doi,na_smx_pmol_min_million_cells,na_paba_pmol_min_million_cells,na_smz_pmol_min_million_cells,nat2_peptide_eflnshllpk_pmol_mg,nat2_peptide_dntdlvefk_pmol_mg,nat2_genotype_phenotype,age_years,sex,bmi`. Le chemin CSV exige maintenant **les mêmes quatre corrélations publiées** que le chemin XML ; une simple table 26 lignes synthétiques ne peut donc pas être interprétée comme un résultat original. Aucune mesure originale n'est stockée dans GitHub.
 
 Ces commandes ne sont pas encore des résultats publiés. Ne pas indiquer que des données ont été chargées si seuls des jeux synthétiques ont été testés.
 
