@@ -194,7 +194,18 @@ def run_original():
         path = Path(directory) / "mavoglurant.rda"
         path.write_bytes(payload)
         rows = pyreadr.read_r(str(path))["mavoglurant"].to_dict("records")
-    report = heldout_iiv_cl_comparison(qualified_original_profiles(rows))
+    profiles = qualified_original_profiles(rows)
+    report = heldout_iiv_cl_comparison(profiles)
+    # Quadrature convergence diagnostic: additional population heldout scores,
+    # not additional fitted omic/patient inference and no cherry-picking.
+    report["quadrature_sensitivity"] = {
+        str(nodes): {
+            "population_RMSLE": evaluation["2C_NLME_IIV_CL"]["heldout_root_mean_person_mse_log"],
+            "joint_NLL_per_person": evaluation["2C_NLME_IIV_CL"]["joint_negative_log_likelihood_per_person"],
+        }
+        for nodes in (7, 15)
+        for evaluation in [heldout_iiv_cl_comparison(profiles, gh_nodes=nodes)]
+    }
     if (report["n_biological_humans"], report["n_qualified_occasions"],
         report["n_measured_original_concentrations"]) != (120, 196, 2403):
         raise ValueError("Original subject/occasion/DV count mismatch; abstain")
