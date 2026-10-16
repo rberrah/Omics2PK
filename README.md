@@ -11,7 +11,7 @@ Omics2PK connects the reproducible outputs of [MultiOmics](https://github.com/rb
 - Strict quality control of **already-computed SWEET** edge lists and extraction of descriptive network features for the proposed M1bis arm (network-wide edge statistics, per-gene signed/absolute strength). No mechanistic or CYP activity interpretation.
 - Unit tests using entirely synthetic fixture files. No remote uploads or patient files in GitHub Actions.
 
-**Not implemented yet:** SWEET network inference or exact published-output replication, drug-specific mechanistic patient scores, Pillar-A overlays, XGBoost/PopPK fits, and clinical validation. Treat the outputs as input preparation only.
+**Not implemented yet:** a validated inductive SWEET method (the separate PR #3 is explicitly *SWEET-inspired*), drug-specific mechanistic patient scores, Pillar-A overlays, XGBoost/PopPK fits, and clinical validation. The pinned upstream regression check reproduces raw example networks but flags an official z-score archive mismatch (issue #4). Treat the outputs as input preparation only.
 
 ## Run locally
 
@@ -29,6 +29,7 @@ Never commit the generated SWEET inputs for controlled or clinical subjects: the
 ## Protocol and milestones
 
 - [SWEET network outputs and scientific caveats](docs/SWEET_OUTPUTS.md)
+- [Experimental frozen-reference networks and leakage controls](docs/INDUCTIVE_SWEET_RESEARCH.md)
 - [Research roadmap and decision gates](docs/ROADMAP.md)
 - [Comparative methods protocol: ML vs PopPK, SWEET and evidence graphs](docs/PROTOCOL.md)
 - [Data security, local-only computation and publication](docs/DEPLOYMENT_AND_PUBLICATION.md)
