@@ -14,6 +14,17 @@ Source officielle nlmixr2data::mavoglurant figée, RDA SHA256 : ba1d75e20bcc09f2
 
 Cinq plis déterministes **disjoints par personne**, incluant toutes ses occasions. Deux modèles estimés sur le train exclusivement : (a) modèle fixe 2C antérieur, (b) NLME 2C avec effet aléatoire individuel CL. Pour chaque personne tenue à l'écart, la prédiction NLME est **populationnelle a priori**, moyenne géométrique de C(t) intégrée sur la distribution théorique des ETA : **pas d'EBE, pas de mise à jour sur ses concentrations observées**. La métrique principale est la RMSLE à poids égal par personne. La log-vraisemblance prédictive **jointe par personne** est disponible pour le seul NLME, sans comparer cette densité à une densité résiduelle inexistante dans le modèle fixe.
 
+## Résultat humain original, score tenu à l'écart des 120 personnes
+
+Le [workflow source SHA-vérifié #38971073439](https://github.com/rberrah/Omics2PK/actions/runs/38971073439) a terminé avec succès : quatre tests synthétiques et un benchmark réel 120 humains / 196 occasions / 2 403 concentrations.
+
+| Métrique CV cinq plis, poids égal par personne | 2C fixe | 2C NLME IIV(CL) |
+|---|---:|---:|
+| RMSLE log-concentrations populationnelles | **0,383383** | **0,384246** |
+| Biais signé moyen log | −0,000180 | −0,010975 |
+
+**Différence NLME − fixe = +0,000863 RMSLE**. Il n'y a donc **pas de gain de prédiction populationnelle ponctuelle démontré** avec la seule IIV(CL) marginalisée. La log-vraisemblance prédictive jointe du NLME est 5,17405 par humain avec signe négatif, **non directement comparable** au comparateur fixe sans modèle d'erreur probabiliste défini. Ni la comparaison 1C→2C, ni l'ajout de IIV ne valident une signature omique. Le contrôle de stabilité 7/9/15 nœuds est ajouté au workflow avant qualification finale.
+
 ## Ce qui reste à valider
 
 Il ne faut **pas présumer** une RMSLE meilleure que le 2C fixe : un modèle de variabilité peut aider la vraisemblance/calibration sans améliorer la prédiction populationnelle ponctuelle. Les contrôles nécessaires incluent la stabilité 7/9/15 nœuds, estimations des erreurs/ETA, IOV, shrinkage, VPC, NPDE, BLQ, robustesse aux résidus et un **modèle SAEM/FOCEi indépendant** de référence. Le modèle actuel ne fournit pas d'incertitude paramétrique et ne convient pas directement à l'administration orale du tacrolimus.
