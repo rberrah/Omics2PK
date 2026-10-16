@@ -36,6 +36,10 @@ Eight prespecified matched transcript / microsomal enzyme assay pairs are: CYP1A
 
 Code: src/omics2pk/epa_liver_cyp_validation.py and scripts/validate_epa_liver_rna_cyp.py, with original data SHA and strict dual-donor provenance. Source RNA and activity matrices are read ephemerally from official original EPA URL. Public CI runs the **actual 100-liver data** and prints only aggregate QC and model results; synthetic tests separately check subject matching, missingness, demographics and train-only validation.
 
+## Independent numerical replication on the SAME measured donor data
+
+The original-source scientific pipeline was **independently reproduced using scikit-learn 1.7.2 StandardScaler + Ridge(alpha=1)**, a separately implemented numerical estimator and normalization pipeline, under GitHub Actions run https://github.com/rberrah/Omics2PK/actions/runs/38930709329. All **eight CYP endpoints** reproduced the reference-age+sex and age+sex+RNA LO(D)O MAE values to the six published decimals; eight maximum absolute discrepancies **0.000000** on printed results. Actual source-original SHA-256 and donor crosswalk rechecked independently; no original donor values committed or printed. This is **independent estimator parity on the SAME cohort**, NOT biological external replication or an independent population.
+
 ## Limits and decision
 - **E2 preclinical functional metabolism evidence:** original individual RNA does explain some additional variability in measured CYP activity beyond age/sex for this dataset.
 - **NOT a proof of clinical PK:** no actual administered dose, patient concentration, systemic CL, AUC or PopPK model.
