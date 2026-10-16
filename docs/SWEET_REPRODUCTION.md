@@ -4,13 +4,25 @@ The first gate runs the original upstream scripts *unmodified*, at commit
 \`cf064eb5f5b996c40bba3cce507384f6c0fdecb5\`, on upstream's own publicly
 available example. It compares **all published sample weights**, **all edges in
 the first published individual network**, its **z-score file**, and the global
-mean/std. It verifies the outputs for the source snapshot, not reproducibility
+mean/std. The archived z-score file is tested separately because initial real
+execution found it inconsistent with the archived raw edges and global
+mean/std: for example, the first pair 30–10449 has raw edge
+`0.024955752506403597` and archived z-score `-0.08907350579171248`,
+whereas the script's global mean `0.021918999549565974` and std
+`0.1922225916111927` imply a z-score of approximately `0.0157981`.
+The test reports the actual number and magnitude of mismatches rather than
+silently widening numerical tolerances. It verifies the computed z-score against
+the official formula. This test does not establish full archived-example
+reproducibility unless **all** archived comparisons pass.
+It verifies the outputs for the source snapshot, not reproducibility
 of an independent biological discovery. Tolerance is absolute/relative 1e-8.
 
 Run on an authorized **local** machine with Python 3.11, NumPy 2.3.5 and the
 separately cloned pinned upstream repository:
 
     python scripts/verify_sweet_upstream.py --upstream /path/to/SWEET --report report.json
+    # Optional strict gate: returns an error while the published z-score archive differs
+    python scripts/verify_sweet_upstream.py --upstream /path/to/SWEET --strict-archived-zscores
 
 The GitHub Actions job executes the same **public-only software regression**
 as a small automated check. It downloads no controlled data, exports no
