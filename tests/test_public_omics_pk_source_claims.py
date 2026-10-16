@@ -2,6 +2,7 @@
 import io
 import unittest
 from unittest.mock import patch
+from urllib.error import HTTPError
 
 from scripts import audit_degraeve_93_kidney_tac_public_sources as source
 
@@ -32,6 +33,15 @@ class PublicOmicsPKSourceTests(unittest.TestCase):
         with patch.object(source,"urlopen",return_value=MockResponse(fake_index(92))):
             with self.assertRaisesRegex(ValueError,"Unexpected original 93-person"):
                 source.ena_index()
+
+    def test_transient_ENA_500_abstains_instead_of_fabricating_source(self):
+        with patch.object(source,"ena_index",side_effect=HTTPError("https://www.ebi.ac.uk",500,"server busy",{},None)):
+            with patch.object(source,"_archive_provenance",return_value=[]):
+                report=source.run()
+        self.assertEqual(report["status"],"ABSTAIN_TRANSIENT_ORIGINAL_ENA_SOURCE_UNAVAILABLE")
+        self.assertFalse(report["original_sample_source_audit"]["original_source_verified"])
+        self.assertIsNone(report["original_sample_source_audit"]["n_original_distinct_sequence_samples"])
+        self.assertFalse(report["original_source_subject_to_sequence_ID_join_verified"])
 
     def test_AUC_estimate_cannot_masquerade_as_observed_NCA(self):
         self.assertEqual(source.EXPECTED_HUMAN_SUBJECTS,93)
