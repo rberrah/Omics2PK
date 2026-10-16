@@ -24,6 +24,7 @@ This list follows the earlier MultiOmics → SWEET → Pillar A → Pillar B R2 
 - [ ] Compare stability to sample count, preprocessing, batch, tissue and threshold selection. Initial 60/20 public expression-only diagnostic is in merged PR #3, but no PK endpoints, no cross-fold preprocessing calibration, and no biological claims.
 
 ## P2 — public measured-data pilots
+- [x] Public pharmacological pilot: mixOmics NCI-60 60 cell lines, 48 ABC transporters and **measured doxorubicin GI50** (chosen before predictions); M1/M1bis/M2 plus expression/PCA/Ridge, negative controls and histology adjustment. **No MAE improvement over mean or tumor type**; report in docs/RESULTS_NCI60_DOXORUBICIN_20261016.md.
 - [ ] Yin/Battail: reproduce patient-specific network + response analysis. A measured response, **not measured PK**.
 - [ ] Wegler et al.: matched liver donor proteome + measured CLint for five probe drugs; **no SWEET without RNA**.
 - [ ] Search additional public paired RNA+PK and RNA+PD cohorts; inventory licensing, IDs and dates.
@@ -31,7 +32,9 @@ This list follows the earlier MultiOmics → SWEET → Pillar A → Pillar B R2 
 
 ## P3 — feature representations and comparisons
 - [ ] Clinical + PGx original PopPK reference and direct expression/PCA/GSVA/MOFA2 comparators.
-- [ ] XGBoost full omics (M1), SWEET-only network features (M1bis), omics + SWEET (M2); matched subjects.
+- [x] Pilot M1 (raw ABC expression), M1bis (experimental network), M2 (raw+network) using real NCI-60 doxorubicin GI50, 5-fold held-out and 3×5 repeated sensitivity. **All worse MAE than a tumor-class-only baseline**; not clinical or multimodal.
+- [ ] Upgrade to stratified/residualized confounder controls and nested hyperparameter checks; no post-hoc positive claims.
+- [ ] XGBoost full **multiomics** (M1), SWEET-only (M1bis), omics + SWEET (M2) on genuinely paired patients with verified modalities and full R/clinical outcome; not yet possible from 48 ABC qPCR variables alone.
 - [ ] Low-dimensional SWEET scores without Pillar A vs drug/tissue knowledge-guided scores with Pillar A (M3).
 - [ ] Graph kernels/low-dimensional graph embeddings with and without Pillar A (M4 exploratory).
 - [ ] Negative controls: nonmatched subject/network, shuffled graph edges, off-drug mechanisms, null outcomes.
