@@ -42,7 +42,7 @@ def inspect_xml(data):
     if ids.get("doi")!=DOI or ids.get("pmc")!="12861138":
         raise ValueError("Unrecognized DOI/PMC article")
     tables=[]
-    for table in root.iter() if table.tag.split("}")[-1]=="table-wrap":
+    for table in (node for node in root.iter() if node.tag.split("}")[-1]=="table-wrap"):
         trows=list(table.iter("tr"))
         text=" ".join(table.itertext()).lower()
         tables.append({"n_data_rows":len(trows)-1,
