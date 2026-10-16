@@ -21,7 +21,7 @@ from sklearn.linear_model import Ridge
 from sklearn.metrics import mean_absolute_error, mean_squared_error
 from sklearn.model_selection import KFold
 from sklearn.pipeline import make_pipeline
-from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import StandardScaler, OneHotEncoder
 from xgboost import XGBRegressor
 
 from omics2pk.inductive_sweet import (
@@ -67,7 +67,8 @@ def load_public(source_dir: Path):
         raise ValueError("Non-finite original observed outcomes or expressions")
     if len(set(r["cancer_class"] for r in samples)) < 2:
         raise ValueError("Cancer-class metadata unexpectedly degenerate")
-    return ids, genes, x, y
+    classes = tuple(r["cancer_class"] for r in samples)
+    return ids, genes, x, y, classes
 
 
 def model_predict(x_train, y_train, x_test, kind: str):
@@ -109,15 +110,20 @@ def network_split(x, ids, genes, train, test):
     return observed_train[:, select], observed_test[:, select], ntr, nte, split
 
 
-def evaluate(x, y, ids, genes, repeats=1):
+def evaluate(x, y, ids, genes, repeats=1, classes=None):
     """Fixed, pre-registered grouped-by-cell-line outer CV. No PK data."""
     if x.shape != (60, 48) or len(y)!=60 or len(ids)!=60:
         raise ValueError("Require published 60-by-48 NCI-60 dataset")
     if repeats < 1 or repeats > 5:
         raise ValueError("Allowed repeat count 1..5")
+    if classes is not None and len(classes) != len(ids):
+        raise ValueError("Cancer-class length must match biological subjects")
     model_names = ("mean", "raw_ridge", "pca_ridge", "network_ridge",
                    "raw_plus_network_ridge", "negative_shuffled_network",
                    "M1_raw_xgboost", "M1bis_network_xgboost", "M2_combined_xgboost")
+    if classes is not None:
+        model_names += ("tumor_class_ridge", "tumor_class_raw_ridge",
+                        "tumor_class_network_ridge", "tumor_class_raw_network_ridge")
     predictions = {name: [] for name in model_names}
     observed = []
     clipping = []
@@ -152,6 +158,22 @@ def evaluate(x, y, ids, genes, repeats=1):
                 "M1bis_network_xgboost": model_predict(net_train, ytr, net_test, "xgb"),
                 "M2_combined_xgboost": model_predict(raw_plus, ytr, test_plus, "xgb"),
             }
+            if classes is not None:
+                labels = np.array(classes, dtype=str)
+                encoder = OneHotEncoder(handle_unknown="ignore", sparse_output=False)
+                cancer_train = encoder.fit_transform(labels[train, None])
+                cancer_test = encoder.transform(labels[test, None])
+                pred["tumor_class_ridge"] = model_predict(
+                    cancer_train, ytr, cancer_test, "ridge")
+                pred["tumor_class_raw_ridge"] = model_predict(
+                    np.hstack([cancer_train, raw_train]), ytr,
+                    np.hstack([cancer_test, raw_test]), "ridge")
+                pred["tumor_class_network_ridge"] = model_predict(
+                    np.hstack([cancer_train, net_train]), ytr,
+                    np.hstack([cancer_test, net_test]), "ridge")
+                pred["tumor_class_raw_network_ridge"] = model_predict(
+                    np.hstack([cancer_train, raw_train, net_train]), ytr,
+                    np.hstack([cancer_test, raw_test, net_test]), "ridge")
             observed.extend(yte.tolist())
             for name in model_names:
                 if len(pred[name])!=len(yte) or not np.isfinite(pred[name]).all():
@@ -176,6 +198,8 @@ def evaluate(x, y, ids, genes, repeats=1):
         "drug_pre_registered": COMPOUND,
         "endpoint": "original processed drug GI50 activity (not PK exposure)",
         "biological_unit": "independent cancer cell lines",
+        "tumor_class_adjusted_secondary_analysis": classes is not None,
+        "repeats_are_correlated_within_cell_line": repeats > 1,
         "n_cell_lines": 60, "n_transporter_genes": 48,
         "outer_splits": 5, "repeats": repeats, "seed": SEED,
         "outer_prediction_count": len(actual),
@@ -201,8 +225,8 @@ def main():
     p.add_argument("--out", type=Path, required=True)
     p.add_argument("--repeats", type=int, default=1)
     args = p.parse_args()
-    ids, genes, x, y = load_public(args.data)
-    results = evaluate(x, y, ids, genes, repeats=args.repeats)
+    ids, genes, x, y, classes = load_public(args.data)
+    results = evaluate(x, y, ids, genes, repeats=args.repeats, classes=classes)
     args.out.parent.mkdir(parents=True, exist_ok=True)
     args.out.write_text(json.dumps(results, indent=2, sort_keys=True) + "\n")
     # Explicitly do not print or upload any individual expression or response.
