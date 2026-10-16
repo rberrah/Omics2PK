@@ -8,7 +8,7 @@ unless t=0 original observed; no intravenous CL/dose derived without AUCinf.
 """
 from __future__ import annotations
 
-from collections import defaultdict
+from collections import defaultdict,Counter
 from hashlib import sha256
 import json
 from math import isfinite
@@ -109,27 +109,48 @@ def summarize(rows):
         if int(_float(r["EVID"],"EVID"))==0:n_obs+=1
     if len(subjects)!=EXPECTED_N_PEOPLE or len(grouped)!=EXPECTED_N_OCCASIONS or n_obs!=EXPECTED_N_OBS:
         raise OriginalPKCurveError("Original unique patients, occasions or measured concentrations have changed")
+    original_people_by_occ=defaultdict(set)
+    for person,occasion in grouped:
+        original_people_by_occ[person].add(occasion)
+    original_repeated=sum(len(z)==2 for z in original_people_by_occ.values())
+    if original_repeated!=78 or any(len(z) not in (1,2) for z in original_people_by_occ.values()):
+        raise OriginalPKCurveError("Original 78 paired subjects and 42 single-occasion subjects source changed")
     reports={}
+    rejected=Counter()
+    ACCEPTABLE_SOURCE_EXCLUSION={
+        "Replicate time within occasion needs assay-specific protocol, cannot blindly average",
+        "Need exactly one actual IV dose and 3 real concentration samples per occasion",
+    }
     for key,values in grouped.items():
-        reports[key]=observed_curve(values)
+        try:
+            reports[key]=observed_curve(values)
+        except OriginalPKCurveError as e:
+            if str(e) not in ACCEPTABLE_SOURCE_EXCLUSION:
+                raise
+            rejected[str(e)]+=1
+    if not reports:
+        raise OriginalPKCurveError("No actual individual PK curves eligible for NCA")
     people_with_occ=defaultdict(list)
     for (person,occasion),r in reports.items():
         people_with_occ[person].append(r)
-    repeated=sum(len(z)==2 for z in people_with_occ.values())
-    if repeated!=78 or any(len(z) not in (1,2) for z in people_with_occ.values()):
-        raise OriginalPKCurveError("Original 78 paired donors, 42 single-occasion source changed")
+    repeated_qualified=sum(len(z)==2 for z in people_with_occ.values())
     return {
         "status":"REAL_120_PERSON_198_SINGLE_INFUSION_OCCASION_OBSERVED_NCA_NOT_POPPK",
         "n_original_human_subjects":len(subjects),
-        "n_original_independent_subject_occasion_groups":len(reports),
+        "n_original_independent_subject_occasion_groups":len(grouped),
+        "n_original_occasion_groups_qualified_for_descriptive_NCA":len(reports),
+        "n_original_occasion_groups_abstained_due_to_QC":sum(rejected.values()),
+        "abstention_reasons_original_source_QC":dict(rejected),
         "n_original_EVID0_candidate_PK_records":n_obs,
         "n_original_MDV0_positive_PK_concentrations_used":sum(r["n_original_samples"] for r in reports.values()),
         "n_original_MDV1_excluded":sum(r["n_original_EVID0_MDV1_excluded"] for r in reports.values()),
         "n_original_MDV0_nonpositive_excluded":sum(r["n_original_EVID0_nonpositive_DV_excluded"] for r in reports.values()),
-        "n_original_subjects_with_two_occasion_profiles":repeated,
-        "n_original_subjects_with_one_occasion_profile":sum(len(z)==1 for z in people_with_occ.values()),
+        "n_original_subjects_with_two_original_occasion_profiles":original_repeated,
+        "n_original_subjects_with_one_original_occasion_profile":len(original_people_by_occ)-original_repeated,
+        "n_original_subjects_with_two_NCA_qualified_occasion_profiles":repeated_qualified,
         "n_original_occ_curves_with_measured_time_zero_sample":sum(r["first_original_observation_time_h"]==0 for r in reports.values()),
         "n_original_profiles_with_three_or_more_eligible_observations":len(reports),
+        "duplicate_clock_time_occasion_not_silently_averaged":True,
         "source_MDVs_and_nonpositive_DVs_do_not_count_as_true_quantified_concentrations":True,
         "median_original_samples_per_occasion":median(r["n_original_samples"] for r in reports.values()),
         "median_observed_Cmax_ng_ml":round(median(r["Cmax_observed_original_DV"] for r in reports.values()),6),
