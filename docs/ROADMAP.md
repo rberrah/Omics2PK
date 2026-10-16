@@ -34,6 +34,19 @@ This list follows the earlier MultiOmics → SWEET → Pillar A → Pillar B R2 
 - [ ] Compare clinical+PGx reference → prespecified direct RNA scores → qualified SWEET RNA → parallel protein/metabolite → optional integrated latent scores, on identical held-out patients; external validation + Pillar C adjudication.
 - [ ] **After proof only**: design public learning/tool at rberrah.github.io with FR/EN, dark/light, Resources, Other Disciplines, persistent provenance and no user clinical-data upload.
 
+## 2026-10-16 public evidence inventory
+- [x] Verify accessible article/dataset identity for a **21-donor tucatinib CLint + targeted CYP proteomics table** (original public Table 1, PXD057282). This now precedes Wegler as the first direct numerical CLint validation candidate.
+- [x] Identify **GSE289636 (six donor PHH scRNA with paper-supplement CYP substrate clearance)** as a separate *RNA→measured functional activity* proof, not clinical PK; source numeric assay crosswalk remains to verify.
+- [x] Qualify **GSE9588/HLC** as RNA+enzyme activity study (466 original liver cohort vs 427 GEO expression records), but sample-level activity join not public-confirmed; no unverified merge.
+- [x] Identify **137 transplant recipients / 693 plasma samples** with clinical tacrolimus C0 and metabolomics (paper), but original per-sample combined matrices **not confirmed downloadable**, require author approval.
+- [x] Record 115 liver paired and 251 renal recipient SNP GEO series and DeKAF restricted dbGaP pharmacogenomic+TDM sources as genomic baselines, NOT transcriptomics.
+- [x] Incorporate user-confirmed fact: **BIOMARGIN has no PK**. An ABIS join is only an unconfirmed authorized possibility, not a declared dataset.
+- [ ] Start source-provenance, held-out exploratory tucatinib 21-donor proof; do not count pooled HLM as donor.
+- [ ] Qualify original numeric substrate clearance tables for six donor scRNA PHH, before fitting any RNA activity model.
+- [ ] Independently check access and per-donor enzyme assays for the much larger HLC/GSE9588 RNA cohort.
+
+Full links, licenses and scientific restrictions: [public Omics×PK data catalogue](PUBLIC_OMICS_PK_DATASET_CATALOGUE_20261016.md).
+
 ## P2 — public measured-data pilots
 - [x] Public pharmacological pilot: mixOmics NCI-60 60 cell lines, 48 ABC transporters and **measured doxorubicin GI50** (chosen before predictions); M1/M1bis/M2 plus expression/PCA/Ridge, negative controls and histology adjustment. **No MAE improvement over mean or tumor type**; report in docs/RESULTS_NCI60_DOXORUBICIN_20261016.md.
 - [x] Public NCI-60 cross-study RNA + metabolite GI50 pilot: 48 syntax-only matches, **47 histology-concordant** lines (MDA-MB-435 excluded). 17,987 RNA/280 metabolites. No incremental metabolomic MAE gain across fixed PCA/Ridge or XGBoost on matched lines. Research-only merged PR #9 and docs/RESULTS_NCI60_TWOOMICS_20261016.md. Not same-sample multiomics or clinical PK.
