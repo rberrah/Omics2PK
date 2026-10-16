@@ -4,6 +4,8 @@ on:
   pull_request:
     paths:
       - "scripts/probe_public_real_pk.py"
+      - "scripts/qualify_peng_phh_source.py"
+      - "tests/test_qualify_peng_phh_source.py"
       - ".github/workflows/real-omics-pk-proof.yml"
 permissions:
   contents: read
@@ -18,3 +20,16 @@ jobs:
           python-version: "3.11"
       - name: Probe public primary article sources (structure only)
         run: python -m scripts.probe_public_real_pk
+
+  peng-public-omics-data:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+      - name: Synthetic tests for donor identities and source archive safety
+        run: python -m unittest discover -s tests -p 'test_qualify_peng_phh_source.py' -v
+      - name: Verify actual six-donor GEO plus native PHH functional supplement
+        run: python -m scripts.qualify_peng_phh_source
