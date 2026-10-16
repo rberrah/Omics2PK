@@ -1,59 +1,74 @@
-# Experimental inductive gene network: separate candidate, not official SWEET
+# Experimental SWEET-inspired inductive networks — methodological gate
 
-Status: **research hypothesis only, no measured-PK evaluation**.
-Upstream SWEET is transductive; its archived edge outputs may be reproduced
-directly, but that does **not** establish how an unseen patient should be scored.
+This method is a **separate exploratory extension**. It is **not the original
+SWEET algorithm**, has not been scientifically validated against patient PK/PD,
+and should not be called a CYP/ABCB1 activity measurement.
 
-## Hypothesis
+## What is implemented
 
-Let \`X_ref\` be a gene × subject expression matrix for **training individuals
-only**. Define the reference gene correlation \`A = corr_gene(X_ref)\`.
-For the unseen subject's aligned expression \`x\`, recompute
-\`B(x) = corr_gene([X_ref, x])\`. Use the separately trained sample-correlation
-distribution to assign a bounded multiplier \`w(x)\`, and form
+- `fit_frozen_reference`: correlations and query-weight calibration on
+  **training subjects only**; gene order, tissue and reference IDs frozen.
+- `predict_network`: a new subject modifies only their own graph, without
+  updating the frozen training reference.
+- `crossfit_training_features(folds=0)`: leave one training subject out
+  when building that subject's network. `folds>=2` holds out entire
+  deterministic, subject-ID-based groups; fold/reference size is recorded.
+- `build_outer_split_features`: explicitly separates training and test
+  subjects; uses cross-fitted features for training and the full **outer
+  training reference** for each unseen test subject. This function has no
+  endpoint parameter and will not accept duplicate or overlapping subject IDs.
+- The outputs are per-gene unsigned connection strengths, unvalidated
+  descriptions of the network, not mechanistic covariates.
 
-\`G(x) = A + w(x) × (B(x) - A)\`.
+For reference expression `X_train` (genes × subjects),
+`A = corr_genes(X_train)`. For one unseen subject's expression `x`,
+`B = corr_genes([X_train, x])`. This preliminary variant uses
+`G(x) = A + w(x) * (B-A)`, where the weight is a bounded
+function of query-to-training expression-profile correlations.
 
-This is **SWEET-inspired, not equivalent to published SWEET**. Specifically,
-the proposed new-patient weight uses correlations of \`x\` with reference
-subjects and calibrates the range from training-only subject–subject
-similarities. It is clipped to a predeclared range to avoid unbounded
-extrapolation. The reference and scale are never updated using other held-out
-patients or outcomes.
+### Crucial difference from published SWEET
 
-## Research controls already implemented
+Published SWEET computes sample weights using the **entire gene-expression
+input**, while selected network edges may use a targeted gene subset. The
+current inductive prototype uses **the same selected panel both for weights
+and edges**. That is a material methodological difference requiring
+independent calibration before comparison or naming equivalence. The weight
+normalization also differs for an unseen patient. This variant must **never**
+be presented as numerically equivalent to official SWEET.
 
-- Matched gene order, tissue and sample identities are required.
-- Query subject must be new; no shared subject can appear in the reference.
-- Frozen read-only reference arrays, stable SHA-256 fingerprint, deterministic
-  outputs and tests verifying predictions are invariant to other queries.
-- Reject constant genes, query expression with zero variance, NaN/Inf,
-  insufficient reference samples, degenerate weights, shape/identifier errors.
-- Hard limit of 128 genes for this preliminary test: panels must be chosen
-  using training data or truly prior evidence, never held-out PK outcomes.
-- Returns network and unsigned connection strength descriptors only; those
-  are **not** estimated CYP3A enzymatic activities.
+## Gates and known limitations
 
-## Unresolved before M1bis/M3/M4 evaluation
+1. **Public outcome-free sanity check:** official SWEET 80-sample RNA
+   example, predeclared first 25 genes; first 60 samples as reference
+   training, last 20 as held-out. Leave-one-out among training subjects,
+   training-frozen reference for every held-out subject, and a test for
+   invariance of one held-out result to perturbing another held-out profile.
+   This **cannot** establish an improvement in PK/PD prediction.
+2. **No outer-fold normalization leak:** this function receives a
+   preprocessed matrix. Upstream feature selection, batch correction,
+   scaling, imputation and gene mapping must be fit **inside each outer
+   training fold** and frozen for test subjects. Not currently implemented.
+3. **Training/test distribution mismatch:** LOO reference size n-1,
+   test reference size n; K-fold references are smaller still. Quantify
+   impact on feature scale and calibration.
+4. **Biological scope:** experimental 128-gene maximum; heterogeneous
+   RNA cell types and tissue availability may invalidate transfer.
+5. **External scientific comparison:** compare original transductive SWEET,
+   frozen-reference scores, raw expression, simple PCA/pathway scores, null
+   and permuted networks on a **measured molecular or pharmacological target**.
+   Avoid post-hoc claims of causality or CYP functional activity.
+6. **Graph-to-PopPK:** do not build M3/M4 until an appraised, patient-paired
+   PK and omics dataset exists and a real NLME model can be fitted.
 
-1. **Training network mismatch:** training subjects must obtain features
-   under a comparable leave-one-out or cross-fitted reference protocol;
-   there is no validated approach here yet. Using all training subjects in
-   the reference for their own feature construction would bias the comparison.
-2. Compare with upstream transductive SWEET on its public expression example
-   and quantify the effect of reference size, batch, tissue, scale and outliers.
-3. Subject-level nested CV must refit expression preprocessing and reference
-   for every outer fold; no target-informed feature/gene selection outside folds.
-4. Network weight clipping may distort effects for OOD patients; quantify.
-5. Only then test the *measured* PK/PD endpoint, vs raw expression, PCA/MOFA2,
-   and no-network controls, with and without Pillar A. Do not publish this
-   formulation as validated SWEET or clinical utility.
+## Local execution
 
-## Local testing
-
-\`\`\`sh
+```bash
 python -m pip install -e '.[sweet-inductive]'
+python -m unittest discover -s tests -p test_crossfit.py -v
 python -m unittest discover -s tests -p test_inductive_sweet.py -v
-\`\`\`
+python scripts/pilot_inductive_public.py --upstream /path/to/SWEET \
+  --report inductive_pilot.json
+```
 
-No patient data are downloaded or sent over the network.
+Public CI downloads a pinned upstream SWEET example **only**; individual
+study RNA and any PK/clinical data remain on authorized local machines.
