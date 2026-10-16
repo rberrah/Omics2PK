@@ -23,7 +23,9 @@ def audit():
             csv_text=io.TextIOWrapper(gzip.GzipFile(fileobj=fp),encoding="utf-8-sig",newline="")
             reader=csv.reader(csv_text)
             header=next(reader)
-            n_cells=len(header)-1
+            n_features=len(header)-1
+            candidate_cyps=("CYP1A2","CYP2B6","CYP2C9","CYP2C19","CYP2D6","CYP3A4")
+            listed_cyps=[g for g in candidate_cyps if g in [t.upper() for t in header[1:]]]
             n_rows=0
             counts={"zeros":0,"strict_negative":0,"positive":0,"nonfinite":0,"nonnumeric":0,"noninteger_positive":0}
             gene_header=header[0][:80]
@@ -49,7 +51,10 @@ def audit():
                             counts["noninteger_positive"]+=1
             out.append({
                 "filename":member.name.rsplit("/",1)[-1],
-                "n_cells":n_cells,"n_rows":n_rows,
+                "n_barcodes":n_rows,"n_markers":n_features,
+                "source_gene_columns":header[1:],
+                "cyp_targets_present":listed_cyps,
+                "all_six_cyp_targets_present":len(listed_cyps)==6,
                 "first_header":gene_header,"first_three_genes":gene_examples,
                 "n_value_categories":counts,
                 "count_matrix_all_nonnegative_integer":counts["strict_negative"]==0 and counts["nonfinite"]==0 and counts["nonnumeric"]==0 and counts["noninteger_positive"]==0,
