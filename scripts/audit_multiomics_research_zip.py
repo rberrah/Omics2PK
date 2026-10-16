@@ -8,8 +8,16 @@ import zipfile
 
 
 def audit_zip(path):
+    if __import__("pathlib").Path(path).stat().st_size > 140_000_000:
+        raise ValueError("Research ZIP too large for bounded source verifier")
     with zipfile.ZipFile(path) as z:
         names = z.namelist()
+        if (len(names) > 500 or len(set(names)) != len(names)
+                or sum(f.file_size for f in z.infolist()) > 400_000_000):
+            raise ValueError("Unsafe or oversized ZIP envelope")
+        if any(f.is_dir() or __import__("pathlib").PurePosixPath(f.filename).is_absolute()
+               or ".." in __import__("pathlib").PurePosixPath(f.filename).parts for f in z.infolist()):
+            raise ValueError("Unsafe research ZIP member name")
         if len(names) > 500 or len(set(names)) != len(names):
             raise ValueError("Invalid ZIP member count")
         required = ("provenance/manifest.json", "source/projet_reproductible.json",
