@@ -75,9 +75,9 @@ def load_dataset(folder: Path):
     ids = tuple(r["subject_id"] for r in record)
     classes = tuple(r["cancer_class"] for r in record)
     y = np.array([float(r["y"]) for r in record], dtype=float)
-    if (len(ids) != 48 or len(set(ids)) != 48 or
+    if (len(ids) != 47 or len(set(ids)) != 48 or
             not np.isfinite(y).all() or any(not c for c in classes)):
-        raise ValueError("Expected 48 unique, measured, lineage-qualified cell lines")
+        raise ValueError("Expected 47 unique, measured, lineage-qualified cell lines")
     rid, rn, rna = read_table(folder / "rna.csv")
     mid, mn, met = read_table(folder / "metabolite.csv")
     if rid != ids or mid != ids:
@@ -139,17 +139,17 @@ def predict(a, b, y, method="ridge"):
 
 
 def evaluate(ids, classes, y, rna, met, repeats=3):
-    if (len(ids) != 48 or len(set(ids)) != len(ids) or len(classes) != 48
-            or y.shape != (48,) or rna.shape[0] != 48 or met.shape[0] != 48):
-        raise ValueError("Cross-study cohort must have 48 unique cell lines")
+    if (len(ids) != 47 or len(set(ids)) != len(ids) or len(classes) != 47
+            or y.shape != (47,) or rna.shape[0] != 47 or met.shape[0] != 47):
+        raise ValueError("Cross-study cohort must have 47 unique cell lines")
     if repeats not in (1, 3):
         raise ValueError("Only pre-fixed 1 or 3 repeats allowed")
     # Every held-out subject appears exactly once in each 5-fold repetition.
-    preds = {name: np.full((repeats, 48), np.nan) for name in MODEL_NAMES}
+    preds = {name: np.full((repeats, 47), np.nan) for name in MODEL_NAMES}
     n_selected = {"rna": [], "metabolite": []}
     for rep in range(repeats):
         cv = KFold(n_splits=5, shuffle=True, random_state=SEED + rep)
-        for fold, (train, test) in enumerate(cv.split(np.arange(48))):
+        for fold, (train, test) in enumerate(cv.split(np.arange(47))):
             yt = y[train]
             pr, qr, xr, xrt, select_r = fit_view(rna[train], rna[test], RNA_CAP)
             pm, qm, xm, xmt, select_m = fit_view(met[train], met[test], METAB_CAP)
@@ -192,7 +192,7 @@ def evaluate(ids, classes, y, rna, met, repeats=3):
     stats = {}
     tumor_error = np.abs(preds["tumor_only"] - y[None, :]).mean(axis=0)
     rng = np.random.default_rng(SEED)
-    draws = rng.integers(0, 48, size=(1000, 48))
+    draws = rng.integers(0, 47, size=(1000, 47))
     for name, p in preds.items():
         errors = np.abs(p - y[None, :])
         per_line = errors.mean(axis=0)  # correlated repetitions averaged per biological cell line
@@ -212,8 +212,8 @@ def evaluate(ids, classes, y, rna, met, repeats=3):
             "mixOmics": "mixOmics-org/mixOmics@9f9fd66b69105fdb618b54588b638b567e85c0d6",
             "IntLIM": "Mathelab/NCI60_GeneMetabolite_Data@4c140708c18c41910458414a626b1a51d3dd2a85",
         },
-        "join": "48 exact punctuation/case-only unique keys, independently agreeing cancer-lineage labels; 12 excluded",
-        "n_biological_cell_lines": 48, "n_repetitions_correlated": repeats, "n_splits_per_repetition": 5,
+        "join": "48 syntax-only keys; 47 source-histology concordant; 12 unmatched and MDA-MB-435 excluded",
+        "n_biological_cell_lines": 47, "n_repetitions_correlated": repeats, "n_splits_per_repetition": 5,
         "random_seed": SEED,
         "fixed_design": {"ridge_alpha": RIDGE_ALPHA, "rna_max_train_variance_features": RNA_CAP,
                          "metabolite_max_train_variance_features": METAB_CAP,
@@ -221,7 +221,7 @@ def evaluate(ids, classes, y, rna, met, repeats=3):
                          "pca_components_per_view": COMPONENTS, "xgb": XGB_OPTIONS,
                          "all_preprocessing_is_fold_train_only": True},
         "selected_feature_count_per_outer_fold": n_selected,
-        "uncertainty_warning": "Bootstrap resamples 48 cell lines, not repeat-fold observations; descriptive only.",
+        "uncertainty_warning": "Bootstrap resamples 47 cell lines, not repeat-fold observations; descriptive only.",
         "major_limitations": [
             "Public assays from different studies and culture batches are NOT same-sample multiomics",
             "Independent source genome-wide normalization/probe processing predates outer folds",
@@ -243,7 +243,7 @@ def main():
     ids, classes, y, _, _, rna, met = load_dataset(args.data)
     result = evaluate(ids, classes, y, rna, met, args.repeats)
     args.out.write_text(json.dumps(result, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-    print(json.dumps({"analysis":result["analysis"],"n":48,"repeats":args.repeats,
+    print(json.dumps({"analysis":result["analysis"],"n":47,"repeats":args.repeats,
                       "models":{k: {"mae":v["mae"],"delta_vs_tumor":v["paired_delta_mae_vs_tumor_only"]}
                                 for k,v in result["metrics"].items()}}, indent=2))
 
