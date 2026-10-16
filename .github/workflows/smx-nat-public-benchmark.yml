@@ -1,0 +1,31 @@
+name: SMX/NAT 26-donor in-vitro source contract tests
+on:
+  pull_request:
+    paths:
+      - "src/omics2pk/smx_nat_local_validation.py"
+      - "scripts/validate_local_smx_nat.py"
+      - "tests/test_smx_nat_local_validation.py"
+      - ".github/workflows/smx-nat-public-benchmark.yml"
+  push:
+    branches: [main]
+    paths:
+      - "src/omics2pk/smx_nat_local_validation.py"
+      - "scripts/validate_local_smx_nat.py"
+      - "tests/test_smx_nat_local_validation.py"
+      - ".github/workflows/smx-nat-public-benchmark.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  original-source-shape-synthetic-only:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+      - name: Install core package with no ML dependencies
+        run: python -m pip install -e .
+      - name: Check 26 donor IDs / 21 NAT assays / 20 NAT2 genotypes and no leakage
+        run: python -m unittest discover -s tests -p 'test_smx_nat_local_validation.py' -v

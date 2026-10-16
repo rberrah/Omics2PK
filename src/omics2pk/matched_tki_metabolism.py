@@ -139,6 +139,10 @@ def validate_pair(tucatinib_rows, imatinib_rows, *, verify_reference=True):
         "source_dois": ["10.1016/j.dmd.2025.100061", IMATINIB_DOI],
         "imatinib_published_spearman_replicated": spearman,
         "tucatinib_cl_ul_min_mg": _lodo(paired, 1),
+        # Like-for-like benchmark on the exact 17 donor IDs with observed imatinib
+        # clearance; this must not be described as an independent replication.
+        "tucatinib_cl_on_imatinib_17_complete_cases_ul_min_mg":
+            _lodo([p for p in paired if p[2] is not None], 1),
         "imatinib_observed_cl_ul_min_mg": _lodo(paired, 2),
         "ndesmethyl_imatinib_peak_area_ratio": _lodo(paired, 3),
         "models": "train-only mean vs fixed alpha1 two-CYP protein ridge vs enzyme-activity ridge",
