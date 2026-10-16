@@ -161,7 +161,7 @@ def evaluate(ids, classes, y, rna, met, repeats=3):
             stack = lambda *blocks: np.concatenate(blocks, axis=1)
             rng = np.random.default_rng(SEED + rep * 10 + fold)
             # Shuffle only TRAIN metabolomics, keeping the test fixed.
-            shuffled = xm[rng.permutation(len(train))]
+            shuffled = pm[rng.permutation(len(train))]
             options = {
                 "fold_mean": np.full(len(test), yt.mean()),
                 "tumor_only": predict(ct, cq, yt),
@@ -175,7 +175,7 @@ def evaluate(ids, classes, y, rna, met, repeats=3):
                 "tumor_metab_raw120": predict(stack(ct, xm), stack(cq, xmt), yt),
                 "tumor_rna_metab_raw": predict(stack(ct, xr, xm), stack(cq, xrt, xmt), yt),
                 "tumor_rna_shuffled_metab_negative": predict(
-                    stack(ct, pr, shuffled), stack(cq, qr, xmt), yt),
+                    stack(ct, pr, shuffled), stack(cq, qr, qm), yt),
                 "rna_xgboost": predict(pr, qr, yt, "xgb"),
                 "rna_metab_xgboost": predict(stack(pr, pm), stack(qr, qm), yt, "xgb"),
                 "tumor_rna_xgboost": predict(stack(ct, pr), stack(cq, qr), yt, "xgb"),
