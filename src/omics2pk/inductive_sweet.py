@@ -35,6 +35,8 @@ class FrozenReference:
     sample_similarity_max: float
     k: float
     fingerprint: str
+    weight_expression: np.ndarray
+    weight_genes: tuple[str, ...]
 
 
 def _matrix(values: Any) -> np.ndarray:
@@ -54,6 +56,8 @@ def fit_frozen_reference(
     subject_ids: list[str] | tuple[str, ...],
     tissue: str,
     k: float = 0.1,
+    weight_expression: Any | None = None,
+    weight_genes: list[str] | tuple[str, ...] | None = None,
 ) -> FrozenReference:
     """Fit only on training samples, with a prespecified feature/gene universe.
 
@@ -76,8 +80,19 @@ def fit_frozen_reference(
     # Each gene varies across reference subjects, each subject across selected genes.
     if np.any(np.std(x, axis=1) <= 1e-12) or np.any(np.std(x, axis=0) <= 1e-12):
         raise InductiveNetworkError("Constant gene or sample in reference")
+    if (weight_expression is None) != (weight_genes is None):
+        raise InductiveNetworkError("Full weight expression and gene IDs must be supplied together")
+    wx = x.copy() if weight_expression is None else _matrix(weight_expression)
+    wgenes = genes if weight_genes is None else tuple(weight_genes)
+    if (wx.shape != (len(wgenes), n if (n := len(subjects)) else 0)
+            or not wgenes or len(set(wgenes)) != len(wgenes)
+            or not set(genes).issubset(set(wgenes))
+            or any(not isinstance(g, str) or not g.strip() for g in wgenes)):
+        raise InductiveNetworkError("Weight genes must include edge genes and align with training subjects")
+    if np.any(np.std(wx, axis=0) <= 1e-12):
+        raise InductiveNetworkError("Constant sample in weight-expression reference")
     gene_corr = np.corrcoef(x)
-    subject_corr = np.corrcoef(x.T)
+    subject_corr = np.corrcoef(wx.T)
     if not np.isfinite(gene_corr).all() or not np.isfinite(subject_corr).all():
         raise InductiveNetworkError("Undefined Pearson correlation")
     n = len(subjects)
@@ -90,11 +105,14 @@ def fit_frozen_reference(
     digest.update("\n".join(subjects).encode())
     digest.update(tissue.encode())
     digest.update(x.tobytes(order="C"))
+    digest.update("\\n".join(wgenes).encode())
+    digest.update(wx.tobytes(order="C"))
     digest.update(str(float(k)).encode())
     x.setflags(write=False)
+    wx.setflags(write=False)
     gene_corr.setflags(write=False)
     return FrozenReference(genes, subjects, tissue, x, gene_corr,
-                           lo, hi, float(k), digest.hexdigest())
+                           lo, hi, float(k), digest.hexdigest(), wx, wgenes)
 
 
 def predict_network(
@@ -104,6 +122,8 @@ def predict_network(
     subject_id: str,
     genes: list[str] | tuple[str, ...],
     tissue: str,
+    weight_query: Any | None = None,
+    weight_genes: list[str] | tuple[str, ...] | None = None,
 ) -> tuple[np.ndarray, dict[str, Any]]:
     """Compute ONE unseen individual's network without updating the reference."""
     if not isinstance(subject_id, str) or not subject_id or subject_id in reference.subject_ids:
@@ -118,9 +138,25 @@ def predict_network(
         raise InductiveNetworkError("Invalid query gene values or shape")
     if np.std(x) <= 1e-12:
         raise InductiveNetworkError("Query profile is constant across genes")
+    if reference.weight_genes != reference.genes:
+        if weight_query is None or tuple(weight_genes or ()) != reference.weight_genes:
+            raise InductiveNetworkError("Unseen subject needs full aligned weight-expression genes")
+    elif weight_query is None:
+        weight_query = x
+    elif weight_genes is not None and tuple(weight_genes) != reference.weight_genes:
+        raise InductiveNetworkError("Weight-gene order mismatch")
+    try:
+        wquery = np.asarray(weight_query, dtype=float)
+    except (TypeError, ValueError) as err:
+        raise InductiveNetworkError("Invalid weight-query expression") from err
+    if (wquery.shape != (len(reference.weight_genes),)
+            or not np.isfinite(wquery).all() or np.std(wquery) <= 1e-12):
+        raise InductiveNetworkError("Invalid or constant weight-query profile")
+    # Weight correlations use the complete, training-frozen gene universe.
+    query_weight_matrix = np.column_stack((reference.weight_expression, wquery))
+    query_similarities = np.corrcoef(query_weight_matrix.T)[-1, :-1]
+    # Edge correlations use only the prespecified mechanism/panel genes.
     augmented = np.column_stack((reference.expression, x))
-    # Frozen reference remains unchanged. Query enters only its own contrast.
-    query_similarities = np.corrcoef(augmented.T)[-1, :-1]
     new_corr = np.corrcoef(augmented)
     if not np.isfinite(query_similarities).all() or not np.isfinite(new_corr).all():
         raise InductiveNetworkError("Undefined augmented Pearson correlations")
@@ -142,6 +178,8 @@ def predict_network(
         "subject_id": subject_id,
         "tissue": tissue,
         "genes": len(reference.genes),
+        "weight_genes": len(reference.weight_genes),
+        "uses_full_weight_expression": reference.weight_genes != reference.genes,
         "sample_similarity": similarity,
         "weight": weight,
         "weight_clamped_outside_reference": clamped,
@@ -171,6 +209,8 @@ def crossfit_training_features(
     tissue: str,
     folds: int = 0,
     k: float = 0.1,
+    weight_expression: Any | None = None,
+    weight_genes: list[str] | tuple[str, ...] | None = None,
 ) -> list[dict[str, Any]]:
     """Build honest, out-of-reference features for TRAINING subjects only.
 
@@ -185,6 +225,12 @@ def crossfit_training_features(
     n = len(subjects)
     if x.shape != (len(names), n):
         raise InductiveNetworkError("Mismatched expression and training identifiers")
+    if (weight_expression is None) != (weight_genes is None):
+        raise InductiveNetworkError("Supply weight-expression matrix and genes together")
+    wx = x if weight_expression is None else _matrix(weight_expression)
+    wnames = names if weight_genes is None else tuple(weight_genes)
+    if wx.shape != (len(wnames), n):
+        raise InductiveNetworkError("Weight-expression sample count mismatched")
     if n < MIN_REFERENCE_SAMPLES + 1:
         raise InductiveNetworkError("At least six training samples required for leave-one-out")
     if len(set(subjects)) != n or any(not isinstance(s, str) or not s for s in subjects):
@@ -205,9 +251,11 @@ def crossfit_training_features(
         try:
             ref = fit_frozen_reference(
                 x[:, included], genes=names,
-                subject_ids=[subjects[j] for j in included], tissue=tissue, k=k)
+                subject_ids=[subjects[j] for j in included], tissue=tissue, k=k,
+                weight_expression=wx[:, included], weight_genes=wnames)
             graph, info = predict_network(
-                ref, x[:, pos], subject_id=sid, genes=names, tissue=tissue)
+                ref, x[:, pos], subject_id=sid, genes=names, tissue=tissue,
+                weight_query=wx[:, pos], weight_genes=wnames)
         except InductiveNetworkError as exc:
             raise InductiveNetworkError(f"Training subject {sid}: {exc}") from exc
         records.append({
@@ -235,6 +283,8 @@ def build_outer_split_features(
     tissue: str,
     folds: int = 0,
     k: float = 0.1,
+    weight_expression: Any | None = None,
+    weight_genes: list[str] | tuple[str, ...] | None = None,
 ) -> dict[str, Any]:
     """Use only the outer TRAINING cohort to fit the held-out reference.
 
@@ -248,6 +298,12 @@ def build_outer_split_features(
     train, test = tuple(train_ids), tuple(test_ids)
     if x.shape != (len(names), len(subjects)):
         raise InductiveNetworkError("Inconsistent expression matrix / subject IDs")
+    if (weight_expression is None) != (weight_genes is None):
+        raise InductiveNetworkError("Supply weight-expression matrix and genes together")
+    wx = x if weight_expression is None else _matrix(weight_expression)
+    wnames = names if weight_genes is None else tuple(weight_genes)
+    if wx.shape != (len(wnames), len(subjects)):
+        raise InductiveNetworkError("Weight-expression matrix must match sample count")
     if (len(set(subjects)) != len(subjects)
             or len(set(train)) != len(train) or len(set(test)) != len(test)
             or not train or not test
@@ -259,13 +315,16 @@ def build_outer_split_features(
     test_idx = [positions[sid] for sid in test]
     train_values = x[:, train_idx]
     training = crossfit_training_features(
-        train_values, genes=names, subject_ids=train, tissue=tissue, folds=folds, k=k)
+        train_values, genes=names, subject_ids=train, tissue=tissue, folds=folds, k=k,
+        weight_expression=wx[:, train_idx], weight_genes=wnames)
     reference = fit_frozen_reference(
-        train_values, genes=names, subject_ids=train, tissue=tissue, k=k)
+        train_values, genes=names, subject_ids=train, tissue=tissue, k=k,
+        weight_expression=wx[:, train_idx], weight_genes=wnames)
     held_out = []
     for sid, col in zip(test, test_idx):
         graph, info = predict_network(
-            reference, x[:, col], subject_id=sid, genes=names, tissue=tissue)
+            reference, x[:, col], subject_id=sid, genes=names, tissue=tissue,
+            weight_query=wx[:, col], weight_genes=wnames)
         held_out.append({
             "subject_id": sid,
             "set": "test",
@@ -284,6 +343,7 @@ def build_outer_split_features(
         "outer_reference_fingerprint": reference.fingerprint,
         "n_train": len(train),
         "n_test": len(test),
+        "n_weight_genes": len(wnames),
         "folds": folds,
         "method": "experimental_frozen_reference_sweet_inspired_v0",
         "equivalent_to_official_sweet": False,
