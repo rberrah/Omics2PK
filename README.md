@@ -1,5 +1,9 @@
 # Omics2PK
 
+## Mavoglurant IV held-out structural PK comparator (preparatory)
+
+A pre-registered **1C vs 2C finite-IV-infusion pooled fixed-effect reference** now operates on the **original SHA-verified 120-human, 196-qualified-occasion, 2,403-measurement mavoglurant source**. Five human-disjoint folds keep repeat occasions together, with observed RATE/AMT and ng/mL units protected, and do not permit subject-specific post-hoc fitting. The reproducible workflow reports only held-out aggregate log prediction errors. **This is not SAEM/NLME PopPK, not an Omics→PK effect and not external omics validation**. See [protocol and interpretation](docs/MAVOGLURANT_ORIGINAL_IV_HELDOUT_STRUCTURAL_BASELINE.md). Numerical results must not be claimed before the CI job is green.
+
 **Research-only alpha. Not clinically validated.**
 
 Omics2PK connects the reproducible outputs of [MultiOmics](https://github.com/rberrah/MultiOmics) to research on patient-specific molecular networks (SWEET), drug-specific knowledge from Thesis Pillar A and PopPK/PKPD covariate discovery in Pillar B (route R2).
