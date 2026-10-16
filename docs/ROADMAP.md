@@ -2,6 +2,15 @@
 
 This list follows the earlier MultiOmics → SWEET → Pillar A → Pillar B R2 discussions. **When inspected the Omics2PK repository was empty; there was no pre-existing to-do file to read.** The plan below has therefore been reconstructed and must be reconciled with the owner's priorities.
 
+## New verified public PK source audit: 93 TAC microbiomes and 3-analyte APAP (2026-10-16)
+
+- [x] Original `PRJNA929904` ENA index: **93 original microbiome 16S specimens**, 93 CYP3A5 nonexpressers in Degraeve CPT 2024. Clinical C0 exists, but AUC0–24 was **limited-sampling ML-estimated with cohort-median imputation**, not dense observed NCA. Source 93 microbiome IDs do **not** create a verified subject/C0/AUC crosswalk. Both publisher original supplement URL routes returned HTTP 403; request official supplemental ZIP or original author table.
+- [x] Frozen original open R `pksensi::APAP` data, SHA256 08b1d33b96d41cdd12fd48b2f09ad28c68728bf047ef4c93772a97af3dca00e0, **32 time rows / 3 literature studies / 30 complete parent APAP+glucuronide+sulfate observations**. PBPK parent/metabolite time series training/reference data at study level only, NOT 32 individual patients nor broad metabolomics/subject-wise PopPK.
+- [ ] Obtain authorized original data to match `renal_patient_id ↔ PRJNA929904 sample_id ↔ dose+C0+C1+C3 ↔ measured/imputed AUC flag ↔ hct/age`. Refit patient-held-out C0/dose first, no original complete NCA/CL/F claim until richer PK source.
+- [ ] PBPK baseline module: fixed three-analyte APAP parent/UGT/SULT handling, report study-level fit and uncertainty, not subject external CV; compare with actual literature and then biology only on genuinely paired individual measurements.
+
+Full report: [public 93 TAC and APAP source audit](PUBLIC_93_KIDNEY_TAC_AND_APAP_PBPK_SOURCE_AUDIT_20261016.md).
+
 ## Original-data E3 / E4 candidates (2026-10-16)
 
 - [x] Verify **original PLOS 2026 Wang et al TAC 36-human clinical workbook**, exact SHA, actual original C0, dose mg/kg and C/D formula, one row/patient and three aged <18. Execute a small **clinical-only reference** leave-patient-out model age+sex+BMI vs constant: MAEs **92.392803 vs 92.516919 C/D units** (virtually no uplift); not RNA/omics predictive proof, no C(t).
