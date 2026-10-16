@@ -161,3 +161,131 @@ def gene_strength_features(graph: Any, *, genes: list[str] | tuple[str, ...]) ->
         raise InductiveNetworkError("Expected zero graph diagonal")
     return {g: float(np.sum(np.abs(a[i, :])) / (n - 1))
             for i, g in enumerate(genes)}
+
+
+def crossfit_training_features(
+    expression: Any,
+    *,
+    genes: list[str] | tuple[str, ...],
+    subject_ids: list[str] | tuple[str, ...],
+    tissue: str,
+    folds: int = 0,
+    k: float = 0.1,
+) -> list[dict[str, Any]]:
+    """Build honest, out-of-reference features for TRAINING subjects only.
+
+    The reference for every subject EXCLUDES the subject (and its whole fold).
+    folds=0: strict leave-one-out; folds>=2: blocked K-fold cross-fitting.
+    No PK/PD target, test subject or metadata outside the supplied training
+    cohort is accepted. Preprocessing and gene selection must be frozen by
+    the caller before this stage.
+    """
+    x = _matrix(expression)
+    names, subjects = tuple(genes), tuple(subject_ids)
+    n = len(subjects)
+    if x.shape != (len(names), n):
+        raise InductiveNetworkError("Mismatched expression and training identifiers")
+    if n < MIN_REFERENCE_SAMPLES + 1:
+        raise InductiveNetworkError("At least six training samples required for leave-one-out")
+    if len(set(subjects)) != n or any(not isinstance(s, str) or not s for s in subjects):
+        raise InductiveNetworkError("Duplicate or invalid training subject IDs")
+    if isinstance(folds, bool) or not isinstance(folds, int) or (
+        folds != 0 and not 2 <= folds <= n
+    ):
+        raise InductiveNetworkError("folds must be 0 (leave-one-out) or 2..n")
+    if folds != 0 and n - math.ceil(n / folds) < MIN_REFERENCE_SAMPLES:
+        raise InductiveNetworkError("Too few training samples after withholding a fold")
+    # IDs determine deterministic folds, independent of input column order.
+    assignment = {sid: j % folds for j, sid in enumerate(sorted(subjects))} if folds else {}
+    records = []
+    for pos, sid in enumerate(subjects):
+        test_group = assignment.get(sid, pos) if folds else pos
+        included = [j for j, other in enumerate(subjects)
+                    if (assignment[other] != test_group if folds else j != pos)]
+        try:
+            ref = fit_frozen_reference(
+                x[:, included], genes=names,
+                subject_ids=[subjects[j] for j in included], tissue=tissue, k=k)
+            graph, info = predict_network(
+                ref, x[:, pos], subject_id=sid, genes=names, tissue=tissue)
+        except InductiveNetworkError as exc:
+            raise InductiveNetworkError(f"Training subject {sid}: {exc}") from exc
+        records.append({
+            "subject_id": sid,
+            "set": "training",
+            "reference_n": info["reference_n"],
+            "reference_fingerprint": info["reference_fingerprint"],
+            "excluded_fold": test_group,
+            "weight": info["weight"],
+            "weight_clamped_outside_reference": info["weight_clamped_outside_reference"],
+            "features": gene_strength_features(graph, genes=names),
+            "method": info["method"],
+            "equivalent_to_official_sweet": False,
+        })
+    return records
+
+
+def build_outer_split_features(
+    expression: Any,
+    *,
+    genes: list[str] | tuple[str, ...],
+    subject_ids: list[str] | tuple[str, ...],
+    train_ids: list[str] | tuple[str, ...],
+    test_ids: list[str] | tuple[str, ...],
+    tissue: str,
+    folds: int = 0,
+    k: float = 0.1,
+) -> dict[str, Any]:
+    """Use only the outer TRAINING cohort to fit the held-out reference.
+
+    Training features are cross-fitted. Test features never use any other
+    held-out subject. No endpoint or dose/concentration data can enter here.
+    A subject is the biological unit; repeated assays must be aggregated or
+    handled upstream before invoking this API.
+    """
+    x = _matrix(expression)
+    names, subjects = tuple(genes), tuple(subject_ids)
+    train, test = tuple(train_ids), tuple(test_ids)
+    if x.shape != (len(names), len(subjects)):
+        raise InductiveNetworkError("Inconsistent expression matrix / subject IDs")
+    if (len(set(subjects)) != len(subjects)
+            or len(set(train)) != len(train) or len(set(test)) != len(test)
+            or not train or not test
+            or set(train) & set(test)
+            or set(train) | set(test) != set(subjects)):
+        raise InductiveNetworkError("Outer split must partition unique subjects exactly")
+    positions = {sid: i for i, sid in enumerate(subjects)}
+    train_idx = [positions[sid] for sid in train]
+    test_idx = [positions[sid] for sid in test]
+    train_values = x[:, train_idx]
+    training = crossfit_training_features(
+        train_values, genes=names, subject_ids=train, tissue=tissue, folds=folds, k=k)
+    reference = fit_frozen_reference(
+        train_values, genes=names, subject_ids=train, tissue=tissue, k=k)
+    held_out = []
+    for sid, col in zip(test, test_idx):
+        graph, info = predict_network(
+            reference, x[:, col], subject_id=sid, genes=names, tissue=tissue)
+        held_out.append({
+            "subject_id": sid,
+            "set": "test",
+            "reference_n": info["reference_n"],
+            "reference_fingerprint": info["reference_fingerprint"],
+            "excluded_fold": None,
+            "weight": info["weight"],
+            "weight_clamped_outside_reference": info["weight_clamped_outside_reference"],
+            "features": gene_strength_features(graph, genes=names),
+            "method": info["method"],
+            "equivalent_to_official_sweet": False,
+        })
+    return {
+        "training": training,
+        "test": held_out,
+        "outer_reference_fingerprint": reference.fingerprint,
+        "n_train": len(train),
+        "n_test": len(test),
+        "folds": folds,
+        "method": "experimental_frozen_reference_sweet_inspired_v0",
+        "equivalent_to_official_sweet": False,
+        "trained_with_pk_pd_target": False,
+    }
