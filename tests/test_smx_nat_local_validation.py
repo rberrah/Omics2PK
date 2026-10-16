@@ -1,9 +1,12 @@
 """Synthetic-only original-source NAT/SMX anti-leakage tests."""
 import copy
 import unittest
+import csv
+import tempfile
+from pathlib import Path
 
 from omics2pk.smx_nat_local_validation import (
-    NATSourceError, _ridge, evaluate, qualify_original,
+    NATSourceError, _ridge, evaluate, qualify_original, run_local_csv,
 )
 
 
@@ -78,6 +81,17 @@ class NATDonorEvidenceTests(unittest.TestCase):
         shared=result["strict_four_arm_shared_donor_comparison"]
         self.assertEqual(shared["status"],"ABSTAIN_INSUFFICIENT_IDENTICAL_COMPLETE_CASE_DONORS")
         self.assertLess(shared["n_identical_complete_cases"],10)
+
+    def test_local_csv_with_synthetic_wrong_rank_sources_rejected(self):
+        rows=fake_rows()
+        with tempfile.TemporaryDirectory() as temp:
+            path=Path(temp)/"synthetic_table.csv"
+            with path.open("w",newline="",encoding="utf-8") as stream:
+                writer=csv.DictWriter(stream,fieldnames=list(rows[0]))
+                writer.writeheader()
+                writer.writerows(rows)
+            with self.assertRaisesRegex(NATSourceError,"Spearman"):
+                run_local_csv(path)
 
     def test_zero_or_nonquantifiable_y_cannot_be_imputed(self):
         rows=fake_rows()
