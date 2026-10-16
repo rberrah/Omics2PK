@@ -52,14 +52,19 @@ class PrimarySourceGateTests(unittest.TestCase):
             "wegler_si_methods_pdf": b"%PDF-1.7\n%example",
             "wegler_s1_proteomics": minimal_xlsx(),
             "wegler_s2_bioinformatics": minimal_xlsx(),
+            "wegler_cloud_metadata": json.dumps({"pmcid":"PMC8041379",
+                "doi":"10.1021/acs.molpharmaceut.1c00053", "version":1,
+                "license_code":"CC BY 4.0",
+                "media_urls":["https://pmc-oa-opendata.s3.amazonaws.com/PMC8041379.1/mp1c00053_si_002.xlsx"]}).encode(),
             "yin_battail_metadata": json.dumps({
                 "id": 15723817, "metadata": {"title": "Test release"}, "files": []
             }).encode(),
         }
         lookup = {u: fake_content[k] for k, (u, _) in SOURCES.items()}
         report = audit(fetch=lambda u: lookup[u])
-        self.assertEqual(report["format_verified_count"], 4)
+        self.assertEqual(report["format_verified_count"], 5)
         self.assertIn("NO_PAIRED_CLINT_TARGET_CONFIRMED", report["research_status"])
+        self.assertIn("mp1c00053_si_002.xlsx", report["sources"]["wegler_cloud_metadata"]["metadata_only"]["listed_target_supplements"])
         self.assertGreaterEqual(len(report["blocking_conditions"]), 4)
         self.assertNotIn("measured_clint", json.dumps(report))
 
