@@ -51,6 +51,14 @@ The automated inventory probes format accessibility only. Neither published prot
 
 The first source availability job does not complete any of these target-pairing gates merely because an XLSX can be downloaded.
 
+### Local curated crosswalk contract (implemented, NOT yet qualified on real rows)
+
+Use the pure-standard-library omics2pk.clint_contract module to validate manually verified, locally kept source data **after** inspecting the official supplements. Required CLint fields: donor_id, drug, system (HH/HLM), clint, clint_unit, clint_basis (UNBOUND/TOTAL), measurement_status (MEASURED), source_table and source_sha256. Required proteomics fields: donor_id, system, protein_id, abundance, abundance_unit, source_table and source_sha256. Neither raw values nor donor IDs are uploaded to CI artifacts.
+
+The validator rejects invented/imputed non-measured endpoints, non-positive or non-finite values, unrecorded units, conflicting unit/basis within the same drug+system, mismatched donor sets, duplicate technical assay rows and duplicate donor/system/protein profiles. Its leave-one-donor-out split holds all five drug assays and both preparation systems for each donor together. A sample with missing measured outcomes stays explicitly incomplete; no filling of absent drug responses is performed. This is infrastructure for the **conditional** CLint experiment, not fitted biology or an IVIVE clinical claim.
+
+
+
 ## 2. Independent empirical SWEET validation (Yin/Battail 2025)
 
 Yin L et al. "Sample-specific network analysis identifies gene co-expression patterns of immunotherapy response in clear cell renal cell carcinoma". iScience 2025, DOI [10.1016/j.isci.2025.113061](https://doi.org/10.1016/j.isci.2025.113061), PMCID PMC12309972.
