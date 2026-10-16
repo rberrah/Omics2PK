@@ -24,5 +24,6 @@ jobs:
         run: python -m pip install -e .
       - name: Synthetic parser and publication-association fail-closed contract
         run: python -m unittest discover -s tests -p 'test_smx_nat_original_jats.py' -v
-      - name: Audit live source; absence is an explicit ABSTAIN, never a numeric success
+      - name: Optional live audit of official source services — ABSTAIN is not an empirical success
+        if: github.event_name == 'workflow_dispatch'
         run: python -m scripts.probe_smx_original_article
