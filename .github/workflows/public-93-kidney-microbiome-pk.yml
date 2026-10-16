@@ -1,0 +1,48 @@
+name: Verify original 93 kidney 16S and estimated tacrolimus PK source
+on:
+  pull_request:
+    paths:
+      - "scripts/audit_degraeve_93_kidney_tac_public_sources.py"
+      - "scripts/audit_public_apap_three_analyte_pbpk.py"
+      - "scripts/validate_apap_three_analyte_literature_nca.py"
+      - "tests/test_apap_three_analyte_nca.py"
+      - "tests/test_public_omics_pk_source_claims.py"
+      - ".github/workflows/public-93-kidney-microbiome-pk.yml"
+  push:
+    branches: [main]
+    paths:
+      - "scripts/audit_degraeve_93_kidney_tac_public_sources.py"
+      - "tests/test_public_omics_pk_source_claims.py"
+      - ".github/workflows/public-93-kidney-microbiome-pk.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 9
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+      - name: Original ENA 93-subject microbiome plus publisher supplement access
+        run: python -m scripts.audit_degraeve_93_kidney_tac_public_sources
+      - name: Reject mathematical shortcuts from imputed AUC to NCA or PopPK
+        run: python -m unittest discover -s tests -p test_public_omics_pk_source_claims.py -v
+  apap-multianalyte-pbpk:
+    runs-on: ubuntu-latest
+    timeout-minutes: 9
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+      - name: Install original RDA reader only
+        run: python -m pip install pyreadr==0.5.4
+      - name: Synthetic-only original observed trapezoidal multianalyte NCA math
+        run: python -m unittest discover -s tests -p 'test_apap_three_analyte_nca.py' -v
+      - name: Audit published APAP glucuronide sulfate human concentration-time PBPK source, distinguish population from patient
+        run: python -m scripts.audit_public_apap_three_analyte_pbpk
+      - name: Validate original APAP glucuronide sulfate profile groups via observed-only study-level AUC0-last
+        run: python -m scripts.validate_apap_three_analyte_literature_nca

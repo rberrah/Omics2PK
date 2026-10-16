@@ -24,6 +24,14 @@ Original **Fannin 2010 GEO GSE15158 (88 RNA assays)** and **Bushel/Fannin 2016 G
 
 **Full audit and strict evidence decisions:** [Public Omics×PK source triage](docs/PUBLIC_SAME_SUBJECT_OMICS_PK_SOURCE_TRIAGE_20261016.md). The repository will not stitch unrelated omics and PK cohorts together or treat a C0/D endpoint as PopPK CL/F/AUC.
 
+## Public PK/omics evidence gate: 93 human TAC microbiomes; parent-metabolite PBPK
+
+In the original [Degraeve et al. 2024 tacrolimus renal cohort](https://doi.org/10.1002/cpt.3077), the genuine ENA `PRJNA929904` source contains **93 distinct original 16S samples** for 93 clinical CYP3A5-nonexpressing transplant recipients. Actual **C0 was observed**, while the paper's AUC0-24 was **machine-learning estimated** from sparse concentrations (with missing-point cohort-median substitution). Original individual C0/AUC ↔ bacterial specimen crosswalk has NOT been obtained, and automated official supplementary ZIP requests returned HTTP 403. Thus these are **not** ready for a patient-validated Omics→AUC study.
+
+Separately, the public [R pksensi APAP dataset](https://search.r-project.org/CRAN/refmans/pksensi/html/APAP.html) contains **32 source rows from three literature studies, including 30 complete parent-acetaminophen / glucuronide / sulfate observations**, with real drug metabolite concentration-time signals. They can support **PBPK multi-analyte population-curve checks**, but there are NO original patient identifiers or independent RNA/metabolomic feature matrices in this RDA.
+
+See [strict original-source audit and E3/PBPK limitations](docs/PUBLIC_93_KIDNEY_TAC_AND_APAP_PBPK_SOURCE_AUDIT_20261016.md). No independent E3 clinical Omics→PopPK gain is claimed.
+
 ## What is executable today
 
 - Offline inspection of the **MultiOmics DOWNSTREAM_EXCHANGE_V1** directory: checks SHA-256, study-data access declaration, assay/sample/subject and feature-ID matching, finite numeric matrices and recorded processing scale.
