@@ -77,5 +77,7 @@ specimens and external replication before mechanism or MIPD relevance.
 
 GitHub Actions executes this with pinned public source commits, checks
 the synthetic leakage tests, and retains **aggregate JSON only**.
-Results and a go/no-go decision must be added **after** the exact PR
-head passes and actual observed metrics are inspected.
+Measured negative-increment results from actual successful CI are recorded
+in docs/RESULTS_NCI60_TWOOMICS_20261016.md. This is an exploratory
+no-go for claiming any incremental metabolomics benefit or clinical PK
+relevance, not a no-go for the wider Omics2PK research program.
