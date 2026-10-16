@@ -45,6 +45,7 @@ Never commit the generated SWEET inputs for controlled or clinical subjects: the
 - [Wegler measured CLint source qualification and Yin SWEET source gates](docs/PUBLIC_PK_SOURCE_QUALIFICATION.md)
 - [Thesis-aligned Omics→PK evidence ladder and future site plan](docs/OMICS_TO_PK_THESIS_PROOF_AND_SITE_PLAN.md)
 - [Wegler 2021 PDF/proteome source-schema results and data availability blocker](docs/WEGLER_SOURCE_STRUCTURE_RESULTS_20261016.md)
+- [Independent original-source audit and actual first validation gates (including mandatory RNA ABSTAIN)](docs/SOURCE_AUDIT_AND_FIRST_VALIDATION_GATES_20261016.md)
 - [Qualified public Omics×PK data catalogue: in-vitro CLint, RNA functional assays, clinical TDM](docs/PUBLIC_OMICS_PK_DATASET_CATALOGUE_20261016.md)
 - [Research roadmap and decision gates](docs/ROADMAP.md)
 - [Comparative methods protocol: ML vs PopPK, SWEET and evidence graphs](docs/PROTOCOL.md)

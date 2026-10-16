@@ -34,6 +34,15 @@ This list follows the earlier MultiOmics → SWEET → Pillar A → Pillar B R2 
 - [ ] Compare clinical+PGx reference → prespecified direct RNA scores → qualified SWEET RNA → parallel protein/metabolite → optional integrated latent scores, on identical held-out patients; external validation + Pillar C adjudication.
 - [ ] **After proof only**: design public learning/tool at rberrah.github.io with FR/EN, dark/light, Resources, Other Disciplines, persistent provenance and no user clinical-data upload.
 
+## Measured-source audit — real source bytes read, no fake model fit
+- [x] **GSE289636** actual GEO SOFT/TAR and original CC BY source DOCX: six exact PHH donors, two six-CYP functional outcome tables. SHA-pinned.
+- [x] **Critical discovery:** files labelled row_counts are Seurat CELL METADATA (Barcode, graphclust, PCA, UMAP, nUMI), not any CYP gene transcript matrix. Explicit **ABSTAIN** instead of false CPM-based regression; obtain raw SRA FASTQ-derived gene counts or author matrices (issue #16).
+- [x] Original tucatinib 21 single-donor+one pooled HLM paper/PRIDE provenance confirmed. Automated publisher Table 1 access forbidden/reserved; numerical donor records NOT downloaded or modeled.
+- [x] Local-only 21-donor HLM clearance–CYP protein/activity LODO evaluator with frozen 2-variable ridge, baseline and paired bootstrap. **Synthetic tests only**, awaiting rights-qualified source CSV (issue #15).
+- [ ] Run first **real** source-labeled molecular predictor/functional PK endpoint dataset only after exact numeric outcome+feature pairing; distinguish source-format CI PASS from biological model validation.
+- [ ] For HLC GSE9588, confirm exactly matching enzyme activity records in the 398 activity-profiled subset of the 466 molecular subjects; no automatic 427 GEO overlap.
+- [ ] Site learning bridge remains withheld until at least a reproducible matched quantitative result. Full audit: [SOURCE_AUDIT_AND_FIRST_VALIDATION_GATES_20261016.md](SOURCE_AUDIT_AND_FIRST_VALIDATION_GATES_20261016.md).
+
 ## 2026-10-16 public evidence inventory
 - [x] Verify accessible article/dataset identity for a **21-donor tucatinib CLint + targeted CYP proteomics table** (original public Table 1, PXD057282). This now precedes Wegler as the first direct numerical CLint validation candidate.
 - [x] Identify **GSE289636 (six donor PHH scRNA with paper-supplement CYP substrate clearance)** as a separate *RNA→measured functional activity* proof, not clinical PK; source numeric assay crosswalk remains to verify.

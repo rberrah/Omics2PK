@@ -1,0 +1,56 @@
+name: Source reachability and real omics-PK validation
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - "scripts/probe_public_real_pk.py"
+      - "scripts/qualify_peng_phh_source.py"
+      - "scripts/validate_peng_rna_activity.py"
+      - "scripts/diagnose_peng_expression_values.py"
+      - "src/omics2pk/phh_cyp_evidence.py"
+      - "tests/test_phh_cyp_evidence.py"
+      - "tests/test_qualify_peng_phh_source.py"
+      - ".github/workflows/real-omics-pk-proof.yml"
+permissions:
+  contents: read
+jobs:
+  source-gates:
+    runs-on: ubuntu-latest
+    timeout-minutes: 14
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+      - name: Probe public primary article sources (structure only)
+        run: python -m scripts.probe_public_real_pk
+
+  peng-public-omics-data:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+      - name: Synthetic tests for donor identities and source archive safety
+        run: python -m unittest discover -s tests -p 'test_qualify_peng_phh_source.py' -v
+      - name: Verify actual six-donor GEO plus native PHH functional supplement
+        run: python -m scripts.qualify_peng_phh_source
+      - name: Determine original GEO RNA matrix count semantics before normalization
+        run: python -m scripts.diagnose_peng_expression_values
+
+  exploratory-measured-cyp:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+      - name: Install clean research package
+        run: python -m pip install -e .
+      - name: Test original CYP table matching and held-out donor contract
+        run: python -m unittest discover -s tests -p 'test_phh_cyp_evidence.py' -v
+      - name: Actual PHH RNA pseudobulk vs original measured CYP SCR/MFR (n=6, exploratory only)
+        run: python -m scripts.validate_peng_rna_activity
