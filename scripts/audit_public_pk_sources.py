@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import argparse
 import io
+import hashlib
 import json
 import re
 import sys
@@ -185,9 +186,11 @@ def validate_payload(kind: str, data: bytes) -> dict:
     if kind == "pdf":
         if not data.startswith(b"%PDF-"):
             raise ValueError("Expected PDF signature; possible HTML block/error response")
-        return {"format": "pdf", "file_size_bytes": len(data)}
+        return {"format": "pdf", "file_size_bytes": len(data),
+                "sha256": hashlib.sha256(data).hexdigest()}
     if kind == "xlsx":
-        return {**workbook_structure(data), "file_size_bytes": len(data)}
+        return {**workbook_structure(data), "file_size_bytes": len(data),
+                "sha256": hashlib.sha256(data).hexdigest()}
     if kind == "zenodo":
         return zenodo_metadata(data)
     if kind == "pmc_cloud":
@@ -304,7 +307,8 @@ def main():
                       "source_states": {k: (v["state"] + ": " + v.get("error_type", "") + " " + v.get("detail", "")[:200]) for k, v in report["sources"].items()},
                       "wegler_cloud_public_metadata": report["sources"].get("wegler_cloud_metadata", {}).get("metadata_only", {}),
                       "cloud_fallback_diagnostics": {k: v.get("cloud_fallback") for k, v in report["sources"].items() if v.get("cloud_fallback")},
-                      "yin_public_metadata": report["sources"].get("yin_battail_metadata", {}).get("metadata_only", {})},
+                      "yin_public_metadata": report["sources"].get("yin_battail_metadata", {}).get("metadata_only", {}),
+                      "wegler_supplement_formats": {k: v.get("metadata_only", {}) for k,v in report["sources"].items() if k in EXPECTED_PMC_SUPPLEMENTS}},
                      indent=2))
     if args.strict_sources and report["format_verified_count"] != len(SOURCES):
         return 2
