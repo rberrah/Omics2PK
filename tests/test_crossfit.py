@@ -1,0 +1,122 @@
+"""Synthetic-only split/leakage controls for experimental SWEET-inspired features."""
+import unittest
+
+try:
+    import numpy as np
+    from omics2pk.inductive_sweet import (
+        InductiveNetworkError,
+        build_outer_split_features,
+        crossfit_training_features,
+        fit_frozen_reference,
+        gene_strength_features,
+        predict_network,
+    )
+except ModuleNotFoundError as exc:
+    if exc.name != "numpy":
+        raise
+    np = None
+
+
+@unittest.skipIf(np is None, "NumPy is optional: qualified in inductive-sweet workflow")
+class CrossfitTests(unittest.TestCase):
+    def setUp(self):
+        rng = np.random.default_rng(20261016)
+        self.genes = tuple(f"G{i}" for i in range(16))
+        self.ids = tuple(f"SUB{i:02}" for i in range(18))
+        self.x = rng.normal(size=(len(self.genes), len(self.ids)))
+        self.train = self.ids[:13]
+        self.test = self.ids[13:]
+
+    def split(self, x=None, train=None, test=None, folds=0):
+        return build_outer_split_features(
+            self.x if x is None else x, genes=self.genes,
+            subject_ids=self.ids,
+            train_ids=self.train if train is None else train,
+            test_ids=self.test if test is None else test,
+            tissue="liver", folds=folds)
+
+    def test_leave_one_out_excludes_the_actual_subject(self):
+        r = self.split()
+        self.assertEqual(len(r["training"]), 13)
+        self.assertEqual(len(r["test"]), 5)
+        self.assertTrue(all(x["reference_n"] == 12 for x in r["training"]))
+        self.assertTrue(all(x["reference_n"] == 13 for x in r["test"]))
+        record = r["training"][0]
+        loo = fit_frozen_reference(
+            self.x[:, 1:13], genes=self.genes,
+            subject_ids=self.train[1:], tissue="liver")
+        self.assertEqual(loo.fingerprint, record["reference_fingerprint"])
+        graph, _ = predict_network(loo, self.x[:, 0], subject_id=self.train[0],
+                                   genes=self.genes, tissue="liver")
+        self.assertEqual(record["features"], gene_strength_features(graph, genes=self.genes))
+        self.assertFalse(r["trained_with_pk_pd_target"])
+        self.assertFalse(r["equivalent_to_official_sweet"])
+
+    def test_test_patient_and_other_test_patients_do_not_change_reference(self):
+        first = self.split()
+        shifted = self.x.copy()
+        shifted[:, -1] += np.linspace(0, 6, len(self.genes))
+        second = self.split(x=shifted)
+        self.assertEqual(first["outer_reference_fingerprint"],
+                         second["outer_reference_fingerprint"])
+        self.assertEqual(first["training"], second["training"])
+        self.assertEqual(first["test"][:-1], second["test"][:-1])
+
+    def test_outer_training_covariates_do_not_see_any_outer_test_subject(self):
+        first = self.split()
+        shifted = self.x.copy()
+        shifted[:, 13:] += np.random.default_rng(42).normal(size=(16, 5)) * 2
+        second = self.split(x=shifted)
+        self.assertEqual(first["training"], second["training"])
+        self.assertEqual(first["outer_reference_fingerprint"],
+                         second["outer_reference_fingerprint"])
+
+    def test_crossfit_references_exclude_complete_training_fold(self):
+        r = self.split(folds=3)
+        groups = {}
+        for record in r["training"]:
+            groups.setdefault(record["excluded_fold"], []).append(record)
+        self.assertEqual(len(groups), 3)
+        for group in groups.values():
+            self.assertEqual(len({e["reference_fingerprint"] for e in group}), 1)
+            self.assertEqual(group[0]["reference_n"], 13 - len(group))
+        self.assertEqual({item["reference_n"] for item in r["test"]}, {13})
+
+    def test_fold_allocation_does_not_depend_on_input_column_order(self):
+        original = self.split(folds=3)
+        order = list(reversed(range(18)))
+        reordered = build_outer_split_features(
+            self.x[:, order], genes=self.genes,
+            subject_ids=tuple(self.ids[i] for i in order),
+            train_ids=self.train, test_ids=self.test, tissue="liver", folds=3)
+        a = {r["subject_id"]: r["excluded_fold"] for r in original["training"]}
+        b = {r["subject_id"]: r["excluded_fold"] for r in reordered["training"]}
+        self.assertEqual(a, b)
+
+    def test_duplicate_and_overlapping_subject_ids_fail_closed(self):
+        with self.assertRaisesRegex(InductiveNetworkError, "partition"):
+            self.split(test=(self.train[0],) + self.test[1:])
+        with self.assertRaisesRegex(InductiveNetworkError, "partition"):
+            self.split(test=self.test[:-1])
+        with self.assertRaisesRegex(InductiveNetworkError, "partition"):
+            self.split(train=self.train + (self.train[0],))
+
+    def test_loo_requires_sufficient_training_subjects(self):
+        with self.assertRaisesRegex(InductiveNetworkError, "six"):
+            crossfit_training_features(
+                self.x[:, :5], genes=self.genes, subject_ids=self.ids[:5],
+                tissue="liver")
+        with self.assertRaisesRegex(InductiveNetworkError, "Too few"):
+            crossfit_training_features(
+                self.x[:, :6], genes=self.genes, subject_ids=self.ids[:6],
+                tissue="liver", folds=2)
+
+    def test_folds_boolean_and_invalid_count_rejected(self):
+        for folds in (True, -1, 1, 100):
+            with self.subTest(folds=folds):
+                with self.assertRaises(InductiveNetworkError):
+                    self.split(folds=folds)
+
+
+if __name__ == "__main__":
+    unittest.main()
