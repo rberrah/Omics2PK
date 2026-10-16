@@ -1,17 +1,21 @@
 """Synthetic-only tests for a proposed, NOT validated, inductive SWEET variant."""
 import unittest
 
-import numpy as np
+try:
+    import numpy as np
+    from omics2pk.inductive_sweet import (
+        InductiveNetworkError,
+        fit_frozen_reference,
+        gene_strength_features,
+        predict_network,
+    )
+except ModuleNotFoundError as exc:
+    if exc.name != "numpy":
+        raise
+    np = None
 
-from omics2pk.inductive_sweet import (
-    FrozenReference,
-    InductiveNetworkError,
-    fit_frozen_reference,
-    gene_strength_features,
-    predict_network,
-)
 
-
+@unittest.skipIf(np is None, "NumPy optional extra not installed; tested in inductive workflow")
 class InductiveSWEETTests(unittest.TestCase):
     def setUp(self):
         rng = np.random.default_rng(20261016)
