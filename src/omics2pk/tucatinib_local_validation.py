@@ -38,7 +38,7 @@ def qualify(rows):
     pooled=0
     donors=set()
     for row in rows:
-        if set(row)<set(COLS):
+        if not set(COLS).issubset(row):
             raise TucatinibEvidenceError("Missing source-aligned required column")
         if row["source_doi"].strip()!=SOURCE_DOI:
             raise TucatinibEvidenceError("Unexpected source DOI")
