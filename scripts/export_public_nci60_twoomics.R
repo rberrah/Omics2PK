@@ -51,8 +51,9 @@ class_mix <- tumor_key(source_class[ds])
 class_intlim <- tumor_key(as.character(meta$cancertype[ms]))
 if (any(!nzchar(class_mix)) || any(!nzchar(class_intlim)) ||
     any(class_mix != class_intlim)) {
-  differing <- source_ids[ds][class_mix != class_intlim]
-  stop(paste("Discordant tumor lineages (manual review required):",paste(differing,collapse=", ")))
+  differing <- which(class_mix != class_intlim)
+  for (i in differing) cat(sprintf("CANCER LINEAGE CHECK: %s source=%s IntLIM=%s\n", source_ids[ds][i],source_class[ds][i],meta$cancertype[ms][i]))
+  stop(paste("Discordant tumor lineages (manual review required):",paste(source_ids[ds][differing],collapse=", ")))
 }
 
 # Separate public, curated log-scale source measurements; do not log-transform again.
