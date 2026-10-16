@@ -7,6 +7,7 @@ on:
       - "scripts/qualify_peng_phh_source.py"
       - "scripts/validate_peng_rna_activity.py"
       - "scripts/diagnose_peng_expression_values.py"
+      - "scripts/audit_epa_liver_rna_activity.py"
       - "src/omics2pk/phh_cyp_evidence.py"
       - "tests/test_phh_cyp_evidence.py"
       - "tests/test_qualify_peng_phh_source.py"
@@ -54,3 +55,14 @@ jobs:
         run: python -m unittest discover -s tests -p 'test_phh_cyp_evidence.py' -v
       - name: Actual PHH RNA pseudobulk vs original measured CYP SCR/MFR (n=6, exploratory only)
         run: python -m scripts.validate_peng_rna_activity
+
+  epa-official-liver-mrna-cyp:
+    runs-on: ubuntu-latest
+    timeout-minutes: 7
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+      - name: Qualify real original US EPA 100-liver published RNA and CYP activity workbook
+        run: python -m scripts.audit_epa_liver_rna_activity
