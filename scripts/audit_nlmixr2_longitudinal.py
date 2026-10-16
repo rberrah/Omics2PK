@@ -41,7 +41,7 @@ def source_report():
             items=pyreadr.read_r(full)
             if len(items)!=1:raise ValueError("Unexpected RDA object number")
             df=next(iter(items.values()))
-            if len(df)!=expected_n:raise ValueError("Original source PK row count mismatch")
+            if len(df)!=expected_n:raise ValueError(f"Original source PK row count mismatch for {name}: observed={len(df)}, expected={expected_n}")
             columns=list(map(str,df.columns))
             idkey=next((c for c in columns if c.lower()=="id"),None)
             if idkey is None:raise ValueError("Original subject ID column missing")
