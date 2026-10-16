@@ -9,6 +9,9 @@ on:
       - "scripts/diagnose_peng_expression_values.py"
       - "scripts/audit_epa_liver_rna_activity.py"
       - "scripts/inspect_epa_liver_crosswalk.py"
+      - "scripts/validate_epa_liver_rna_cyp.py"
+      - "src/omics2pk/epa_liver_cyp_validation.py"
+      - "tests/test_epa_liver_cyp_validation.py"
       - "src/omics2pk/phh_cyp_evidence.py"
       - "tests/test_phh_cyp_evidence.py"
       - "tests/test_qualify_peng_phh_source.py"
@@ -69,3 +72,18 @@ jobs:
         run: |
           python -m scripts.audit_epa_liver_rna_activity
           python -m scripts.inspect_epa_liver_crosswalk
+
+  epa-measured-100-donor-rna-cyp:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+      - name: Install native research package (no external ML)
+        run: python -m pip install -e .
+      - name: Test real measured CYP / RNA 100-donor exact-match and heldout code on synthetic records
+        run: python -m unittest discover -s tests -p 'test_epa_liver_cyp_validation.py' -v
+      - name: Evaluate actual 100 original EPA human livers qPCR against measured CYP function
+        run: python -m scripts.validate_epa_liver_rna_cyp
