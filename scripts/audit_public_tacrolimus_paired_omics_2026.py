@@ -62,6 +62,18 @@ def audit_spreadsheet(blob):
                         val=""
                     if ix<3 and val.strip():
                         text.append(val.strip()[:100])
+            # Only FIRST row is the original XLSX scientific column header.
+            header_text=[]
+            if rows:
+                for cell in rows[0].findall(M+"c"):
+                    v=cell.find(M+"v")
+                    if v is not None and cell.attrib.get("t")=="s":
+                        header_text.append(strs[int(v.text)][:100])
+                    elif v is not None and cell.attrib.get("t")=="str":
+                        header_text.append((v.text or "")[:100])
+                    else:
+                        inline=cell.find(M+"is")
+                        if inline is not None:header_text.append("".join(inline.itertext())[:100])
             # Only source scientific HEADER strings, never original IDs/values.
             permitted=[t for t in text if re.search(
                 r"sample|group|patient|subject|person|tacro|concen|c/d|dose|sex|age|time|transplant|metabol|microbiome|clinical|conc",t,re.I)]
@@ -69,7 +81,8 @@ def audit_spreadsheet(blob):
                 "sheet_name":sh.attrib.get("name","")[:70],
                 "xml_row_count":len(rows),
                 "numeric_cell_count_without_original_values":numeric_cells,
-                "first_three_rows_scientific_header_labels_only":permitted[:25],
+                "only_first_original_row_header_labels":header_text[:25],
+                "source_original_patient_row_count":max(0,len(rows)-1),
                 "individual_subject_pk_omics_crosswalk_verified":False,
             })
     return sheets
