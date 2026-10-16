@@ -68,6 +68,19 @@ def source_report():
                 extra["original_occasion_column_present"]=bool(occ)
                 if occ:
                     extra["n_distinct_occasion_labels"]=int(df[occ].nunique(dropna=True))
+                    groups=df.groupby([idkey,occ],dropna=False)
+                    extra["n_original_subject_occasion_groups"]=int(groups.ngroups)
+                    extra["n_people_with_two_distinct_occasions"]=int((df.groupby(idkey)[occ].nunique()>1).sum())
+                    extra["n_original_subject_occasions_with_multiple_doses"]=int(
+                        sum((g["EVID"]==1).sum()>=2 for _,g in groups)
+                    )
+                    extra["n_original_subject_occasions_with_concentrations"]=int(
+                        sum((g["EVID"]==0).sum()>0 for _,g in groups)
+                    )
+                    extra["critical_note"]="OCC is a visit/occasion identifier, NOT a cumulative study time axis; do not automatically treat two OCC as continuous multidose history"
+                extra["n_original_evid_1_dose_rows"]=int((df["EVID"]==1).sum())
+                extra["n_original_evid_0_candidate_concentration_rows"]=int((df["EVID"]==0).sum())
+                extra["n_original_evid_0_with_numeric_DV"]=int(df.loc[df["EVID"]==0,"DV"].notna().sum())
             result[name]={
                 "original_rda_sha256":hashlib.sha256(raw).hexdigest(),
                 "n_source_rows":len(df),
