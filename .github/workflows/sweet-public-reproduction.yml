@@ -1,0 +1,41 @@
+name: Reproduce SWEET official published example
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "scripts/verify_sweet_upstream.py"
+      - ".github/workflows/sweet-public-reproduction.yml"
+      - "docs/SWEET_OUTPUTS.md"
+  pull_request:
+    paths:
+      - "scripts/verify_sweet_upstream.py"
+      - ".github/workflows/sweet-public-reproduction.yml"
+      - "docs/SWEET_OUTPUTS.md"
+permissions:
+  contents: read
+jobs:
+  reproduce:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/checkout@v5
+        with:
+          repository: SysMednet/SWEET
+          ref: cf064eb5f5b996c40bba3cce507384f6c0fdecb5
+          path: upstream/sweet
+          persist-credentials: false
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+      - name: Pin upstream numeric dependency
+        run: python -m pip install numpy==2.3.5
+      - name: Re-run original published algorithms and compare archived scores
+        run: python scripts/verify_sweet_upstream.py --upstream upstream/sweet --report sweet_official_reproduction.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: sweet-official-reproduction-report
+          path: sweet_official_reproduction.json
+          if-no-files-found: ignore
+          retention-days: 14
