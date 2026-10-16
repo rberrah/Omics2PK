@@ -1,0 +1,20 @@
+name: Source reachability and real omics-PK validation
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - "scripts/probe_public_real_pk.py"
+      - ".github/workflows/real-omics-pk-proof.yml"
+permissions:
+  contents: read
+jobs:
+  source-gates:
+    runs-on: ubuntu-latest
+    timeout-minutes: 14
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+      - name: Probe public primary article sources (structure only)
+        run: python -m scripts.probe_public_real_pk
