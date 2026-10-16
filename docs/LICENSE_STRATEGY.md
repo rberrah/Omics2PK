@@ -1,6 +1,6 @@
 # Proposed license strategy (decision pending — 2026-10-16)
 
-**Status:** advice and owner review only. **No license is added or changed by this document.** The intention under discussion is to allow free academic research and sharing, while requiring specific authorization for commercial exploitation.
+**Decision 2026-10-16:** owner selected PolyForm Noncommercial 1.0.0 for eligible original software and CC BY-NC-SA 4.0 for authored content. This is not retroactive and does not override third-party licences. This document remains a scope/compatibility explanation, not additional licence terms. The intention under discussion is to allow free academic research and sharing, while requiring specific authorization for commercial exploitation.
 
 ## 1. Two distinct goals
 
@@ -36,4 +36,4 @@ Before distributing under PolyForm Noncommercial or a dual-license model:
 
 Audit **each repository** separately; do not apply the same change mechanically to research code, a public website, teaching text, art, private institutional code, and collaborative work. New source-available research repositories may use a noncommercial license after review. Existing MIT/CC BY-SA content should keep accurate notices. There is no automatically imposed uniform noncommercial license.
 
-**Interim state for Omics2PK:** public GitHub visibility; no explicit software license selected. This is not a declaration of open-source or permission for unrestricted reuse.
+**Omics2PK branch state:** the proposed licence and attribution notices are in LICENSE, LICENSE-CONTENT.md, NOTICE and CITATION.cff. Apply to this PR's new original code upon merge. Do not imply re-licensing of copied or upstream components.

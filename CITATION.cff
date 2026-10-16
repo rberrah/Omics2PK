@@ -1,0 +1,16 @@
+cff-version: 1.2.0
+message: "Please cite Omics2PK when using or adapting this research software; preserve the mandatory copyright notice."
+type: software
+title: "Omics2PK"
+authors:
+  - family-names: Berrah
+    given-names: Racym
+    orcid: "https://orcid.org/0009-0001-6432-2880"
+repository-code: "https://github.com/rberrah/Omics2PK"
+license: PolyForm-Noncommercial-1.0.0
+version: "0.1.0-alpha"
+keywords:
+  - pharmacometrics
+  - transcriptomics
+  - molecular networks
+  - pharmacokinetics

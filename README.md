@@ -31,4 +31,4 @@ Never commit the generated SWEET inputs for controlled or clinical subjects: the
 
 ## Publishing / licensing
 
-The GitHub repository can be public without hosting any clinical records. Software licensing and ownership review remain pending; visibility alone does not grant redistribution rights. We do not bundle the private Thesis repository or upstream SWEET source.
+The GitHub repository can be public without hosting any clinical records. New original source is offered under PolyForm Noncommercial 1.0.0 with the mandatory NOTICE attribution; authored texts are CC BY-NC-SA 4.0. See LICENSE, LICENSE-CONTENT.md and CITATION.cff. Commercial use requires separate permission from rights holders. This is source-available, **not OSI open-source**. We do not bundle private Thesis code or the upstream SWEET implementation.
