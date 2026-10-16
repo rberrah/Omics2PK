@@ -1,0 +1,37 @@
+name: Audit public NCI-60 multiomics and GI50 linkage (no models)
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - "scripts/audit_nci60_multiomics_overlap.R"
+      - ".github/workflows/nci60-multiomics-overlap.yml"
+  push:
+    paths:
+      - "scripts/audit_nci60_multiomics_overlap.R"
+      - ".github/workflows/nci60-multiomics-overlap.yml"
+permissions:
+  contents: read
+jobs:
+  audit-exact-names:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/checkout@v5
+        with:
+          repository: mixOmics-org/mixOmics
+          ref: 9f9fd66b69105fdb618b54588b638b567e85c0d6
+          path: upstream/mixomics
+          persist-credentials: false
+      - uses: actions/checkout@v5
+        with:
+          repository: Mathelab/NCI60_GeneMetabolite_Data
+          ref: 4c140708c18c41910458414a626b1a51d3dd2a85
+          path: upstream/nci60-multiomics
+          persist-credentials: false
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          r-version: "release"
+          use-public-rspm: true
+      - name: Audit exact cell-line identity overlap, no response modeling
+        run: Rscript scripts/audit_nci60_multiomics_overlap.R upstream/mixomics upstream/nci60-multiomics
