@@ -14,6 +14,8 @@ Omics2PK connects the reproducible outputs of [MultiOmics](https://github.com/rb
 - Research-only **real observed pharmacological benchmark** using 60 NCI-60 cell lines and predeclared doxorubicin GI50, with raw/PCA/network and fixed XGBoost (M1/M1bis/M2), negative shuffled-network control and tumor-type-adjusted baselines. **No observed primary MAE improvement; tumor-type-only is strongest.** Not clinical PK or verified biological mechanism.
 - Additional cross-study observed GI50 study: **47 tumor-lineage-concordant NCI-60 cell lines**, 17,987 RNA features and 280 metabolites, with fixed RNA-only, metabolite-only, joint and tumor-adjusted Ridge/XGBoost comparisons. **No measured benefit of adding metabolomics to RNA in primary MAE**; one reclassified cell line explicitly excluded. These assays are NOT same-time or same-specimen multiomics.
 - Public Wegler 2021/ Yin-Battail 2025 source-format inventory: bounded retrieval of PMC supporting metadata, workbook sheet names, and Zenodo record information. **No fitted CLint, donor-level link or reproduced SWEET clinical result is claimed**.
+- **Thesis-locked Omics→PK evidence gate:** local, strictly fail-closed subject/time/drug/dose/concentration pairing for **RNA alone, proteomics alone, metabolomics alone, or 2–3 modalities together**; explicit cross-assay window. Strict pre-dose covariate timing prevents post-dose biological measurement leakage. Only aggregate QC is returned — **no PopPK fit or proof of clinical improvement**.
+- **Wegler source-schema audit:** reads open 2021 supporting PDF and compartment-specific proteomics workbook temporarily in GitHub Actions with official PMC AWS URLs and fixed SHA-256, emits only structure/keyword counts, no donor data or invented CLint rows.
 - Unit tests using synthetic data; no private patient files or cloud PK inference in GitHub Actions.
 
 **Not implemented yet:** a *scientifically validated* inductive SWEET method (the implemented experimental method is explicitly *SWEET-inspired*), drug-specific mechanistic patient scores, Pillar-A overlays, XGBoost/PopPK fits, and clinical validation. The pinned upstream regression check reproduces raw example networks but flags an official z-score archive mismatch (issue #4). Treat the outputs as input preparation only.
@@ -41,6 +43,8 @@ Never commit the generated SWEET inputs for controlled or clinical subjects: the
 - [NCI-60 cross-study 47-line RNA + metabolite GI50 protocol (PR #9 merged)](docs/NCI60_TWOOMICS_BENCHMARK.md)
 - [Observed cross-study NCI-60 two-omics negative benchmark results (47 cell lines)](docs/RESULTS_NCI60_TWOOMICS_20261016.md)
 - [Wegler measured CLint source qualification and Yin SWEET source gates](docs/PUBLIC_PK_SOURCE_QUALIFICATION.md)
+- [Thesis-aligned Omics→PK evidence ladder and future site plan](docs/OMICS_TO_PK_THESIS_PROOF_AND_SITE_PLAN.md)
+- [Wegler 2021 PDF/proteome source-schema results and data availability blocker](docs/WEGLER_SOURCE_STRUCTURE_RESULTS_20261016.md)
 - [Research roadmap and decision gates](docs/ROADMAP.md)
 - [Comparative methods protocol: ML vs PopPK, SWEET and evidence graphs](docs/PROTOCOL.md)
 - [Data security, local-only computation and publication](docs/DEPLOYMENT_AND_PUBLICATION.md)
