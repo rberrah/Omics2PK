@@ -25,17 +25,17 @@
 ## B. Transcriptomic bridge with observed enzyme metabolism (not yet clinical PK)
 
 ### B1. Peng et al. 2025 — **6 PHH preparations** + single-cell transcriptomics and CYP substrate disappearance/metabolites
-- Official public RNA: https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE289636 (six GEO samples; processed RNA CSV available).
+- Official public RNA: https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE289636 (six GEO samples; supplementary CSV only cell-level Seurat metadata, NOT RNA gene counts).
 - Article and Supplement 1 (Tables S1–S7 including S4/S5): https://pmc.ncbi.nlm.nih.gov/articles/PMC12532551/ ; https://doi.org/10.1186/s13619-025-00258-6 .
-- Same six primary human hepatocyte batches examined by scRNA-seq and LC-MS/MS activity of six CYP substrate/metabolite pairs, including bupropion/CYP2B6, diclofenac/CYP2C9, testosterone/CYP3A4; **substrate clearance rate (SCR) / metabolite formation rate (MFR)** (laboratory metabolic function, NOT in-vivo CL or AUC). Relevant numeric supplementary Tables S4/S5 need independent manual audit, units and batch identity check.
+- Same six primary human hepatocyte batches examined by scRNA-seq and LC-MS/MS activity of six CYP substrate/metabolite pairs, including bupropion/CYP2B6, diclofenac/CYP2C9, testosterone/CYP3A4; **substrate clearance rate (SCR) / metabolite formation rate (MFR)** (laboratory metabolic function, NOT in-vivo CL or AUC). Original DOCX Tables S4/S5 verified as donor-specific six-CYP functional tables with exactly the six GEO batch IDs. Gene expression counts are NOT supplied in GEO CSV; functional units, censoring and LoQ still need manual audit.
 - **Important:** author data availability states *other original data available on reasonable request*. Do not assert full individualized analytical matrices outside GEO/Supplement 1 are public. N=6 is proof of data-flow/mechanism, **not** a generalizable machine-learning model or substantive external validation.
-- Cross-validate at **donor** level; pseudobulk or pathway scores and simple prespecified CYP RNA only. Do not split cells of one donor across folds or claim thousands of single cells as thousands of patients.
+- **ABSTAIN current:** GEO files contain Barcode, Seurat clustering, UMAP, PCA, nGene/nUMI rather than CYP expression. First recover actual gene matrices from SRA/FASTQ or authors. Then use biological donor CV, not cell-level CV.
 
 ### B2. Yang et al. 2010 — human liver cohort, RNA expression + multiple CYP activities
 - Paper: https://pmc.ncbi.nlm.nih.gov/articles/PMC2909567/ ; https://pubmed.ncbi.nlm.nih.gov/20538623/.
 - Public liver microarray from related cohort: https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE9588 (**427** publicly profiled GEO liver samples).
 - Original integrated study characterized **466** human liver samples including gene expression, SNPs and measured CYP enzymatic activity, but 466 integrated study records and 427 GEO microarray records are **not automatically the same fully overlapping participant set**. GSE9588 explicitly says clinical data were requested but **not provided** by submitter. HLC: https://www.synapse.org/Synapse:syn4499 ; linked restricted genetic accession https://www.ega-archive.org/studies/phs000253 .
-- **Outcome-access status:** an unrestricted per-sample quantitative CYP-activity table with exactly matching GEO identifiers is NOT yet confirmed. It may require dataset-specific Synapse/dbGaP permission or original supplemental data. Do not fit against paper-level averages or infer matching identifiers.
+- **Outcome-access status:** 398 CYP activity-measured subjects are reported within the 466-subject study, and an unrestricted per-sample quantitative CYP-activity table with exactly matching GEO identifiers is NOT yet confirmed. It may require dataset-specific Synapse/dbGaP permission or original supplemental data. Do not fit against paper-level averages or infer matching identifiers.
 - **Potential value:** much larger RNA→functional drug metabolism demonstration, with batch/site confounding and genotype baseline if legally accessible.
 
 ## C. Actual patient drug concentrations plus molecular measurement, **but individual paired public matrices not confirmed**
@@ -59,11 +59,14 @@
 - BIOMARGIN alone: multiomics/biomarkers but **no PK**; ABIS matching unproven.
 
 ## Ranked engineering/evidence actions
-1. **P0 immediately actionable**: reproduce Table 1 from the 2025 tucatinib paper as source-linked 21-donor rows in an ephemeral, license-compliant research process; validate source units and pooling; fixed leave-one-original-donor-out protein→microsomal CLint benchmark with very small predeclared model set and full negative-result reporting. This is a **targeted proteomics** experiment, NOT thesis proof for transcriptomics or clinical individualized dosing.
-2. **P0 transcriptomic companion**: source-audit the six GSE289636 PHH scRNA datasets alongside original donor-labeled substrate clearance and metabolite-formation numeric Tables S4/S5; compare pseudobulk RNA CYP scores vs each actual substrate conversion; N=6 means **descriptive/technical** only.
+1. **P0 source/rights gate**: obtain the legitimately usable original 21-donor Table 1 numbers for the tucatinib paper; publisher automated access returned 403 and text/data mining rights are reserved. Local-only source contract and cross-validation code are implemented with synthetic tests; validate source units and pooling; fixed leave-one-original-donor-out protein→microsomal CLint benchmark with very small predeclared model set and full negative-result reporting. This is a **targeted proteomics** experiment, NOT thesis proof for transcriptomics or clinical individualized dosing.
+2. **P0 transcriptomic block**: donor-matched six-CYP SCR/MFR panels confirmed, but GEO download is cell metadata only. Retrieve original SRA reads and process to gene counts, or request usable gene expression matrices, before any RNA-CYP association; n=6 remains exploratory.
 3. **P1 wider transcriptomic**: qualify per-donor CYP activity outcomes and lawful exact join for 2010 HLC/GSE9588; refuse if no open outcome file.
 4. **P1 separate PK**: source-audit the original Wegler 15-donor × five-substrate HH/HLM CLint supplement, and obtain author data if not tabulated.
 5. **P2 clinical**: contact 2022 tacrolimus metabolomics study authors for matrices and/or verify feasibility of lawful BIOMARGIN molecular ↔ ABIS drug dose/concentration linkage; do not fabricate or fuzzy-match subjects.
 6. **P3 site**: only after validated empirical proof and source/legal checks, expose static safe research lessons and tools at rberrah.github.io with FR/EN, dark/light, Resources and Other Disciplines; no patient-level uploads or public model-driven dosing.
 
 **Audit certainty:** literature and official dataset identity/public download statements checked as of 2026-10-16; a published paper describing a paired assay is *not* proof every raw feature/outcome join is unrestricted and accessible. A green source-format CI is not a green scientific validation.
+
+
+**Independent post-audit qualification, 16 October 2026:** [Source audit and first validation gates](SOURCE_AUDIT_AND_FIRST_VALIDATION_GATES_20261016.md). A green source/test CI does not mean the measured empirical model was fitted. Current RNA pilot abstains; tucatinib code awaits legitimate original numerical source data.
