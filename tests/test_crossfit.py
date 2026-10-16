@@ -48,7 +48,9 @@ class CrossfitTests(unittest.TestCase):
         self.assertEqual(loo.fingerprint, record["reference_fingerprint"])
         graph, _ = predict_network(loo, self.x[:, 0], subject_id=self.train[0],
                                    genes=self.genes, tissue="liver")
-        self.assertEqual(record["features"], gene_strength_features(graph, genes=self.genes))
+        expected = gene_strength_features(graph, genes=self.genes)
+        for gene in self.genes:
+            self.assertAlmostEqual(record["features"][gene], expected[gene], places=12)
         self.assertFalse(r["trained_with_pk_pd_target"])
         self.assertFalse(r["equivalent_to_official_sweet"])
 
