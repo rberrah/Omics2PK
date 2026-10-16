@@ -32,6 +32,12 @@ Separately, the public [R pksensi APAP dataset](https://search.r-project.org/CRA
 
 See [strict original-source audit and E3/PBPK limitations](docs/PUBLIC_93_KIDNEY_TAC_AND_APAP_PBPK_SOURCE_AUDIT_20261016.md). No independent E3 clinical Omics→PopPK gain is claimed.
 
+## Degraeve 93 renal TAC original source supplement: acquired, raw PK/16S crosswalk still missing
+
+The **exact authorized original Wiley** `cpt3077-sup-0001-supinfo.zip` was inspected locally (SHA256 `03aab5deb292a03753073e493d7ae49896884be2cde22d5c2d1c9f3037488cc2`; **not redistributed in public GitHub**). The three original files provide clinical/16S methods, 8 figures with GraphPad source objects, and 3 aggregate tables. There is **no documented original 93-row patient clinical C0/C1/C3 ↔ SRA/ASV matrix crosswalk**. This resolves the former publisher-403 archive access blocker, but NOT the patient-level biomarker→PK data blocker.
+
+Important independent endpoints: supplementary **Table S3 is TAC daily *DOSE* (not AUC), n93 in-sample R² 38.1%** with age, hematocrit, ASV1508, ASV664; the main paper's **Table 2 is sparse ML-estimated AUC/(dose/kg), n93 in-sample R² 52.1%**. Neither establishes held-out clinical Omics→PK predictive gain. See [actual local source audit](docs/DEGRAEVE_WILEY_UPLOADED_SUPPLEMENT_AUDIT_20261016.md), [crosswalk issue #28](https://github.com/rberrah/Omics2PK/issues/28). Local-only archive inspector: `python -m scripts.audit_local_degraeve_supplement /path/to/original.zip` (CI uses synthetic documents only).
+
 ## What is executable today
 
 - Offline inspection of the **MultiOmics DOWNSTREAM_EXCHANGE_V1** directory: checks SHA-256, study-data access declaration, assay/sample/subject and feature-ID matching, finite numeric matrices and recorded processing scale.
