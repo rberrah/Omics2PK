@@ -39,3 +39,6 @@ Pour la validation, séparer les individus entiers entre entraînement et évalu
 5. Après validation empirique et examen IP/licence : cours FR/EN et outil de recherche à rberrah.github.io, sans données patients publiques ni prescription automatique.
 
 Liens : https://search.r-project.org/R/refmans/datasets/html/Theoph.html ; https://nlmixr2.github.io/nlmixr2data/reference/theo_md.html ; https://nlmixr2.github.io/nlmixr2data/reference/warfarin.html ; https://nlmixr2.github.io/nlmixr2data/reference/mavoglurant.html ; https://matthiaskoenig.github.io/pkdb/api/ ; https://pmc.ncbi.nlm.nih.gov/articles/PMC2925683/ .
+
+
+**Qualification originale mavoglurant après lecture RDA :** 120 sujets biologiques, **198 occasions de dose unique** (198 événements EVID=1, 2 480 concentrations EVID=0), dont **78 sujets évalués à deux occasions** ; aucun des 198 groupes sujet×occasion ne contient plus d'une dose. Il s'agit de profils PK IV répétés entre visites chez une partie des sujets, **pas** d'une série de doses successives au sein d'une même occasion. Le dataset A2121 (Wendling) concerne des infusions IV de 10 minutes ; la vignette nlmixr2 affiche la concentration plasmatique en **ng/mL**. Ne jamais coller OCC 1 et 2 sur un même axe TIME sans calendrier de visite. L'entrée multi-occasion sera la prochaine cible de l'adaptateur pour les modèles PopPK ; aucune omique appariée.
