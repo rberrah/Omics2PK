@@ -1,0 +1,29 @@
+name: Verify original 93 kidney 16S and estimated tacrolimus PK source
+on:
+  pull_request:
+    paths:
+      - "scripts/audit_degraeve_93_kidney_tac_public_sources.py"
+      - "tests/test_public_omics_pk_source_claims.py"
+      - ".github/workflows/public-93-kidney-microbiome-pk.yml"
+  push:
+    branches: [main]
+    paths:
+      - "scripts/audit_degraeve_93_kidney_tac_public_sources.py"
+      - "tests/test_public_omics_pk_source_claims.py"
+      - ".github/workflows/public-93-kidney-microbiome-pk.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 9
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+      - name: Original ENA 93-subject microbiome plus publisher supplement access
+        run: python -m scripts.audit_degraeve_93_kidney_tac_public_sources
+      - name: Reject mathematical shortcuts from imputed AUC to NCA or PopPK
+        run: python -m unittest discover -s tests -p test_public_omics_pk_source_claims.py -v
