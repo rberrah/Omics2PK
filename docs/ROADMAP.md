@@ -8,10 +8,12 @@ This list follows the earlier MultiOmics → SWEET → Pillar A → Pillar B R2 
 - [x] Prepare original SWEET input format from normalized RNA only; never infer networks without running a qualified method.
 - [x] Add synthetic-only unit tests and offline CI.
 - [ ] Run the actual public **MultiOmics** ZIP/exchange production output through this CLI (no copied production patient data).
-- [ ] Document source/license and coauthor rights; select code license explicitly rather than guessing.
+- [x] Propose explicit PolyForm NC / CC BY-NC-SA licensing on the draft PR, with attribution and scope/exceptions.
+- [ ] Confirm institutional/coauthor rights before merging or redistributing any third-party code.
 
 ## P1 — reproducibility and SWEET
-- [ ] Pin the MIT SWEET upstream SHA, retain license notices if distributed.
+- [x] Pin the upstream SWEET SHA (`cf064eb5f5b996c40bba3cce507384f6c0fdecb5`) in documentation; upstream code is **not** redistributed.
+- [x] Implement strict SWEET edge-output reader and tabular **M1bis feature export** with synthetic tests (not network inference).
 - [ ] Reproduce official example sample weights, all relevant edge scores and optional z-scores numerically.
 - [ ] Audit SWEET handling of zero variance, zeros, missing values, and the -z flag.
 - [ ] Define a **strict out-of-sample procedure**: independent reference for a completely new patient or label the original method transductive.

@@ -26,6 +26,8 @@ Evaluate, on **identical subjects** for each paired contrast, the following data
 
 Keep structural PK model and parameter estimation procedure fixed across NLME representation arms unless structural change is separately prespecified.
 
+**Already implemented alpha:** independent `omics2pk summarize-sweet` produces strict edge-set QC and univariate/tabular network features for M1bis; **SWEET computation, cross-validated M1bis and measured-data PK fits remain unimplemented**. See `docs/SWEET_OUTPUTS.md`.
+
 ## Analysis rules
 
 1. Predefine one measured primary endpoint per dataset. Microsomal CLint is a different task from patient-level apparent CL/F or sparse-sample AUC. Do not combine them as if interchangeable.
