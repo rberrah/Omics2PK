@@ -2,6 +2,7 @@
 import argparse
 import json
 from .exchange import ExchangeError, inspect_exchange, prepare_sweet
+from .sweet_features import SWEETOutputError, summarize_networks
 
 
 def main(argv=None):
@@ -11,11 +12,19 @@ def main(argv=None):
     sweet = sub.add_parser("prepare-sweet")
     sweet.add_argument("exchange_dir")
     sweet.add_argument("out_dir")
+    summary = sub.add_parser("summarize-sweet")
+    summary.add_argument("edges_dir")
+    summary.add_argument("patient_list")
+    summary.add_argument("out_dir")
     args = parser.parse_args(argv)
     try:
-        out = (inspect_exchange(args.exchange_dir) if args.command == "validate-exchange"
-               else prepare_sweet(args.exchange_dir, args.out_dir))
-    except (ExchangeError, KeyError, TypeError, ValueError) as exc:
+        if args.command == "validate-exchange":
+            out = inspect_exchange(args.exchange_dir)
+        elif args.command == "prepare-sweet":
+            out = prepare_sweet(args.exchange_dir, args.out_dir)
+        else:
+            out = summarize_networks(args.edges_dir, args.patient_list, args.out_dir)
+    except (ExchangeError, SWEETOutputError, KeyError, TypeError, ValueError) as exc:
         parser.exit(2, f"INVALID: {exc}\n")
     print(json.dumps(out, indent=2, ensure_ascii=False, sort_keys=True))
 
