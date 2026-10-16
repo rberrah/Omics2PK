@@ -11,6 +11,8 @@ on:
       - "src/omics2pk/omic_signature_contract.py"
       - "tests/test_omic_signature_contract.py"
       - "scripts/audit_multiomics_pk_readiness.py"
+      - "scripts/build_native_multiomics_research_zip.mjs"
+      - "scripts/audit_multiomics_research_zip.py"
   pull_request:
     paths:
       - ".github/workflows/native-multiomics-export.yml"
@@ -46,5 +48,9 @@ jobs:
         run: python -m unittest discover -s tests -p 'test_multiomics_pk_readiness.py' -v
       - name: Validate actual MultiOmics V1 producer and assert raw counts and missing time are blocked
         run: python scripts/verify_native_multiomics_export.py ./tmp_generated_exchange
+      - name: Build native MultiOmics end-user research ZIP with original JS packager
+        run: node scripts/build_native_multiomics_research_zip.mjs ./tmp_native_multiomics_bundle.zip
+      - name: Verify full ZIP source and actual exchange timestamps from independent Python reader
+        run: python -m scripts.audit_multiomics_research_zip ./tmp_native_multiomics_bundle.zip
       - name: Do not retain assay-level synthetic demo matrices as CI artifacts
-        run: rm -rf ./tmp_generated_exchange
+        run: rm -rf ./tmp_generated_exchange ./tmp_native_multiomics_bundle.zip
