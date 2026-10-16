@@ -22,6 +22,8 @@ Official PMC supporting files:
 - mp1c00053_si_003.xlsx — Data S2, proteomics bioinformatics;
 - PRIDE PXD014131 — raw LC-MS/MS, which is not needed for a first model.
 
+**Important 2026 retrieval change:** In August 2026, NLM/PMC retired its legacy article-dataset FTP and cloud package distribution. The supported public channel is now the PMC AWS Cloud Service (bucket pmc-oa-opendata), whose article metadata includes per-object supplementary URLs and license data. The audit therefore probes the official PMC8041379.1 metadata object as well as historical article bin URLs; individual older downloads can legitimately fail even though the archived article and new cloud objects remain available. Source metadata access by itself proves no quantitative donor-level values. See https://pmc.ncbi.nlm.nih.gov/tools/pmcaws/ and https://pmc-oa-opendata.s3.amazonaws.com/README.txt .
+
 The automated inventory probes format accessibility only. Neither published proteomic protein matrices nor the article figures automatically establish a verified **donor ID ↔ compound ↔ system ↔ CLint ↔ protein abundance** join.
 
 ### Prespecified first modeling protocol (strictly conditional)
