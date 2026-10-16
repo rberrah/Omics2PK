@@ -1,0 +1,36 @@
+name: Wegler PK-proteomics and Yin public source inventory (NOT an endpoint validation)
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - "scripts/audit_public_pk_sources.py"
+      - "tests/test_public_pk_source_audit.py"
+      - ".github/workflows/public-pk-source-inventory.yml"
+      - "docs/PUBLIC_PK_SOURCE_QUALIFICATION.md"
+  push:
+    branches: [main]
+    paths:
+      - "scripts/audit_public_pk_sources.py"
+      - "tests/test_public_pk_source_audit.py"
+      - ".github/workflows/public-pk-source-inventory.yml"
+permissions:
+  contents: read
+jobs:
+  audit-source-availability-only:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+      - name: Validate offline gates, no network needed
+        run: python -m unittest discover -s tests -p 'test_public_pk_source_audit.py' -v
+      - name: Probe listed public supplementary file formats, not patient results
+        run: python scripts/audit_public_pk_sources.py --out public_pk_source_inventory.json
+      - name: Upload only structural metadata and source accessibility status
+        uses: actions/upload-artifact@v6
+        with:
+          name: public-pk-source-inventory-metadata-only
+          path: public_pk_source_inventory.json
+          retention-days: 14
