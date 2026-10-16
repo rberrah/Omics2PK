@@ -89,7 +89,7 @@ def workbook_structure(data: bytes) -> dict:
 def zenodo_metadata(data: bytes) -> dict:
     obj = json.loads(data.decode("utf-8"))
     if not isinstance(obj, dict) or int(obj.get("id", -1)) != YIN_ZENODO_RECORD:
-        raise ValueError("Zenodo record ID is not the cited publication's record")
+        raise ValueError("Zenodo record mismatch: actual ID %s, DOI %s, concept DOI %s" % (obj.get("id"), obj.get("doi"), obj.get("conceptdoi")) if isinstance(obj, dict) else "Zenodo malformed record")
     metadata = obj.get("metadata", {})
     if not isinstance(metadata, dict):
         raise ValueError("Missing record metadata")
@@ -215,7 +215,8 @@ def main():
     print(json.dumps({"status": report["research_status"],
                       "accessible": report["format_verified_count"],
                       "total": report["source_count"],
-                      "source_states": {k: (v["state"] + ": " + v.get("error_type", "") + " " + v.get("detail", "")[:100]) for k, v in report["sources"].items()}},
+                      "source_states": {k: (v["state"] + ": " + v.get("error_type", "") + " " + v.get("detail", "")[:200]) for k, v in report["sources"].items()},
+                      "wegler_cloud_public_metadata": report["sources"].get("wegler_cloud_metadata", {}).get("metadata_only", {})},
                      indent=2))
     if args.strict_sources and report["format_verified_count"] != len(SOURCES):
         return 2
