@@ -24,12 +24,16 @@ same-sample, same-time, or experimentally paired multiomics. No
 causal, CYP activity, mechanistic target, or PK claim is possible here.
 
 ## Prespecified eligibility
-- Exactly **48** lines must have collision-free case/punctuation keys
+- Exactly **48** initially aligned lines must have collision-free case/punctuation keys
   across NCI-60 measured-drug response, IntLIM metadata, RNA and
   metabolite matrices.
 - Independent source tumor-lineage labels must agree after a
-  transparent small abbreviation harmonization (e.g., LUNG/NSCLC).
-- 12 unresolved names stay excluded, no fuzzy or historical aliasing.
+  transparent small abbreviation harmonization (e.g., LEUK/LEUKEMIA,
+  MELAN/MELANOMA, OVAR/OVARIAN). **MDA-MB-435 must be excluded**:
+  mixOmics labels it BREAST, whereas IntLIM labels it Melanoma.
+  The prespecified modeling cohort therefore has **47** lines.
+- 12 syntactically unresolved names and the one histology-discordant
+  MDA-MB-435 stay excluded; no fuzzy or historical aliasing.
 - Input row orders are checked **exactly** and never inferred from
   numeric matrix position. Temporary crosswalk keeps source labels.
 - All source-derived molecular matrices are temporary on the runner;
@@ -37,9 +41,9 @@ causal, CYP activity, mechanistic target, or PK claim is possible here.
 
 ## Models and experimental integrity
 - Outcome: measured doxorubicin GI50 (one drug declared before
-  evaluation). Exactly the same 48 cell lines are used in every arm.
+  evaluation). Exactly the same 47 cell lines are used in every arm.
 - Five outer subject-disjoint folds, three prespecified fold seeds
-  20261016, 20261017, 20261018: repeated observations of **the same 48
+  20261016, 20261017, 20261018: repeated observations of **the same 47
   lines**, not 144 independent lines.
 - Baselines: training-fold mean; cancer lineage alone.
 - Fold-only preprocessing: >=50% nonmissing training values per feature,
@@ -53,7 +57,7 @@ causal, CYP activity, mechanistic target, or PK claim is possible here.
   TRAIN-only metabolite representation is a sanity negative control.
 - Metrics: same-fold out-of-fold MAE and RMSE; differences versus
   lineage-only comparator. A descriptive paired bootstrap resamples
-  48 independent line identities, averaging repeated-fold error
+  47 independent line identities, averaging repeated-fold error
   within line. No inferential superiority claim or external validation.
 
 ## Interpretation / publication guard
