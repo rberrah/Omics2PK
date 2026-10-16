@@ -23,7 +23,17 @@ Le [workflow source SHA-vérifié #38971073439](https://github.com/rberrah/Omics
 | RMSLE log-concentrations populationnelles | **0,383383** | **0,384246** |
 | Biais signé moyen log | −0,000180 | −0,010975 |
 
-**Différence NLME − fixe = +0,000863 RMSLE**. Il n'y a donc **pas de gain de prédiction populationnelle ponctuelle démontré** avec la seule IIV(CL) marginalisée. La log-vraisemblance prédictive jointe du NLME est 5,17405 par humain avec signe négatif, **non directement comparable** au comparateur fixe sans modèle d'erreur probabiliste défini. Ni la comparaison 1C→2C, ni l'ajout de IIV ne valident une signature omique. Le contrôle de stabilité 7/9/15 nœuds est ajouté au workflow avant qualification finale.
+**Différence NLME − fixe = +0,000863 RMSLE**. Il n'y a donc **pas de gain de prédiction populationnelle ponctuelle démontré** avec la seule IIV(CL) marginalisée. La log-vraisemblance prédictive jointe du NLME est 5,17405 par humain avec signe négatif, **non directement comparable** au comparateur fixe sans modèle d'erreur probabiliste défini. Ni la comparaison 1C→2C, ni l'ajout de IIV ne valident une signature omique. Le [contrôle de sensibilité vérifié #38971327132](https://github.com/rberrah/Omics2PK/actions/runs/38971327132) quantifie les limites de convergence numérique :
+
+| Nœuds Gauss-Hermite | RMSLE NLME | NLL jointe par personne |
+|---|---:|---:|
+| 7 | 0,391720 | 5,029533 |
+| 9 | 0,384246 | 5,174050 |
+| 15 | 0,387078 | 4,003647 |
+| 21 | 0,391027 | 3,996931 |
+| 31 | 0,388129 | 3,929368 |
+
+**Diagnostic important : la vraisemblance est sensible à l'ordre de quadrature** ; ces approximations ne sont pas un estimateur NLME numériquement stabilisé. Le résultat négatif sur la RMSLE est observé pour chacune des grilles testées (comparator fixe 2C : 0,383383), mais les différences sont faibles et il ne faut pas en tirer une conclusion définitive d'équivalence. **Avant une utilisation pharmacométrique sérieuse :** quadrature adaptative centrée sur la posterior individuelle ou benchmark indépendant SAEM/FOCEi, étude de convergence, profils de vraisemblance, VPC/NPDE, modèles IOV et évaluation d'incertitude.
 
 ## Ce qui reste à valider
 
