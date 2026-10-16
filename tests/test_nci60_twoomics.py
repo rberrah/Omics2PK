@@ -78,6 +78,9 @@ class TwoOmicsTests(unittest.TestCase):
         report = evaluate(ids, classes, y, rna, metab, repeats=1)
         self.assertEqual(report["n_biological_cell_lines"], 47)
         self.assertEqual(len(report["metrics"]), 16)
+        self.assertEqual(len(report["incremental_metabolomics_contrasts"]), 4)
+        for contrast in report["incremental_metabolomics_contrasts"].values():
+            self.assertEqual(len(contrast["descriptive_cell_line_bootstrap_95pct"]), 2)
         self.assertEqual(report["selected_feature_count_per_outer_fold"]["rna"], [300]*5)
         self.assertNotIn("L00", str(report))
         for metrics in report["metrics"].values():
