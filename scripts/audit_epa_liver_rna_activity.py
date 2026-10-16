@@ -56,7 +56,7 @@ def workbook_structure(blob:bytes):
             n_rows=len(rows)
             nonempty=0
             preview=[]
-            for row in rows[:5]:
+            for row in rows[:1]:
                 cellvals=[]
                 for c in row.findall(MS+"c"):
                     val=c.find(MS+"v")
@@ -81,7 +81,7 @@ def workbook_structure(blob:bytes):
                 "sheet_name":name[:100],
                 "xml_row_count":n_rows,
                 "xml_cell_count":nonempty,
-                "first_five_row_text_tokens":preview,
+                "header_text_tokens_only":preview,
                 "mentions_cyp_in_first_five_rows":bool(re.search("CYP",flattened,re.I)),
                 "mentions_activity_in_first_five_rows":bool(re.search("activit|metaboli|microsom",flattened,re.I)),
                 "donor_specific_transcript_activity_crosswalk_verified":False,
