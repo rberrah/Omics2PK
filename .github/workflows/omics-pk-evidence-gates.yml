@@ -45,7 +45,7 @@ jobs:
       - name: Install PDF native-text reader (no OCR)
         run: python -m pip install "pypdf==5.9.0"
       - name: Audit only the structural contents of pinned open research supplements
-        run: python scripts/audit_wegler_source_structure.py --out wegler_public_source_schema.json
+        run: python -m scripts.audit_wegler_source_structure --out wegler_public_source_schema.json
       - uses: actions/upload-artifact@v6
         with:
           name: wegler-public-structure-only-no-donor-data
