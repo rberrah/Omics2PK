@@ -4,6 +4,12 @@
 
 Omics2PK connects the reproducible outputs of [MultiOmics](https://github.com/rberrah/MultiOmics) to research on patient-specific molecular networks (SWEET), drug-specific knowledge from Thesis Pillar A and PopPK/PKPD covariate discovery in Pillar B (route R2).
 
+## New: transition to longitudinal PK (October 2026)
+
+The immediate goal is now **real original patient concentration–time profiles and dosing histories**, followed by **time-varying RNA/protein/metabolite covariates** on matched subjects, rather than additional cross-sectional enzyme correlations. The source-gated PK_LONG_V1 contract verifies observed versus simulated events, predose sampling, BLQ/LOQ, full dose history and prospective molecular sampling timestamps. Original **Theoph**: 12 humans, 12 doses, 132 actual C(t) observations, Cmax/Tmax/AUC0-last descriptive NCA. Separate pinned original RDA audit covers 120 humans, 198 distinct PK occasions and 2,480 measured concentration rows for **mavoglurant**, 32 subjects with warfarin PK/PD mixed records, and explicitly simulated theophylline multidose data. **None of these original PK series contains omics**; they are safe PK architecture/clinical-series qualifications, not proof of transcriptome-driven precision dosing.
+
+See [Longitudinal Omics→PK roadmap](docs/LONGITUDINAL_PK_AND_DYNAMIC_OMICS_ROADMAP_20261016.md) and [original measured PK dataset audit](docs/ORIGINAL_LONGITUDINAL_PK_SOURCE_AUDIT_20261016.md).
+
 ## What is executable today
 
 - Offline inspection of the **MultiOmics DOWNSTREAM_EXCHANGE_V1** directory: checks SHA-256, study-data access declaration, assay/sample/subject and feature-ID matching, finite numeric matrices and recorded processing scale.
