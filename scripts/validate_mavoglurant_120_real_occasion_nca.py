@@ -40,7 +40,22 @@ def _float(v,name):
 def observed_curve(rows):
     """Already grouped single (person, OCC), native columns never reindexed by TIME."""
     doses=[r for r in rows if int(_float(r["EVID"],"EVID"))==1]
-    samples=[r for r in rows if int(_float(r["EVID"],"EVID"))==0]
+    raw_samples=[r for r in rows if int(_float(r["EVID"],"EVID"))==0]
+    samples=[]
+    n_mdv_excluded=0
+    n_nonpositive_excluded=0
+    for row in raw_samples:
+        mdv=int(_float(row["MDV"],"sample MDV"))
+        if mdv not in (0,1):
+            raise OriginalPKCurveError("Unknown original MDV code")
+        if mdv==1:
+            n_mdv_excluded+=1
+            continue
+        dv=_float(row["DV"],"original DV")
+        if dv<=0:
+            n_nonpositive_excluded+=1
+            continue
+        samples.append(row)
     if len(doses)!=1 or len(samples)<3:
         raise OriginalPKCurveError("Need exactly one actual IV dose and 3 real concentration samples per occasion")
     dose=doses[0]
@@ -54,8 +69,6 @@ def observed_curve(rows):
         raise OriginalPKCurveError("Original IV infusion duration outside expected 10-minute-range")
     points=[]
     for row in samples:
-        if int(_float(row["MDV"],"sample MDV"))!=0:
-            raise OriginalPKCurveError("Invalid concentration EVID0 MDV code")
         t=_float(row["TIME"],"sample TIME")-origin
         dv=_float(row["DV"],"original DV")
         if t<0 or dv<0:raise OriginalPKCurveError("Negative source concentration or pre-dose sample")
@@ -68,6 +81,8 @@ def observed_curve(rows):
     auc=sum((b[0]-a[0])*(a[1]+b[1])/2 for a,b in zip(points,points[1:]))
     return {
         "n_original_samples":len(points),
+        "n_original_EVID0_MDV1_excluded":n_mdv_excluded,
+        "n_original_EVID0_nonpositive_DV_excluded":n_nonpositive_excluded,
         "source_dose_mg":dose_amt,
         "source_infusion_duration_h":dose_amt/rate,
         "first_original_observation_time_h":points[0][0],
@@ -107,11 +122,15 @@ def summarize(rows):
         "status":"REAL_120_PERSON_198_SINGLE_INFUSION_OCCASION_OBSERVED_NCA_NOT_POPPK",
         "n_original_human_subjects":len(subjects),
         "n_original_independent_subject_occasion_groups":len(reports),
-        "n_original_measured_PK_concentrations":n_obs,
+        "n_original_EVID0_candidate_PK_records":n_obs,
+        "n_original_MDV0_positive_PK_concentrations_used":sum(r["n_original_samples"] for r in reports.values()),
+        "n_original_MDV1_excluded":sum(r["n_original_EVID0_MDV1_excluded"] for r in reports.values()),
+        "n_original_MDV0_nonpositive_excluded":sum(r["n_original_EVID0_nonpositive_DV_excluded"] for r in reports.values()),
         "n_original_subjects_with_two_occasion_profiles":repeated,
         "n_original_subjects_with_one_occasion_profile":sum(len(z)==1 for z in people_with_occ.values()),
         "n_original_occ_curves_with_measured_time_zero_sample":sum(r["first_original_observation_time_h"]==0 for r in reports.values()),
-        "n_original_profiles_with_three_or_more_Ct_points":len(reports),
+        "n_original_profiles_with_three_or_more_eligible_observations":len(reports),
+        "source_MDVs_and_nonpositive_DVs_do_not_count_as_true_quantified_concentrations":True,
         "median_original_samples_per_occasion":median(r["n_original_samples"] for r in reports.values()),
         "median_observed_Cmax_ng_ml":round(median(r["Cmax_observed_original_DV"] for r in reports.values()),6),
         "median_observed_Tmax_h":round(median(r["Tmax_observed_h_from_dose"] for r in reports.values()),6),
