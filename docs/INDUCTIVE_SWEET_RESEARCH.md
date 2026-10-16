@@ -60,7 +60,8 @@ network strengths as mechanistic enzyme activities.
 ## Gates and known limitations
 
 1. **Public outcome-free sanity check:** official SWEET 80-sample RNA
-   example, sample weights from all 100 genes and edges from a\n   predeclared first-25-gene panel; first 60 samples as reference
+   example, sample weights from all 100 genes and edges from a
+   predeclared first-25-gene panel; first 60 samples as reference
    training, last 20 as held-out. Leave-one-out among training subjects,
    training-frozen reference for every held-out subject, and a test for
    invariance of one held-out result to perturbing another held-out profile.
