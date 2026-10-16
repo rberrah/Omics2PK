@@ -35,6 +35,9 @@ SOURCES = {
     "wegler_s2_bioinformatics": (
         "https://pmc.ncbi.nlm.nih.gov/articles/PMC8041379/bin/mp1c00053_si_003.xlsx", "xlsx"
     ),
+    "wegler_cloud_metadata": (
+        "https://pmc-oa-opendata.s3.amazonaws.com/metadata/PMC8041379.1.json", "pmc_cloud"
+    ),
     "yin_battail_metadata": (
         "https://zenodo.org/api/records/15723817", "zenodo"
     ),
@@ -52,7 +55,7 @@ def bounded_http(url: str, limit: int = MAX_BYTES) -> bytes:
     with urllib.request.urlopen(request, timeout=30) as response:
         # Do not follow to unrelated domains or untrusted filenames.
         final = response.geturl()
-        if urlparse(final).hostname not in {"pmc.ncbi.nlm.nih.gov", "zenodo.org"}:
+        if urlparse(final).hostname not in {"pmc.ncbi.nlm.nih.gov", "zenodo.org", "pmc-oa-opendata.s3.amazonaws.com"}:
             raise ValueError("Upstream redirected to an unapproved host")
         declared = response.headers.get("Content-Length")
         if declared and int(declared) > limit:
@@ -109,6 +112,43 @@ def zenodo_metadata(data: bytes) -> dict:
     }
 
 
+def pmc_cloud_metadata(data: bytes) -> dict:
+    """PMC's 2026 AWS distribution; validates article identity and lists files only."""
+    obj = json.loads(data.decode("utf-8"))
+    if not isinstance(obj, dict):
+        raise ValueError("PMC metadata is not an object")
+    if str(obj.get("pmcid", "")).upper() != WEGLER_PMCID:
+        raise ValueError("Wrong PMC source ID in cloud release")
+    if str(obj.get("doi", "")).lower() != ARTICLE.lower():
+        raise ValueError("Wrong DOI in PMC cloud release")
+    items = obj.get("media_urls") or []
+    if isinstance(items, dict):
+        items = list(items.values())
+    if not isinstance(items, list):
+        raise ValueError("Invalid PMC supplementary media listing")
+    urls = []
+    for item in items:
+        if isinstance(item, str):
+            urls.append(item)
+        elif isinstance(item, dict):
+            candidate = item.get("url") or item.get("href")
+            if isinstance(candidate, str):
+                urls.append(candidate)
+    supplement_filenames = [
+        file for file in ("mp1c00053_si_001.pdf", "mp1c00053_si_002.xlsx", "mp1c00053_si_003.xlsx")
+        if any(file in u.split("?")[0] for u in urls)
+    ]
+    return {
+        "pmcid": WEGLER_PMCID,
+        "version": obj.get("version"),
+        "license_code": obj.get("license_code"),
+        "is_pmc_openaccess": obj.get("is_pmc_openaccess"),
+        "n_media_entries": len(urls),
+        "listed_target_supplements": supplement_filenames,
+        "source_distribution": "official PMC 2026 AWS metadata, no downloaded donor data",
+    }
+
+
 def validate_payload(kind: str, data: bytes) -> dict:
     if kind == "pdf":
         if not data.startswith(b"%PDF-"):
@@ -118,6 +158,8 @@ def validate_payload(kind: str, data: bytes) -> dict:
         return {**workbook_structure(data), "file_size_bytes": len(data)}
     if kind == "zenodo":
         return zenodo_metadata(data)
+    if kind == "pmc_cloud":
+        return pmc_cloud_metadata(data)
     raise ValueError("Unsupported source kind")
 
 
@@ -173,7 +215,7 @@ def main():
     print(json.dumps({"status": report["research_status"],
                       "accessible": report["format_verified_count"],
                       "total": report["source_count"],
-                      "source_states": {k: v["state"] for k, v in report["sources"].items()}},
+                      "source_states": {k: (v["state"] + ": " + v.get("error_type", "") + " " + v.get("detail", "")[:100]) for k, v in report["sources"].items()}},
                      indent=2))
     if args.strict_sources and report["format_verified_count"] != len(SOURCES):
         return 2
