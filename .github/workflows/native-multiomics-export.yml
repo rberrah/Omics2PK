@@ -1,0 +1,40 @@
+name: Native MultiOmics → Omics2PK exchange integration
+on:
+  push:
+    paths:
+      - ".github/workflows/native-multiomics-export.yml"
+      - "scripts/build_native_multiomics_exchange.mjs"
+      - "scripts/verify_native_multiomics_export.py"
+  pull_request:
+    paths:
+      - ".github/workflows/native-multiomics-export.yml"
+      - "scripts/build_native_multiomics_exchange.mjs"
+      - "scripts/verify_native_multiomics_export.py"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  public-synthetic-producer:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/checkout@v5
+        with:
+          repository: rberrah/MultiOmics
+          ref: 5a71db3bce5990b96cc487c329e36b7cc055cda9
+          path: upstream/multiomics
+          persist-credentials: false
+      - uses: actions/setup-node@v5
+        with:
+          node-version: "24"
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+      - run: python -m pip install -e .
+      - name: Generate native exchange with actual MultiOmics browser producer
+        run: node scripts/build_native_multiomics_exchange.mjs ./tmp_generated_exchange
+      - name: Validate with Omics2PK and assert RAW counts are refused by SWEET
+        run: python scripts/verify_native_multiomics_export.py ./tmp_generated_exchange
+      - name: Do not retain assay-level synthetic demo matrices as CI artifacts
+        run: rm -rf ./tmp_generated_exchange
