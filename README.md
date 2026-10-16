@@ -16,6 +16,14 @@ We have reproduced the **actual** `rberrah/MultiOmics` V1 browser exporter again
 
 [Full native output audit and producer change request](docs/REAL_MULTIOMICS_OUTPUT_AUDIT_AND_PK_ADAPTER_GAPS_20261016.md). The agreed cross-repo changes are filed as [MultiOmics issue #20](https://github.com/rberrah/MultiOmics/issues/20); this repository does not alter MultiOmics source. Omics→NCA→PopPK/PBPK evidence remains future until genuinely observed, subject-linked data and time-validated covariates exist.
 
+## Public patient-linked omics and PK original-source hunt (2026-10-16)
+
+A first **real individual clinical tacrolimus exposure target** is now available from Wang et al. 2026 PLOS ONE [clinical S1 original supplement](https://doi.org/10.1371/journal.pone.0343817): **36 liver transplant recipients with dose, actual whole-blood C0, C/D, age, sex, height and weight**, including **three aged <18**. The source spreadsheet SHA-256 and original C/D physical dose/weight consistency are checked in CI. A **clinical-only** 36-fold held-patient-out reference (age+sex+BMI fixed ridge vs constant original-source baseline) showed nearly identical MAE; **no omic measurements were joined or fitted**. NCBI SRA metagenome accession PRJNA1416570 is public, but an exact source-defined crosswalk to this clinical table and the original metabolite matrix **remain unverified**.
+
+Original **Fannin 2010 GEO GSE15158 (88 RNA assays)** and **Bushel/Fannin 2016 GSE70784 (432 RNA assays)** were live audited; both have authentic serial blood gene expression but neither currently supplies source-verified individual clinical PK concentration-time tables. Fannin's published early serum APAP graph is not a primary numeric curve; its post-dose RNA is a downstream response, not an admissible baseline predictor of early AUC. Other source candidates include Degraeve et al. 2023 n351 genuine mouse TAC PK blood samples + gut ABCB1 (unverified animal RNA/PK crosswalk), Zhu et al. 2022 n137/693 clinical TAC C0+metabolomics (original patient matrix not openly verified), Zenodo 24-participant 18-visit metabolomics (no original drug PK), plus source-qualified negative HuggingFace training corpora.
+
+**Full audit and strict evidence decisions:** [Public Omics×PK source triage](docs/PUBLIC_SAME_SUBJECT_OMICS_PK_SOURCE_TRIAGE_20261016.md). The repository will not stitch unrelated omics and PK cohorts together or treat a C0/D endpoint as PopPK CL/F/AUC.
+
 ## What is executable today
 
 - Offline inspection of the **MultiOmics DOWNSTREAM_EXCHANGE_V1** directory: checks SHA-256, study-data access declaration, assay/sample/subject and feature-ID matching, finite numeric matrices and recorded processing scale.
