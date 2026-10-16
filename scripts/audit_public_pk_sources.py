@@ -195,6 +195,21 @@ def validate_payload(kind: str, data: bytes) -> dict:
     raise ValueError("Unsupported source kind")
 
 
+def official_pmc_media_https(url: str) -> str:
+    """Convert only the official public S3 URI for THIS version/filename."""
+    parts = urlparse(url)
+    if parts.scheme == "s3" and parts.hostname == "pmc-oa-opendata":
+        if (parts.path.startswith("/PMC8041379.1/") and
+                parts.path.rsplit("/", 1)[-1] in {
+                    filename for filename, _ in EXPECTED_PMC_SUPPLEMENTS.values()
+                }):
+            return "https://pmc-oa-opendata.s3.amazonaws.com" + parts.path + (
+                "?" + parts.query if parts.query else ""
+            )
+        raise ValueError("Unapproved public PMC S3 media object")
+    return url
+
+
 def audit(fetch=bounded_http) -> dict:
     results = {}
     cloud_payload = None
@@ -235,7 +250,7 @@ def audit(fetch=bounded_http) -> dict:
             matches = [u for u in candidate_urls if urlparse(u).path.endswith("/" + filename)]
             if len(matches) != 1:
                 continue
-            url = matches[0]
+            url = official_pmc_media_https(matches[0])
             try:
                 payload = fetch(url)
                 info = validate_payload(fmt, payload)
