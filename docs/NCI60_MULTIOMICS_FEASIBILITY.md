@@ -18,13 +18,16 @@ reflect different experimental conditions. Exact *cell-line name*
 matching alone is the first necessary condition, not evidence of
 temporally paired assays or independence.
 
-The gate reports only set intersections by literal identifiers.
-No character cleaning, fuzzy string matching, alias merging, row-index
-joins, imputation, modality selection or drug-response fitting is
-allowed until a source-verified crosswalk and study-provenance
-manifest exist. A value of >=30 exact matches means merely that
-an exploratory cell-line-level join is feasible, not that a valid
-multiomic biological benchmark has been established.
+The gate reports **both exact literal intersections** and the intersection
+after a transparent punctuation/case-only key
+`toupper(gsub("[^A-Z0-9]", "", name))`. All normalized-key
+collisions are fatal. This is **not a biological alias map**.
+Fuzzy string matching, unverifiable aliases, row-index joins,
+imputation, modality selection, and drug-response fitting remain forbidden
+until a source-verified crosswalk and study-provenance manifest exist.
+A value of >=30 collision-free syntax-only matches demonstrates only
+feasibility of an *exploratory* identity crosswalk, not same-time
+multimodal measurement or valid outcome modeling.
 
 Future qualified data harmonization must explicitly distinguish:
 1. Within-cohort gene expression measured in different assays (NCI60
