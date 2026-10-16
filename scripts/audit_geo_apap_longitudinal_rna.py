@@ -38,6 +38,9 @@ def audit_geo(series):
     lines=[]
     n_bytes=0
     headers=Counter()
+    sample_count = None
+    source_characteristic_names = set()
+    n_samples_with_visit_titles = None
     with urlopen(Request(url,headers={"User-Agent":"Omics2PK-source-qualification-geo/1.0"}),timeout=60) as f:
         with gzip.GzipFile(fileobj=f) as inp:
             for idx,raw in enumerate(inp):
@@ -51,6 +54,15 @@ def audit_geo(series):
                 if not s.startswith("!"):continue
                 key=s.split("\t",1)[0]
                 headers[key]+=1
+                if key == "!Sample_geo_accession":
+                    sample_count = len(s.split("\\t")) - 1
+                if key == "!Sample_title":
+                    values=s.split("\\t")[1:]
+                    n_samples_with_visit_titles=sum(bool(re.search(r"(?i)(day|hour|time|baseline|week)",t)) for t in values)
+                if key.startswith("!Sample_characteristics"):
+                    first=(s.split("\\t",1)[1].split("\\t",1)[0] if "\\t" in s else "")
+                    if ":" in first:
+                        source_characteristic_names.add(first.split(":",1)[0].strip().lower())
                 # Only Series metadata and SAMPLE COUNT are preserved, never the
                 # array of raw Sample IDs or subject characteristics.
                 if key in ("!Series_title","!Series_summary"):
@@ -64,7 +76,9 @@ def audit_geo(series):
         "publication_doi":SERIES[series]["publication_doi"],
         "metadata_rows_read_before_expression":idx+1,
         "metadata_first_section_n_bytes":n_bytes,
-        "n_source_sample_columns_declared":None,
+        "n_source_sample_columns_declared":sample_count,
+        "n_source_sample_titles_with_visits":n_samples_with_visit_titles,
+        "source_characteristic_FIELD_NAMES_only":sorted(source_characteristic_names),
         "n_sample_characteristic_fields":sum(n for name,n in headers.items() if name.startswith("!Sample_characteristics")),
         "has_sample_geo_accession_array":"!Sample_geo_accession" in headers,
         "has_sample_title_array":"!Sample_title" in headers,
