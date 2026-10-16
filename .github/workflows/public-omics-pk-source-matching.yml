@@ -6,6 +6,8 @@ on:
       - "scripts/audit_public_tacrolimus_paired_omics_2026.py"
       - "tests/test_public_same_subject_evidence_gates.py"
       - "src/omics2pk/same_subject_evidence_gates.py"
+      - "scripts/validate_public_tacrolimus_36_c0_baseline.py"
+      - "tests/test_public_tacrolimus_36_clinical_baseline.py"
       - ".github/workflows/public-omics-pk-source-matching.yml"
   push:
     branches: [main]
@@ -37,5 +39,11 @@ jobs:
       - uses: actions/setup-python@v6
         with:
           python-version: "3.11"
-      - name: Original 2026 CC BY tacrolimus 36 patient PK gut-omics clinical supplement source
+      - name: Install existing scientific research package
+        run: python -m pip install -e .
+      - name: Synthetic only clinical source/units and patient-heldout baseline anti-leakage tests
+        run: python -m unittest discover -s tests -p 'test_public_tacrolimus_36_clinical_baseline.py' -v
+      - name: Original 2026 CC BY tacrolimus 36-patient supplement
         run: python -m scripts.audit_public_tacrolimus_paired_omics_2026
+      - name: First real original 36 liver transplant C0/D clinical-only held-patient-out baseline
+        run: python -m scripts.validate_public_tacrolimus_36_c0_baseline
