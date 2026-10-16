@@ -2,6 +2,15 @@
 
 This list follows the earlier MultiOmics → SWEET → Pillar A → Pillar B R2 discussions. **When inspected the Omics2PK repository was empty; there was no pre-existing to-do file to read.** The plan below has therefore been reconstructed and must be reconciled with the owner's priorities.
 
+## Actual supplied Phapale supplementary archives qualified (2026-10-16)
+
+- [x] All **13 authentic Phapale 2010 Wiley legacy DOC** from owner-uploaded `paphale.zip` (1,792,400 bytes, original SHA256 b180d49fcde75d24b6d1812be001dbfa648c9565d0f5bb7100e1bc7d5c299a77), complete figures 1–8, PLS image/tables 9–12, analytical/normalization/CV methods 13. Opened and verified all original SHA hashes offline; no copyrighted files committed.
+- [x] Evidence distinction: predose n29×1256 ions and postdose TAC 0–72h are truly measured in the paper; the **original numeric n29×1256 matrix, individual TAC time-concentration arrays and subject-ID crosswalk are NOT in the uploaded supplements**. Scatterplots, VIP charts, and four identified metabolites are **not** usable as participant-level covariate vectors.
+- [x] Source methodology: XCMS/quantile normalization → supervised two-pass VIP screen then 7-fold/20-permutation **internal** assessment; cannot infer nested independent population validation from these figures, repeat feature screening and normalization inside train folds only.
+- [x] Locally reproducible **SHA-locked audit** `scripts/audit_local_phapale_supplements.py` with synthetic-only test and private antiword parsing, original files not in CI; [full audit](PHAPALE_2010_ALL_13_ORIGINAL_SUPPLEMENTS_AUDIT_20261016.md).
+- [ ] Obtain from Phapale authors original pseudonymized urine ion intensities per volunteer, measured 0–72h TAC dose/time/C(t), PK endpoint calculation and shared biological subject IDs, original batch, units and missingness flags.
+- [ ] **He 2022 original 5.2MB supplemental ZIP was not included** in the supplied two archives. For true E4 renal triple-visit metabolomics and C0, original individual person×D7/M1/M3 table still required. [source request issue #31](https://github.com/rberrah/Omics2PK/issues/31).
+
 ## Newly completed original source NCA and prioritized matched pre-dose omics→PK (2026-10-16)
 
 - [x] **REAL human mavoglurant original C(t) QC and NCA**: 120 distinct original people, 198 IV single-dose occasions, 2480 EVID0 rows (do not all count as observed DV), **53 MDV1 excluded, 2 duplicate-time occasions explicitly abstained**, **196 source-qualified NCA curves with 2403 original measured concentrations** and 76 humans with 2 qualified occasions. Median observed Cmax **556.5 ng/mL**, Tmax **0.20 h**, AUC(actual first→last) **1096.62 ng·h/mL**. There is **no real measured t0**, so AUC0-last/inf, clearance and model fitting not claimed. Original source script `scripts/validate_mavoglurant_120_real_occasion_nca.py`, [source QC report](PUBLIC_PREDOSE_TAC_NCA_AND_MAVO_LONGITUDINAL_RESULTS_20261016.md).
