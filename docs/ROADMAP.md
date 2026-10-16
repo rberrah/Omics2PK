@@ -2,6 +2,20 @@
 
 This list follows the earlier MultiOmics → SWEET → Pillar A → Pillar B R2 discussions. **When inspected the Omics2PK repository was empty; there was no pre-existing to-do file to read.** The plan below has therefore been reconstructed and must be reconciled with the owner's priorities.
 
+## P0 NEW priority — actual longitudinal PK, then time-varying omics
+
+- [x] Implement **PK_LONG_V1** for actual dose and C(t) events: dosing-history completeness, BLQ/LOQ, t0 predose, observed vs simulated, matrix/units and temporal order. **A nearest-dose-only join is forbidden for multi-dose PK.**
+- [x] Implement molecular state sampled before each prediction landmark with fixed lag and future-omics rejection. Post-dose RNA can support later prediction only, not retrospective clearance prediction.
+- [x] Reproduce source-pinned **R Theoph 12 true patients × 11 observed concentrations (132)** with correct oral mg/kg→mg doses, true sample timing, source SHA-256 and NCA0-last descriptive exposure (no CL/F or AUCinf).
+- [x] Source-audit original **theo_sd/theo_md/warfarin/mavoglurant** RDA using pyreadr in ephemeral CI, with observed vs simulated, PK vs PD, EVID and OCC distinctions. Freeze warfarin 515 file rows vs 519 reference-text discrepancy.
+- [x] Discover **mavoglurant real 120 people/198 single-dose IV occasions**, 78 subjects with two occasions; 2,480 recorded concentrations, no continuous multi-dose within occasion. Source ng/mL confirmed by nlmixr2 vignette; calendar gap between occasions missing.
+- [ ] Add source-level PK event adapter for actual **mavoglurant 198 occasion profiles** (time reset per OCC; do not count 198 biological subjects), then model with qualified appropriate baseline in Pillar B.
+- [ ] Convert **warfarin PK and PCA-PD** into distinct endpoint streams; confirm original 515 vs documented 519 entries.
+- [ ] Research original matched longitudinal drug plasma PK + repeated omics: Fannin 2010 acetaminophen 6 treated/3 controls with 0–12h drug C(t) and delayed serial RNA/metabolome, actual per-subject matrices not yet available; RNA measured 48h cannot forecast earlier drug Cmax/AUC.
+- [ ] Next: phase dose/C(t) data into B structural/SAEM model comparisons, respecting actual subject split and same biological patient over time; evaluate clinical+PGx then prespecified omic-state improvement on truly matched records.
+
+**Source and scientific limitations:** [actual longitudinal PK audit](ORIGINAL_LONGITUDINAL_PK_SOURCE_AUDIT_20261016.md) · [longitudinal biological state roadmap](LONGITUDINAL_PK_AND_DYNAMIC_OMICS_ROADMAP_20261016.md).
+
 ## P0 — foundation and executable contract (initial PR)
 - [x] Define research-only, no-patient-data boundary and M0–M4 scientific comparison.
 - [x] Validate native MultiOmics DOWNSTREAM_EXCHANGE_V1 locally (SHA, patient IDs, features, missingness and omic coverage).
