@@ -7,6 +7,12 @@ on:
       - "scripts/qualify_peng_phh_source.py"
       - "scripts/validate_peng_rna_activity.py"
       - "scripts/diagnose_peng_expression_values.py"
+      - "scripts/audit_epa_liver_rna_activity.py"
+      - "scripts/inspect_epa_liver_crosswalk.py"
+      - "scripts/validate_epa_liver_rna_cyp.py"
+      - "scripts/independent_replicate_epa_cyp.py"
+      - "src/omics2pk/epa_liver_cyp_validation.py"
+      - "tests/test_epa_liver_cyp_validation.py"
       - "src/omics2pk/phh_cyp_evidence.py"
       - "tests/test_phh_cyp_evidence.py"
       - "tests/test_qualify_peng_phh_source.py"
@@ -54,3 +60,44 @@ jobs:
         run: python -m unittest discover -s tests -p 'test_phh_cyp_evidence.py' -v
       - name: Actual PHH RNA pseudobulk vs original measured CYP SCR/MFR (n=6, exploratory only)
         run: python -m scripts.validate_peng_rna_activity
+
+  epa-official-liver-mrna-cyp:
+    runs-on: ubuntu-latest
+    timeout-minutes: 7
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+      - name: Qualify real original US EPA 100-liver published RNA and CYP activity workbook
+        run: |
+          python -m scripts.audit_epa_liver_rna_activity
+          python -m scripts.inspect_epa_liver_crosswalk
+
+  epa-measured-100-donor-rna-cyp:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+      - name: Install native research package (no external ML)
+        run: python -m pip install -e .
+      - name: Test real measured CYP / RNA 100-donor exact-match and heldout code on synthetic records
+        run: python -m unittest discover -s tests -p 'test_epa_liver_cyp_validation.py' -v
+      - name: Evaluate actual 100 original EPA human livers qPCR against measured CYP function
+        run: python -m scripts.validate_epa_liver_rna_cyp
+
+  independent-estimator-epa-rna-cyp:
+    runs-on: ubuntu-latest
+    timeout-minutes: 16
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+      - name: Install pinned independent numerical estimator
+        run: python -m pip install -e ".[benchmark]"
+      - name: Cross-replicate actual 100-donor RNA CYP source using sklearn Ridge and StandardScaler
+        run: python -m scripts.independent_replicate_epa_cyp

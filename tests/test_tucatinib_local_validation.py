@@ -1,6 +1,6 @@
 """Synthetic-only HLM protein measured-clearance benchmark tests."""
 import unittest
-from omics2pk.tucatinib_local_validation import qualify,score_donors,TucatinibEvidenceError
+from omics2pk.tucatinib_local_validation import qualify,score_donors,TucatinibEvidenceError,_spearman,verify_published_table_correlations
 
 def fake_22():
     rows=[]
@@ -47,6 +47,15 @@ class TucatinibSyntheticTests(unittest.TestCase):
         bad[0]["source_doi"]="wrong"
         with self.assertRaisesRegex(TucatinibEvidenceError,"DOI"):
             qualify(bad)
+
+    def test_average_rank_spearman_with_ties(self):
+        self.assertAlmostEqual(_spearman([1, 2, 2, 4], [2, 3, 3, 5]), 1.0)
+        self.assertAlmostEqual(_spearman([1, 2, 3, 4], [4, 3, 2, 1]), -1.0)
+
+    def test_source_crosscheck_rejects_synthetic_biomarker_relationship(self):
+        measured = qualify(fake_22())
+        with self.assertRaisesRegex(TucatinibEvidenceError, "published CYP-clearance correlations mismatch"):
+            verify_published_table_correlations(measured)
 
     def test_negative_or_imputed_clearance_not_accepted(self):
         for value in ("","-2","nan","0"):

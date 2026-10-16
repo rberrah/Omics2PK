@@ -61,6 +61,67 @@ def qualify(rows):
     return sorted(eligible)
 
 
+
+# Published source sanity checks: original 21 independent HLM donors,
+# Spearman correlations, rounded to three decimals in the article.
+# These are not a substitute for permissioned original source rows.
+PUBLISHED_SPEARMAN = {
+    "cyp2c8_protein": 0.904,
+    "cyp3a_protein": 0.882,
+    "cyp2c8_activity": 0.781,
+    "cyp3a_activity": 0.907,
+}
+
+
+def _average_ranks(values):
+    indices = sorted(range(len(values)), key=lambda i: values[i])
+    ranks = [0.0] * len(values)
+    start = 0
+    while start < len(indices):
+        stop = start + 1
+        while stop < len(indices) and values[indices[stop]] == values[indices[start]]:
+            stop += 1
+        average_rank = (start + 1 + stop) / 2.0
+        for j in range(start, stop):
+            ranks[indices[j]] = average_rank
+        start = stop
+    return ranks
+
+
+def _spearman(x, y):
+    a, b = _average_ranks(x), _average_ranks(y)
+    xa, yb = mean(a), mean(b)
+    cross = sum((t - xa) * (v - yb) for t, v in zip(a, b))
+    norm = math.sqrt(sum((t - xa)**2 for t in a) * sum((v - yb)**2 for v in b))
+    if norm == 0:
+        raise TucatinibEvidenceError("Constant biomarker or clearance")
+    return cross / norm
+
+
+def verify_published_table_correlations(eligible, *, tolerance=0.012):
+    """Fail closed on the four independent Spearman checks printed in Table 1 paper.
+
+    These detect transcription/column-order errors in a *locally* curated table.
+    The single-donor clearance mean from printed rounded numbers is deliberately
+    NOT required to equal the article narrative mean (see results document).
+    """
+    if len(eligible) != 21:
+        raise TucatinibEvidenceError("Published reference check requires 21 donors")
+    y = [row[1] for row in eligible]
+    vectors = {
+        "cyp2c8_protein": [row[2][0] for row in eligible],
+        "cyp3a_protein": [row[2][1] for row in eligible],
+        "cyp2c8_activity": [row[3][0] for row in eligible],
+        "cyp3a_activity": [row[3][1] for row in eligible],
+    }
+    found = {k: _spearman(v, y) for k, v in vectors.items()}
+    if any(abs(found[k] - PUBLISHED_SPEARMAN[k]) > tolerance for k in found):
+        raise TucatinibEvidenceError(
+            "Original published CYP-clearance correlations mismatch: check source "
+            "columns, donor pairing, transcription and exclusion of the 150-donor pool"
+        )
+    return {k: round(v, 6) for k, v in found.items()}
+
 def _predict_ridge(train, x_test, alpha=1.0):
     """Fixed 2-variable ridge with training-only centering/scaling, no fitting in test fold."""
     m=len(train)
@@ -124,6 +185,14 @@ def run_local_csv(filename: str) -> dict:
     rows=list(csv.DictReader(original.decode("utf-8-sig").splitlines()))
     eligible=qualify(rows)
     report=score_donors(eligible)
+    report["source_table_spearman_reproduced"] = verify_published_table_correlations(eligible)
+    report["mean_table_clearance_original_rounded_values"] = round(
+        mean(row[1] for row in eligible), 6
+    )
+    report["article_narrative_mean_reported"] = 9.24
+    report["paper_table_vs_narrative_mean_agree"] = abs(
+        report["mean_table_clearance_original_rounded_values"] - 9.24
+    ) < 0.1
     report["curated_local_input_sha256"]=hashlib.sha256(original).hexdigest()
     report["no_source_patient_or_donor_rows_exported"]=True
     return report
