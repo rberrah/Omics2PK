@@ -36,6 +36,10 @@ class NATDonorEvidenceTests(unittest.TestCase):
         self.assertEqual(result["arms"]["nat_probes"]["n_original_complete_case_donors"],21)
         self.assertEqual(result["arms"]["nat2_genotype"]["n_original_complete_case_donors"],20)
         self.assertEqual(result["arms"]["nat2_proteins"]["n_original_complete_case_donors"],26)
+        shared=result["strict_four_arm_shared_donor_comparison"]
+        self.assertEqual(shared["n_identical_complete_cases"],20)
+        self.assertEqual(shared["status"],"IDENTICAL_DONOR_LODO_EXPLORATORY")
+        self.assertEqual(set(shared["MAE"]),{"baseline","clinical","nat_probes","nat2_proteins","nat2_genotype"})
         for arm in result["arms"].values():
             self.assertTrue(arm["status"] == "DONOR_LODO_EXPLORATORY")
         self.assertTrue(result["original_rows_redistributed"] is False)
@@ -71,6 +75,9 @@ class NATDonorEvidenceTests(unittest.TestCase):
         self.assertEqual(result["arms"]["nat2_proteins"]["status"],
                          "ABSTAIN_INSUFFICIENT_COMPLETE_CASES")
         self.assertEqual(result["arms"]["nat_probes"]["n_original_complete_case_donors"],21)
+        shared=result["strict_four_arm_shared_donor_comparison"]
+        self.assertEqual(shared["status"],"ABSTAIN_INSUFFICIENT_IDENTICAL_COMPLETE_CASE_DONORS")
+        self.assertLess(shared["n_identical_complete_cases"],10)
 
     def test_zero_or_nonquantifiable_y_cannot_be_imputed(self):
         rows=fake_rows()
