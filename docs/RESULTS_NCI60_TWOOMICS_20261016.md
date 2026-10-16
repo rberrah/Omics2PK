@@ -54,6 +54,29 @@ adding RNA to tumor covariates produces only a small MAE reduction of
 0.007821. These are exploratory point estimates, not established
 incremental value or statistical significance.
 
+## Paired incremental metabolomic contrasts (same 47 lines)
+
+Additional qualified CI: https://github.com/rberrah/Omics2PK/actions/runs/38917922590
+
+Positive values below mean that **adding metabolites increases MAE**.
+The intervals are descriptive 95% bootstrap percentiles: 1,000 resamples
+of the **47 original line identities**, after averaging the errors across
+the three correlated repetitions within each line. These are not
+independent external-validation intervals or formal multiplicity-adjusted
+tests.
+
+| Comparison, same CV folds | ΔMAE joint minus RNA | Descriptive 95% interval |
+|---|---:|---:|
+| PCA/Ridge, without tumor covariates | +0.009999 | -0.001900 to +0.022202 |
+| PCA/Ridge, with tumor covariates | **+0.016871** | +0.006110 to +0.028577 |
+| Fixed XGBoost, without tumor covariates | +0.013129 | -0.000456 to +0.024515 |
+| Fixed XGBoost, with tumor covariates | +0.014101 | +0.000686 to +0.025326 |
+
+These exploratory intervals favor no added metabolomic benefit under
+this design; the two unadjusted descriptive intervals include zero.
+They do not establish a biological disadvantage of metabolomics in
+general and cannot be transported to clinical PK or independent tissues.
+
 ## Scientific interpretation and gates
 1. **No observed benefit of adding metabolomics** to the matched RNA
    representation for this response/drug/limited cohort in these
