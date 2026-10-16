@@ -2,6 +2,21 @@
 
 This list follows the earlier MultiOmics → SWEET → Pillar A → Pillar B R2 discussions. **When inspected the Omics2PK repository was empty; there was no pre-existing to-do file to read.** The plan below has therefore been reconstructed and must be reconciled with the owner's priorities.
 
+## P0 interoperability — consume real MultiOmics outputs (E2 → E3 → E4)
+
+- [x] Audit **current pinned actual MultiOmics browser exchange V1** from source and full research ZIP tests. Verify raw matrices / assay-subject-feature identity, source-scale declarations and research analysis provenance.
+- [x] Prove **loss of T0/T12 categorical timepoints** on current producer: input 8 biological subjects × 2 specimen visits, 49 omics assays, but 49/49 empty exported collection times. A technical RNA duplicate is one repeated assay, **not a ninth subject or third visit**.
+- [x] Local read-only source-verified Omics2PK readiness report and tests: numeric time/unit, repeated specimens, incomplete provenance, no real dose/C(t)/individual PK endpoints; **fails closed** without fabricating temporal alignment.
+- [x] Add strict source-provenanced optional `individual_signatures` schema for later RNA/CYP/pathway/MOFA/SWEET features per actual assay. Group logFC/q values or transductive networks cannot masquerade as held-out individual covariates.
+- [x] Add strictly measured `Cmax/Tmax/AUC0last` NCA endpoint input QC with actual source hash, physical units, original dose and time window, independent subject/occasion IDs; additional study-clock verification required to link to preceding omic specimen.
+- [ ] **MultiOmics producer owner** to preserve original `timepoint` and `technical_replicate` (not inferred units); real producer commit / molecular provenance; optionally export fixed individual scores. Explicit cross-repo [MultiOmics issue #20](https://github.com/rberrah/MultiOmics/issues/20), not a direct source edit by Omics2PK.
+- [ ] After producer fix, rerun actual browser ZIP end-to-end and confirm original RNA-only and multiomics patient/sample/time relationship survives; then evaluate on **genuinely matched longitudinal clinical PK + omics**, not synthetic multiomics combined with unrelated Theoph patients.
+- [ ] NCA signal stage: separately test Cmax/Tmax/AUC0-last as dose/time-window-specific outcomes with actual PK and baseline molecular states; account for sampling time differences and multiplicity. **NCA endpoints are NOT intrinsic PopPK structural parameters.**
+- [ ] E3 model stage: fit original dose-C(t) through Pillar B/approved MIPD-Engine, clinical+PGx reference then frozen biological covariates on unchanged subject-disjoint external folds; compare actual PK prediction, CL/F, V/F, absorption, PK uncertainty. PBPK requires mechanistic transfer and physiology, not transcript→CL direct equivalence.
+- [ ] E4: dynamically evolving molecular state prior to each prospective prediction landmark, patient-disjoint + temporal anti-leakage, transportability assessment, Pillar C abstention. NewPK remains downstream comparator only.
+
+Full source-level audit: [REAL_MULTIOMICS_OUTPUT_AUDIT_AND_PK_ADAPTER_GAPS_20261016.md](REAL_MULTIOMICS_OUTPUT_AUDIT_AND_PK_ADAPTER_GAPS_20261016.md).
+
 ## P0 NEW priority — actual longitudinal PK, then time-varying omics
 
 - [x] Implement **PK_LONG_V1** for actual dose and C(t) events: dosing-history completeness, BLQ/LOQ, t0 predose, observed vs simulated, matrix/units and temporal order. **A nearest-dose-only join is forbidden for multi-dose PK.**

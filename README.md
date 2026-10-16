@@ -10,6 +10,12 @@ The immediate goal is now **real original patient concentration–time profiles 
 
 See [Longitudinal Omics→PK roadmap](docs/LONGITUDINAL_PK_AND_DYNAMIC_OMICS_ROADMAP_20261016.md) and [original measured PK dataset audit](docs/ORIGINAL_LONGITUDINAL_PK_SOURCE_AUDIT_20261016.md).
 
+## MultiOmics source-interoperability audit: E2 molecular evidence → E3 PK/NCA
+
+We have reproduced the **actual** `rberrah/MultiOmics` V1 browser exporter against its current pinned public source. The native 8-subject, 16-specimen, 49-assay demo **loses 100% of the original categorical T0/T12 visit metadata** on downstream export, because the producer copies `collection_time` but not the input `timepoint`. Raw RNA, unknown provenance scales and missing PK dosing histories remain correctly blocked for clinical interpretation. Omics2PK now offers `python -m scripts.audit_multiomics_pk_readiness <local_exchange_dir>` for locally verifying the original V1 output, plus a strict optional `individual_signatures` contract and measured `Cmax/Tmax/AUC0last` NCA target contract. No attempt is made to derive patient PK from group fold changes, an omics-only ZIP, or unverified chronological labels.
+
+[Full native output audit and producer change request](docs/REAL_MULTIOMICS_OUTPUT_AUDIT_AND_PK_ADAPTER_GAPS_20261016.md). The agreed cross-repo changes are filed as [MultiOmics issue #20](https://github.com/rberrah/MultiOmics/issues/20); this repository does not alter MultiOmics source. Omics→NCA→PopPK/PBPK evidence remains future until genuinely observed, subject-linked data and time-validated covariates exist.
+
 ## What is executable today
 
 - Offline inspection of the **MultiOmics DOWNSTREAM_EXCHANGE_V1** directory: checks SHA-256, study-data access declaration, assay/sample/subject and feature-ID matching, finite numeric matrices and recorded processing scale.

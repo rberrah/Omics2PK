@@ -6,6 +6,7 @@ import sys
 from pathlib import Path
 
 from omics2pk.exchange import ExchangeError, inspect_exchange, prepare_sweet
+from omics2pk.multiomics_pk_readiness import inspect_pk_readiness
 
 
 def main(root: Path) -> dict:
@@ -48,6 +49,19 @@ def main(root: Path) -> dict:
         blocked = "normalized/transformed" in str(exc)
     assert blocked, "Raw-count clinical/research input must be rejected for SWEET"
     assert not (root.parent / "should-not-write-sweet").exists()
+    pk = inspect_pk_readiness(root)
+    # Real current MultiOmics original demo labels samples "T0"/"T12"
+    # in input 'timepoint', but its V1 producer writes only collection_time,
+    # collection_time_unit; both are empty on the NATIVE exchange CSV.
+    assert pk["n_independent_biological_subjects"] == 8
+    assert pk["n_omic_assays_missing_collection_time"] == 49
+    assert pk["n_subjects_with_two_or_more_distinct_numeric_collection_times"] == 0
+    assert not pk["temporal_numeric_metadata_ready"]
+    assert pk["n_original_unique_specimens"] == 16
+    assert pk["n_extra_technical_repeat_assays_not_independent_biology"] == 1
+    assert not pk["has_original_PK_dose_concentration_history"]
+    assert not pk["has_structured_person_level_NCA_targets"]
+    assert "PRESERVE_CATEGORICAL_TIMEPOINT_FROM_ORIGINAL_MULTIOMICS_SOURCE" in pk["missing_for_E3_and_E4"]
     report = {
         "result": "PASS_native_multiomics_three_omic_demo_contract",
         "source_data": "bundled synthetic MultiOmics samples only",
@@ -59,6 +73,9 @@ def main(root: Path) -> dict:
         "longitudinal_rna_subjects": 8,
         "rna_technical_replicate_assays": 1,
         "sweet_raw_counts_guard": "PASS_BLOCKED",
+        "real_native_exchange_PK_time_loss": "CONFIRMED_TIMEPOINT_FIELD_NOT_PROPAGATED",
+        "real_native_original_omic_assays_with_missing_quantitative_time": pk["n_omic_assays_missing_collection_time"],
+        "native_source_PK_E3_E4_status": pk["status"],
         "clinical_validation": False,
         "scientific_analysis": False,
         "no_patient_export": True,
