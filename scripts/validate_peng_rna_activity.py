@@ -72,6 +72,8 @@ def expression_from_public_geo(gse_tar: bytes) -> tuple[dict,dict]:
             reader=csv.reader(seq)
             try: head=next(reader)
             except StopIteration: raise EvidenceError("Empty GEO transcriptome")
+            if head and head[0].strip().casefold()=="barcode" and "graphclust" in head and "nUMI" in head:
+                raise EvidenceError("GEO_SUPPLEMENT_IS_SEURAT_CELL_METADATA_NOT_TRANSCRIPT_COUNTS")
             n_cells=len(head)-1
             if n_cells<10 or n_cells>150000: raise EvidenceError("Expected cell-by-gene count matrix, not donor-level summary")
             n_genes=0
@@ -164,7 +166,21 @@ def validate_public_phh() -> dict:
     }
 
 def main():
-    print(json.dumps(validate_public_phh(),indent=2,ensure_ascii=False,sort_keys=True))
+    try:
+        report=validate_public_phh()
+    except EvidenceError as exc:
+        if str(exc)!="GEO_SUPPLEMENT_IS_SEURAT_CELL_METADATA_NOT_TRANSCRIPT_COUNTS":
+            raise
+        report={
+            "status":"ABSTAIN_GEO_HAS_SEURAT_METADATA_NOT_EXPRESSION_COUNTS",
+            "n_original_donors":6,
+            "paired_functional_assay_source_verified":True,
+            "raw_fastq_or_gene_counts_required":True,
+            "missing_prerequisite":"Reconstruct CYP expression from original raw RNA reads; GEO supplementary files contain cell clusters, UMAP, PCA, nUMI and QC fields rather than gene-count matrices",
+            "no_cpm_or_rna_to_cyp_model_fitted":True,
+            "no_clinical_pk_claim":True,
+        }
+    print(json.dumps(report,indent=2,ensure_ascii=False,sort_keys=True))
 
 if __name__=="__main__":
     main()
