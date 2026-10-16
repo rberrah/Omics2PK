@@ -44,3 +44,8 @@ Un état omique mesuré 48 h après une dose de paracétamol ne peut pas servir 
 Le prochain niveau **scientifique** sera un modèle PK identifiable sur vrais C(t) et doses, avec diagnostic residuals/FOCEi/SAEM dans le pilier B, puis comparaison clinico-PGx vs omiques sur des échantillons authentiquement appariés et à la date adéquate.
 
 Aucune de ces données ne justifie encore un calculateur de dose patient ni une publication affirmant une amélioration de la PopPK par les omiques longitudinales.
+
+
+## Actualisation cruciale mavoglurant : occasions multiples ≠ doses répétées continues
+
+L'objet original contient exactement **120 sujets**, **198 couples sujet×OCC**, **198 événements EVID=1** et **2 480 lignes de concentrations EVID=0**, chaque couple sujet×OCC n'ayant **qu'une seule dose enregistrée**. **78 sujets** ont deux occasions. Le protocole original A2121 utilisait des perfusions IV de dix minutes, d'après Wendling et la vignette nlmixr2 ; concentrations publiées en ng/mL (https://nlmixr2.org/articles/mavoglurant.html). Ce jeu fournit donc une **véritable PK humaine longitudinale multi-occasion**, utile pour quantifier l'évolution entre périodes et valider les effets de covariables dans une PopPK, mais PAS un historique de prises répétées en continu. Les temps sont à interpréter dans leur occasion ; l'intervalle réel entre les deux occasions n'est pas présent comme calendrier absolu.
