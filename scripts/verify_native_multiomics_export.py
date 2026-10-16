@@ -10,7 +10,7 @@ from omics2pk.exchange import ExchangeError, inspect_exchange, prepare_sweet
 
 def main(root: Path) -> dict:
     result = inspect_exchange(root)
-    assert result["subjects"] == 16, result
+    assert result["subjects"] == 8, result
     assert result["assays"] == 49, result
     assert set(result["matrices"]) == {
         "transcriptomics", "proteomics", "metabolomics"
@@ -29,8 +29,15 @@ def main(root: Path) -> dict:
         rows = list(csv.DictReader(f))
     rna = [r for r in rows if r["omic"] == "transcriptomics"]
     assert len(rna) == 17
-    assert len({r["subject_id"] for r in rna}) == 16, (
-        "Public demo includes a repeat RNA assay for one subject"
+    assert len({r["subject_id"] for r in rna}) == 8, (
+        "Longitudinal public demo has only eight distinct subjects"
+    )
+    counts = {}
+    for row in rna:
+        counts[row["subject_id"]] = counts.get(row["subject_id"], 0) + 1
+    assert sorted(counts.values()) == [2, 2, 2, 2, 2, 2, 2, 3], counts
+    assert len({r["sample_id"] for r in rna}) == 16, (
+        "One RNA sample must have a technical repeat assay"
     )
     # Never relabel original counts as SWEET-compatible normalized expression.
     # In the unchanged real producer package, prepare-sweet must refuse.
@@ -49,7 +56,8 @@ def main(root: Path) -> dict:
         "omics": sorted(result["matrices"]),
         "source_data_access": result["data_access"],
         "producer_commit": manifest["software"]["commit"],
-        "rna_repeated_subject": True,
+        "longitudinal_rna_subjects": 8,
+        "rna_technical_replicate_assays": 1,
         "sweet_raw_counts_guard": "PASS_BLOCKED",
         "clinical_validation": False,
         "scientific_analysis": False,
