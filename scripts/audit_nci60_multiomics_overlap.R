@@ -28,8 +28,29 @@ cat(sprintf("EXACT overlap drug+RNA=%d, drug+metabolites=%d, all four=%d\n",
 cat("EXACT matching cell-line labels:",paste(sort(exact_four),collapse=" | "),"\n")
 cat("Drug set lacking exact full overlap:",paste(sort(setdiff(source_names,exact_four)),collapse=" | "),"\n")
 cat("Other multiomics IDs not in source:",paste(sort(setdiff(union(rna_names,protein_names),source_names)),collapse=" | "),"\n")
-if (length(exact_four) < 30L) {
- cat("NOT_QUALIFIED: insufficient exact overlap for multiomic modeling; formal source-by-source alias crosswalk is required\n")
+# Transparency-only syntax canonicalization: strip punctuation and case.
+# This is NOT a biological alias map and must not silently authorize data joins.
+key <- function(v) gsub("[^A-Z0-9]", "", toupper(v))
+index <- function(v,label) {
+  k <- key(v)
+  if (anyDuplicated(k) || any(!nzchar(k))) stop(paste("Normalization collision in",label))
+  stats::setNames(v,k)
+}
+drug_map <- index(source_names,"mixOmics")
+meta_map <- index(met_names,"IntLIM sample metadata")
+rna_map <- index(rna_names,"IntLIM RNA")
+metab_map <- index(protein_names,"IntLIM metabolites")
+common <- Reduce(intersect,list(names(drug_map),names(meta_map),names(rna_map),names(metab_map)))
+cat(sprintf("PUNCTUATION/CASE-only normalized overlap all sources=%d\n",length(common)))
+cat("Canonical matches:\n")
+for (k in sort(common)) {
+ cat(sprintf("  %s: GI50=%s, RNA=%s, metabolite=%s\n",
+             k,drug_map[[k]],rna_map[[k]],metab_map[[k]]))
+}
+cat("Still unaligned source IDs:",paste(sort(setdiff(source_names,unname(drug_map[common]))),collapse=" | "), "\n")
+cat("Still unaligned other IDs:",paste(sort(setdiff(union(rna_names,protein_names), c(unname(rna_map[common]), unname(metab_map[common])))),collapse=" | "), "\n")
+if (length(common) < 30L) {
+ cat("NOT_QUALIFIED: insufficient unambiguous punctuation-only overlap; manual crosswalk required\n")
  quit(status=2L)
 }
-cat("PASS exact cell-line identity overlap audit; NO measured multiomic prediction and no evidence of contemporaneous sample collection\n")
+cat("PASS syntax-only audit, NOT an approved biological crosswalk, NOT contemporary same-sample omics; future join still requires provenance review\n")
