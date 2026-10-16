@@ -1,0 +1,53 @@
+name: Thesis Omics-to-PK evidence gates (synthetic contracts + public document schema)
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - "src/omics2pk/pk_link_contract.py"
+      - "tests/test_pk_link_contract.py"
+      - "scripts/audit_wegler_source_structure.py"
+      - "tests/test_wegler_source_structure.py"
+      - "docs/OMICS_TO_PK_THESIS_PROOF_AND_SITE_PLAN.md"
+      - ".github/workflows/omics-pk-evidence-gates.yml"
+  push:
+    branches: [main]
+    paths:
+      - "src/omics2pk/pk_link_contract.py"
+      - "tests/test_pk_link_contract.py"
+      - "scripts/audit_wegler_source_structure.py"
+      - "tests/test_wegler_source_structure.py"
+      - ".github/workflows/omics-pk-evidence-gates.yml"
+permissions:
+  contents: read
+jobs:
+  contracts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+      - name: Install research package only (no cloud services)
+        run: python -m pip install -e .
+      - name: Omics and PK event anti-leakage, identity and timing tests
+        run: python -m unittest discover -s tests -p 'test_pk_link_contract.py' -v
+      - name: Source schema no-raw-values tests
+        run: python -m unittest discover -s tests -p 'test_wegler_source_structure.py' -v
+  public-document-schema:
+    runs-on: ubuntu-latest
+    timeout-minutes: 14
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+      - name: Install PDF native-text reader (no OCR)
+        run: python -m pip install "pypdf==5.9.0"
+      - name: Audit only the structural contents of pinned open research supplements
+        run: python scripts/audit_wegler_source_structure.py --out wegler_public_source_schema.json
+      - uses: actions/upload-artifact@v6
+        with:
+          name: wegler-public-structure-only-no-donor-data
+          path: wegler_public_source_schema.json
+          retention-days: 14
