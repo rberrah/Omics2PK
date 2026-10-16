@@ -11,9 +11,9 @@ Input is the three-omic **bundled synthetic demo**:
 - \`demo_metabolomics.csv\`
 
 Workflow steps: execute the native producer in Node 24 → verify its real files
-and SHA-256 using \`omics2pk.exchange.inspect_exchange\` → assert 16 distinct
-biological subjects and 49 assays (17 RNA, 16 proteomics, 16 metabolomics) →
-assert one subject has two RNA assays → confirm raw RNA counts are **rejected**
+and SHA-256 using \`omics2pk.exchange.inspect_exchange\` → assert **8 distinct longitudinal biological subjects** and 49 assays
+(17 RNA, 16 proteomics, 16 metabolomics) → assert all eight subjects
+have two RNA timepoints and one extra technical replicate assay → confirm raw RNA counts are **rejected**
 by \`prepare_sweet\`. The produced package is deleted after the checks,
 and cannot accidentally become a GitHub artifact. No real patient data
 are uploaded.
