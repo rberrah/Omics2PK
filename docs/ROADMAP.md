@@ -2,6 +2,17 @@
 
 This list follows the earlier MultiOmics → SWEET → Pillar A → Pillar B R2 discussions. **When inspected the Omics2PK repository was empty; there was no pre-existing to-do file to read.** The plan below has therefore been reconstructed and must be reconciled with the owner's priorities.
 
+## Original-data E3 / E4 candidates (2026-10-16)
+
+- [x] Verify **original PLOS 2026 Wang et al TAC 36-human clinical workbook**, exact SHA, actual original C0, dose mg/kg and C/D formula, one row/patient and three aged <18. Execute a small **clinical-only reference** leave-patient-out model age+sex+BMI vs constant: MAEs **92.392803 vs 92.516919 C/D units** (virtually no uplift); not RNA/omics predictive proof, no C(t).
+- [x] Verify actual **GSE15158 n88 and GSE70784 n432** transcriptomic sample arrays and longitudinal visit metadata with original GEO series matrix. No numeric source-donor-matched drug PK concentration table established; Fannin 2010 original 0–12 h APAP plasma graph is not equivalent to an original individual NCA data table.
+- [x] Source rank manuscript and archives [public same-person Omics+PK triage](PUBLIC_SAME_SUBJECT_OMICS_PK_SOURCE_TRIAGE_20261016.md). Mouse Degraeve 2023 n351 source measured blood C(t)+gut ABCB1, original PK animal ID matrix missing; Zhu2022 137 recipients×693 trough+metabolomic records, exact quantified personal matrix not verified; Zenodo 24×18 biological time course no PK; HuggingFace PMxBench/PKPD-Dataset are question/text corpora, not primary clinical data.
+- [ ] Verify **Wang2026 metagenome SRA PRJNA1416570** sample aliases ↔ original 36 clinical `No.` identifiers and obtain source quantified microbiome/metabolome matrices with known collection time and batch before any microbiome→C0 model.
+- [ ] Examine original Fannin 2010 PDF/Supplemental PK graph and numeric dose–C(t) source; do not replace with figure-derived interpolated pseudo-measurements. Distinguish microarrays expressed relative to each patient's pre-dose baseline from comparable **absolute RNA expression**.
+- [ ] Contact Degraeve2023 authors for true `mouse_id,dose,time,C(t),ABCB1,RNA_sample_id`, then test actual animal-level patient-disjoint PopPK/PBPK mechanism beyond a group mean.
+- [ ] If allowed, obtain Zhu2022 original 137 patient×693 repeated omics+C0/D features/dates/PGx. Until then no longitudinal tacrolimus omics PK claims.
+- [ ] Only after public original full match: fit appropriately sampled exposure NCA first, then true PopPK C(t), PBPK physiological mechanisms and time-varying E4 states.
+
 ## P0 interoperability — consume real MultiOmics outputs (E2 → E3 → E4)
 
 - [x] Audit **current pinned actual MultiOmics browser exchange V1** from source and full research ZIP tests. Verify raw matrices / assay-subject-feature identity, source-scale declarations and research analysis provenance.
