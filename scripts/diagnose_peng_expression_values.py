@@ -9,7 +9,7 @@ import re
 import tarfile
 
 from scripts.qualify_peng_phh_source import GEO_TAR, load
-from scripts.validate_peng_rna_activity import EXPECTED_GEO_TAR_SHA
+EXPECTED_GEO_TAR_SHA = "7f114365ba5e977e685f9cee108def64deb0a31c96ea13d95e19c0b42c2b01e8"
 
 def audit():
     binary=load(GEO_TAR,40_000_000)
