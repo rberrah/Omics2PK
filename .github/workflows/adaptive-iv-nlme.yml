@@ -1,0 +1,49 @@
+name: Adaptive NLME + same-donor TKI qualification
+on:
+  pull_request:
+    paths:
+      - 'src/omics2pk/adaptive_iv_nlme.py'
+      - 'scripts/benchmark_mavoglurant_iv_adaptive_nlme.py'
+      - 'tests/test_adaptive_iv_nlme.py'
+      - 'src/omics2pk/matched_tki_metabolism.py'
+      - 'tests/test_matched_tki_metabolism.py'
+      - 'scripts/validate_matched_tki_local.py'
+      - '.github/workflows/adaptive-iv-nlme.yml'
+      - 'pyproject.toml'
+  push:
+    branches: [main]
+    paths:
+      - 'src/omics2pk/adaptive_iv_nlme.py'
+      - 'scripts/benchmark_mavoglurant_iv_adaptive_nlme.py'
+      - 'tests/test_adaptive_iv_nlme.py'
+      - 'src/omics2pk/matched_tki_metabolism.py'
+      - 'tests/test_matched_tki_metabolism.py'
+      - 'scripts/validate_matched_tki_local.py'
+      - '.github/workflows/adaptive-iv-nlme.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  synthetic:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+          cache: pip
+      - run: python -m pip install -e '.[pk-structural]'
+      - run: python -m unittest discover -s tests -p 'test_matched_tki_metabolism.py' -v
+      - run: python -m unittest discover -s tests -p 'test_adaptive_iv_nlme.py' -v
+  original-human-pk:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+          cache: pip
+      - run: python -m pip install -e '.[pk-structural]'
+      - run: python -m scripts.benchmark_mavoglurant_iv_adaptive_nlme
