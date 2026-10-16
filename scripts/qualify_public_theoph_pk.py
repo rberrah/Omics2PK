@@ -15,6 +15,7 @@ import json
 from urllib.request import Request, urlopen
 
 from omics2pk.longitudinal_pk_contract import qualify_longitudinal_pk
+from omics2pk.single_dose_nca import aggregate_original_theoph
 
 RD_DATA_COMMIT = "cc03c29690889dbe83089f5206e2422db8c3f71f"
 PUBLIC_SOURCE = (
@@ -22,12 +23,15 @@ PUBLIC_SOURCE = (
     f"Rdatasets/{RD_DATA_COMMIT}/csv/datasets/Theoph.csv"
 )
 CAP = 100_000
+EXPECTED_ORIGINAL_SOURCE_SHA256 = "f9b77033090644cf38c83056c25c8137bca71cf629d7c0159a72ef18095726b0"
 
 
 def load_original():
     with urlopen(Request(PUBLIC_SOURCE,headers={"User-Agent":"Omics2PK-original-theoph-PK-event-audit/1.0"}),timeout=30) as r:
         raw=r.read(CAP+1)
     if len(raw)>CAP:raise ValueError("Original single-dose PK source unexpectedly large")
+    if hashlib.sha256(raw).hexdigest()!=EXPECTED_ORIGINAL_SOURCE_SHA256:
+        raise ValueError("Pinned original Theoph numeric PK source SHA changed")
     records=list(csv.DictReader(io.StringIO(raw.decode("utf-8-sig"))))
     if len(records)!=132:
         raise ValueError("Theoph must have 132 actual original concentration samples")
@@ -105,6 +109,7 @@ def run_public_original():
         "baseline_t0_observation_note":"Serum C(t=0) can be >0 in original published dataset; retained, not forced to zero.",
         "original_mg_per_kg_dose_explicitly_converted_using_measured_kg_weight":True,
         "pk_event_contract":qualified,
+        "observed_single_dose_NCA":aggregate_original_theoph(rows),
     }
 
 
