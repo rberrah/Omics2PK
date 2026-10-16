@@ -26,20 +26,41 @@ For reference expression `X_train` (genes × subjects),
 `G(x) = A + w(x) * (B-A)`, where the weight is a bounded
 function of query-to-training expression-profile correlations.
 
-### Crucial difference from published SWEET
+### Sample weighting and difference from official SWEET
 
-Published SWEET computes sample weights using the **entire gene-expression
-input**, while selected network edges may use a targeted gene subset. The
-current inductive prototype uses **the same selected panel both for weights
-and edges**. That is a material methodological difference requiring
-independent calibration before comparison or naming equivalence. The weight
-normalization also differs for an unseen patient. This variant must **never**
-be presented as numerically equivalent to official SWEET.
+The published method computes sample weights using the **full expression
+universe**, independently from the smaller subset of genes selected for
+individual network edges. This prototype now accepts separate
+`weight_expression` / `weight_genes` arrays, aligned to the **same
+training subjects**, and `weight_query` for each unseen subject.
+If these arguments are omitted, the candidate uses the selected gene panel
+for both weights and edges. This difference is explicit in the outputs.
+
+For a new, truly unseen patient, weight normalization still uses only the
+training subject-similarity distribution and clips values outside its range;
+this is **not** the transductive published sample-weight procedure. The
+reference sizes also differ by one between LOO training and held-out tests.
+
+**Measured public-data diagnostic (CI, 2026-10-16):**
+the original SWEET example has 80 expression samples and 100 genes.
+Using all 100 genes for sample weighting and the first 25 genes for
+network edges: training 60, held-out 20; training LOO references 59 and
+held-out references 60. All test networks share one training-frozen
+fingerprint; 1 of 20 test weights was clipped outside the reference range.
+For one test subject, the relative Frobenius difference between this
+inductive network and the published SWEET **transductive formula**
+applied to all 80 subjects was **0.27065** (27.1%), illustrating
+non-equivalence under different reference-cohort definitions.
+No outcome labels or PK/PD concentrations are present in this diagnostic.
+
+This remains **SWEET-inspired**: not a clinical predictor and not a
+validated replacement for official SWEET. Do not present correlation
+network strengths as mechanistic enzyme activities.
 
 ## Gates and known limitations
 
 1. **Public outcome-free sanity check:** official SWEET 80-sample RNA
-   example, predeclared first 25 genes; first 60 samples as reference
+   example, sample weights from all 100 genes and edges from a\n   predeclared first-25-gene panel; first 60 samples as reference
    training, last 20 as held-out. Leave-one-out among training subjects,
    training-frozen reference for every held-out subject, and a test for
    invariance of one held-out result to perturbing another held-out profile.
