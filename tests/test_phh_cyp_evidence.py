@@ -33,7 +33,7 @@ class FunctionalTests(unittest.TestCase):
             parse_published_functional_table(table,kind="substrate_clearance")
         table=make_table("substrate_clearance")
         table[0][3]="PHH330"
-        with self.assertRaisesRegex(EvidenceError,"six donor"):
+        with self.assertRaisesRegex(EvidenceError,"[Ss]ix donor"):
             parse_published_functional_table(table,kind="substrate_clearance")
 
     def test_real_donor_splits_and_train_only_scaling(self):
