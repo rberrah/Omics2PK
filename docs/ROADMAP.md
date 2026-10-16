@@ -23,6 +23,17 @@ This list follows the earlier MultiOmics → SWEET → Pillar A → Pillar B R2 
 - [ ] Validate a genuine out-of-sample extension mathematically and compare against published SWEET; current prototype uses selected genes for sample weighting instead of the genome-wide input.
 - [ ] Compare stability to sample count, preprocessing, batch, tissue and threshold selection. Initial 60/20 public expression-only diagnostic is in merged PR #3, but no PK endpoints, no cross-fold preprocessing calibration, and no biological claims.
 
+## Thesis Chapter 4/10 -> genuine PK proof: cross-domain gate
+- [x] Pin the **15 October 2026 frozen thesis architecture** as a public research mapping without exposing potentially patent-sensitive Pillars A/B/C/D source (docs/OMICS_TO_PK_THESIS_PROOF_AND_SITE_PLAN.md).
+- [x] Implement strict baseline omic-to-observed-PK patient/date/dose/concentration metadata check: RNA-only or 2–3 omics; time zones, prior-to-dose sampling and fixed assay alignment gap; private data never uploaded.
+- [x] Audit source file structure for Wegler 2021 PDF and donor-matched proteome workbooks, using exact official public SHA-256 and output only aggregate metadata. This is NOT a quantitative CLint table join.
+- [ ] **P0 science blocker**: identify genuine donor-level Wegler CLint outcomes and match to donor-proteome rows with source table/assay/units provenance (issue #11). If not publicly tabulated, STOP and ask authors for numbers.
+- [ ] First measured in-vitro donor-held-out CLint regression with fixed protein CYP scores, no pseudoreplication; report failure if no verifiable labels.
+- [ ] Separate **transcriptomics→measured PK** source (or functional assay), not just phenotype→tumor response.
+- [ ] Actual clinical BIOMARGIN/authorized linked tacrolimus or MPA TDM cohort with patient-date/dose/concentration links (ethics/license gate).
+- [ ] Compare clinical+PGx reference → prespecified direct RNA scores → qualified SWEET RNA → parallel protein/metabolite → optional integrated latent scores, on identical held-out patients; external validation + Pillar C adjudication.
+- [ ] **After proof only**: design public learning/tool at rberrah.github.io with FR/EN, dark/light, Resources, Other Disciplines, persistent provenance and no user clinical-data upload.
+
 ## P2 — public measured-data pilots
 - [x] Public pharmacological pilot: mixOmics NCI-60 60 cell lines, 48 ABC transporters and **measured doxorubicin GI50** (chosen before predictions); M1/M1bis/M2 plus expression/PCA/Ridge, negative controls and histology adjustment. **No MAE improvement over mean or tumor type**; report in docs/RESULTS_NCI60_DOXORUBICIN_20261016.md.
 - [x] Public NCI-60 cross-study RNA + metabolite GI50 pilot: 48 syntax-only matches, **47 histology-concordant** lines (MDA-MB-435 excluded). 17,987 RNA/280 metabolites. No incremental metabolomic MAE gain across fixed PCA/Ridge or XGBoost on matched lines. Research-only merged PR #9 and docs/RESULTS_NCI60_TWOOMICS_20261016.md. Not same-sample multiomics or clinical PK.
