@@ -44,17 +44,28 @@ ts <- match(matched_keys,met_keys)+1L
 tumor_key <- function(x) {
   z <- key(x)
   z[z %in% c("LUNG","NONSMALLCELLLUNG","NONSMALLCELLLUNGCANCER")] <- "NSCLC"
-  z[z=="LEUKAEMIA"] <- "LEUKEMIA"
+  z[z %in% c("LEUK","LEUKAEMIA")] <- "LEUKEMIA"
+  z[z=="MELAN"] <- "MELANOMA"
+  z[z=="OVAR"] <- "OVARIAN"
   z
 }
 class_mix <- tumor_key(source_class[ds])
 class_intlim <- tumor_key(as.character(meta$cancertype[ms]))
-if (any(!nzchar(class_mix)) || any(!nzchar(class_intlim)) ||
-    any(class_mix != class_intlim)) {
-  differing <- which(class_mix != class_intlim)
-  for (i in differing) cat(sprintf("CANCER LINEAGE CHECK: %s source=%s IntLIM=%s\n", source_ids[ds][i],source_class[ds][i],meta$cancertype[ms][i]))
-  stop(paste("Discordant tumor lineages (manual review required):",paste(source_ids[ds][differing],collapse=", ")))
-}
+if (any(!nzchar(class_mix)) || any(!nzchar(class_intlim)))
+  stop("Unknown tumor lineage category")
+discordant <- which(class_mix != class_intlim)
+if (length(discordant)!=1L || source_ids[ds][discordant]!="MDAMB435")
+  stop(paste("Unexpected cross-study lineage disagreement:",
+             paste(source_ids[ds][discordant],collapse=", ")))
+# Prespecified SOURCE-CONCORDANT cohort: exclude the historic MDA-MB-435
+# source=BREAST versus IntLIM=Melanoma, never silently relabel either.
+cat(sprintf("EXCLUDED %s: mixOmics=%s vs IntLIM=%s; no biological alias inference\n",
+            source_ids[ds][discordant],source_class[ds][discordant],
+            meta$cancertype[ms][discordant]))
+keep <- setdiff(seq_along(ds),discordant)
+ds <- ds[keep]; ms <- ms[keep]; rs <- rs[keep]; ts <- ts[keep]
+class_mix <- class_mix[keep]
+if (length(ds)!=47L) stop("Expected 47 source-lineage-concordant lines")
 
 # Separate public, curated log-scale source measurements; do not log-transform again.
 write_modality <- function(tbl, col_ids, file) {
@@ -86,4 +97,4 @@ write.csv(data.frame(drug_cell_line=source_ids[ds],
 cat(sprintf("EXPLORATORY CROSS-STUDY CELL LINES=%d, RNA=%d features, metabolites=%d features; missing RNA=%d, metabolites=%d\n",
             length(ds),rna_info[["features"]],met_info[["features"]],
             rna_info[["missing"]],met_info[["missing"]]))
-cat("NOT SAME BIOLOGICAL SPECIMENS; NO CLINICAL PK ENDPOINT; UNMATCHED 12 LINES EXCLUDED\n")
+cat("NOT SAME BIOLOGICAL SPECIMENS; NO CLINICAL PK ENDPOINT; 12 SYNTAX-UNMATCHED + 1 HISTOLOGY-DISCORDANT LINE EXCLUDED\n")
