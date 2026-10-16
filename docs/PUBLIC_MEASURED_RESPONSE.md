@@ -21,3 +21,11 @@ The first gate only audits upstream RData and lists matching compounds.
 No compound is selected based on model performance. A named compound must
 be selected/frozen after the audit and **before** predictions are run.
 Never select the best-scoring compound out of 1,429 post hoc.
+
+## Actual first measured-data run (negative result)
+
+The prespecified doxorubicin NCI-60 comparisons have been executed:
+[held-out observed GI50 benchmark](RESULTS_NCI60_DOXORUBICIN_20261016.md).
+A tumor-lineage-only model outperformed all tested molecular and network
+models in out-of-fold MAE, including repeated-fold checks. This outcome
+is not evidence of any PK improvement and is retained without cherry-picking.
