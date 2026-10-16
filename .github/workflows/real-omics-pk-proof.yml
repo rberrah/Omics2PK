@@ -8,6 +8,7 @@ on:
       - "scripts/validate_peng_rna_activity.py"
       - "scripts/diagnose_peng_expression_values.py"
       - "scripts/audit_epa_liver_rna_activity.py"
+      - "scripts/inspect_epa_liver_crosswalk.py"
       - "src/omics2pk/phh_cyp_evidence.py"
       - "tests/test_phh_cyp_evidence.py"
       - "tests/test_qualify_peng_phh_source.py"
@@ -65,4 +66,6 @@ jobs:
         with:
           python-version: "3.11"
       - name: Qualify real original US EPA 100-liver published RNA and CYP activity workbook
-        run: python -m scripts.audit_epa_liver_rna_activity
+        run: |
+          python -m scripts.audit_epa_liver_rna_activity
+          python -m scripts.inspect_epa_liver_crosswalk
