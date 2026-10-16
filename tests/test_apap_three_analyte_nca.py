@@ -20,7 +20,7 @@ class OriginalThreeAnalyteTests(unittest.TestCase):
         result=compute_area([(2,2),(3,4),(5,1)])
         self.assertEqual(result["first_time_h"],2)
         self.assertEqual(result["last_time_h"],5)
-        self.assertAlmostEqual(result["observed_AUC_first_to_last_mg_h_l"],8.5)
+        self.assertAlmostEqual(result["observed_AUC_first_to_last_mg_h_l"],8.0)
 
 
 if __name__=="__main__":
