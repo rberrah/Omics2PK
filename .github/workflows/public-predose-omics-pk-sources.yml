@@ -4,6 +4,8 @@ on:
     paths:
       - "scripts/audit_public_predose_metabolomics_tac_pk_sources.py"
       - "tests/test_public_predose_metabolomics_tac_pk_sources.py"
+      - "scripts/validate_mavoglurant_120_real_occasion_nca.py"
+      - "tests/test_mavoglurant_real_occasion_nca.py"
       - ".github/workflows/public-predose-omics-pk-sources.yml"
   push:
     branches: [main]
@@ -27,3 +29,17 @@ jobs:
         run: python -m unittest discover -s tests -p 'test_public_predose_metabolomics_tac_pk_sources.py' -v
       - name: Fetch original public MDPI metabolomics archives and audit linked PK patient matrix without exporting source rows
         run: python -m scripts.audit_public_predose_metabolomics_tac_pk_sources
+  original-observed-mavoglurant-120-human-198-occasions:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+      - name: Install original nlmixr2data RDA reader
+        run: python -m pip install pyreadr==0.5.4
+      - name: Strict original-time NCA mathematical source contract tests
+        run: python -m unittest discover -s tests -p 'test_mavoglurant_real_occasion_nca.py' -v
+      - name: Original actual 120-person 198-occasion human concentration-time Cmax Tmax limited AUC
+        run: python -m scripts.validate_mavoglurant_120_real_occasion_nca
