@@ -1,6 +1,7 @@
 import json
 import unittest
-from scripts.audit_rosuvastatin_author_notebook_data_urls import classify_notebook_payload
+from unittest.mock import patch
+from scripts.audit_rosuvastatin_author_notebook_data_urls import classify_notebook_payload, probe_google_drive_csv_links
 
 class AuthorNotebookLinkTests(unittest.TestCase):
     def test_output_data_not_exposed_and_opaque_cloud_links_masked(self):
@@ -28,5 +29,25 @@ class AuthorNotebookLinkTests(unittest.TestCase):
         result=classify_notebook_payload(b'{"cells":[{"cell_type":"code","source":["import numpy as np"]}]}')
         self.assertEqual(result["public_source_data_url_paths"],[])
         self.assertTrue(result["no_original_notebook_outputs_or_patient_data_exported"])
+
+    def test_original_hosted_author_csv_structure_is_safe_and_distinguishes_pk(self):
+        sample={"cells":[{"cell_type":"code","source":[
+            "clinical=pd.read_csv('https://drive.google.com/uc?export=download&id=SECRET_SOURCE_ID')"
+        ]}]}
+        class MockHTTP:
+            headers={"Content-Type":"text/csv"}
+            def __enter__(self):return self
+            def __exit__(self,*args):pass
+            def geturl(self):return "https://drive.google.com/uc"
+            def read(self,n):return b"subject_id,AUC,Cmax,lipid\nPRIVATE_PERSON_A,1.1,2.2,3\nPRIVATE_PERSON_B,1.2,2.3,4\n"
+        with patch("scripts.audit_rosuvastatin_author_notebook_data_urls.urlopen",return_value=MockHTTP()):
+            report=probe_google_drive_csv_links(json.dumps(sample).encode())
+        self.assertEqual(report[0]["csv_download_status"],"PUBLIC_AUTHOR_ORIGINAL_TABULAR_DATA_CONFIRMED")
+        self.assertTrue(report[0]["header_contains_auc"])
+        self.assertTrue(report[0]["header_contains_cmax"])
+        self.assertTrue(report[0]["header_contains_subject_id"])
+        self.assertEqual(report[0]["source_original_data_rows"],2)
+        self.assertNotIn("PRIVATE_PERSON_A",str(report))
+        self.assertNotIn("SECRET_SOURCE_ID",str(report))
 
 if __name__=="__main__":unittest.main()
