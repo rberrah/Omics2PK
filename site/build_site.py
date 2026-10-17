@@ -165,6 +165,7 @@ def resources(base):
         ('Original 26-donor SMX numerical source results',REPO+'/blob/main/docs/SMX_NAT_26_ORIGINAL_MEASURED_LODO_RESULTS_20261017.md'),
         ('Sulfamethoxazole original-data issue #38',REPO+'/issues/38'),
         ('Research reproducibility and PK protocol',REPO+'/blob/main/docs/E2_NCA_E3_POPPK_PBPK_E4_VALIDATION_PROTOCOL_20261016.md'),
+        ('Metformin n17 clinical PK + predose metabolomics, paired source audit',REPO+'/blob/main/docs/METFORMIN17_CLINICAL_OMICS_PK_OPEN_SOURCE_AUDIT_20261017.md'),
         ('Source code / license',REPO),
     ]
     return ('<section class="small-hero"><p class="eyebrow">Resources</p>'
