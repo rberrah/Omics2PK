@@ -1,0 +1,23 @@
+name: Rosuvastatin n40 original processed MAF feature-intensity matrix
+on:
+  pull_request:
+    paths:
+      - 'scripts/audit_rosuvastatin40_original_maf_intensity.py'
+      - 'tests/test_rosuvastatin40_original_maf_intensity.py'
+      - '.github/workflows/rosuvastatin40-maf-intensity.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  real-original-processed-matrix:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+      - name: Test exact same-sample column gate and no human data leak
+        run: python -m unittest discover -s tests -p 'test_rosuvastatin40_original_maf_intensity.py' -v
+      - name: Inspect original MetaboLights processed MAF feature matrix against authentic ISA sample IDs
+        run: python -m scripts.audit_rosuvastatin40_original_maf_intensity
