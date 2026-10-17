@@ -1,0 +1,23 @@
+name: Metformin 17-original source supplementary 441KB archive audit
+on:
+  pull_request:
+    paths:
+      - 'scripts/audit_metformin17_441k_original_supplement.py'
+      - 'tests/test_metformin17_original_supplement.py'
+      - '.github/workflows/metformin17-original-zip-audit.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  original-source:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+      - name: Check conservative archive parser and individual-data privacy
+        run: python -m unittest discover -s tests -p 'test_metformin17_original_supplement.py' -v
+      - name: Original official source supplementary ZIP audit (no PK values exported)
+        run: python -m scripts.audit_metformin17_441k_original_supplement
