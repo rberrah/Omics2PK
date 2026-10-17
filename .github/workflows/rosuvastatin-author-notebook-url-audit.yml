@@ -1,0 +1,23 @@
+name: Rosuvastatin author-original processed matrix URL source audit
+on:
+  pull_request:
+    paths:
+      - 'scripts/audit_rosuvastatin_author_notebook_data_urls.py'
+      - 'tests/test_rosuvastatin_author_notebook_urls.py'
+      - '.github/workflows/rosuvastatin-author-notebook-url-audit.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source-only-author-original:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+      - name: Reject leaking embedded notebook outputs or private Google Drive identifiers
+        run: python -m unittest discover -s tests -p 'test_rosuvastatin_author_notebook_urls.py' -v
+      - name: Inspect actual original 21MB author Jupyter notebook for public processed-matrix URL references only
+        run: python -m scripts.audit_rosuvastatin_author_notebook_data_urls
