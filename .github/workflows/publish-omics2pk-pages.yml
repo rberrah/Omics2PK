@@ -1,6 +1,12 @@
 name: Publish Omics2PK website to GitHub Pages (manual)
 on:
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'site/**'
+      - 'tests/test_omics2pk_pages.py'
+      - '.github/workflows/publish-omics2pk-pages.yml'
 permissions:
   contents: read
   pages: write
