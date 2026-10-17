@@ -1,0 +1,23 @@
+name: Rosuvastatin original complete 1833-file MetaboLights manifest
+on:
+  pull_request:
+    paths:
+      - 'scripts/audit_rosuvastatin40_complete_original_filelist.py'
+      - 'tests/test_rosuvastatin40_complete_source_files.py'
+      - '.github/workflows/rosuvastatin40-complete-original-filelist.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source-manifest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+      - name: Protect sample identities and count source files correctly
+        run: python -m unittest discover -s tests -p 'test_rosuvastatin40_complete_source_files.py' -v
+      - name: Check complete official MetaboLights accession inventory including raw_data=true
+        run: python -m scripts.audit_rosuvastatin40_complete_original_filelist
