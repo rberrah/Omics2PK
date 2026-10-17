@@ -1,6 +1,7 @@
 import json
 import unittest
 from unittest.mock import patch
+from types import SimpleNamespace
 from pathlib import Path
 
 from scripts.audit_rosuvastatin_author_gdown_csv import (
@@ -34,7 +35,7 @@ class RosuvastatinOriginalAuthorGDownTests(unittest.TestCase):
             self.assertEqual(id,orig_id)
             Path(output).write_text("patient_id,AUC,Cmax\nPERSON_PRIVATE_X,60.1,10.1\nPERSON_PRIVATE_Y,70.2,20.2\n")
             return output
-        with patch("scripts.audit_rosuvastatin_author_gdown_csv.gdown.download",side_effect=fake_download):
+        with patch.dict("sys.modules",{"gdown":SimpleNamespace(download=fake_download)}):
             report=public_gdown_inspect(json.dumps(cell).encode())
         self.assertEqual(report["results"][0]["status"],"ORIGINAL_AUTHOR_CSV_RETRIEVED")
         self.assertNotIn(orig_id,str(report))
