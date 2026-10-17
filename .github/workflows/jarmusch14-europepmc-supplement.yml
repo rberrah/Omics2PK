@@ -1,0 +1,23 @@
+name: Jarmusch n14 official EuropePMC original supplemental archive
+on:
+  pull_request:
+    paths:
+      - 'scripts/audit_jarmusch14_europepmc_supplement_zip.py'
+      - 'tests/test_jarmusch14_europepmc_supplement.py'
+      - '.github/workflows/jarmusch14-europepmc-supplement.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  official-europepmc-original:
+    runs-on: ubuntu-latest
+    timeout-minutes: 7
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+      - name: Preserve patient confidentiality and require official ZIP format
+        run: python -m unittest discover -s tests -p 'test_jarmusch14_europepmc_supplement.py' -v
+      - name: Read original EuropePMC exact Jarmusch supplementary archive structure
+        run: python -m scripts.audit_jarmusch14_europepmc_supplement_zip
