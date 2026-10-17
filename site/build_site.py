@@ -9,7 +9,8 @@ from html import escape
 from pathlib import Path
 
 SITE_TITLE = "Omics2PK"
-PMX = "https://rberrah.github.io/"
+PMX = "https://rberrah.github.io/pharmacometrie/"
+MAIN = "https://rberrah.github.io/"
 MULTIOMICS = "https://rberrah.github.io/multiomics/"
 REPO = "https://github.com/rberrah/Omics2PK"
 ROOT = "https://rberrah.github.io/Omics2PK/"
@@ -38,10 +39,10 @@ def nav(base,page):
          (MULTIOMICS,"MultiOmics ↗","MultiOmics ↗",True),
          ("disciplines/","Écosystème des disciplines","Discipline ecosystem",False)
       ]),
-      ("resources","Resources","Resources",[
+      ("resources","Ressources","Resources",[
          ("resources/","Références et documentation","References and documentation",False),
          (REPO,"Code source et rapports ↗","Source code and reports ↗",True),
-         (PMX,"Site principal ↗","Main website ↗",True)
+         (MAIN,"Site principal ↗","Main website ↗",True)
       ])
     ]
     details=[]
