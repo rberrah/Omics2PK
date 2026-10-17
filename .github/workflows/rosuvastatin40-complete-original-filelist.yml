@@ -1,4 +1,4 @@
-name: Rosuvastatin original complete 1833-file MetaboLights manifest
+name: Rosuvastatin original API root and FTP data folder audit
 on:
   pull_request:
     paths:
