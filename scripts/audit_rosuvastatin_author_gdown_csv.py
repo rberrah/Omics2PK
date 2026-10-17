@@ -23,7 +23,6 @@ import re
 from tempfile import TemporaryDirectory
 from urllib.parse import urlsplit,parse_qs
 from urllib.request import Request,urlopen
-import gdown
 
 COMMIT="dbf9182b0f72f8b290f623f7cc6560c5a5f99d73"
 NOTEBOOK=("https://raw.githubusercontent.com/GustavoHBDuarte/"
@@ -103,6 +102,7 @@ def classify_csv(binary):
     }
 
 def public_gdown_inspect(nb):
+    import gdown  # Optional, only required in the dedicated online source CI
     ids=author_code_drive_ids(nb)
     report={
         "author_original_notebook":"GustavoHBDuarte/Metabolomics_PK_proj",
