@@ -86,7 +86,7 @@ def home(base):
         +'<div class="cards">'
         +card('E2 · verified','100 foies humains et huit CYP','100 human livers, eight CYPs','Expression qPCR et activité enzymatique mesurées sur les mêmes donneurs. Trois signaux restent favorables après correction pour huit comparaisons.','Matched donor qPCR and measured enzyme activity. Three favorable signals after correction across eight outcomes.','analyze/#epa','Lire les résultats','Read the results',base=base)
         +card('E2 · verified','Deux inhibiteurs de tyrosine kinase','Two tyrosine-kinase inhibitors','Tucatinib et imatinib : mêmes 21 donneurs microsomaux. Prédiction de la clairance in vitro à partir des protéines CYP ; ce ne sont pas deux cohortes indépendantes.','Tucatinib and imatinib: the same 21 microsomal donors. In-vitro clearance prediction from CYP proteins; not two independent cohorts.','analyze/#tki','Voir la comparaison','See the comparison',base=base)
-        +card('E2 · source gate','Sulfaméthoxazole, NAT1 et NAT2','Sulfamethoxazole, NAT1 and NAT2','Vingt-six hépatocytes-donneurs sont décrits dans la source ; tests du pipeline validés, résultats numériques originaux encore non disponibles.','Twenty-six donor hepatocytes in the original source; pipeline tests pass, original numerical model evaluation is pending.','analyze/#smx','Vérifier le statut','Check qualification status',base=base)
+        +card('E2 · measured','Sulfaméthoxazole, NAT1 et NAT2','Sulfamethoxazole, NAT1 and NAT2','26 hépatocytes-donneurs originaux, modèles sur n26/n21/n20 et comparaison exacte sur 15 donneurs. Aucun gain statistiquement démontré.','26 original hepatocyte donors, n26/n21/n20 models and identical-subject 15-donor comparison. No statistically established improvement.','analyze/#smx','Lire les résultats','Read measured results',base=base)
         +'</div></section><section class="resource-band">'
         +'<div>'+t('De la preuve enzymatique à la PK clinique','From enzyme evidence to clinical PK','h2')+
         t('La prochaine étape exige des données omiques, des doses, des horaires et des concentrations réellement associées chez les mêmes personnes.',
@@ -135,9 +135,12 @@ def analyze(base):
         +a(source2,'Rapport de qualification ↗','Qualification report ↗',base=base,external=True)
         +'</section><section class="section evidence" id="smx"><p class="eyebrow">SOURCE-GATED · no real numerical model result</p>'
         +t('NAT1/NAT2 → formation de NA-SMX','NAT1/NAT2 → NA-SMX formation','h2')
-        +t('Le tableau original décrit 26 donneurs. Le code vérifie les identifiants, les données manquantes et les corrélations de l’article, mais les observations originales n’ont pas encore produit une MAE contrôlée.',
-           'The original table describes 26 donors. Code checks identities, missing data and published rank correlations, but original donor records have not yet generated a validated MAE.','p')
-        +a(issue,'Suivre la validation des données ↗','Track original-data validation ↗',base=base,external=True)
+        +t('Recalcul depuis le Tableau 1 original : activités NAT (n21) MAE 0,03903 contre référence 0,04230 ; protéines NAT2 (n21) 0,04039. Comparaison stricte sur 15 mêmes donneurs : activités 0,03798, protéines 0,04382, génotype 0,03927 ; référence 0,04191. Tous les intervalles exploratoires des gains recouvrent zéro.',
+           'Reanalysis of the original Table 1: NAT probe activities (n21) MAE 0.03903 vs baseline 0.04230; NAT2 proteins (n21) 0.04039. Strict identical-15-donor comparison: activities 0.03798, proteins 0.04382, genotype 0.03927; baseline 0.04191. All exploratory improvement intervals cross zero.','p')
+        +t('Ces résultats proviennent de la transcription locale de la table de l’article, non d’un téléchargement XML automatisé en CI. Pas de données individuelles redistribuées.',
+           'These findings derive from local transcription of the article source table, not from a CI-downloaded XML. No individual donor records are redistributed.','p','note')
+        +a('https://github.com/rberrah/Omics2PK/blob/main/docs/SMX_NAT_26_ORIGINAL_MEASURED_LODO_RESULTS_20261017.md','Rapport des valeurs originales ↗','Original measured results report ↗',base=base,external=True)
+        +' · '+a(issue,'Provenance et reproduction ↗','Source provenance and reproduction ↗',base=base,external=True)
         +'</section><section class="callout" id="methodes">'+t('Tous les chiffres affichés concernent la biologie et la PK in vitro, pas la prédiction clinique personnalisée.',
              'All displayed numbers concern in-vitro metabolism, not individualized clinical PK prediction.','p')+'</section>')
 
@@ -159,6 +162,7 @@ def resources(base):
         ('Tucatinib HLM donor original article','https://doi.org/10.1016/j.dmd.2025.100061'),
         ('Imatinib HLM donor original article','https://doi.org/10.1016/j.dmd.2025.100196'),
         ('Sulfamethoxazole NAT1/NAT2 PHH source','https://doi.org/10.1016/j.dmd.2025.100195'),
+        ('Original 26-donor SMX numerical source results',REPO+'/blob/main/docs/SMX_NAT_26_ORIGINAL_MEASURED_LODO_RESULTS_20261017.md'),
         ('Sulfamethoxazole original-data issue #38',REPO+'/issues/38'),
         ('Research reproducibility and PK protocol',REPO+'/blob/main/docs/E2_NCA_E3_POPPK_PBPK_E4_VALIDATION_PROTOCOL_20261016.md'),
         ('Source code / license',REPO),
