@@ -1,0 +1,44 @@
+name: EPA 100 human liver CYP eight-comparison source bootstrap
+on:
+  pull_request:
+    paths:
+      - 'src/omics2pk/epa_eight_cyp_sensitivity.py'
+      - 'scripts/validate_epa_eight_cyp_multiplicity.py'
+      - 'tests/test_epa_eight_cyp_sensitivity.py'
+      - '.github/workflows/epa-eight-cyp-bootstrap.yml'
+      - 'src/omics2pk/epa_liver_cyp_validation.py'
+  push:
+    branches: [main]
+    paths:
+      - 'src/omics2pk/epa_eight_cyp_sensitivity.py'
+      - 'scripts/validate_epa_eight_cyp_multiplicity.py'
+      - 'tests/test_epa_eight_cyp_sensitivity.py'
+      - '.github/workflows/epa-eight-cyp-bootstrap.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  eight-related-CYP-synthetic:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+      - name: Install lightweight source-checked package
+        run: python -m pip install -e .
+      - name: Test shared-donor bootstrap and Bonferroni controls
+        run: python -m unittest discover -s tests -p 'test_epa_eight_cyp_sensitivity.py' -v
+  measured-original-100-livers:
+    runs-on: ubuntu-latest
+    timeout-minutes: 16
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+      - name: Install lightweight source-checked package
+        run: python -m pip install -e .
+      - name: Eight original gene functional assays and original SHA-linked donor cluster bootstrap
+        run: python -m scripts.validate_epa_eight_cyp_multiplicity
