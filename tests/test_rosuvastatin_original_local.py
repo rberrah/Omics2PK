@@ -10,7 +10,7 @@ import unittest
 from pathlib import Path
 
 from omics2pk.rosuvastatin_original_local import (
-    SourceGateError, original_csv, qualify_exact_subject_link, summarize_local_sources
+    SourceGateError, original_csv, qualify_exact_subject_link, qualify_combined_source, summarize_local_sources
 )
 
 
@@ -128,6 +128,32 @@ class RealSourceGateTest(unittest.TestCase):
         self.assertTrue(d["source_SHA256_author_crosswalk_if_supplied"])
         with self.assertRaisesRegex(SourceGateError,"exact strict 40-person"):
             self.qualify()
+
+    def test_original_authors_combined_csv_is_only_structural_evidence(self):
+        original=self.root/"author_combined.csv"
+        rows=[]
+        for i,p in enumerate(self.people):
+            rows.append({"subject":p,"AUC":self.pkrows[i]["rosu_auc_original"],
+                         "Cmax":self.pkrows[i]["rosu_cmax_original"],
+                         "molecular_feature_a":self.omicsrows[i]["metabolite_001"],
+                         "molecular_feature_b":self.omicsrows[i]["metabolite_002"]})
+        _csv(original,["subject","AUC","Cmax","molecular_feature_a","molecular_feature_b"],rows)
+        got=qualify_combined_source(original,person_id_col="subject",auc_col="AUC",cmax_col="Cmax")
+        self.assertEqual(got["n_unique_original_biological_humans"],40)
+        self.assertEqual(got["n_candidate_numeric_features_excluding_explicit_PK_targets"],2)
+        self.assertTrue(got["target_columns_explicitly_excluded_from_feature_candidates"])
+        self.assertFalse(got["model_fit_or_predictive_performance_claim"])
+        self.assertNotIn("PRIVATE_ORIGINAL_HUMAN",str(got))
+        self.assertNotIn("molecular_feature_a",str(got))
+
+    def test_combined_extra_PK_target_column_rejected(self):
+        original=self.root/"author_combined.csv"
+        rows=[{"subject":p,"AUC":str(100+i),"Cmax":str(10+i),
+               "rosuvastatin_concentration_postdose":str(i+1),
+               "molecular_a":str(i+2),"molecular_b":str(i+3)} for i,p in enumerate(self.people)]
+        _csv(original,list(rows[0]),rows)
+        with self.assertRaisesRegex(SourceGateError,"extra potential postdose PK"):
+            qualify_combined_source(original,person_id_col="subject",auc_col="AUC",cmax_col="Cmax")
 
     def test_html_gdrive_is_not_data(self):
         self.omics.write_text("<!doctype html><body>Sign in to Google Drive</body>")
