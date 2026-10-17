@@ -45,6 +45,30 @@ def get_original_source(url):
             raise ValueError("Original supplement not returned as a ZIP/OOXML binary")
         return body
 
+def inspect_supplement_pdf(data):
+    """Text-layer structural audit only; never print extracted subject rows."""
+    if len(data)>MAX_SIZE or not data.startswith(b"%PDF-"):
+        raise ValueError("Invalid original PDF in MDPI supplementary ZIP")
+    from pypdf import PdfReader
+    reader=PdfReader(io.BytesIO(data),strict=True)
+    if reader.is_encrypted or len(reader.pages)>90:
+        raise ValueError("Unexpected original PDF layout/authorization")
+    texts=[(p.extract_text() or "") for p in reader.pages]
+    body=" ".join(texts)
+    return {
+        "n_pdf_pages":len(texts),
+        "selectable_text_pages":sum(bool(x.strip()) for x in texts),
+        "table_s5_1_label_present":bool(re.search(r"Table\s*S5(?:[.\s]+1)\b",body,re.I)),
+        "table_s5_2_label_present":bool(re.search(r"Table\s*S5(?:[.\s]+2)\b",body,re.I)),
+        "n_mentions_metformin_concentration":len(re.findall(r"metformin\s+(?:plasma\s+)?concentration",body,re.I)),
+        "n_mentions_untargeted_metabolomic":len(re.findall(r"untargeted\s+metabolomic",body,re.I)),
+        "n_mentions_feature_intensity":len(re.findall(r"(?:peak\s+(?:area|intensity)|feature\s+(?:area|intensity))",body,re.I)),
+        "full_original_subject_x_feature_matrix_verified":False,
+        "exact_PK_omics_patient_crosswalk_verified":False,
+        "source_values_exported":False,
+    }
+
+
 def members_no_rows(data, *, depth=0):
     if not data.startswith(b"PK") or len(data)>MAX_SIZE or depth>2:
         raise ValueError("Not one allowed original supplement ZIP at approved nesting depth")
@@ -82,6 +106,8 @@ def members_no_rows(data, *, depth=0):
                 # Count rows only. No values, raw feature names or IDs to logs.
                 rows=z.read(info).count(b"\n")
                 summary["csv_line_count_approx"]=rows
+            elif ext.endswith(".pdf"):
+                summary["original_pdf_structure"]=inspect_supplement_pdf(z.read(info))
             elif ext.endswith(".zip"):
                 # Europe PMC bundles article figures plus the actual MDPI
                 # supplemental ZIP: audit that inner archive's member structure.
