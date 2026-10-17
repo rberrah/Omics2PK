@@ -41,6 +41,8 @@ def find_metadata_filenames(payload):
         if not isinstance(item,dict):continue
         f=item.get("file")
         if not isinstance(f,str):continue
+        if "/" in f or "\\" in f or ".." in f:
+            raise ValueError("Unexpected metadata filename path")
         typ=item.get("type","unknown")
         if f.startswith(("s_", "a_", "m_", "i_")) and f.lower().endswith((".txt",".tsv",".csv")):
             if "/" in f or ".." in f:raise ValueError("Unexpected metadata filename path")
