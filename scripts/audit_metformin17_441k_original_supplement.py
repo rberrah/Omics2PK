@@ -45,9 +45,9 @@ def get_original_source(url):
             raise ValueError("Original supplement not returned as a ZIP/OOXML binary")
         return body
 
-def members_no_rows(data):
-    if not data.startswith(b"PK") or len(data)>MAX_SIZE:
-        raise ValueError("Not one allowed original supplement ZIP")
+def members_no_rows(data, *, depth=0):
+    if not data.startswith(b"PK") or len(data)>MAX_SIZE or depth>2:
+        raise ValueError("Not one allowed original supplement ZIP at approved nesting depth")
     out=[]
     with ZipFile(io.BytesIO(data)) as z:
         for info in z.infolist():
@@ -82,6 +82,11 @@ def members_no_rows(data):
                 # Count rows only. No values, raw feature names or IDs to logs.
                 rows=z.read(info).count(b"\n")
                 summary["csv_line_count_approx"]=rows
+            elif ext.endswith(".zip"):
+                # Europe PMC bundles article figures plus the actual MDPI
+                # supplemental ZIP: audit that inner archive's member structure.
+                summary["inner_supplement_members"]=members_no_rows(
+                    z.read(info),depth=depth+1)
             out.append(summary)
     return out
 
