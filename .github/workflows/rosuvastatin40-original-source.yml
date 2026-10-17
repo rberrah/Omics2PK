@@ -1,0 +1,23 @@
+name: Rosuvastatin 40 original MTBLS3128 clinical metabolomics and PK crosswalk
+on:
+  pull_request:
+    paths:
+      - 'scripts/audit_rosuvastatin40_original_mtbls3128.py'
+      - 'tests/test_rosuvastatin40_original_source.py'
+      - '.github/workflows/rosuvastatin40-original-source.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  public-original-source:
+    runs-on: ubuntu-latest
+    timeout-minutes: 11
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+      - name: Enforce exact-source identity and no original patient data in CI
+        run: python -m unittest discover -s tests -p 'test_rosuvastatin40_original_source.py' -v
+      - name: Retrieve official MetaboLights MTBLS3128 original metabolomics metadata and original article supplemental archive
+        run: python -m scripts.audit_rosuvastatin40_original_mtbls3128
