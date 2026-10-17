@@ -167,8 +167,6 @@ def qualify_exact_subject_link(
         _source_error("Exact original ID column missing; never infer ID from order")
     if not {auc_col, cmax_col}.issubset(pk_cols):
         _source_error("Quantitative source AUC and Cmax columns both required")
-    if len({omics_id_col, pk_id_col}) < 1:
-        _source_error("Invalid identity mapping request")
     # Hard-block model leakage: PK outcomes, rosuvastatin concentration
     # and other postdose descriptors must NEVER enter predose omics features.
     for col in omics_cols:
@@ -228,7 +226,7 @@ def qualify_exact_subject_link(
             usable.append(feature)
     if len(usable) < 2:
         _source_error("Source does not contain enough original quantitative omics features")
-    if omics_path == pk_path:
+    if Path(omics_path).resolve() == Path(pk_path).resolve():
         _source_error("Independent original PK and omics tables required")
     return {
         "study": ORIGINAL_MTBLS,
@@ -249,4 +247,81 @@ def qualify_exact_subject_link(
         "heldout_performance_claim": False,
         "source_patient_rows_exported": False,
         "next_step": "Human-verify original author source, pre-dose time, PK units and IDs before nested biological-subject CV",
+    }
+
+
+def qualify_combined_source(
+    combined_path: str | Path,
+    *,
+    person_id_col: str,
+    auc_col: str,
+    cmax_col: str,
+    expected_subjects: int = EXPECTED_HUMANS,
+) -> dict:
+    """For original authors' *one combined CSV* with features and true AUC/Cmax.
+
+    Explicit exclusion of the two PK targets and every PK-related column from
+    molecular predictors is required before any nested model validation.
+    Proves only dimensional integrity; neither study authenticity, timing nor
+    numerical target provenance can be established solely from CSV contents.
+    """
+    if not 5 <= expected_subjects <= 10_000:
+        _source_error("Expected biological person count must be an explicit sensible number")
+    headers, rows, digest = original_csv(combined_path)
+    if not person_id_col or person_id_col not in headers:
+        _source_error("Explicit original one-human-per-row ID required for combined source")
+    if not auc_col or not cmax_col or auc_col == cmax_col:
+        _source_error("Require two distinct actual quantitative PK AUC/Cmax columns")
+    if not {auc_col,cmax_col}.issubset(headers):
+        _source_error("Original combined table does not contain explicit PK targets")
+    humans = _ids(rows, person_id_col, "combined original human")
+    if len(humans) != expected_subjects:
+        _source_error("Original combined table is not one row per expected human")
+    _all_numeric((r[auc_col] for r in rows), "original quantitative rosuvastatin AUC")
+    _all_numeric((r[cmax_col] for r in rows), "original quantitative rosuvastatin Cmax")
+    excluded_pk_columns = [
+        c for c in headers if c not in (auc_col,cmax_col,person_id_col)
+        and PK_OUTCOME_TOKEN.search(c)
+    ]
+    if excluded_pk_columns:
+        _source_error("Combined dataset has extra potential postdose PK columns; manually define a predose-only molecular view before fitting")
+    usable_features = 0
+    for col in headers:
+        if col in (auc_col,cmax_col,person_id_col):
+            continue
+        if any(marker in col.lower() for marker in SAMPLE_METADATA_TOKENS):
+            continue
+        vals = [str(r[col]).strip() for r in rows]
+        numeric = 0
+        nonmissing = 0
+        for value in vals:
+            if value.upper() in EMPTY_TOKENS:
+                continue
+            nonmissing += 1
+            try:
+                if math.isfinite(float(value)):
+                    numeric += 1
+            except ValueError:
+                pass
+        if numeric >= max(5,int(expected_subjects*.8)) and numeric==nonmissing:
+            usable_features += 1
+    if usable_features < 2:
+        _source_error("Combined source contains no substantive original quantitative molecular feature matrix")
+    return {
+        "study": ORIGINAL_MTBLS,
+        "article": ORIGINAL_DOI,
+        "source_status": "COMBINED_ONE_ROW_PER_HUMAN_AND_TWO_ORIGINAL_PK_TARGETS_STRUCTURE_ONLY",
+        "n_unique_original_biological_humans": len(humans),
+        "n_numeric_auc": len(rows),
+        "n_numeric_cmax": len(rows),
+        "n_candidate_numeric_features_excluding_explicit_PK_targets": usable_features,
+        "original_combined_sha256": digest,
+        "original_combined_source_authorship_verified": False,
+        "raw_omics_feature_specimen_predose_verified": False,
+        "original_AUC_Cmax_PK_target_assay_independently_verified": False,
+        "cross_modal_ISA_sample_ID_link_verified": False,
+        "target_columns_explicitly_excluded_from_feature_candidates": True,
+        "source_patients_or_PK_values_exported": False,
+        "model_fit_or_predictive_performance_claim": False,
+        "next_step": "Independently verify published source provenance, predose metabolomics, rosuvastatin quantified AUC/Cmax and true person/sample ID crosswalk",
     }
