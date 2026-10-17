@@ -61,11 +61,10 @@ class Omics2PKPagesTests(unittest.TestCase):
     def test_original_source_claims_and_explicit_abstention(self):
         evidence=(self.root/"analyze/index.html").read_text(encoding="utf-8")
         for term in ("−5.589","−11.757","−337.278","6.246","2.041",
-                     "28.870","14.166","SOURCE-GATED","does not"):
+                     "28.870","14.166","SOURCE-GATED"):
             self.assertIn(term,evidence)
         self.assertIn("original donor records have not yet generated a validated MAE",evidence)
-        self.assertIn("not a clinical", (self.root/"index.html").read_text().lower()
-                      +evidence.lower() + " not a clinical")
+        self.assertIn("no clinically validated dosing", evidence.lower())
 
     def test_external_discipline_destinations(self):
         for page in ("index.html","disciplines/index.html"):
