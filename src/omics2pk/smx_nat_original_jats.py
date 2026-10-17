@@ -21,8 +21,8 @@ MAX_XML=5_000_000
 SOURCE_ASSOCIATIONS={
     "NAT1_activity_vs_NA_SMX":0.576,
     "NAT2_activity_vs_NA_SMX":0.459,
-    "NAT2_peptide_DNTDLVEFK_vs_activity":0.823,
-    "NAT2_peptide_EFLNSHLLPK_vs_activity":0.734,
+    "NAT2_peptide_DNTDLVEFK_vs_activity":0.734,
+    "NAT2_peptide_EFLNSHLLPK_vs_activity":0.823,
 }
 OUTPUT_FIELDS=(
     "donor_id","row_kind","source_doi","na_smx_pmol_min_million_cells",

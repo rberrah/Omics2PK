@@ -1,0 +1,32 @@
+name: Publish Omics2PK website to GitHub Pages (manual)
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+concurrency:
+  group: omics2pk-github-pages
+  cancel-in-progress: true
+jobs:
+  publish:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+      - name: Qualify research website and all pages
+        run: |
+          python site/build_site.py --out site/dist
+          python -m unittest discover -s tests -p 'test_omics2pk_pages.py' -v
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: site/dist
+      - id: deployment
+        uses: actions/deploy-pages@v4

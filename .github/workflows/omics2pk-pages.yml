@@ -1,0 +1,36 @@
+name: Omics2PK static UI qualification
+on:
+  pull_request:
+    paths:
+      - 'site/**'
+      - 'tests/test_omics2pk_pages.py'
+      - '.github/workflows/omics2pk-pages.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'site/**'
+      - 'tests/test_omics2pk_pages.py'
+      - '.github/workflows/omics2pk-pages.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  qualify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 7
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+      - name: Generate offline static site
+        run: python site/build_site.py --out site/dist
+      - name: Validate menu parity, links, theme, FR/EN and no clinical overclaims
+        run: python -m unittest discover -s tests -p 'test_omics2pk_pages.py' -v
+      - name: Ensure generated project Pages content
+        run: test -f site/dist/index.html && test -f site/dist/resources/index.html && test -f site/dist/assets/styles.css
+      - uses: actions/upload-artifact@v4
+        with:
+          name: omics2pk-static-pages-preview
+          path: site/dist
+          retention-days: 7

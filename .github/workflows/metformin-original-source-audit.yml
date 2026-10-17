@@ -1,0 +1,23 @@
+name: Metformin n17 original paired clinical-omics source audit
+on:
+  pull_request:
+    paths:
+      - 'scripts/audit_metformin_17_pharmacometabolomic_public.py'
+      - 'tests/test_metformin_17_pharmacometabolomics.py'
+      - '.github/workflows/metformin-original-source-audit.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  public-source-and-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+      - name: Validate source evidence without fabricated clinical paired data
+        run: python -m unittest discover -s tests -p 'test_metformin_17_pharmacometabolomics.py' -v
+      - name: Original open-access PMC source supplement structure only, no subject data
+        run: python -m scripts.audit_metformin_17_pharmacometabolomic_public
