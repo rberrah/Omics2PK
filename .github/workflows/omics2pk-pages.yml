@@ -23,12 +23,25 @@ jobs:
       - uses: actions/setup-python@v6
         with:
           python-version: '3.11'
-      - name: Generate offline static site
-        run: python site/build_site.py --out site/dist
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+      - name: Install exactly pinned PMx Fontsource variable font packages
+        run: npm install --prefix site --ignore-scripts --no-audit --no-fund --omit=dev
+      - name: Generate standalone static site and host original font assets locally
+        run: |
+          python site/build_site.py --out site/dist
+          node site/scripts/bundle_fonts.mjs site/dist
       - name: Validate menu parity, links, theme, FR/EN and no clinical overclaims
         run: python -m unittest discover -s tests -p 'test_omics2pk_pages.py' -v
-      - name: Ensure generated project Pages content
-        run: test -f site/dist/index.html && test -f site/dist/resources/index.html && test -f site/dist/assets/styles.css
+      - name: Verify bundled three original PMx families are real local WOFF2 fonts
+        run: |
+          test -f site/dist/index.html
+          test -f site/dist/resources/index.html
+          test -f site/dist/assets/styles.css
+          test -s site/dist/assets/fonts/inter-latin-wght-normal.woff2
+          test -s site/dist/assets/fonts/source-serif-4-latin-wght-normal.woff2
+          test -s site/dist/assets/fonts/jetbrains-mono-latin-wght-normal.woff2
       - uses: actions/upload-artifact@v4
         with:
           name: omics2pk-static-pages-preview

@@ -24,6 +24,23 @@ def a(path,label_fr,label_en,*,base,external=False):
     ext=' target="_blank" rel="noopener noreferrer"' if external else ""
     return f'<a href="{escape(href,quote=True)}"{ext} data-fr="{escape(label_fr,quote=True)}" data-en="{escape(label_en,quote=True)}">{escape(label_fr)}</a>'
 
+
+# Inline original Lucide icon SVG paths, same glyphs and sizes used by the Svelte sites.
+# Decorative icons contain no interactive handler and do not require a client bundle.
+LUCIDE = {
+    "learn": '<path d="M12 5v16"/><path d="M20.001 19A2 2 0 0022 17V5a2 2 0 00-1.999-2L16 3.002A5 5 0 0012 5a5 5 0 00-4-2H4a2 2 0 00-2 2v12a2 2 0 001.999 2H8a5 5 0 014 2 5 5 0 014-2z"/>',
+    "analyze": '<path d="M12 16v5"/><path d="M16 14.639V21"/><path d="M20 10.656V21"/><path d="m22 3-8.646 8.646a.5.5 0 0 1-.708 0L9.354 8.354a.5.5 0 0 0-.707 0L2 15"/><path d="M4 18.463V21"/><path d="M8 14.656V21"/>',
+    "disciplines": '<path d="m16 6 4 14"/><path d="M12 6v14"/><path d="M8 8v12"/><path d="M4 4v16"/>',
+    "resources": '<path d="m16 6 4 14"/><path d="M12 6v14"/><path d="M8 8v12"/><path d="M4 4v16"/>',
+    "down": '<path d="m6 9 6 6 6-6"/>',
+}
+
+def lucide(name, size=16):
+    return (f'<svg class="lucide-icon" width="{size}" height="{size}" '
+            'viewBox="0 0 24 24" fill="none" stroke="currentColor" '
+            'stroke-width="2" stroke-linecap="round" stroke-linejoin="round" '
+            'aria-hidden="true">' + LUCIDE[name] + '</svg>')
+
 def nav(base,page):
     groups = [
       ("learn","Learn","Learn",[
@@ -46,19 +63,22 @@ def nav(base,page):
       ])
     ]
     details=[]
-    icons={"learn":"▤","analyze":"◫","disciplines":"◇","resources":"▦"}
     for key,fr,en,links in groups:
         inner="".join(a(path,lfr,len_,base=base,external=ext) for path,lfr,len_,ext in links)
         details.append('<details class="goal" name="site-objective" data-testid="goal-'+key+'">'
-          '<summary'+(' class="active"' if page==key else '')+'><span class="nav-icon" aria-hidden="true">'+icons[key]+'</span>'
-          +t(fr,en)+'<span class="chevron" aria-hidden="true">⌄</span></summary><div class="goal-links">'+inner+'</div></details>')
+          '<summary'+(' class="active"' if page==key else '')+'>'+lucide(key,16)
+          +t(fr,en)+lucide("down",13)+'</summary><div class="goal-links">'+inner+'</div></details>')
     return ('<header class="site-header"><a class="logo" href="'+base+'" aria-label="Omics2PK, accueil" data-testid="logo-link">'
         '<span class="mark" aria-hidden="true">oP</span><span class="word">Omics<em>2PK</em></span></a>'
         '<button class="burger" type="button" aria-label="Ouvrir le menu" aria-controls="site-nav" aria-expanded="false" data-testid="nav-toggle"><span></span><span></span><span></span></button>'
         '<nav id="site-nav" aria-label="Navigation principale" data-testid="primary-nav">'
         +''.join(details)
-        +'<div class="tools"><button type="button" id="lang-switch" aria-label="Switch language" aria-pressed="false">FR / EN</button>'
-        '<button type="button" id="theme-switch" aria-label="Changer le thème" aria-pressed="false">◐ <span data-fr="Thème" data-en="Theme">Thème</span></button></div></nav></header>')
+        +'<div class="tools"><div class="language-toggle" aria-label="Language" data-testid="language-toggle">'
+        '<button type="button" data-set-lang="en" aria-pressed="false">EN</button>'
+        '<button type="button" data-set-lang="fr" aria-pressed="true">FR</button></div>'
+        '<button type="button" class="theme-toggle" id="theme-switch" title="Thème : système" aria-label="Thème : système" data-testid="theme-toggle">'
+        '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">'
+        '<rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 20h8"/></svg></button></div></nav></header>')
 
 def card(kicker,title_fr,title_en,desc_fr,desc_en,href,link_fr,link_en,*,base):
     return ('<article class="card"><div class="card-kicker">'+escape(kicker)+'</div>'

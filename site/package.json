@@ -1,0 +1,11 @@
+{
+  "name": "omics2pk-static-font-assets",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Build-only local font assets matching PMx Explain and MultiOmics",
+  "dependencies": {
+    "@fontsource-variable/inter": "5.3.0",
+    "@fontsource-variable/jetbrains-mono": "5.3.0",
+    "@fontsource-variable/source-serif-4": "5.2.9"
+  }
+}
