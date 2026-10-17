@@ -1,0 +1,29 @@
+name: Rosuvastatin original API root and FTP data folder audit
+on:
+  pull_request:
+    paths:
+      - 'scripts/audit_rosuvastatin40_complete_original_filelist.py'
+      - 'tests/test_rosuvastatin40_complete_source_files.py'
+      - 'scripts/audit_rosuvastatin40_public_ftp_census.py'
+      - 'tests/test_rosuvastatin40_ftp_manifest.py'
+      - '.github/workflows/rosuvastatin40-complete-original-filelist.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source-manifest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+      - name: Protect sample identities and count source files correctly
+        run: python -m unittest discover -s tests -p 'test_rosuvastatin40_complete_source_files.py' -v
+      - name: Check official MetaboLights top-level accession inventory including directory entries
+        run: python -m scripts.audit_rosuvastatin40_complete_original_filelist
+      - name: Protect original human sample/PK file paths in FTP census
+        run: python -m unittest discover -s tests -p 'test_rosuvastatin40_ftp_manifest.py' -v
+      - name: Inspect actual official FTP FILES subtree anonymously without downloading any spectra
+        run: python -m scripts.audit_rosuvastatin40_public_ftp_census
