@@ -38,7 +38,7 @@ def _point_loss_contrast(records):
     for held, row in enumerate(records):
         train=[r for i,r in enumerate(records) if i!=held]
         ylog=[log1p(r[2]) for r in train]
-        clinical=[r[3],r[4]]
+        clinical=[row[3],row[4]]
         mrna=log1p(row[1])
         p_ref=_ridge([[r[3],r[4]] for r in train],ylog,clinical)
         p_full=_ridge([[r[3],r[4],log1p(r[1])] for r in train],
