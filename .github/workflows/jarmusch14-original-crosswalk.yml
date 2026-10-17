@@ -1,0 +1,23 @@
+name: Jarmusch original 14-human clinical omics-targeted PK source gate
+on:
+  pull_request:
+    paths:
+      - 'scripts/audit_jarmusch14_original_omics_targeted_pk.py'
+      - 'tests/test_jarmusch14_original_source.py'
+      - '.github/workflows/jarmusch14-original-crosswalk.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  original-supplement-inventory:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+      - name: Synthetic security, original source identity and source format tests
+        run: python -m unittest discover -s tests -p 'test_jarmusch14_original_source.py' -v
+      - name: Read original publisher and open PMC source supplement structure without any individual sample values
+        run: python -m scripts.audit_jarmusch14_original_omics_targeted_pk
