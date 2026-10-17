@@ -33,6 +33,18 @@ python scripts/qualify_local_original_rosuvastatin_csvs.py \
 
 **Cette première exécution ne prétend pas apparier les sujets**. Elle retourne uniquement SHA256 des cinq CSV, dimensions et présence apparente de colonnes AUC et Cmax, sans imprimer les noms de sujets, les en-têtes complets ou la moindre valeur de concentration.
 
+**Certains CSV des auteurs peuvent déjà réunir leurs variables métabolomiques avec AUC/Cmax sur les mêmes 40 lignes.** Dans ce cas, aucune fusion de fichiers par ordre de ligne n'est nécessaire : inspecter les noms réels des colonnes et utiliser uniquement le mode **combined** ci-dessous pour une première qualification structurelle :
+
+```bash
+python scripts/qualify_local_original_rosuvastatin_csvs.py \\
+  --combined /CHEMIN/CSV_ORIGINAL_AUTEUR.csv \\
+  --combined-id-column NOM_EXACT_ID_SUJET \\
+  --auc-column NOM_EXACT_AUC \\
+  --cmax-column NOM_EXACT_CMAX
+```
+
+Le validateur écarte explicitement AUC et Cmax des variables moléculaires candidates, rejette les colonnes PK *post-dose* supplémentaires, confirme 40 lignes personnelles distinctes et **n'entraîne aucun modèle**. Cela ne garantit ni la provenance d'une vraie mesure clinique ni le caractère pré-dose de tous les signaux : attestation documentaire requise.
+
 Ensuite, après contrôle *humain* des noms des colonnes (ne pas inventer les noms) et que les deux matrices contiennent une vraie clé auteur, exécuter :
 
 ```bash
