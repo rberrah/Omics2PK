@@ -1,0 +1,23 @@
+name: Rosuvastatin n40 MetaboLights true sample-level ISA crosswalk
+on:
+  pull_request:
+    paths:
+      - 'scripts/audit_rosuvastatin40_isa_patient_crosswalk.py'
+      - 'tests/test_rosuvastatin40_isa_crosswalk.py'
+      - '.github/workflows/rosuvastatin40-isa-crosswalk.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  official-isa-source:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+      - name: Synthetic source-contract controls (never log real original volunteers)
+        run: python -m unittest discover -s tests -p 'test_rosuvastatin40_isa_crosswalk.py' -v
+      - name: Qualify true sample-level link in original MetaboLights ISA metadata
+        run: python -m scripts.audit_rosuvastatin40_isa_patient_crosswalk
