@@ -244,6 +244,29 @@ def _test_holdout(clinical,genotypes,prior,response,*,include_genotypes):
             "MAE_source_NCA_numeric_units":round(float(np.mean(np.abs(v-response))),5),
             "absolute_percentage_error_pct":round(float(100*np.mean(np.abs(v/response-1))),4)
         }
+    if include_genotypes:
+        # Paired held-OUT patient errors, resampled WITHOUT refitting models;
+        # descriptive small-n uncertainty, not externally replicated proof.
+        rng=np.random.default_rng(20261018)
+        comparison={
+            "genotype_vs_prior_functional_PK":(
+                "clinical_plus_PRIOR_drug_probe_PK",
+                "clinical_plus_CYP_genotype"),
+            "genotype_vs_genotype_plus_prior_functional_PK":(
+                "clinical_plus_CYP_genotype_plus_PRIOR_drug_probe_PK",
+                "clinical_plus_CYP_genotype"),
+        }
+        for description,(a,b) in comparison.items():
+            da=np.abs(results[a]-response)-np.abs(results[b]-response)
+            samples=rng.choice(da,size=(1999,len(da)),replace=True).mean(axis=1)
+            metrics[description+"_paired_source_delta_MAE_95pct_descriptive"]={
+                "observed_delta_MAE":round(float(np.mean(da)),5),
+                "bootstrap_95pct_no_refit_interval":[
+                    round(float(v),5) for v in np.quantile(samples,[.025,.975])
+                ],
+                "negative_delta_favors_original_prior_phenotype":True,
+                "no_original_individual_predictions_exported":True
+            }
     return metrics
 
 
