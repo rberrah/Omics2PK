@@ -1,0 +1,26 @@
+name: Private Jarmusch MultiOmics PK bridge synthetic contract
+on:
+  push:
+    paths:
+      - "scripts/validate_private_jarmusch13_multiomics_pipeline.py"
+      - "tests/test_jarmusch13_multiomics_pk_bridge.py"
+      - ".github/workflows/jarmusch13-multiomics-pk-bridge.yml"
+  pull_request:
+    paths:
+      - "scripts/validate_private_jarmusch13_multiomics_pipeline.py"
+      - "tests/test_jarmusch13_multiomics_pk_bridge.py"
+      - ".github/workflows/jarmusch13-multiomics-pk-bridge.yml"
+permissions:
+  contents: read
+jobs:
+  fictional-sample-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+      - run: python -m pip install -e .
+      - run: python -m pip install numpy==2.3.5 scikit-learn==1.7.2
+      - run: python -m unittest discover -s tests -p "test_jarmusch13_multiomics_pk_bridge.py" -v
+      - run: python -m compileall -q scripts src
