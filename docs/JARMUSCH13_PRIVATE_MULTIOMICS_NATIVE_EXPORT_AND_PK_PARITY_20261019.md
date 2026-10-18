@@ -54,3 +54,22 @@ The command prints **aggregate counts and error metrics only**. Both zipped orig
 2. Develop genuine omic-normalization/metadata transform provenance and a fold-honest numerical score loader, not arbitrary DE group fold changes.
 3. Preselect biologically meaningful CYP/transport/metabolic pathways and identities without inspecting PK outcomes; seek a larger external PK-plus-omics dataset (busulfan132 and Jarmusch independent cohort are more informative than repeated tuning n13).
 4. Only then attempt M3 verified PK concentration-time NLME and future Omics2PD. Clinical dosing is out of scope.
+
+### Reproduce the explicitly exploratory spectral bile proxy
+
+With BOTH original GNPS public output archive and derived private input available
+in a protected research environment, use:
+
+```bash
+python -m scripts.validate_private_jarmusch_bile_ms1_proxy \
+  --private-input-zip /private/jarmusch13_private_MultiOmics_Omics2PK.zip \
+  --original-gnps-zip /private/ProteoSAFe-FEATURE-BASED-MOLECULAR-NETWORKING-b3966445-download_cytoscape_data.zip
+```
+
+The code checks the original GNPS ZIP SHA-256 and original 346 MS2 spectral
+matches before selecting the 9 *putative* bile-acid-class peak identities. It
+fits numerical feature standardization **within each left-person-out fold**,
+never uses future PK as a score input, and emits only summary metrics.
+
+No original GNPS/public output data or private derived patient files are
+included in this PR, source tree, CI or Actions artifacts.
