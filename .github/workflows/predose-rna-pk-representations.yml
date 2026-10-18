@@ -1,0 +1,26 @@
+name: Predose RNA representations synthetic-only qualification
+on:
+  push:
+    paths:
+      - "src/omics2pk/predose_representation_benchmark.py"
+      - "tests/test_predose_representation_benchmark.py"
+      - ".github/workflows/predose-rna-pk-representations.yml"
+  pull_request:
+    paths:
+      - "src/omics2pk/predose_representation_benchmark.py"
+      - "tests/test_predose_representation_benchmark.py"
+      - ".github/workflows/predose-rna-pk-representations.yml"
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+      - run: python -m pip install -e .
+      - run: python -m pip install numpy==2.3.5 scikit-learn==1.7.2
+      - run: python -m unittest discover -s tests -p "test_predose_representation_benchmark.py" -v
+      - run: python -m compileall -q src
