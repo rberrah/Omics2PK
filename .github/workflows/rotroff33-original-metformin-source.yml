@@ -6,6 +6,8 @@ on:
       - 'tests/test_rotroff33_metformin_original_pk_omics.py'
       - 'scripts/audit_rotroff33_crosssheet_pk_omics.py'
       - 'tests/test_rotroff33_crosssheet_pk_omics.py'
+      - 'scripts/audit_rotroff33_original_sample_naming.py'
+      - 'tests/test_rotroff33_original_sample_naming.py'
       - '.github/workflows/rotroff33-original-metformin-source.yml'
   workflow_dispatch:
 permissions:
@@ -27,3 +29,7 @@ jobs:
         run: python -m scripts.audit_rotroff33_metformin_original_pk_omics
       - name: Audit full original source supplement wide matrices and matched clinical PK table keys without exporting ID labels
         run: python -m scripts.audit_rotroff33_crosssheet_pk_omics
+      - name: Test that anonymized clinical/omics source sample key shapes never publish identifiers
+        run: python -m unittest discover -s tests -p 'test_rotroff33_original_sample_naming.py' -v
+      - name: Examine original high-dimensional and n33 clinical source timepoint/sample naming patterns only
+        run: python -m scripts.audit_rotroff33_original_sample_naming
