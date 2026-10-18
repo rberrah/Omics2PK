@@ -70,8 +70,8 @@ def actual_original_tables(zipdata):
 def measured_original_data(zipdata):
     """Returns original patient dataset INTERNALLY, never serialized by script."""
     clinical,omics=actual_original_tables(zipdata)
-    if len(clinical)!=7:
-        raise E3SourceError("Expected original seven clinical/stats worksheets")
+    if len(clinical)!=6:
+        raise E3SourceError("Expected original six clinical/stats worksheets")
     pk=clinical[2]  # original publication clinical Table: AUClast and CLr
     if _clinical_ids(pk) is None:
         raise E3SourceError("Not exactly 33 unique original clinical 4-digit person IDs")
