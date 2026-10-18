@@ -48,6 +48,12 @@ Scripts/tests:
 - `tests/test_hlc_authorized_local_source.py` (fabricated-only, includes fake 403/PAT non-disclosure check)
 - `.github/workflows/hlc-authorized-local-source-contract.yml` (contract tests only; it cannot download controlled real participant data and does not try)
 
+## Extra local matching gate implemented
+
+`src/omics2pk/hlc_original_crosswalk.py` implements a **strictly structural** check taking: the authentic public original set of 427 GEO GSM labels, an explicit *source-codebook-supported* same-biological-donor GSM↔liver-ID mapping with a source document SHA, and authorized original Synapse `syn4629` observed quantitative CYP assay rows with consistent physical units. It rejects duplicated patients, mismatched original source entity, missing original mappings and unit mismatches; returns **aggregate number of matching observations only**, never sample IDs or measured values. An operator's manually supplied document checksum is not independent proof that the biological crosswalk is authentic, so it deliberately never flags model validation as complete by itself. The unit tests simulate 427 fake GSMs and an independently generated 389-overlap activity subset to verify the 427 versus 398 cohort-size confusion cannot trigger false eligibility.
+
+These records are **not** part of the public repo and will require permissions and a real author-issued HLC codebook. The tool intentionally **does not** use metadata access alone to infer relationships between patients. No RNA-vs-protein fit has been performed by this code.
+
 ## Precise original biological source gate — before any real enzyme-activity model
 
 From original `syn4629`, determine original sample/patient IDs, endpoints (e.g. CYP3A4 midazolam hydroxylation; CYP2C9 diclofenac hydroxylation; CYP2D6 dextromethorphan) and **actual units** and missing/unquantifiable values. From syn88644 or original codebook, document a source-proven one-to-one crosswalk of GEO `GSM` ↔ actual biological donor ID. Inspect 427 GEO GSM labels for replicate specimens; neither matching sample counts nor sorted row order proves the biological join.
