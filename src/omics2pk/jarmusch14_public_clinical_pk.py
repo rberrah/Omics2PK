@@ -27,6 +27,7 @@ from math import isfinite
 from urllib.request import Request,urlopen
 
 COMMIT="95586620ead4ac5241dc1e99a98e047c1f99b17b"
+SOURCE_SHA256="152dd683a1c5904109e8a360a1d67d7631f4be39213c31a8393c652e665fc628"
 SOURCE="https://raw.githubusercontent.com/alan-jarmusch/UntargetedMS-DrugMetabolism/"+COMMIT+"/Materials/Metadata.txt"
 DOI="10.1111/cts.12785"
 ENDPOINTS={
@@ -62,7 +63,10 @@ def _original_text():
         raise JarmuschOriginalPKError("Public original author file unavailable") from exc
     if len(content)>3_200_000:
         raise JarmuschOriginalPKError("Original research metadata exceeds expected bound")
-    return content.decode("utf-8-sig"),sha256(content).hexdigest()
+    actual_sha=sha256(content).hexdigest()
+    if actual_sha!=SOURCE_SHA256:
+        raise JarmuschOriginalPKError("Original author metadata checksum mismatch")
+    return content.decode("utf-8-sig"),actual_sha
 
 
 def _usable(x):
