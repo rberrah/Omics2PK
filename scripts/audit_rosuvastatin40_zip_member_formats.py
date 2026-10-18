@@ -115,12 +115,35 @@ def list_original_zip_sizes():
         # Match the source-verified direct FTP sequence used by the public census.
         ftp.connect(HOST, 21, timeout=35)
         ftp.login()
+        ftp.voidcmd("TYPE I")
         while folders:
             folder=folders.pop()
             # An inaccessible nested vendor folder is not evidence of absence.
             try:
                 ftp.cwd(folder)
-                entries = list(ftp.mlsd())
+                try:
+                    entries = list(ftp.mlsd())
+                except (error_perm, NotImplementedError):
+                    # Original EBI server may reject MLSD; verified census uses NLST.
+                    entries = []
+                    for listed in ftp.nlst():
+                        name = PurePosixPath(listed).name
+                        if not name or name in (".", ".."):
+                            continue
+                        full = folder.rstrip("/") + "/" + name
+                        try:
+                            ftp.cwd(full)
+                            ftp.cwd(folder)
+                            kind = "dir"
+                        except error_perm:
+                            kind = "file"
+                        size = 0
+                        if kind == "file" and name.lower().endswith(".zip"):
+                            try:
+                                size = ftp.size(full) or 0
+                            except error_perm:
+                                pass
+                        entries.append((name, {"type": kind, "size": str(size)}))
             except error_perm:
                 if folder == ROOT:
                     raise
