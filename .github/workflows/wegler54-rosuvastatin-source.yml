@@ -1,0 +1,23 @@
+name: E3 original Wegler 54 rosuvastatin proteomics-PK source audit
+on:
+  pull_request:
+    paths:
+      - 'scripts/audit_wegler54_rosuvastatin_proteomics_pk_source.py'
+      - 'tests/test_wegler54_rosuvastatin_source.py'
+      - '.github/workflows/wegler54-rosuvastatin-source.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source-qualification:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+      - name: Run synthetic 54-person source schema and privacy contract tests
+        run: python -m unittest discover -s tests -p 'test_wegler54_rosuvastatin_source.py' -v
+      - name: Inspect publisher original European PMC supplementary source in memory, without exporting patient rows
+        run: python -m scripts.audit_wegler54_rosuvastatin_proteomics_pk_source
