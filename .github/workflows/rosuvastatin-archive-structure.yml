@@ -25,5 +25,7 @@ jobs:
           python -m unittest discover -s tests -p 'test_rosuvastatin40_zip_member_formats.py' -v
       - name: Inspect all publisher supplement XLSX sheet labels for individual clinical PK target tables
         run: python -m scripts.audit_rosuvastatin40_all_excel_source_cells
+      - name: Repeat previously qualified official FTP public study census as connectivity control
+        run: python -m scripts.audit_rosuvastatin40_public_ftp_census
       - name: Verify public EBI original ZIP central-directory member formats without downloading raw MS observations
         run: python -m scripts.audit_rosuvastatin40_zip_member_formats
