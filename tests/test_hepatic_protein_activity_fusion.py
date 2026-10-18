@@ -6,13 +6,12 @@ from omics2pk.hepatic_protein_activity_fusion import (
     run_fusion_on_verified_same_donors,from_original_source_rows
 )
 from omics2pk.matched_tki_metabolism import MatchedMetabolismError
-from tests.test_matched_tki_metabolism import fixtures
+from test_matched_tki_metabolism import fixtures
 
 
 class SameDonorProteinFunctionalFusionTests(unittest.TestCase):
     def test_comparison_identical_donor_folds_all_arms_and_two_hepatic_drugs(self):
         a,b=fixtures()
-        r=from_original_source_rows(a,b) if False else None
         # Synthetic values do not reproduce original paper Spearman by design.
         from omics2pk.matched_tki_metabolism import qualify_pair
         joined,_=qualify_pair(a,b,verify_reference=False)
