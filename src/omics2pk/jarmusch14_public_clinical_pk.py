@@ -38,7 +38,7 @@ ENDPOINTS={
     "CYP2C19_omeprazole_metabolite_AUC_ratio":{
         "source_column":"PharmKinetics_CYP2C19",
         "PGx_columns":("PharmGeno_CYP2C19",),
-        "units":"original 5OH-OME/OME AUC source ratio, direction pending source codebook check",
+        "units":"Original OME/5-OH OME AUC ratio (article table 1), not hepatic CL",
     },
     "CYP1A2_caffeine_oral_CLF":{
         "source_column":"PharmKinetics_CYP1A2",
@@ -91,8 +91,11 @@ def read_author_metadata(text:str):
     for name in needed:
         if original.fieldnames.count(name)!=1:
             raise JarmuschOriginalPKError("Ambiguous duplicated original required assay field")
-    # source per-subject per-day fields duplicated on many MS sample rows:
-    # only blood_plasma sample records are eligible to form PK assay tables.
+    # Original clinical PK is populated across original fecal, urine, skin,
+    # and plasma MS metadata copies. Critically, only 13 day1 / 12 day9
+    # volunteers have untargeted blood_plasma MS runs, so restricting to
+    # blood_plasma rows would incorrectly lose genuine *targeted* PK donors.
+    # Verify unanimous PK value across all source sample types per human/day.
     byperson=defaultdict(lambda:defaultdict(list))
     all_subjects=set()
     ms_rows=0
@@ -102,8 +105,8 @@ def read_author_metadata(text:str):
         if not _usable(person):continue
         all_subjects.add(person)
         if (row.get("ATTRIBUTE_Study_Day") not in ("1","9") or
-            row.get("ATTRIBUTE_Sample_Type")!="blood_plasma" or
-            row.get("MS_SampleType")!="sample"):
+            row.get("MS_SampleType")!="sample" or
+            row.get("ATTRIBUTE_Sample_Type") not in ("blood_plasma","urine","fecal","skin")):
             continue
         clinical=(
             _float(row.get("Enrollment_Subject_Age")),
