@@ -4,11 +4,15 @@ on:
     paths:
       - "src/omics2pk/predose_representation_benchmark.py"
       - "tests/test_predose_representation_benchmark.py"
+      - "tests/test_matched_multiomics_pk.py"
+      - "src/omics2pk/matched_multiomics_pk.py"
       - ".github/workflows/predose-rna-pk-representations.yml"
   pull_request:
     paths:
       - "src/omics2pk/predose_representation_benchmark.py"
       - "tests/test_predose_representation_benchmark.py"
+      - "tests/test_matched_multiomics_pk.py"
+      - "src/omics2pk/matched_multiomics_pk.py"
       - ".github/workflows/predose-rna-pk-representations.yml"
 permissions:
   contents: read
@@ -23,4 +27,5 @@ jobs:
       - run: python -m pip install -e .
       - run: python -m pip install numpy==2.3.5 scikit-learn==1.7.2
       - run: python -m unittest discover -s tests -p "test_predose_representation_benchmark.py" -v
+      - run: python -m unittest discover -s tests -p "test_matched_multiomics_pk.py" -v
       - run: python -m compileall -q src
