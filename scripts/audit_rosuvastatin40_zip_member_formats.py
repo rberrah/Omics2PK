@@ -110,15 +110,22 @@ def list_original_zip_sizes():
     ftp = FTP(timeout=35)
     archives = []
     folders = [ROOT]
+    inaccessible_subfolders = 0
     try:
         # Match the source-verified direct FTP sequence used by the public census.
         ftp.connect(HOST, 21, timeout=35)
         ftp.login()
         while folders:
             folder=folders.pop()
-            # EBI permits MLSD after CWD, but can reject MLSD /absolute/path.
-            ftp.cwd(folder)
-            entries = list(ftp.mlsd())
+            # An inaccessible nested vendor folder is not evidence of absence.
+            try:
+                ftp.cwd(folder)
+                entries = list(ftp.mlsd())
+            except error_perm:
+                if folder == ROOT:
+                    raise
+                inaccessible_subfolders += 1
+                continue
             for name, f in entries:
                 if name in (".","..") or "/" in name or "\\" in name:
                     continue
@@ -137,13 +144,13 @@ def list_original_zip_sizes():
     finally:
         try:ftp.quit()
         except Exception:ftp.close()
-    return archives
+    return archives, inaccessible_subfolders
 
 
 def inspect_ebi_archive_sample(*, sample_size=8) -> dict:
     if not 0 <= sample_size <= MAX_ARCHIVES:
         raise SourceZipError("Invalid maximum number of inspected ZIP archives")
-    archives=list_original_zip_sizes()
+    archives, inaccessible_subfolders = list_original_zip_sizes()
     sizes=sorted(size for _,size in archives if size>0)
     selection=sorted((path,size) for path,size in archives if size>0)
     # Cover small and large archive sizes, not filename-derived patient labels.
@@ -172,6 +179,8 @@ def inspect_ebi_archive_sample(*, sample_size=8) -> dict:
         "study":"MTBLS3128",
         "source":"Official EBI public FTP archive inventory + bounded HTTPS central directory probes",
         "n_original_zip_archives_listed":len(archives),
+        "n_inaccessible_original_nested_directories":inaccessible_subfolders,
+        "is_complete_original_public_zip_directory_census":inaccessible_subfolders == 0,
         "n_original_zip_sizes_reported":len(sizes),
         "min_zip_size_bytes":min(sizes) if sizes else None,
         "median_zip_size_bytes":int(median(sizes)) if sizes else None,
