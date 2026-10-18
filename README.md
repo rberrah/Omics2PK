@@ -1,5 +1,11 @@
 # Omics2PK
 
+## First genuine public clinical E3 biomarker-to-measured-PK benchmark (18 October 2026)
+
+**Rotroff et al. metformin original n33 (DOI 10.3389/fphar.2016.00135) is SOURCE-QUALIFIED and actually modeled.** The official original publisher supplements contain 33 exact-person identifier matches between 33 predose A/B/C metabolic GC-TOF triplets, **384 predose measured molecular features**, and true original person-level metformin AUClast0–24 and CLr renal clearance (**32 complete individuals per PK endpoint**). Public source workbooks are SHA256 pinned; no subject data copied into GitHub. Actual true source numerical run: [E3 original measured metformin PK CI](https://github.com/rberrah/Omics2PK/actions/runs/39145479441).
+
+32-person heldout-fold Ridge benchmark: age+sex+weight vs same clinical baseline plus three **train-only** unsupervised metabolomics PCs. **AUC MAE 2826.05 → 2825.02 (essentially zero benefit; uncertainty includes no gain), CLr MAE 115.11 → 118.14 (worse)**, errors in original spreadsheet numerical units pending physical unit verification. These are authentic clinical PK measurements, but the tested omic augmentation **is not superior**. No independent external validation or SWEET/XGB model is claimed. [Full documented source join, clinical E3 model, results and limits](docs/E3_REAL_METFORMIN33_PREDOSE_384_OMICS_AUC_CLR_HELDOUT_20261018.md).
+
 ## Real human-liver molecular-to-metabolism proof (E2, 18 October 2026)
 
 On the ORIGINAL EPA n100 human liver cohort (source DOI 10.23719/1519197), eight donor-matched qPCR CYP transcript → measured microsomal enzyme-activity endpoints were independently validated using original biological donor heldout folds. Adding genuine same-donor RNA beyond age/sex reduced MAE in **seven of eight**; after **199 same-sex donor RNA mismatching permutations per enzyme**, **four of eight** original CYP assays (CYP1A2, CYP2B6, CYP2D6, CYP3A4) showed a predeclared one-sided empirical permutation p=0.005, below Bonferroni p=0.00625. The CYP2E1 negative result (worse MAE) is retained. **This validates E2 functional metabolism association, never clinical individual plasma PK/PopPK.** [Source-verified original-data results and reproducible negative-control methodology](docs/EPA100_REAL_199_PERMUTATION_NEGATIVE_CONTROLS_20261018.md).
