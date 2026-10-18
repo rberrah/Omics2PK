@@ -1,5 +1,9 @@
 # Omics2PK
 
+## E3 public clinical omics–PK source availability (18 October 2026)
+
+The five processed Silveira/Duarte rosuvastatin n40 Google Drive CSVs are **private**, confirmed by the user. Do not pursue new public-link download attempts or claim published AUC/Cmax or person-level omics matching from original EBI mzML alone. The original Wegler rosuvastatin **n54** published supplementary XLSX was actually obtained via official Europe PMC and verified to contain **54 donor protein abundance/allometric records, but no individual AUC/Cmax columns**. Both original clinical datasets are therefore **E3 source-blocked**, despite genuine original raw mass spectra or protein matrices. Focus next on verified independent E2 human liver omics→activity/CLint datasets; no E2 source may be promoted to clinical PopPK evidence. [Detailed source verdict](docs/E3_PUBLIC_DATA_PIVOT_SILVEIRA_CLOSED_TO_WEGLER54_20261018.md).
+
 ## E3 rosuvastatin: original author GitHub and public EBI compared (18 October 2026)
 
 The author's complete GitHub tree has the 21MB original notebook, README and requirements, **not the five processed CSVs**. Those five dataset URLs are hosted externally on Google Drive in the notebook. EBI MTBLS3128 stores source LC-MS files, but those are not equivalent to the ProgenesisQI/MetaboAnalyst feature matrices. A complete original-cell publisher XLSX audit found **no recognized 40-person individual AUC/Cmax table**; a source-verified EBI ZIP inventory then examined **all 156/156 archive central directories** (3,174 internal files) and found **zero named CSV/XLSX/tabular-format members**, without reading full raw contents. The original numeric predose molecular signals and PK same-person crosswalk remain unavailable: **no measured clinical E3 effect is claimed**. [Actual cross-source comparison and limitations](docs/ROSUVASTATIN40_GITHUB_VS_EBI_FIVE_PROCESSED_CSV_VERDICT_20261018.md).
