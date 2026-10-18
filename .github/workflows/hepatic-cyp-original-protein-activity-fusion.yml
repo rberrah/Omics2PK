@@ -1,0 +1,28 @@
+name: E2 hepatic metabolized drugs original CYP proteome vs enzyme phenotype fusion
+on:
+  pull_request:
+    paths:
+      - 'src/omics2pk/hepatic_protein_activity_fusion.py'
+      - 'scripts/benchmark_original_hepatic_tki_protein_activity.py'
+      - 'tests/test_hepatic_protein_activity_fusion.py'
+      - '.github/workflows/hepatic-cyp-original-protein-activity-fusion.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  original-source:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+      - name: Install local Omics2PK package for source code tests
+        run: |
+          python -m pip install -e .
+          python -m pip install 'beautifulsoup4==4.12.3'
+      - name: Donor-heldout protein activity and combination model synthetic guards
+        run: python -m unittest discover -s tests -p 'test_hepatic_protein_activity_fusion.py' -v
+      - name: Validate ACTUAL original PMC protein/activity HLM donors on two metabolized drugs
+        run: python -m scripts.benchmark_original_hepatic_tki_protein_activity
