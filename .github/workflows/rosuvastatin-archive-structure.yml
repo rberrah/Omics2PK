@@ -13,7 +13,7 @@ permissions:
 jobs:
   source-format-audit:
     runs-on: ubuntu-latest
-    timeout-minutes: 14
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-python@v6
@@ -28,4 +28,4 @@ jobs:
       - name: Repeat previously qualified official FTP public study census as connectivity control
         run: python -m scripts.audit_rosuvastatin40_public_ftp_census
       - name: Verify public EBI original ZIP central-directory member formats without downloading raw MS observations
-        run: python -m scripts.audit_rosuvastatin40_zip_member_formats
+        run: python -m scripts.audit_rosuvastatin40_zip_member_formats --all
