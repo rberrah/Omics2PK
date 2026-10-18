@@ -1,5 +1,9 @@
 # Omics2PK
 
+## Hepatic metabolism on two real drugs: protein vs activity and fusion (18 October 2026)
+
+Two truly original source-matched studies of 21 human liver microsome donors measured CYP2C8/CYP3A protein abundance, enzyme-activity assays and **tucatinib metabolic clearance**; 17 of the same donors also had quantifiable **imatinib metabolic clearance**. With identical donor-heldout validation, adding functional probe activity to CYP proteomics reduced tucatinib MAE **2.041→1.783 µL/min/mg**, and imatinib MAE **14.166→13.620**. Small n, paired intervals include no gain for clearance, no independent-donor external validation. **This is protein + functional phenotyping, NOT RNA + protein multiomics**: same-donor transcriptome is unavailable and no RNA-only comparison is asserted. Real PMC article source downloaded transiently, verified published imatinib CYP rank correlations, code and outputs in [qualified hepatic metabolism report](docs/HEPATIC_TWO_DRUG_CYP_PROTEIN_ACTIVITY_FUSION_REAL_20261018.md), original scientific [GitHub Actions result](https://github.com/rberrah/Omics2PK/actions/runs/39147377727).
+
 ## First genuine public clinical E3 biomarker-to-measured-PK benchmark (18 October 2026)
 
 **Rotroff et al. metformin original n33 (DOI 10.3389/fphar.2016.00135) is SOURCE-QUALIFIED and actually modeled.** The official original publisher supplements contain 33 exact-person identifier matches between 33 predose A/B/C metabolic GC-TOF triplets, **384 predose measured molecular features**, and true original person-level metformin AUClast0–24 and CLr renal clearance (**32 complete individuals per PK endpoint**). Public source workbooks are SHA256 pinned; no subject data copied into GitHub. Actual true source numerical run: [E3 original measured metformin PK CI](https://github.com/rberrah/Omics2PK/actions/runs/39145479441).
