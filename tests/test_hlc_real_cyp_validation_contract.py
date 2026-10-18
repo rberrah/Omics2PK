@@ -2,12 +2,17 @@
 from __future__ import annotations
 
 import unittest
-import numpy as np
+import importlib.util
+try:
+    import numpy as np
+except ImportError:
+    np=None
 
-from omics2pk.hlc_real_cyp_validation import (
-    evaluate_fold_matched_cyp,OriginalHLCQualificationError
-)
-from omics2pk.hlc_real_fullarray_validation import evaluate_original_array_PCA8
+if np is not None and importlib.util.find_spec("sklearn") is not None:
+    from omics2pk.hlc_real_cyp_validation import (
+        evaluate_fold_matched_cyp,OriginalHLCQualificationError
+    )
+    from omics2pk.hlc_real_fullarray_validation import evaluate_original_array_PCA8
 
 
 def fictional():
@@ -23,6 +28,7 @@ def fictional():
     return clinical,target,panel,activity,whole
 
 
+@unittest.skipUnless(np is not None and importlib.util.find_spec("sklearn") is not None, "Optional scientific numpy/scikit-learn packages only installed in HLC contract job")
 class OriginalHumanLiverLeakageTests(unittest.TestCase):
     def test_fictional_source_RNA_target_nuisance_and_age_stratified_permutations(self):
         c,t,p,y,_=fictional()
