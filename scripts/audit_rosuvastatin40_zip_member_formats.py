@@ -107,16 +107,19 @@ def probe_zip_central(url: str, size: int) -> dict:
 
 
 def list_original_zip_sizes():
-    ftp = FTP(HOST,timeout=35)
+    ftp = FTP(timeout=35)
     archives = []
     folders = [ROOT]
     try:
+        # Match the source-verified direct FTP sequence used by the public census.
+        ftp.connect(HOST, 21, timeout=35)
         ftp.login()
         while folders:
             folder=folders.pop()
             # EBI permits MLSD after CWD, but can reject MLSD /absolute/path.
             ftp.cwd(folder)
-            for name, f in ftp.mlsd():
+            entries = list(ftp.mlsd())
+            for name, f in entries:
                 if name in (".","..") or "/" in name or "\\" in name:
                     continue
                 source=folder.rstrip("/")+"/"+name
