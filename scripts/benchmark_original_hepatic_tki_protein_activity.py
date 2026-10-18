@@ -12,6 +12,7 @@ from hashlib import sha256
 import json
 import re
 from urllib.request import Request,urlopen
+from urllib.error import HTTPError
 from xml.etree import ElementTree as ET
 
 from omics2pk.hepatic_protein_activity_fusion import from_original_source_rows
@@ -86,19 +87,97 @@ def _get_table(xml_bytes,pmcid,doi):
     return original_rows
 
 
+
+def _get_html_table(html_data,pmcid,doi):
+    """Original official PMC human-readable Table 1 fallback, never scraped output."""
+    try:
+        from bs4 import BeautifulSoup
+    except ImportError as err:
+        raise OfficialTableError("Offline package beautifulsoup4 needed to read original public PMC HTML") from err
+    if len(html_data)>MAX_XML*3:
+        raise OfficialTableError("Original official HTML too large")
+    soup=BeautifulSoup(html_data,"html.parser")
+    outcome="tucatinib" if pmcid=="PMC13095627" else "imatinib"
+    expected=13 if outcome=="tucatinib" else 14
+    candidates=[]
+    for table in soup.find_all("table"):
+        plain=table.get_text(" ",strip=True).lower()
+        if not all(tok in plain for tok in ("cyp2c8", "cyp3a",outcome,"donor")):
+            continue
+        records=[]
+        for tr in table.find_all("tr"):
+            cols=tr.find_all(["td","th"],recursive=False)
+            cells=[" ".join(c.get_text(" ",strip=True).split()) for c in cols]
+            if len(cells)==expected and re.fullmatch(r"H\d{4}|pooled",cells[1],re.I):
+                records.append(cells)
+        if len(records)==22:
+            candidates.append(records)
+    if len(candidates)!=1:
+        raise OfficialTableError("Official PMC html Table 1 not a unique original 21+pool human donor table")
+    # Preserve the DOI-proven original PMID/PMCID locator without guessing
+    # across source papers: article URL is a fixed allowlist.
+    return _rows_to_source_contract(candidates[0],pmcid,doi)
+
+
+def _rows_to_source_contract(data,pmcid,doi):
+    expect=13 if pmcid=="PMC13095627" else 14
+    if len(data)!=22 or any(len(r)!=expect for r in data):
+        raise OfficialTableError("Original 21+pool table changed")
+    rows=[]
+    for cells in data:
+        if not re.fullmatch(r"\d{1,2}",cells[0]):
+            raise OfficialTableError("Missing original row ordinal")
+        kind="pool" if cells[1].lower()=="pooled" else "individual"
+        if kind=="individual" and not re.fullmatch(r"H\d{4}",cells[1]):
+            raise OfficialTableError("Original biological donor ID has invalid format")
+        def positive(col):
+            raw=cells[col].replace(",","").strip()
+            if not re.fullmatch(r"\d+(?:\.\d+)?",raw):
+                raise OfficialTableError("Original primary source nonpositive or missing CYP measurement")
+            return raw
+        row={"donor_id":cells[1],"row_kind":kind,"source_doi":doi,
+             "cyp2c8_protein_pmol_mg":positive(6),
+             "cyp3a_protein_pmol_mg":positive(9),
+             "cyp2c8_activity_pmol_min_mg":positive(11),
+             "cyp3a_activity_pmol_min_mg":positive(10)}
+        if pmcid=="PMC13095627":
+            row["tucatinib_cl_app_ul_min_mg"]=positive(12)
+        else:
+            c=cells[12].strip()
+            row["imatinib_cl_app_ul_min_mg"]="" if c in ("-","–","—") else positive(12)
+            row["ndesmethyl_imatinib_peak_area_ratio"]=positive(13) if kind=="individual" else "1"
+        rows.append(row)
+    return rows
+
+
+def _official_source_rows(pmcid,doi):
+    """Source URL fallback never switches to a different publication."""
+    jats=f"https://www.ebi.ac.uk/europepmc/webservices/rest/{pmcid}/fullTextXML"
+    errors=[]
+    try:
+        with urlopen(Request(jats,headers={"User-Agent":"Omics2PK-research-original-PMC/1.0"}),timeout=25) as r:
+            original=r.read(MAX_XML+1)
+        return _get_table(original,pmcid,doi),sha256(original).hexdigest(),"europepmc_fulltext_XML"
+    except (HTTPError,OSError,ET.ParseError,OfficialTableError) as err:
+        errors.append(type(err).__name__)
+    html=f"https://pmc.ncbi.nlm.nih.gov/articles/{pmcid}/"
+    try:
+        with urlopen(Request(html,headers={"User-Agent":"Mozilla/5.0 (compatible; Omics2PK original-source research/1.0)"}),timeout=30) as r:
+            original=r.read(MAX_XML*3+1)
+        return _get_html_table(original,pmcid,doi),sha256(original).hexdigest(),"official_PMC_HTML"
+    except (HTTPError,OSError,ET.ParseError,OfficialTableError) as err:
+        errors.append(type(err).__name__)
+    raise OfficialTableError("Original fulltext is unavailable through checked official endpoints: "+",".join(errors))
+
 def source_published_fusion():
     rows={}
     hashes={}
+    methods={}
     for name,(pmcid,doi) in SOURCES.items():
-        uri=f"https://www.ebi.ac.uk/europepmc/webservices/rest/{pmcid}/fullTextXML"
-        with urlopen(Request(uri,headers={"User-Agent":"Omics2PK-original-TKI-source-research-meta-only/1.0"}),timeout=50) as response:
-            raw=response.read(MAX_XML+1)
-        if len(raw)>MAX_XML:
-            raise OfficialTableError("Original Europe PMC fulltext exceeds bounded source cap")
-        rows[name]=_get_table(raw,pmcid,doi)
-        hashes[name]=sha256(raw).hexdigest()
+        rows[name],hashes[name],methods[name]=_official_source_rows(pmcid,doi)
     analysis=from_original_source_rows(rows["tucatinib"],rows["imatinib"])
-    analysis["original_publisher_ XML_source_SHA256"] = hashes
+    analysis["original_article_source_SHA256"] = hashes
+    analysis["source_access_methods"] = methods
     analysis["real_actual_original_article_rows_transient_only"] = True
     return analysis
 
