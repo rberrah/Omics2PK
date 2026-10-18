@@ -33,3 +33,37 @@ python -m unittest tests.test_predose_representation_benchmark -v
 No original Rotroff/Jarmusch/busulfan patients are exported or joined by these synthetic tests. The already executed public **Rotroff n32 predose METABOLOMICS** benchmark has no authentic transcriptome, so DO NOT apply RNA-only SWEET or claim that the graph improves that PK benchmark. Its real observed clinical+metabolomics result remains negative/inconclusive. A future separate metabolomics-specific score/transport/excretion benchmark must not be mislabeled SWEET.
 
 **Next clinical gate:** recover original Jarmusch pre-treatment same-human feature intensities (GNPS quantitative file), or obtain a donor-matched full RNA clinical PK study; predeclare comparisons and use the authentic specimen-to-subject crosswalk. For hepatic donor RNA/CLint datasets, report ex-vivo metabolic activity only, never measured systemic PK.
+
+## Direct native MultiOmics V1 input (private, no intermediate patient exports)
+
+`src/omics2pk/matched_multiomics_pk.py` now reads the **actual** `exchange/` directory from MultiOmics, verifies its hashes with `inspect_exchange`, and joins one unique transcriptome assay to one actual biological person through both `subject_id` and `assay_id`. It rejects repeated visits/assays, mixed tissues/ID namespaces, raw counts and bad checksum; **no silent sample-order matching**. The original source clinical sidecar must be held solely in an authorized private process, with one per-person record containing these exact fields:
+
+```python
+{
+    "subject_id": "private-original-id",
+    "assay_id": "private-exact-MultiOmics-assay-id",
+    "collected_at": "2026-01-01T09:00:00+01:00",
+    "first_dose_at": "2026-01-02T09:00:00+01:00",
+    "measured_pk": 1.0,  # placeholder only; real ORIGINAL measured PK required
+    "clinical_values": [1.0, 1.0],  # prespecified numeric baseline example
+    "genotype_dosages": [0, 1],  # optional *actual measured* allele dosages
+}
+```
+
+**The above is a fabricated schema example, NOT original measurements.** Internal call:
+
+```python
+from omics2pk.matched_multiomics_pk import run_matched_rna_exchange_pk
+report = run_matched_rna_exchange_pk(
+    "authorized_exchange_directory", original_clinical_sidecar,
+    target_name="study_specific_PK_target",
+    target_unit="original_verified_physical_unit",
+    source_kind="original_source_declared",
+    source_sha256="verified_64_character_lowercase_original_source_digest",
+    prespecified_gene_weights=None,
+)
+```
+
+For `original_source_declared`, the upstream exchange validation status must already be `qualified_for_declared_scope`; software cannot confer that status or independently verify a sidecar source. **No real private clinical source is part of public GitHub CI**. Fictional integration tests verify real hash checking, sample/person crosswalk, shuffled sidecar row order, pre-dose windows and negative controls. The adapter returns aggregate metrics only.
+
+This V1 strictly handles a single eligible RNA specimen per person. Multiple timepoints, technical repeats, multicentre batch adjustments and complete PopPK dose-to-C(t) likelihood must be addressed explicitly in a future validated contract, not silently collapsed. DNA genotypes here are *external measured PGx sidecars*, not falsely inferred from RNA. A joint proteome/metabolome score or M3 Pillar-A/PopPK is a distinct planned extension.
