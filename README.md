@@ -1,5 +1,9 @@
 # Omics2PK
 
+## Real human-liver molecular-to-metabolism proof (E2, 18 October 2026)
+
+On the ORIGINAL EPA n100 human liver cohort (source DOI 10.23719/1519197), eight donor-matched qPCR CYP transcript → measured microsomal enzyme-activity endpoints were independently validated using original biological donor heldout folds. Adding genuine same-donor RNA beyond age/sex reduced MAE in **seven of eight**; after **199 same-sex donor RNA mismatching permutations per enzyme**, **four of eight** original CYP assays (CYP1A2, CYP2B6, CYP2D6, CYP3A4) showed a predeclared one-sided empirical permutation p=0.005, below Bonferroni p=0.00625. The CYP2E1 negative result (worse MAE) is retained. **This validates E2 functional metabolism association, never clinical individual plasma PK/PopPK.** [Source-verified original-data results and reproducible negative-control methodology](docs/EPA100_REAL_199_PERMUTATION_NEGATIVE_CONTROLS_20261018.md).
+
 ## E3 public clinical omics–PK source availability (18 October 2026)
 
 The five processed Silveira/Duarte rosuvastatin n40 Google Drive CSVs are **private**, confirmed by the user. Do not pursue new public-link download attempts or claim published AUC/Cmax or person-level omics matching from original EBI mzML alone. The original Wegler rosuvastatin **n54** published supplementary XLSX was actually obtained via official Europe PMC and verified to contain **54 donor protein abundance/allometric records, but no individual AUC/Cmax columns**. Both original clinical datasets are therefore **E3 source-blocked**, despite genuine original raw mass spectra or protein matrices. Focus next on verified independent E2 human liver omics→activity/CLint datasets; no E2 source may be promoted to clinical PopPK evidence. [Detailed source verdict](docs/E3_PUBLIC_DATA_PIVOT_SILVEIRA_CLOSED_TO_WEGLER54_20261018.md).
