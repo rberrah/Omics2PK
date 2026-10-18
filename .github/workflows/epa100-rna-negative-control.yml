@@ -1,0 +1,26 @@
+name: E2 original EPA100 donor RNA mismatch negative control
+on:
+  pull_request:
+    paths:
+      - 'src/omics2pk/epa_rna_negative_control.py'
+      - 'scripts/validate_epa100_rna_negative_controls.py'
+      - 'tests/test_epa_rna_negative_control.py'
+      - '.github/workflows/epa100-rna-negative-control.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  original-source-negatives:
+    runs-on: ubuntu-latest
+    timeout-minutes: 22
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+      - name: Install local source-verified core
+        run: python -m pip install -e .
+      - name: Synthetic-only tests of fixed donor-holdout and source privacy
+        run: python -m unittest discover -s tests -p 'test_epa_rna_negative_control.py' -v
+      - name: Run ORIGINAL EPA hundred real matched human livers with 199 null RNA permutations per CYP
+        run: python -m scripts.validate_epa100_rna_negative_controls
