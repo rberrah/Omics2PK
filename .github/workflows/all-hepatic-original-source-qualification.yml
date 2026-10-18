@@ -6,6 +6,8 @@ on:
       - 'tests/test_all_hepatic_original_public_source_gates.py'
       - 'scripts/qualify_gse9588_real_human_liver_expression.py'
       - 'tests/test_gse9588_real_expression_source.py'
+      - 'scripts/smoke_real_gse9588_inductive_sweet.py'
+      - 'tests/test_real_gse9588_inductive_sweet_smoke.py'
       - 'docs/HEPATIC_PUBLIC_DATA_EXECUTED_SOURCE_AUDIT_20261018.md'
       - '.github/workflows/all-hepatic-original-source-qualification.yml'
   workflow_dispatch:
@@ -20,6 +22,14 @@ jobs:
       - uses: actions/setup-python@v6
         with:
           python-version: '3.11'
+      - name: Install frozen Omics2PK reference network implementation
+        run: |
+          python -m pip install -e .
+          python -m pip install 'numpy==2.2.6'
+      - name: Synthetic-only 427 liver expression frozen network software checks
+        run: python -m unittest discover -s tests -p 'test_real_gse9588_inductive_sweet_smoke.py' -v
+      - name: Run Omics2PK frozen inductive graph on GENUINE 427 original public liver array columns (no CYP activity outcomes)
+        run: python -m scripts.smoke_real_gse9588_inductive_sweet
       - name: Synthetic-only source file/ID availability tests, never patient values
         run: python -m unittest discover -s tests -p 'test_all_hepatic_original_public_source_gates.py' -v
       - name: Synthetic-only 427-array real GEO source matrix gate
