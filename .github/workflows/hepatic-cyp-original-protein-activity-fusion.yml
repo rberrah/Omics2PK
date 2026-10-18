@@ -18,6 +18,8 @@ jobs:
       - uses: actions/setup-python@v6
         with:
           python-version: '3.11'
+      - name: Install local Omics2PK package for source code tests
+        run: python -m pip install -e .
       - name: Donor-heldout protein activity and combination model synthetic guards
         run: python -m unittest discover -s tests -p 'test_hepatic_protein_activity_fusion.py' -v
       - name: Validate ACTUAL original PMC protein/activity HLM donors on two metabolized drugs
