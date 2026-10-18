@@ -1,3 +1,5 @@
+> **Qualification finale (18 octobre 2026) : VERROU LEVÉ.** Les sections ci-dessous conservent l'historique du *premier audit provisoire* qui ne reconnaissait pas les échantillons codés. Le contrôle approfondi a établi **33/33 appariements exacts** entre les identifiants cliniques numériques et les 33 triplets A/B/C métabolomiques, et 32 sujets avec AUClast0–24 et CLr réellement mesurées. Le premier benchmark E3 clinique a été exécuté dans [run 39145479441](https://github.com/rberrah/Omics2PK/actions/runs/39145479441) : aucun gain convaincant de l'ajout de trois composantes omiques, ni pour AUC ni pour CLr. Voir le [rapport E3 final](E3_REAL_METFORMIN33_PREDOSE_384_OMICS_AUC_CLR_HELDOUT_20261018.md). Le statut provisoire de non-appariement exposé plus bas est **obsolète** et conservé seulement pour la traçabilité de l'audit.
+
 # Original Rotroff metformin n33 — data-level clinical Omics→PK E3 qualification (18 October 2026)
 
 ## Literature evidence
