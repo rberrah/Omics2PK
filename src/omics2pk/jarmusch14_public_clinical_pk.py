@@ -215,7 +215,8 @@ def _test_holdout(clinical,genotypes,prior,response,*,include_genotypes):
         p=np.log(prior).reshape(-1,1)
         sd=StandardScaler().fit(p[train])
         p0=sd.transform(p[train]);pt=sd.transform(p[test])
-        e0=et=np.empty((len(train),0))
+        e0=np.empty((len(train),0))
+        et=np.empty((len(test),0))
         if include_genotypes:
             enc=OneHotEncoder(handle_unknown="ignore",sparse_output=False)
             g=np.asarray(genotypes,dtype=str)
