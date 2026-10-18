@@ -54,3 +54,10 @@ If the original cohort has no GST genotype, the direct **genotype-only vs measur
 Final step would be external patient center and true PK C(t) validation, with dose/event-based NLME covariates in Omics2PK, followed by HCT GVHD/relapse/toxicity in a **separately qualified** Omics2PD outcome stage. The same-source 2021 n84 and 2023 n132 cohorts may overlap in enrollment/calendar years: verify original human ID exclusivity before calling them external to one another.
 
 **Current state:** `REAL_PATIENT_CL_STUDY_IDENTIFIED; N132_PAIRED_SAMPLE_DESIGN_CORRECTLY_INTERPRETED; TRAIN_PERSON_EXCLUSION_ENGINE_AND_SYNTHETIC_TESTS_IMPLEMENTED; MATCHED_ORIGINAL_METABOLOME_AND_PK_NUMERIC_ROWS_NOT_ACCESSIBLE; TRUE_SAME_PATIENT_GENOTYPE_NOT_DEMONSTRATED`.
+
+### Additional verified Jarmusch supplementary XLSX access attempt
+
+Unlike simply relying on original article abstracts, the original PMC [Jarmusch `Table S2` link](https://pmc.ncbi.nlm.nih.gov/articles/instance/7485946/bin/CTS-13-972-s002.xlsx) was followed to its exact primary NIH/PMC attachment route and a real fresh independent GitHub Actions binary HTTP request was executed. **Observed response: HTTP 200 but `Content-Type: text/html`, only 1,817 bytes**, SHA256 `416b8c58321f2c21781ab6045a3fb7b5c1277c7844b128e3269e401f5b591d9f`, **NOT an XLSX ZIP** (`PK\x03\x04` magic absent). This is a **download interstitial / access limitation** and not proof source Table S2 lacks individual quantitative PK data. The audit deliberately **abstains**, without parsing this webpage as 14 volunteer PK values. `scripts/audit_jarmusch14_official_original_table_s2_xlsx.py` and [original source CI #39167732406](https://github.com/rberrah/Omics2PK/actions/runs/39167732406) reproduce the result.
+
+The original author's file can potentially be downloaded via institutional Wiley access, NIH PMC browser, or obtained under appropriate authorization. Only after the legitimate original XLSX is separately provided or retrievable and exact volunteer ID/drug PK/covariate columns validated can a real genotype+omics→PK benchmark for Jarmusch be executed. Neither guessing 14 AUCs nor scraping the source figure is acceptable.
+
