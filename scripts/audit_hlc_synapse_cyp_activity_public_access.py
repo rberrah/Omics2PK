@@ -12,6 +12,7 @@ Original original CYP numerical activity table is required before training.
 from __future__ import annotations
 from collections import Counter
 import json
+import re
 from urllib.request import Request,urlopen
 from urllib.error import HTTPError,URLError
 from urllib.parse import urlencode
@@ -39,6 +40,27 @@ def _json_get(uri):
         return {"status":"NOT_RETRIEVED","error_type":type(e).__name__}
 
 
+def _probe_anonymous_file_metadata(synid,handle_id):
+    """Never log presigned URLs or access tokens: metadata/anonymous gate only."""
+    from urllib.parse import urlencode
+    if not (re.fullmatch(r"syn\d+",str(synid)) and re.fullmatch(r"\d+",str(handle_id))):
+        return "NO_SAFE_SOURCE_FILE_HANDLE"
+    endpoint=("https://repo-prod.prod.sagebase.org/file/v1/file/"+str(handle_id)+"?"+
+              urlencode({"redirect":"false","fileAssociateId":synid,
+                         "fileAssociateType":"FileEntity"}))
+    try:
+        with urlopen(Request(endpoint,headers={
+            "User-Agent":"Omics2PK-original-HLC-public-metadata-only/1.0"
+        }),timeout=16) as response:
+            # Do NOT print the response: may be a temporary presigned URL.
+            response.read(128)
+            return "ANONYMOUS_DOWNLOAD_URL_ENDPOINT_RETURNED_200_NEEDS_BINARY_QC"
+    except HTTPError as e:
+        return "ANONYMOUS_DOWNLOAD_HTTP_"+str(e.code)
+    except (OSError,URLError):
+        return "ANONYMOUS_DOWNLOAD_REQUEST_FAILED"
+
+
 def audit_public_hlc_synapse():
     result={}
     for synid in PUBLIC_SOURCE_IDS:
@@ -47,12 +69,21 @@ def audit_public_hlc_synapse():
         if "http_status_code" in response:row["http_status_code"]=response["http_status_code"]
         if response["status"]=="PUBLIC_JSON_RECEIVED":
             source=response["data"]
+            label=str(source.get("name",""))
+            if (len(label)<120 and re.fullmatch(r"[A-Za-z0-9 _().-]+",label)
+                    and not re.search(r"GSM\d+|PERSON_|DONOR_\d+",label,re.I)):
+                row["public_original_asset_name"]=label
             row.update({
                 "original_record_id_matches_requested_id":source.get("id")==synid,
                 "entity_class":str(source.get("concreteType","")).split(".")[-1],
+                "original_file_entity_has_data_file_handle":bool(source.get("dataFileHandleId")),
+                "source_hlc_parent_folder_linked":source.get("parentId")==SYNAPSE_ROOT,
                 "public_content_data_download_authorized_and_executed":False,
                 "one_to_one_original_427_GSM_to_398_assay_ids_verified":False,
             })
+            if source.get("dataFileHandleId"):
+                row["anonymous_file_download_api_status"]=_probe_anonymous_file_metadata(
+                    synid,source["dataFileHandleId"])
         result[synid]=row
     children=_json_get(ROOT+SYNAPSE_ROOT+"/children?"+urlencode({"limit":50,"offset":0}))
     root={"metadata_retrieval_status":children["status"]}
