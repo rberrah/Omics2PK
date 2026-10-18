@@ -1,0 +1,31 @@
+name: Rosuvastatin original EBI ZIP contents and full supplementary table structural audit
+on:
+  pull_request:
+    paths:
+      - 'scripts/audit_rosuvastatin40_all_excel_source_cells.py'
+      - 'scripts/audit_rosuvastatin40_zip_member_formats.py'
+      - 'tests/test_rosuvastatin40_all_excel_source_cells.py'
+      - 'tests/test_rosuvastatin40_zip_member_formats.py'
+      - '.github/workflows/rosuvastatin-archive-structure.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source-format-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+      - name: Check all original source data remain private
+        run: |
+          python -m unittest discover -s tests -p 'test_rosuvastatin40_all_excel_source_cells.py' -v
+          python -m unittest discover -s tests -p 'test_rosuvastatin40_zip_member_formats.py' -v
+      - name: Inspect all publisher supplement XLSX sheet labels for individual clinical PK target tables
+        run: python -m scripts.audit_rosuvastatin40_all_excel_source_cells
+      - name: Repeat previously qualified official FTP public study census as connectivity control
+        run: python -m scripts.audit_rosuvastatin40_public_ftp_census
+      - name: Verify public EBI original ZIP central-directory member formats without downloading raw MS observations
+        run: python -m scripts.audit_rosuvastatin40_zip_member_formats --all

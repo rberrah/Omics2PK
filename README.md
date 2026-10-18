@@ -1,5 +1,9 @@
 # Omics2PK
 
+## E3 rosuvastatin: original author GitHub and public EBI compared (18 October 2026)
+
+The author's complete GitHub tree has the 21MB original notebook, README and requirements, **not the five processed CSVs**. Those five dataset URLs are hosted externally on Google Drive in the notebook. EBI MTBLS3128 stores source LC-MS files, but those are not equivalent to the ProgenesisQI/MetaboAnalyst feature matrices. A complete original-cell publisher XLSX audit found **no recognized 40-person individual AUC/Cmax table**; a source-verified EBI ZIP inventory then examined **all 156/156 archive central directories** (3,174 internal files) and found **zero named CSV/XLSX/tabular-format members**, without reading full raw contents. The original numeric predose molecular signals and PK same-person crosswalk remain unavailable: **no measured clinical E3 effect is claimed**. [Actual cross-source comparison and limitations](docs/ROSUVASTATIN40_GITHUB_VS_EBI_FIVE_PROCESSED_CSV_VERDICT_20261018.md).
+
 ## Public EBI MetaboLights MTBLS3128 — local data download (18 October 2026)
 
 The original public **ISA metadata and raw LC-MS mzML** can be downloaded via official EBI anonymous FTP using \`python scripts/download_mtbls3128_original_public.py --list-only\`, then \`python scripts/download_mtbls3128_original_public.py\` for original ISA metadata only; optional bounded \`--mzml-max-files N\` downloads raw mass spectra. Files and SHA256 manifests stay locally under Git-ignored \`private/\`; **none is bundled in GitHub or Actions**. [Instructions and limitations](docs/MTBLS3128_OFFICIAL_PUBLIC_DATA_LOCAL_DOWNLOAD_20261018.md). This still does **not** provide the 40 matched original numeric rosuvastatin AUC/Cmax targets or original processed metabolite CSVs.
