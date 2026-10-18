@@ -4,6 +4,8 @@ on:
     paths:
       - 'scripts/audit_all_hepatic_rna_protein_original_public_sources.py'
       - 'tests/test_all_hepatic_original_public_source_gates.py'
+      - 'scripts/qualify_gse9588_real_human_liver_expression.py'
+      - 'tests/test_gse9588_real_expression_source.py'
       - 'docs/HEPATIC_PUBLIC_DATA_EXECUTED_SOURCE_AUDIT_20261018.md'
       - '.github/workflows/all-hepatic-original-source-qualification.yml'
   workflow_dispatch:
@@ -20,6 +22,10 @@ jobs:
           python-version: '3.11'
       - name: Synthetic-only source file/ID availability tests, never patient values
         run: python -m unittest discover -s tests -p 'test_all_hepatic_original_public_source_gates.py' -v
+      - name: Synthetic-only 427-array real GEO source matrix gate
+        run: python -m unittest discover -s tests -p 'test_gse9588_real_expression_source.py' -v
+      - name: Audit GENUINE original GEO GSE9588 numerical matrix 427 sample columns; no CYP phenotype invented
+        run: python -m scripts.qualify_gse9588_real_human_liver_expression
       - name: Probe actual 6 original primary studies and GEO GSE9588, aggregate schemas only
         run: python -m scripts.audit_all_hepatic_rna_protein_original_public_sources
   genuine-original-benchmarks:
@@ -36,7 +42,8 @@ jobs:
           python -m pip install 'numpy==2.2.6' 'scikit-learn==1.7.2' 'beautifulsoup4==4.12.3'
       - name: Re-run 100 ORIGINAL human liver donors, eight actual CYP RNA to enzyme activity endpoints
         run: python -m scripts.validate_epa_liver_rna_cyp
-      - name: Re-run ORIGINAL donor-matched two hepatic metabolized substrates CYP protein and enzyme phenotype
+      - name: Re-check original PMC two hepatically metabolized substrates (source access may be intermittent)
+        continue-on-error: true
         run: python -m scripts.benchmark_original_hepatic_tki_protein_activity
       - name: Re-run genuinely paired 32 ORIGINAL human metformin predose omics and observed drug AUC and renal clearance
         run: python -m scripts.validate_rotroff33_original_metformin_clinical_e3
