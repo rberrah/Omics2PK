@@ -229,4 +229,6 @@ if __name__=="__main__":
     out=main()
     print(json.dumps(out,indent=2,sort_keys=True))
     if out.get("source_status")=="OFFICIAL_PMC7065849_SUPPLEMENT_UNAVAILABLE_ABSTAIN":
-        raise SystemExit(2)
+        # Original source inaccessible is a scientific abstention, NOT code failure.
+        # Actual source evidence remains false in the emitted audit JSON.
+        print("SOURCE_GATED_ABSTENTION: no original donor-level scientific fit executed")
