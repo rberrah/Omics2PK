@@ -232,6 +232,8 @@ def check_real_native_multiomics_export(native_dir, private_source):
                 _require(np.isfinite(actual) and
                          np.isclose(actual,expect,rtol=1e-9,atol=1e-9),
                          "Actual MultiOmics output changed MS1 values; normalization/source stage needs audit")
+    except JarmuschMS1PipelineError:
+        raise
     except (ValueError,TypeError,KeyError):
         raise JarmuschMS1PipelineError("Non-numeric or mismatched actual MultiOmics ion areas") from None
     return {"status":"ACTUAL_NATIVE_MULTIOMICS_EXPORT_SOURCE_ID_AND_NUMERIC_PARITY_PASS",
