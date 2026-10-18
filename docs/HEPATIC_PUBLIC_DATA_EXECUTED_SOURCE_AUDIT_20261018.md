@@ -22,6 +22,16 @@
 
 **Critical interpretation:** six primary articles have verified DOI-level bibliographic evidence and published same-donor experimental measurements, but **their original full public individual source matrices are not recoverable through the specific official programmatic endpoints tested**. This is an *access/availability audit*, NOT proof no author-controlled material exists anywhere. The 296-byte XML is an API "supplement not delivered" outcome, **not an Excel table with zero samples**. Searches for other original publisher supplemental endpoints or author consultation may reverse the availability finding. Old ASPET journal-hosted PDFs, figures and correlations cannot be treated as person-level data. No clinical genotypes/PK outcomes fabricated.
 
+## Historical Sage Synapse HLC phenotype source actually inspected
+
+On 2026-10-18, an additional authenticated-access boundary audit was executed against the official Synapse REST entity service (metadata publicly readable WITHOUT any user credentials), in the same source-qualification workflow. Exact original **Human Liver Cohort** project [syn4499](https://www.synapse.org/Synapse:syn4499) is a public **Folder**. Its public record lists original linked **FileEntity** objects [syn4629 — curatedPhenotype](https://www.synapse.org/Synapse:syn4629), [syn88644 — curatedExpressionLiver](https://www.synapse.org/Synapse:syn88644), [syn89614 — curatedGenotype](https://www.synapse.org/Synapse:syn89614), and [syn3275753 — Human Liver Cohort](https://www.synapse.org/Synapse:syn3275753).
+
+**These original file descriptors are genuine, machine-confirmed in Synapse.** Crucially, an independent anonymous download URL request was made for EACH of the four actual file handles, and **all four returned HTTP 403**. The API metadata is public while the file CONTENT is not anonymously downloadable through this endpoint. No login or user token was supplied, no private data, signed URL, original genomic or enzyme measurements downloaded, and no 427 GEO↔CYP activity crosswalk could be proven. The `curatedPhenotype` file is the most promising accessible-to-authenticated-researchers *CANDIDATE*, NOT yet confirmed to contain per-subject CYP metabolic assays or GEO GSM crosswalk fields; its webpage advertises 836 sample records in Synapse metadata (may include other phenotypes, unknown alignment), so do **not** equate its 836 records to 398 measured CYP donors.
+
+**Action required to unlock HLC:** obtain appropriate legitimate Synapse download authorization for `syn4629` (and potentially `syn88644` for matching original subject aliases), inspect source column semantics and subject codebook privately, then calculate exact original common subjects with `GSE9588`. These files have **not** been downloaded from an authenticated account by this automation. A publicly accessible GEO matrix does not grant permission or access to the separate original phenotype table.
+
+Original audited code: `scripts/audit_hlc_synapse_cyp_activity_public_access.py`; CI result original-source job #39155552173.
+
 ## New actual GEO GSE9588 Omics2PK computation — molecular-network gate only
 
 - Official source: FTP GEO `GSE9588_series_matrix.txt.gz`. Matrix: **427 unique GSM columns**, **39,302 genuine original processed array probes**, **GPL4372**. Numeric checks passed; raw microarray values remain transient.
