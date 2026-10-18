@@ -11,3 +11,24 @@ private/
 results/private/
 *.parquet
 *.sqlite
+
+# Research participant data and externally supplied source archives: never commit.
+source_data/
+raw_data/
+data/private/
+downloads/
+incoming/
+*.zip
+*.xlsx
+*.xls
+*.rds
+*.RData
+*.h5
+*.hdf5
+*.mzML
+*.mzXML
+*.fastq
+*.fastq.gz
+*.vcf
+*.bam
+*.bai
