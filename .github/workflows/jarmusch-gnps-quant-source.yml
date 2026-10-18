@@ -1,0 +1,21 @@
+name: Jarmusch original public GNPS quantitative metabolomics matrix qualification
+on:
+  pull_request:
+    paths:
+      - 'scripts/audit_jarmusch_gnps_quant_original_public_task.py'
+      - '.github/workflows/jarmusch-gnps-quant-source.yml'
+      - 'docs/JARMUSCH14_GNPS_ORIGINAL_METABOLOMICS_PK_READINESS_20261018.md'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  public-gnps-access-check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 9
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+      - name: Test actual published GNPS job access; never upload or save original source peak matrices
+        run: python -m scripts.audit_jarmusch_gnps_quant_original_public_task
