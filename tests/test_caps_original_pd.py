@@ -26,7 +26,7 @@ def fake_caps_files(n=215):
         h=StringIO()
         writer=csv.writer(h);writer.writerows(rows)
         return h.getvalue()
-    return {"RACE_Demographics.csv":serial(clin),
+    return {"RACE_Demographics.csv":serial(clinical),
             "raw_nmr.csv":serial(nmr),
             "raw_ac.csv":serial(ac)}
 
