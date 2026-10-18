@@ -80,7 +80,7 @@ def read_author_metadata(text:str):
     if not original.fieldnames or len(original.fieldnames)<180:
         raise JarmuschOriginalPKError("Published source schema not present")
     needed={"ATTRIBUTE_Subject","ATTRIBUTE_Study_Day","ATTRIBUTE_Sample_Type",
-            "MS_SampleType","Enrollment_Subject_Age","ATTRIBUTE_sex",
+            "MS_SampleType","ATTRIBUTE_sex",
             "Day0_Vitals_weight_kg",
             *[v["source_column"] for v in ENDPOINTS.values()],
             *[g for v in ENDPOINTS.values() for g in v["PGx_columns"]]}
@@ -91,6 +91,8 @@ def read_author_metadata(text:str):
     for name in needed:
         if original.fieldnames.count(name)!=1:
             raise JarmuschOriginalPKError("Ambiguous duplicated original required assay field")
+    # Original source field `Enrollment_Subject_Age` actually stores `yes`
+    # (study inclusion) and cannot be used as numeric biological age.
     # Original clinical PK is populated across original fecal, urine, skin,
     # and plasma MS metadata copies. Critically, only 13 day1 / 12 day9
     # volunteers have untargeted blood_plasma MS runs, so restricting to
@@ -108,12 +110,14 @@ def read_author_metadata(text:str):
             row.get("MS_SampleType")!="sample" or
             row.get("ATTRIBUTE_Sample_Type") not in ("blood_plasma","urine","fecal","skin")):
             continue
+        # CRITICAL: source field "Enrollment_Subject_Age" is actually
+        # the consent/inclusion Boolean "yes", NOT an age in years.
+        # Do not falsely treat it as age or fill invented values.
         clinical=(
-            _float(row.get("Enrollment_Subject_Age")),
-            row.get("ATTRIBUTE_sex"),
-            _float(row.get("Day0_Vitals_weight_kg"))
+            _float(row.get("Day0_Vitals_weight_kg")),
+            row.get("ATTRIBUTE_sex")
         )
-        if not all(v is not None for v in (clinical[0],clinical[2])):
+        if clinical[0] is None:
             continue
         if clinical[1] not in ("male","female"):
             continue
@@ -185,8 +189,7 @@ def _source_arm_design(people,endpoint):
             raise JarmuschOriginalPKError("Original targeted CYP germline genotype missing")
         clinical.append([
             first["clinical"][0],
-            1 if first["clinical"][1]=="male" else 0,
-            first["clinical"][2]
+            1 if first["clinical"][1]=="male" else 0
         ])
         genotypes.append(codes)
         prev.append(float(early))
