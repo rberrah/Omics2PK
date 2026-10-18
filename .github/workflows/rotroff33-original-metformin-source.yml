@@ -1,0 +1,23 @@
+name: E3 original Rotroff33 metformin public omics-PK matrix qualification
+on:
+  pull_request:
+    paths:
+      - 'scripts/audit_rotroff33_metformin_original_pk_omics.py'
+      - 'tests/test_rotroff33_metformin_original_pk_omics.py'
+      - '.github/workflows/rotroff33-original-metformin-source.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  original-scientific-source:
+    runs-on: ubuntu-latest
+    timeout-minutes: 9
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+      - name: Run synthetic patient-index and original PK/omics source gates
+        run: python -m unittest discover -s tests -p 'test_rotroff33_metformin_original_pk_omics.py' -v
+      - name: Inspect actual publisher n33 original Metformin study supplements without exporting rows
+        run: python -m scripts.audit_rotroff33_metformin_original_pk_omics
