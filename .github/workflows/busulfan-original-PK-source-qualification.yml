@@ -4,6 +4,7 @@ on:
     paths:
       - 'src/omics2pk/busulfan132_predose_pk.py'
       - 'scripts/audit_original_busulfan_and_jarmusch_PK_releases.py'
+      - 'scripts/audit_jarmusch14_official_original_table_s2_xlsx.py'
       - 'tests/test_busulfan132_predose_pk.py'
       - '.github/workflows/busulfan-original-PK-source-qualification.yml'
       - 'docs/BUSULFAN132_PROSPECTIVE_METABOLOME_PK_SOURCE_AND_INDEPENDENCE_20261018.md'
@@ -21,6 +22,8 @@ jobs:
           python-version: '3.11'
       - name: Verify published official JATS and supplementary source classes, never person rows
         run: python -m scripts.audit_original_busulfan_and_jarmusch_PK_releases
+      - name: Probe ORIGINAL PMID 32216086 TableS2 supplementary clinical PK XLSX for genuine individual-source data
+        run: python -m scripts.audit_jarmusch14_official_original_table_s2_xlsx
   only-fabricated-source-model-contract:
     runs-on: ubuntu-latest
     timeout-minutes: 8
