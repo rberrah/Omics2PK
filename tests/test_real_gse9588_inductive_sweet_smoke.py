@@ -41,6 +41,9 @@ class SourceFrozenReferenceTests(unittest.TestCase):
         self.assertFalse(result["equivalent_to_official_SWEET"])
         self.assertFalse(result["gene_symbol_annotation_provenance"])
         self.assertFalse(result["same_original_human_liver_donors_proven_independent"])
+        self.assertFalse(result["clinical_or_invitro_PK_performance_claim"])
+        self.assertEqual(result["unseen_GSM_samples_projected"] - result["projected_networks_distinct_hash_count"], result["n_projected_individual_graph_hash_collisions"])
+        self.assertIn("network_features_sufficiently_person_specific_for_individual_PK",result)
         self.assertNotIn("GSM700",str(result))
 
 if __name__=="__main__":unittest.main()
