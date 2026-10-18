@@ -1,5 +1,9 @@
 # Omics2PK
 
+## Public EBI MetaboLights MTBLS3128 — local data download (18 October 2026)
+
+The original public **ISA metadata and raw LC-MS mzML** can be downloaded via official EBI anonymous FTP using \`python scripts/download_mtbls3128_original_public.py --list-only\`, then \`python scripts/download_mtbls3128_original_public.py\` for original ISA metadata only; optional bounded \`--mzml-max-files N\` downloads raw mass spectra. Files and SHA256 manifests stay locally under Git-ignored \`private/\`; **none is bundled in GitHub or Actions**. [Instructions and limitations](docs/MTBLS3128_OFFICIAL_PUBLIC_DATA_LOCAL_DOWNLOAD_20261018.md). This still does **not** provide the 40 matched original numeric rosuvastatin AUC/Cmax targets or original processed metabolite CSVs.
+
 ## E3 rosuvastatin: private original-source held-human-out evaluator (18 October 2026)
 
 A **new local-only exploratory n40 reference** now evaluates author-verified rosuvastatin **AUC/Cmax** against a fixed, subject-disjoint clinical/constant versus clinical+predose-metabolome ridge comparator, with train-only imputation/normalization and paired uncertainty. It requires the original **one-person-per-row source**, pinned SHA256, separately documented source authenticity and four explicit manual attestations. **The authentic n40 quantitative PK ↔ predose metabolome files are not yet obtained/qualified; no human E3 results are claimed.** [Private execution protocol, source gates and limitations](docs/ROSUVASTATIN40_PRIVATE_E3_HELDOUT_PROTOCOL_20261018.md). No patient-level rows or predictions are uploaded to CI.
