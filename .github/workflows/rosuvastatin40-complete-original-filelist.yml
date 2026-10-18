@@ -6,6 +6,8 @@ on:
       - 'tests/test_rosuvastatin40_complete_source_files.py'
       - 'scripts/audit_rosuvastatin40_public_ftp_census.py'
       - 'tests/test_rosuvastatin40_ftp_manifest.py'
+      - 'scripts/download_mtbls3128_original_public.py'
+      - 'tests/test_download_mtbls3128_public.py'
       - '.github/workflows/rosuvastatin40-complete-original-filelist.yml'
   workflow_dispatch:
 permissions:
@@ -27,3 +29,5 @@ jobs:
         run: python -m unittest discover -s tests -p 'test_rosuvastatin40_ftp_manifest.py' -v
       - name: Inspect actual official FTP FILES subtree anonymously without downloading any spectra
         run: python -m scripts.audit_rosuvastatin40_public_ftp_census
+      - name: Verify official MTBLS3128 metadata and raw file inventory with new local downloader (no raw download)
+        run: python scripts/download_mtbls3128_original_public.py --list-only
