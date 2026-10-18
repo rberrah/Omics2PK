@@ -32,6 +32,8 @@ def main(argv=None):
                         help="AUTHORIZED local original Synapse phenotype ZIP, never GitHub")
     parser.add_argument("--genotype",default=None,
                         help="Optional authorized Synapse original genotype ZIP")
+    parser.add_argument("--xgboost",action="store_true",
+                        help="Optional fixed nonlinear XGBoost 10-CYP source ablation; xgboost package required")
     parser.add_argument("--fullarray",action="store_true",
                         help="Expensive optional 40k-probe PCA8 train-only control, 5 CYP endpoints")
     parser.add_argument("--permutations",type=int,default=199,
@@ -47,6 +49,11 @@ def main(argv=None):
                 benchmark_original_hlc_rna_plus_pgx)
             results["germline_genotype_subset"]=benchmark_original_hlc_rna_plus_pgx(
                 args.expression,args.phenotype,args.genotype)
+        if args.xgboost:
+            from omics2pk.hlc_real_xgboost_validation import (
+                benchmark_original_HLC_fixed_xgboost)
+            results["nonlinear_fixed_XGBoost"]=benchmark_original_HLC_fixed_xgboost(
+                args.expression,args.phenotype)
         if args.fullarray:
             from omics2pk.hlc_real_fullarray_validation import (
                 benchmark_original_hlc_fullarray)
