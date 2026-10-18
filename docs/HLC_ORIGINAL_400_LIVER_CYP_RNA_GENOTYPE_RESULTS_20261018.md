@@ -96,6 +96,27 @@ Prespecified identical-subset comparison: age+sex vs age+sex + CYP3A4 and CYP3A5
 
 **Finding:** these particular genotype calls show negligible/inconsistent incremental predictive gain after target RNA. This **does not imply** that population pharmacogenetics or comprehensive germline genomic data have no value in human CYP clearance. Variant set, orientation, HLC ancestry composition, allele frequency, substrate, sample size, high-dimensional signal and study context all constrain the claim. Source does not contain matched CYP quantitative protein levels, and the germline SNP dosage is genuine genomics but NOT proteomics.
 
+## Nonlinear validation: same original HLC liver people, fixed XGBoost M1-type baseline
+
+An additional **actual original source** study test ran one prespecified nonlinearity comparison using XGBoost 3.1.3, exactly the original person IDs and 5 identical donor-heldout folds from the Ridge experiment. No original rows were transferred to GitHub. Hyperparameters were **fixed** before execution (150 estimators, max_depth=2, learning_rate=.035, min_child_weight=8, subsample=.85, colsample_bytree=.9, L2 reg_lambda=10, histogram trees; log1p endpoint). We did not tune models on outside CV results; this is an exploratory **fixed XGB** test, not the full nested/hyperparameter-optimized M1 XGBoost or official SWEET.
+
+| True observed CYP substrate activity | Original n | XGB age/sex | XGB age/sex + same CYP RNA | XGB age/sex + broad CYP/POR/transport RNA |
+|---|---:|---:|---:|---:|
+| CYP1A2 | 397 | 477.582 | **395.501** | 402.832 |
+| CYP2A6 | 396 | 634.484 | **554.625** | 564.629 |
+| CYP2B6 | 397 | 233.002 | 213.797 | **213.218** |
+| CYP2C8 | 387 | 59.112 | 50.323 | **50.112** |
+| CYP2C9 | 397 | 276.338 | **247.648** | 248.800 |
+| CYP2C19 | 397 | 46.654 | 44.067 | **42.519** |
+| CYP2D6 | 396 | 115.590 | **95.172** | 96.064 |
+| CYP2E1 | 397 | 1270.449 | **1228.312** | 1228.512 |
+| CYP3A4 midazolam | 396 | 849.495 | **703.854** | 707.335 |
+| CYP3A4 testosterone | 396 | 3549.908 | **3166.839** | 3262.347 |
+
+Original source numeric MAE values, smaller better. Fixed XGBoost finds a gain from target CYP RNA over age+sex in **all 10**, but the broad multi-CYP panel yields lower MAE than the small CYP-specific RNA arm in only **3/10** activities. Relative to fixed Ridge on the exact same donors/partitions, target RNA XGBoost is better in **5/10** and worse in 5/10. This supports a more robust conclusion that adding features or model complexity is **not consistently superior** on this source. Still no measured same-human CYP protein concentrations and no independent external HLM cohort in this analysis.
+
+XGBoost source-private model code: `src/omics2pk/hlc_real_xgboost_validation.py`; main private runner option `--xgboost`. This comparison was actually executed on the original uploaded files privately, and the GitHub CI never accesses those data.
+
 ## Scientific limitations and next required experiment
 
 - **E2 in-vitro** measured CYP probe substrate turnover in microsomes, not a popPK model, human clinical CL/F, midazolam AUC or patient plasma samples. CYP3A4 metabolite formation is not necessarily CYP3A4-only in every HLM due CYP3A5 activity.
