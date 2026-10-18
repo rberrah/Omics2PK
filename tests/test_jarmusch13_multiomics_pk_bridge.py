@@ -7,12 +7,16 @@ import tempfile
 import unittest
 from unittest.mock import patch
 
-import numpy as np
 from omics2pk.exchange import ExchangeError
-from scripts.validate_private_jarmusch13_multiomics_pipeline import (
-    JarmuschMS1PipelineError, check_real_native_multiomics_export,
-    read_prepared_private_zip
-)
+try:
+    import numpy as np
+    from scripts.validate_private_jarmusch13_multiomics_pipeline import (
+        JarmuschMS1PipelineError, check_real_native_multiomics_export,
+        read_prepared_private_zip)
+except ModuleNotFoundError as exc:
+    if exc.name != "numpy":
+        raise
+    np = None
 
 
 def write(path, header, rows):
@@ -27,6 +31,7 @@ def digest(path):
     return sha256(path.read_bytes()).hexdigest()
 
 
+@unittest.skipIf(np is None, "Optional NumPy benchmark dependency not installed")
 class SyntheticNativeMS1Tests(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()
