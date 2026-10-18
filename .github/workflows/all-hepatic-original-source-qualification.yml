@@ -1,0 +1,62 @@
+name: Audited public hepatic omics sources and source-verified Omics2PK benchmarks
+on:
+  pull_request:
+    paths:
+      - 'scripts/audit_all_hepatic_rna_protein_original_public_sources.py'
+      - 'tests/test_all_hepatic_original_public_source_gates.py'
+      - 'scripts/qualify_gse9588_real_human_liver_expression.py'
+      - 'tests/test_gse9588_real_expression_source.py'
+      - 'scripts/audit_hlc_synapse_cyp_activity_public_access.py'
+      - 'scripts/smoke_real_gse9588_inductive_sweet.py'
+      - 'tests/test_real_gse9588_inductive_sweet_smoke.py'
+      - 'docs/HEPATIC_PUBLIC_DATA_EXECUTED_SOURCE_AUDIT_20261018.md'
+      - '.github/workflows/all-hepatic-original-source-qualification.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  original-study-releases:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+      - name: Install frozen Omics2PK reference network implementation
+        run: |
+          python -m pip install -e .
+          python -m pip install 'numpy==2.2.6'
+      - name: Synthetic-only 427 liver expression frozen network software checks
+        run: python -m unittest discover -s tests -p 'test_real_gse9588_inductive_sweet_smoke.py' -v
+      - name: Run Omics2PK frozen inductive graph on GENUINE 427 original public liver array columns (no CYP activity outcomes)
+        run: python -m scripts.smoke_real_gse9588_inductive_sweet
+      - name: Synthetic-only source file/ID availability tests, never patient values
+        run: python -m unittest discover -s tests -p 'test_all_hepatic_original_public_source_gates.py' -v
+      - name: Synthetic-only 427-array real GEO source matrix gate
+        run: python -m unittest discover -s tests -p 'test_gse9588_real_expression_source.py' -v
+      - name: Audit GENUINE original GEO GSE9588 numerical matrix 427 sample columns; no CYP phenotype invented
+        run: python -m scripts.qualify_gse9588_real_human_liver_expression
+      - name: Check Synapse HLC original enzyme-activity public access and donor-crosswalk metadata (no credentials)
+        run: python -m scripts.audit_hlc_synapse_cyp_activity_public_access
+      - name: Probe actual 6 original primary studies and GEO GSE9588, aggregate schemas only
+        run: python -m scripts.audit_all_hepatic_rna_protein_original_public_sources
+  genuine-original-benchmarks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 16
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+      - name: Install original-source scientific code and pinned independent estimators
+        run: |
+          python -m pip install -e .
+          python -m pip install 'numpy==2.2.6' 'scikit-learn==1.7.2' 'beautifulsoup4==4.12.3'
+      - name: Re-run 100 ORIGINAL human liver donors, eight actual CYP RNA to enzyme activity endpoints
+        run: python -m scripts.validate_epa_liver_rna_cyp
+      - name: Re-check original PMC two hepatically metabolized substrates (source access may be intermittent)
+        continue-on-error: true
+        run: python -m scripts.benchmark_original_hepatic_tki_protein_activity
+      - name: Re-run genuinely paired 32 ORIGINAL human metformin predose omics and observed drug AUC and renal clearance
+        run: python -m scripts.validate_rotroff33_original_metformin_clinical_e3
