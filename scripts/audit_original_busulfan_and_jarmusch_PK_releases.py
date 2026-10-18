@@ -80,11 +80,18 @@ def official_jats_source_audit(record:dict)->dict:
          for n in front.iter() if tag(n)=="article-id"]
         if front is not None else []
     )
-    verified=(("doi",record["doi"]) in article_ids and
-              ("pmc",record["pmcid"].removeprefix("PMC")) in article_ids)
+    doi_valid=any(k=="doi" and v.lower()==record["doi"].lower()
+                  for k,v in article_ids)
+    pmc_valid=any(k in ("pmc","pmcid") and
+                  v.lower().removeprefix("pmc")==record["pmcid"].lower().removeprefix("pmc")
+                  for k,v in article_ids)
+    verified=doi_valid and pmc_valid
     if not verified:
         return {"source_access_status":"OFFICIAL_JATS_DOI_PMCID_MISMATCH_ABSTAIN",
                 "original_article_ids_crosschecked":False,
+                "source_DOI_metadata_exact_match":doi_valid,
+                "source_PMCID_metadata_match":pmc_valid,
+                "article_id_schema_types_only":[k for k,_ in article_ids],
                 "real_original_person_matched_PK_omics_matrix_downloaded":False}
 
     supplements=[]
