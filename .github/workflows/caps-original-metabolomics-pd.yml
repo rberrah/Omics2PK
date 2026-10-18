@@ -1,0 +1,28 @@
+name: Actual public RACE CaPS PD observed outcomes — two metabolomics platforms
+on:
+  pull_request:
+    paths:
+      - 'src/omics2pk/caps_original_pd.py'
+      - 'scripts/validate_original_public_caps_pd.py'
+      - 'tests/test_caps_original_pd.py'
+      - '.github/workflows/caps-original-metabolomics-pd.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  real-source-aggregate-only:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+      - name: Install research dependency versions (without clinical source data)
+        run: |
+          python -m pip install -e .
+          python -m pip install 'numpy==2.2.6' 'scikit-learn==1.7.2'
+      - name: Test same-person and PD temporality with fabricated-only input
+        run: python -m unittest discover -s tests -p 'test_caps_original_pd.py' -v
+      - name: Evaluate real independently published 2021 RACE original pre-treatment assays and 90d outcome
+        run: python -m scripts.validate_original_public_caps_pd
