@@ -1,0 +1,25 @@
+name: HLC Synapse authorized local original source contract tests
+on:
+  pull_request:
+    paths:
+      - 'src/omics2pk/hlc_authorized_local_source.py'
+      - 'scripts/download_authorized_synapse_hlc.py'
+      - 'tests/test_hlc_authorized_local_source.py'
+      - '.github/workflows/hlc-authorized-local-source-contract.yml'
+      - 'docs/HLC_SYN4499_AUTHORIZED_IMPORT_AND_CYP_JOIN_GATE_20261018.md'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  local-contract-only:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+      - name: Install local Omics2PK package (no original Synapse account, no credentials)
+        run: python -m pip install -e .
+      - name: Test local data privacy, fake phenotype and blocked fake Synapse downloads ONLY
+        run: python -m unittest discover -s tests -p 'test_hlc_authorized_local_source.py' -v
