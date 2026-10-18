@@ -4,6 +4,8 @@ on:
     paths:
       - 'scripts/audit_rotroff33_metformin_original_pk_omics.py'
       - 'tests/test_rotroff33_metformin_original_pk_omics.py'
+      - 'scripts/audit_rotroff33_crosssheet_pk_omics.py'
+      - 'tests/test_rotroff33_crosssheet_pk_omics.py'
       - '.github/workflows/rotroff33-original-metformin-source.yml'
   workflow_dispatch:
 permissions:
@@ -19,5 +21,9 @@ jobs:
           python-version: '3.11'
       - name: Run synthetic patient-index and original PK/omics source gates
         run: python -m unittest discover -s tests -p 'test_rotroff33_metformin_original_pk_omics.py' -v
+      - name: Test safe source crosssheet ID overlap recognition on fabricated records
+        run: python -m unittest discover -s tests -p 'test_rotroff33_crosssheet_pk_omics.py' -v
       - name: Inspect actual publisher n33 original Metformin study supplements without exporting rows
         run: python -m scripts.audit_rotroff33_metformin_original_pk_omics
+      - name: Audit full original source supplement wide matrices and matched clinical PK table keys without exporting ID labels
+        run: python -m scripts.audit_rotroff33_crosssheet_pk_omics
