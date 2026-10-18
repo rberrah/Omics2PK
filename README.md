@@ -1,5 +1,9 @@
 # Omics2PK
 
+## E3 rosuvastatin: private original-source held-human-out evaluator (18 October 2026)
+
+A **new local-only exploratory n40 reference** now evaluates author-verified rosuvastatin **AUC/Cmax** against a fixed, subject-disjoint clinical/constant versus clinical+predose-metabolome ridge comparator, with train-only imputation/normalization and paired uncertainty. It requires the original **one-person-per-row source**, pinned SHA256, separately documented source authenticity and four explicit manual attestations. **The authentic n40 quantitative PK ↔ predose metabolome files are not yet obtained/qualified; no human E3 results are claimed.** [Private execution protocol, source gates and limitations](docs/ROSUVASTATIN40_PRIVATE_E3_HELDOUT_PROTOCOL_20261018.md). No patient-level rows or predictions are uploaded to CI.
+
 ## New Omics2PK research website and original SMX/n26 benchmark (17 October 2026)
 
 A **standalone editorial research homepage** is prepared under [site/](site/) with the same PMx Explain / MultiOmics visual conventions, real dropdowns **Learn / Analyze / Other Disciplines / Ressources**, FR/EN and dark/light; static preview passes CI. [Site and first GitHub Pages deployment guide](docs/OMICS2PK_WEBSITE_BRAND_PARITY_AND_PUBLISH_20261017.md). **Do not claim the intended URL is live until Pages has actually been enabled and verified.** Public site has *no hosted model, patient uploads or dosing tool*.
