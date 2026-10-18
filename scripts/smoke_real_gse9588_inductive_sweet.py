@@ -95,6 +95,7 @@ def real_gse_frozen_network_smoke(gsm,probe_values,n_probes):
     )
     strengths=[]
     saturated=0
+    zero_weights=0
     example_signatures=set()
     # Exactly held-out GSM sample columns, fixed same reference; no training
     # objective is re-fit while predicting the 352 sample graphs.
@@ -111,6 +112,7 @@ def real_gse_frozen_network_smoke(gsm,probe_values,n_probes):
         s=gene_strength_features(graph,genes=probe_names)
         strengths.append(mean(s.values()))
         saturated+=bool(details["weight_clamped_outside_reference"])
+        zero_weights+=details["weight"]==0
         example_signatures.add(sha256(graph.tobytes()).hexdigest())
     if len(example_signatures)<50:
         raise ValueError("Near-duplicate or constant projected networks")
@@ -124,6 +126,11 @@ def real_gse_frozen_network_smoke(gsm,probe_values,n_probes):
         "unseen_GSM_samples_projected":len(strengths),
         "projected_networks_distinct_hash_count":len(example_signatures),
         "n_original_queries_clamped_reference_weight":saturated,
+        "n_original_queries_zero_graph_update_weight":zero_weights,
+        "n_projected_individual_graph_hash_collisions":len(strengths)-len(example_signatures),
+        "fraction_unique_heldout_network_hashes":round(len(example_signatures)/len(strengths),6),
+        "network_features_sufficiently_person_specific_for_individual_PK":(len(example_signatures)==len(strengths) and not saturated),
+        "warning":"Zero-weight clamping can assign the identical reference-only graph to distinct GEO samples; FAIL CLOSED for person-specific molecular PK covariate qualification" if len(example_signatures)<len(strengths) else "No duplicate graphs observed in this unannotated test probe subset",
         "mean_graph_absolute_node_strength_summary_only":round(mean(strengths),6),
         "same_original_human_liver_donors_proven_independent":False,
         "does_not_verify_GEO_GSM_to_real_biological_donor_ID":True,
