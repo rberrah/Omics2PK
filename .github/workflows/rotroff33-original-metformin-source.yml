@@ -1,0 +1,34 @@
+name: E3 original Rotroff33 metformin public omics-PK matrix qualification
+on:
+  pull_request:
+    paths:
+      - 'scripts/audit_rotroff33_metformin_original_pk_omics.py'
+      - 'tests/test_rotroff33_metformin_original_pk_omics.py'
+      - 'scripts/audit_rotroff33_crosssheet_pk_omics.py'
+      - 'tests/test_rotroff33_crosssheet_pk_omics.py'
+      - 'scripts/audit_rotroff33_original_sample_naming.py'
+      - 'tests/test_rotroff33_original_sample_naming.py'
+      - 'scripts/qualify_rotroff33_original_metformin_patient_keys.py'
+      - 'tests/test_rotroff33_original_patient_keys.py'
+      - 'scripts/run_rotroff33_original_single_fetch.py'
+      - '.github/workflows/rotroff33-original-metformin-source.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  original-scientific-source:
+    runs-on: ubuntu-latest
+    timeout-minutes: 9
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+      - name: Run synthetic patient-index and original PK/omics source gates
+        run: python -m unittest discover -s tests -p 'test_rotroff33_metformin_original_pk_omics.py' -v
+      - name: Test safe source crosssheet ID overlap recognition on fabricated records
+        run: python -m unittest discover -s tests -p 'test_rotroff33_crosssheet_pk_omics.py' -v
+      - name: Verify original 33-person codebook, without rows or source IDs in stdout
+        run: python -m unittest discover -s tests -p 'test_rotroff33_original_patient_keys.py' -v
+      - name: One original public-source download, actual omic triplet–clinical numeric person-code joins and AUC/Cmax qualification
+        run: python -m scripts.run_rotroff33_original_single_fetch
