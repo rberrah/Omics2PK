@@ -1,0 +1,24 @@
+name: Original Jamwal74 hepatic CYP3A4 RNA protein midazolam source gate
+on:
+  pull_request:
+    paths:
+      - 'scripts/audit_jamwal74_original_cyp3a4_rna_protein_activity.py'
+      - 'tests/test_jamwal74_original_cyp3a4_source.py'
+      - '.github/workflows/jamwal74-cyp3a4-original-source.yml'
+      - 'docs/HEPATIC_CYP3A4_N74_ORIGINAL_SAME_DONOR_SOURCE_20261018.md'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  original-source-qualification:
+    runs-on: ubuntu-latest
+    timeout-minutes: 9
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+      - name: Run synthetic same-donor mRNA protein MDZ source release-gate tests
+        run: python -m unittest discover -s tests -p 'test_jamwal74_original_cyp3a4_source.py' -v
+      - name: Audit actual original DOI-fixed 74 human liver original published supplement in memory
+        run: python -m scripts.audit_jamwal74_original_cyp3a4_rna_protein_activity
