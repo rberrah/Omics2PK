@@ -67,6 +67,6 @@ def benchmark_original_HLC_fixed_xgboost(expression_zip,phenotype_zip):
         "comparison_same_CV_as_Ridge":True,
         "source_drug_in_vitro_CYP_assay_not_human_plasma_PK":True,
         "source_whole_proteome_or_CYP_protein_phenotype_not_measured":True,
-        "original_individuals_CYP_or_transcript_values_not_exported":False,
+        "original_individuals_CYP_or_transcript_values_not_exported":True,
         "results":result,
     }
