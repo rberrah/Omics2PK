@@ -27,6 +27,7 @@ from zipfile import ZipFile,BadZipFile
 DOI="10.1021/acs.molpharmaceut.8b00159"
 PMCID="PMC7065849"
 SOURCE=f"https://www.ebi.ac.uk/europepmc/webservices/rest/{PMCID}/supplementaryFiles"
+DIRECT_SOURCE=f"https://pmc.ncbi.nlm.nih.gov/articles/{PMCID}/bin/NIHMS1566110-supplement-Supplementary_material.docx"
 MAX_PACKAGE_BYTES=12_000_000
 MAX_ENTRY_BYTES=6_000_000
 WN="{http://schemas.openxmlformats.org/wordprocessingml/2006/main}"
@@ -144,6 +145,25 @@ def audit_official_original_supplement(pkg):
         raise ValueError("Official original source unavailable or oversized")
     inventory=Counter()
     files=[]
+    # NIHMS supplements may be a standalone OOXML DOCX, itself a ZIP.
+    with ZipFile(BytesIO(pkg)) as probe:
+        if "word/document.xml" in probe.namelist():
+            original=inspect_original_docx(pkg)
+            original["original_source_format"]=".docx"
+            return {
+                "primary_article_DOI":DOI,
+                "original_study_PMID":"29792708",
+                "original_study_n_unique_human_livers_reported":74,
+                "original_official_publisher_supplement_SHA256":sha256(pkg).hexdigest(),
+                "original_supplement_member_format_counts":{".docx":1},
+                "source_excel_and_word_structural_examination":[original],
+                "n_candidate_original_numeric_74person_RNA_protein_activity_tables":
+                    original["n_strict_source_74person_numeric_RNA_protein_activity_tables"],
+                "verified_individual_74donor_RNA_protein_activity_values_available":False,
+                "actual_original_74donor_RNA_vs_multimodal_clearance_comparison_justified":False,
+                "simulation_not_treated_as_clinical_observed_PK":True,
+                "no_original_person_identifiers_or_measured_values_exported":True,
+            }
     with ZipFile(BytesIO(pkg)) as archive:
         for info in archive.infolist():
             if info.is_dir():continue
@@ -179,17 +199,34 @@ def audit_official_original_supplement(pkg):
 
 
 def main():
-    try:
-        with urlopen(Request(SOURCE,headers={
-            "User-Agent":"Omics2PK-original-CYP3A4-mRNA-protein-MDZ-PMC7065849-source-qualification/1.0"
-        }),timeout=60) as response:
-            data=response.read(MAX_PACKAGE_BYTES+1)
-        return audit_official_original_supplement(data)
-    except (OSError,URLError,HTTPError,ValueError,BadZipFile,ET.ParseError) as err:
-        return {"source_status":"OFFICIAL_PMC7065849_SUPPLEMENT_UNAVAILABLE_ABSTAIN",
-                "error_type":type(err).__name__,
-                "actual_original_74donor_RNA_vs_multimodal_clearance_comparison_justified":False}
+    source_errors=[]
+    for origin,url in (("Europe_PMC_publisher_supplementary",SOURCE),
+                       ("official_PMC_original_NIHMS_DOCX",DIRECT_SOURCE)):
+        try:
+            with urlopen(Request(url,headers={
+                "User-Agent":"Omics2PK-original-CYP3A4-mRNA-protein-MDZ-PMC7065849-source-qualification/1.0"
+            }),timeout=60) as response:
+                data=response.read(MAX_PACKAGE_BYTES+1)
+                mimetype=response.headers.get("Content-Type","")[:90]
+            try:
+                answer=audit_official_original_supplement(data)
+                answer["actual_original_source_delivery"]=origin
+                return answer
+            except (ValueError,BadZipFile,ET.ParseError) as err:
+                source_errors.append({"endpoint":origin,
+                                      "error_type":type(err).__name__,
+                                      "safe_error":str(err)[:120],
+                                      "n_downloaded_bytes":len(data),
+                                      "content_type":mimetype})
+        except (OSError,URLError,HTTPError) as err:
+            source_errors.append({"endpoint":origin,"error_type":type(err).__name__})
+    return {"source_status":"OFFICIAL_PMC7065849_SUPPLEMENT_UNAVAILABLE_ABSTAIN",
+            "official_source_attempt_diagnostics_only":source_errors,
+            "actual_original_74donor_RNA_vs_multimodal_clearance_comparison_justified":False}
 
 
 if __name__=="__main__":
-    print(json.dumps(main(),indent=2,sort_keys=True))
+    out=main()
+    print(json.dumps(out,indent=2,sort_keys=True))
+    if out.get("source_status")=="OFFICIAL_PMC7065849_SUPPLEMENT_UNAVAILABLE_ABSTAIN":
+        raise SystemExit(2)
