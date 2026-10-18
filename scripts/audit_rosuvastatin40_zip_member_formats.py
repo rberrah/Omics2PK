@@ -23,7 +23,7 @@ from scripts.audit_rosuvastatin40_public_ftp_census import HOST, ROOT
 
 TAIL_BYTES = 65557
 MAX_CENTRAL_BYTES = 2_000_000
-MAX_ARCHIVES = 16
+MAX_ARCHIVES = 200
 MAX_ENTRIES = 20000
 ZIP_CENTRAL_SIGNATURE = b"PK\x01\x02"
 ZIP_END_SIGNATURE = b"PK\x05\x06"
@@ -171,9 +171,11 @@ def list_original_zip_sizes():
 
 
 def inspect_ebi_archive_sample(*, sample_size=8) -> dict:
-    if not 0 <= sample_size <= MAX_ARCHIVES:
+    if sample_size is not None and not 0 <= sample_size <= MAX_ARCHIVES:
         raise SourceZipError("Invalid maximum number of inspected ZIP archives")
     archives, inaccessible_subfolders = list_original_zip_sizes()
+    if sample_size is None:
+        sample_size = min(MAX_ARCHIVES, len(archives))
     sizes=sorted(size for _,size in archives if size>0)
     selection=sorted((path,size) for path,size in archives if size>0)
     # Cover small and large archive sizes, not filename-derived patient labels.
@@ -222,8 +224,12 @@ def inspect_ebi_archive_sample(*, sample_size=8) -> dict:
 
 
 if __name__ == "__main__":
+    import argparse
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--all", action="store_true", help="Attempt each official ZIP central-directory (metadata only; no member content)")
+    args = parser.parse_args()
     try:
-        print(json.dumps(inspect_ebi_archive_sample(),indent=2,sort_keys=True))
+        print(json.dumps(inspect_ebi_archive_sample(sample_size=None if args.all else 8),indent=2,sort_keys=True))
     except (SourceZipError,OSError,ValueError,error_perm) as error:
         print(json.dumps({"status":"EBI_ARCHIVE_INVENTORY_UNAVAILABLE_ABSTAIN",
                           "error_type":type(error).__name__}))
