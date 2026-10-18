@@ -114,7 +114,9 @@ def list_original_zip_sizes():
         ftp.login()
         while folders:
             folder=folders.pop()
-            for name, f in ftp.mlsd(folder):
+            # EBI permits MLSD after CWD, but can reject MLSD /absolute/path.
+            ftp.cwd(folder)
+            for name, f in ftp.mlsd():
                 if name in (".","..") or "/" in name or "\\" in name:
                     continue
                 source=folder.rstrip("/")+"/"+name
