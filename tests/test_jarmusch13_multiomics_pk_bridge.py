@@ -100,6 +100,7 @@ class SyntheticNativeMS1Tests(unittest.TestCase):
             self.run_gate()
 
     def test_recomputed_sha_cannot_hide_modified_numeric_value(self):
+        self.values = self.values.copy()  # do not mutate frozen expected source
         self.values[0,0] += 10
         self.write_matrix()
         self.manifest["matrices"][0]["file"]["sha256"]=digest(
