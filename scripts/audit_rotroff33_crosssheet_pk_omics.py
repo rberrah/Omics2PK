@@ -69,7 +69,7 @@ def id_candidates(rows, *, last_col=3):
             raw=row.get(k,"").strip()
             if (2<=len(raw)<=50 and not SKIP_ID.fullmatch(raw)
                     and _as_float(raw) is None and not any(
-                        p.search(raw) for p in PK_TERMS.values()
+                        p.search(raw) for role,p in PK_TERMS.items() if role != 'subject_token'
                     )):
                 pool.add(raw.casefold())
     return pool
