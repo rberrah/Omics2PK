@@ -1,5 +1,9 @@
 # Omics2PK
 
+## Identified public human-liver transcriptome/protein/CYP metabolism source targets (18 October 2026)
+
+Independent original source discovery prioritized published *same-donor* hepatic RNA/protein/observed substrate metabolism: **Zhang n100 ten CYPs**, **Tanner n360 CYP2A6**, **UGT2B17 n455 with RNA n230**, **Ohtsuki n17**, Jamwal n74, and HLC/Sage **GSE9588 n427 RNA** with separately published n398 CYP activities. **No complete original numerical three-layer source dataset has yet been retrieved and verified across same donor IDs; no RNA-vs-RNA+protein advantage may be claimed**. All original-data gates, source DOI and dataset links, model endpoints, subcohort denominators and retrieval priorities: [hepatic public source catalogue](docs/HEPATIC_PUBLIC_RNA_PROTEIN_DRUG_METABOLISM_SOURCE_CATALOGUE_20261018.md).
+
 ## Targeted CYP3A4 RNA versus protein for hepatic midazolam metabolism — source gate (18 Oct 2026)
 
 A same-donor comparator for **74 human livers** now exists for CYP3A4 mRNA alone, CYP3A4 protein alone, clinical context, and combinations against **measured in-vitro midazolam 1′-hydroxylation**. Synthetic contract tests validate donor-heldout fitting, source checks and output privacy. **Actual 74 original RNA/protein/activity values were not recovered from the official source endpoints; therefore NO real RNA-vs-multi-omic numerical model was fitted or claimed.** See [source audit and original-only experiment protocol](docs/JAMWAL74_CYP3A4_RNA_PROTEIN_MIDAZOLAM_ORIGINAL_SOURCE_AUDIT_20261018.md). This comparison uses targeted qPCR/protein, not comprehensive transcriptomics/proteomics, and predicted paper PBPK is never observed midazolam PK.
