@@ -36,7 +36,7 @@ class GraphicalAbstractReleaseTests(unittest.TestCase):
         o = original.read_bytes()
         p = preview.read_bytes()
         self.assertEqual(len(o), 1824082)
-        self.assertTrue(o.startswith(b"\\x89PNG\\r\\n\\x1a\\n"))
+        self.assertTrue(o.startswith(bytes.fromhex("89504e470d0a1a0a")))
         self.assertEqual(struct.unpack(">II", o[16:24]), (1672, 941))
         self.assertEqual(hashlib.sha256(o).hexdigest(),
                          "af941aa7ac3dfb6d19dfa91cb88c07ed756201d2211266752cf04d4f2d1ddf7b")
