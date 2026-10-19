@@ -1,76 +1,95 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1500 800" role="img" aria-labelledby="ga-title ga-desc">
-<title id="ga-title">Omics2PK — testing whether molecular phenotype improves tacrolimus pharmacokinetic prediction</title>
-<desc id="ga-desc">Matched patient clinical data and measured CYP3A4 and CYP3A5 genotypes are compared with and without genuine pre-landmark molecular measurements from MultiOmics. Same patients and folds enter an out-of-sample comparison on measured tacrolimus dose and concentration PK endpoints. The decisive gain over clinical and genotype is not yet demonstrated; access to a paired original tacrolimus PK and omics cohort remains the limiting step.</desc>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" role="img" aria-labelledby="ga-title ga-desc">
+<title id="ga-title">Omics2PK — general molecular-to-pharmacokinetic prediction research workflow</title>
+<desc id="ga-desc">General workflow for many drugs: clinical data, pharmacogenetics, transcriptomics, proteomics and metabolomics feed direct molecular features, prespecified functional scores, RNA-only networks or multiomics latent factors. These are compared with clinical and PGx reference models, penalized regression, machine learning and eventual population PK on the same individuals and held-out folds, evaluated with actual measured AUC, CL over F, trough and concentration-time observations. Tacrolimus and CYP3A are only one case study. Omic superiority over clinical and genotype is not yet demonstrated.</desc>
 <defs>
-  <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#f7faf9"/><stop offset="1" stop-color="#f8f4ee"/></linearGradient>
-  <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#276f75"/><stop offset="1" stop-color="#a95b45"/></linearGradient>
-  <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto"><path d="M2 2 L10 6 L2 10" stroke="#6c8791" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></marker>
-  <filter id="shadow" x="-15%" y="-20%" width="130%" height="150%"><feDropShadow dx="0" dy="6" stdDeviation="8" flood-color="#153c4b" flood-opacity=".09"/></filter>
+ <linearGradient id="background" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#fbfdfd"/><stop offset="1" stop-color="#f4f7f8"/></linearGradient>
+ <linearGradient id="header" x1="0" x2="1"><stop stop-color="#cbe8ed"/><stop offset="1" stop-color="#e1f1f2"/></linearGradient>
+ <marker id="arr" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto"><path d="M1 1 L9 5 L1 9" fill="#165b78"/></marker>
+ <filter id="drop"><feDropShadow dx="0" dy="3" stdDeviation="4" flood-color="#284c60" flood-opacity=".08"/></filter>
 </defs>
-<rect width="1500" height="800" rx="24" fill="url(#bg)"/>
-<rect width="1500" height="12" fill="url(#accent)"/>
-<g font-family="Arial, Helvetica, sans-serif">
-<text x="58" y="65" font-size="19" letter-spacing="2.4" font-weight="700" fill="#27737a">PRECISION PHARMACOKINETICS · RESEARCH</text>
-<text x="58" y="134" font-size="56" font-weight="700" fill="#153842">Omics2PK</text>
-<text x="392" y="127" font-size="25" fill="#4e6870">Do molecular phenotypes improve tacrolimus PK beyond CYP3A genotype?</text>
-<line x1="60" y1="161" x2="1440" y2="161" stroke="#d8e3e4" stroke-width="2"/>
-<text x="62" y="206" font-size="19" font-weight="700" letter-spacing="1.6" fill="#58727a">01   MATCHED PATIENT DATA</text>
-<text x="543" y="206" font-size="19" font-weight="700" letter-spacing="1.6" fill="#58727a">02   FAIR MODEL COMPARISON</text>
-<text x="1094" y="206" font-size="19" font-weight="700" letter-spacing="1.6" fill="#58727a">03   MEASURED PK</text>
-<!-- Input card -->
-<rect x="55" y="226" width="405" height="390" rx="22" fill="#fff" stroke="#dce5e6" stroke-width="2" filter="url(#shadow)"/>
-<rect x="80" y="251" width="355" height="93" rx="15" fill="#faeee7"/>
-<circle cx="119" cy="295" r="24" fill="#aa5c45"/>
-<text x="119" y="304" text-anchor="middle" font-size="25" font-weight="700" fill="#fff">G</text>
-<text x="158" y="284" font-size="24" font-weight="700" fill="#213e45">Clinical + PGx</text>
-<text x="158" y="315" font-size="19" fill="#546971">CYP3A4/5 alleles · covariates</text>
-<rect x="80" y="361" width="355" height="111" rx="15" fill="#eaf3f2"/>
-<circle cx="119" cy="402" r="24" fill="#2a7d80"/>
-<path d="M108 398 C127 390 113 420 132 410 M110 411 C131 421 117 388 130 396" stroke="#fff" stroke-width="2.7" fill="none" stroke-linecap="round"/>
-<text x="158" y="393" font-size="23" font-weight="700" fill="#213e45">Molecular state</text>
-<text x="158" y="423" font-size="18" fill="#546971">RNA · proteins · metabolites</text>
-<text x="158" y="449" font-size="17" fill="#2d7475" font-weight="700">Pre-landmark, matched only</text>
-<rect x="80" y="490" width="355" height="100" rx="15" fill="#f1f3f5"/>
-<path d="M97 552 L118 532 L135 541 L151 513" fill="none" stroke="#5b7682" stroke-width="3.5" stroke-linecap="round"/>
-<circle cx="151" cy="513" r="5" fill="#aa5c45"/>
-<text x="167" y="527" font-size="22" font-weight="700" fill="#213e45">Tacrolimus dosing</text>
-<text x="167" y="557" font-size="18" fill="#546971">Dose · C(t) · sampling time</text>
-<!-- Transition -->
-<path d="M472 409 H519" stroke="#6c8791" stroke-width="3" marker-end="url(#arrow)"/>
-<!-- Comparison card -->
-<rect x="533" y="226" width="515" height="390" rx="22" fill="#fff" stroke="#dce5e6" stroke-width="2" filter="url(#shadow)"/>
-<rect x="563" y="258" width="455" height="94" rx="15" fill="#f9efe9" stroke="#edcabb" stroke-width="1.5"/>
-<rect x="577" y="271" width="8" height="68" rx="4" fill="#aa5c45"/>
-<text x="601" y="298" font-size="24" font-weight="700" fill="#213e45">Reference PopPK / predictor</text>
-<text x="601" y="330" font-size="19" fill="#5e7075">Clinical + observed CYP3A PGx</text>
-<path d="M791 363 V388" stroke="#6c8791" stroke-width="2.8" marker-end="url(#arrow)"/>
-<rect x="563" y="396" width="455" height="103" rx="15" fill="#eaf3f2" stroke="#bbdad5" stroke-width="1.5"/>
-<rect x="577" y="410" width="8" height="76" rx="4" fill="#2b8180"/>
-<text x="601" y="438" font-size="24" font-weight="700" fill="#213e45">Reference + omic covariate</text>
-<text x="601" y="469" font-size="19" fill="#5e7075">Scores · XGBoost · graphs if valid</text>
-<rect x="561" y="525" width="461" height="66" rx="14" fill="#edf2f5"/>
-<circle cx="590" cy="557" r="16" fill="#5d7581"/>
-<path d="M584 557 L589 562 L598 551" stroke="#fff" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-<text x="620" y="550" font-size="21" font-weight="700" fill="#24434b">Same patients + held-out folds</text>
-<text x="620" y="576" font-size="17" fill="#5d727b">Train-only fitting; no subject leakage</text>
-<!-- Arrow -->
-<path d="M1060 409 H1090" stroke="#6c8791" stroke-width="3" marker-end="url(#arrow)"/>
-<!-- Evaluation card -->
-<rect x="1103" y="226" width="340" height="390" rx="22" fill="#fff" stroke="#dce5e6" stroke-width="2" filter="url(#shadow)"/>
-<text x="1130" y="274" font-size="26" font-weight="700" fill="#213e45">PK performance</text>
-<text x="1130" y="306" font-size="18" fill="#58727a">Observed tacrolimus targets</text>
-<rect x="1130" y="336" width="286" height="65" rx="14" fill="#edf4f3"/>
-<text x="1155" y="379" font-size="26" font-weight="700" fill="#257277">AUC · CL/F</text>
-<rect x="1130" y="415" width="286" height="65" rx="14" fill="#edf4f3"/>
-<text x="1155" y="458" font-size="25" font-weight="700" fill="#257277">C(t) · troughs</text>
-<text x="1131" y="520" font-size="22" font-weight="700" fill="#213e45">Δ held-out error</text>
-<text x="1131" y="550" font-size="18" fill="#58727a">Bias · uncertainty · external test</text>
-<rect x="1130" y="566" width="285" height="26" rx="13" fill="#f7eee6"/>
-<text x="1272" y="584" font-size="16" font-weight="700" fill="#956249" text-anchor="middle">No superiority claim yet</text>
-<!-- Footer -->
-<rect x="57" y="650" width="1386" height="102" rx="20" fill="#193c45"/>
-<rect x="77" y="672" width="8" height="59" rx="4" fill="#d58962"/>
-<text x="110" y="684" fill="#fff" font-size="24" font-weight="700">Decision gate: molecular benefit beyond genotype?</text>
-<text x="110" y="719" fill="#d7e5e6" font-size="21">True paired tacrolimus omics + PK cohort still needed; mechanistic evidence alone is insufficient.</text>
+<rect width="1600" height="900" rx="20" fill="url(#background)"/>
+<g font-family="Arial,Helvetica,sans-serif" fill="#123b50">
+<text x="800" y="68" text-anchor="middle" font-size="57" font-weight="800">Omics<tspan fill="#c75c48">2</tspan><tspan fill="#07758c">PK</tspan></text>
+<text x="800" y="112" text-anchor="middle" font-size="26" fill="#4f6e7f">From molecular phenotype to pharmacokinetic prediction</text>
+<text x="800" y="145" text-anchor="middle" font-size="17" fill="#637b88">General framework for multiple drugs, omics and pharmacokinetic endpoints</text>
+<!-- Four stage columns -->
+<g filter="url(#drop)">
+ <rect x="27" y="177" width="370" height="580" rx="20" fill="#fff" stroke="#d5e5e9" stroke-width="2"/>
+ <rect x="419" y="177" width="370" height="580" rx="20" fill="#fff" stroke="#d5e5e9" stroke-width="2"/>
+ <rect x="811" y="177" width="370" height="580" rx="20" fill="#fff" stroke="#d5e5e9" stroke-width="2"/>
+ <rect x="1203" y="177" width="370" height="580" rx="20" fill="#fff" stroke="#d5e5e9" stroke-width="2"/>
+</g>
+<g fill="url(#header)">
+ <path d="M47 177 H377 Q397 177 397 197 V236 H27 V197 Q27 177 47 177Z"/>
+ <path d="M439 177 H769 Q789 177 789 197 V236 H419 V197 Q419 177 439 177Z"/>
+ <path d="M831 177 H1161 Q1181 177 1181 197 V236 H811 V197 Q811 177 831 177Z"/>
+ <path d="M1223 177 H1553 Q1573 177 1573 197 V236 H1203 V197 Q1203 177 1223 177Z"/>
+</g>
+<g fill="#0c4761"><circle cx="58" cy="206" r="19"/><circle cx="450" cy="206" r="19"/><circle cx="842" cy="206" r="19"/><circle cx="1234" cy="206" r="19"/></g>
+<g font-size="20" font-weight="700" fill="#fff" text-anchor="middle">
+<text x="58" y="213">1</text><text x="450" y="213">2</text><text x="842" y="213">3</text><text x="1234" y="213">4</text></g>
+<g font-size="18.5" font-weight="700"><text x="88" y="202">INPUT DATA</text><text x="480" y="202">REPRESENTATIONS</text><text x="872" y="202">MODELING</text><text x="1264" y="202">EVALUATION</text></g>
+<g font-size="15" fill="#466a79"><text x="88" y="223">Matched individuals</text><text x="480" y="223">Alternative molecular encoding</text><text x="872" y="223">Competing predictive methods</text><text x="1264" y="223">Measured PK outcomes</text></g>
+<!-- Input boxes -->
+<rect x="43" y="252" width="338" height="104" rx="13" fill="#ebf3f6"/>
+<rect x="43" y="368" width="338" height="104" rx="13" fill="#faece6"/>
+<rect x="43" y="484" width="338" height="124" rx="13" fill="#eaf5f3"/>
+<rect x="43" y="620" width="338" height="121" rx="13" fill="#f1eff8"/>
+<g font-size="20" font-weight="700"><text x="60" y="283">Clinical covariates</text><text x="60" y="399">Pharmacogenetics (PGx)</text><text x="60" y="515">Single-omic measurements</text><text x="60" y="651">Multi-omic combinations</text></g>
+<g font-size="16" fill="#536d7a">
+<text x="60" y="310">Age · size · organ function</text><text x="60" y="333">Co-medication · disease state</text>
+<text x="60" y="426">Measured alleles · haplotypes</text><text x="60" y="449">CYP · UGT · transporters</text>
+<text x="60" y="542">Transcriptomics (RNA)</text><text x="60" y="565">Proteomics · metabolomics</text><text x="60" y="588">Original patient/assay identities</text>
+<text x="60" y="679">Compatible samples + timepoints</text><text x="60" y="705">Partial modality coverage recorded</text>
+</g>
+<!-- representation boxes -->
+<rect x="435" y="252" width="338" height="104" rx="13" fill="#eaf3f7"/>
+<rect x="435" y="368" width="338" height="104" rx="13" fill="#e9f4ed"/>
+<rect x="435" y="484" width="338" height="124" rx="13" fill="#edf0f9"/>
+<rect x="435" y="620" width="338" height="121" rx="13" fill="#faeee6"/>
+<g font-size="20" font-weight="700"><text x="452" y="283">Direct features</text><text x="452" y="399">Functional score</text><text x="452" y="515">Graphs / networks</text><text x="452" y="651">Latent multi-omic factors</text></g>
+<g font-size="16" fill="#536d7a">
+<text x="452" y="310">Prespecified molecular features</text><text x="452" y="333">or train-only dimension reduction</text>
+<text x="452" y="426">Pathway activity · enzyme proxy</text><text x="452" y="449">Frozen reference when predicted</text>
+<text x="452" y="542">SWEET-inspired if RNA exists</text><text x="452" y="565">Biology graph / embeddings</text><text x="452" y="588">Train-only network projection</text>
+<text x="452" y="679">MOFA-like integration</text><text x="452" y="705">No leaking held-out subjects</text>
+</g>
+<!-- model boxes -->
+<rect x="827" y="252" width="338" height="104" rx="13" fill="#eaf3f7"/>
+<rect x="827" y="368" width="338" height="104" rx="13" fill="#edf3f5"/>
+<rect x="827" y="484" width="338" height="124" rx="13" fill="#e8f3ef"/>
+<rect x="827" y="620" width="338" height="121" rx="13" fill="#f8ece6"/>
+<g font-size="20" font-weight="700"><text x="844" y="283">Reference clinical + PGx</text><text x="844" y="399">Penalized regression</text><text x="844" y="515">Machine learning</text><text x="844" y="651">PopPK / NLME</text></g>
+<g font-size="16" fill="#536d7a">
+<text x="844" y="310">Same measured study population</text><text x="844" y="333">Baseline for incremental value</text>
+<text x="844" y="426">Ridge · LASSO · Elastic Net</text><text x="844" y="449">Low-dimensional molecular inputs</text>
+<text x="844" y="542">XGBoost where sample size</text><text x="844" y="565">supports nonlinear modeling</text><text x="844" y="588">Training fold fitting only</text>
+<text x="844" y="679">Drug dose and C(t) likelihood</text><text x="844" y="705">Only with actual PK source data</text>
+</g>
+<!-- PK boxes and miniature chart -->
+<rect x="1219" y="252" width="338" height="167" rx="13" fill="#f9ebe5"/>
+<g font-size="20" font-weight="700"><text x="1236" y="283">Observed PK endpoints</text></g>
+<g font-size="17"><text x="1236" y="313">AUC · CL/F · C<tspan baseline-shift="sub" font-size="13">trough</tspan> · C(t)</text><text x="1236" y="342">Drug-specific target + unit</text></g>
+<path d="M1243 392 H1515 M1243 392 V353" fill="none" stroke="#698897" stroke-width="2.5"/>
+<path d="M1248 382 C1261 346 1280 342 1296 363 C1312 384 1330 389 1353 392 M1374 389 C1390 367 1414 365 1434 380 C1450 389 1473 388 1495 382" fill="none" stroke="#b65445" stroke-width="4" stroke-linecap="round"/>
+<rect x="1219" y="432" width="338" height="134" rx="13" fill="#e9f3f7"/>
+<text x="1236" y="466" font-size="20" font-weight="700">Held-out performance</text>
+<text x="1236" y="494" font-size="16">MAE / RMSE · bias · calibration</text>
+<text x="1236" y="518" font-size="16">Same patients, splits, endpoint</text>
+<text x="1236" y="542" font-size="16">External validation if available</text>
+<rect x="1219" y="579" width="338" height="162" rx="13" fill="#bf6454"/>
+<text x="1236" y="616" font-size="19" fill="#fff" font-weight="700">Decision question</text>
+<text x="1236" y="645" font-size="17" fill="#fff">Does the molecular phenotype</text>
+<text x="1236" y="671" font-size="17" fill="#fff">improve real PK prediction</text>
+<text x="1236" y="697" font-size="17" fill="#fff">beyond clinical + PGx?</text>
+<!-- stage arrows -->
+<path d="M398 475 H416 M790 475 H808 M1182 475 H1200" stroke="#165b78" stroke-width="5" marker-end="url(#arr)"/>
+<!-- Status -->
+<rect x="28" y="785" width="1545" height="92" rx="17" fill="#1e4658"/>
+<rect x="43" y="803" width="7" height="58" rx="3" fill="#ca7a57"/>
+<text x="70" y="820" font-size="21" fill="#fff" font-weight="700">Current evidence</text>
+<text x="70" y="849" font-size="17" fill="#d6e8ec">General software pathway across drugs. CYP3A/tacrolimus is one flagship study, not a restriction of scope.</text>
+<text x="1570" y="821" text-anchor="end" font-size="17" font-weight="700" fill="#fff">Validation bottleneck</text>
+<text x="1570" y="850" text-anchor="end" font-size="16" fill="#d6e8ec">Paired individual omics + genuine measured PK</text>
 </g>
 </svg>
