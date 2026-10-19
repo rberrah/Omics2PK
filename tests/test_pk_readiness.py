@@ -144,6 +144,49 @@ class SyntheticOriginalPKSourceReadinessTests(unittest.TestCase):
         self.assertEqual(result["n_predose_qualified_by_modalities"]
                          ["proteomics+transcriptomics"],11)
 
+    def test_source_without_original_absolute_collection_clock_never_qualifies(self):
+        rows=list(csv.DictReader((self.root/"samples.csv").open(
+            encoding="utf-8",newline="")))
+        for r in rows:
+            r["collection_time"]=""
+        _save(self.root/"samples.csv",list(rows[0]),[[r[k] for k in rows[0]]
+                                                     for r in rows])
+        self.manifest["files"]["samples"]["sha256"]=_digest(
+            self.root/"samples.csv")
+        (self.root/"manifest.json").write_text(json.dumps(self.manifest))
+        report=assess_pk_readiness(self.root,self.availability)
+        self.assertEqual(report["n_clinical_pk_pgx_reference_declared"],12)
+        self.assertEqual(report["n_predose_qualified_by_modalities"]
+                         ["proteomics+transcriptomics"],0)
+        self.assertTrue(report["blocking_requirements"])
+
+    def test_missing_one_proteome_specimen_decreases_true_complete_case_n(self):
+        rows=list(csv.DictReader((self.root/"samples.csv").open(
+            encoding="utf-8",newline="")))
+        target=self.assay[("proteomics",self.ids[-1])]
+        rows=[r for r in rows if r["assay_id"]!=target]
+        _save(self.root/"samples.csv",list(rows[0]),[[r[k] for k in rows[0]]
+                                                     for r in rows])
+        path=self.root/"matrices/proteomics.csv"
+        with path.open(encoding="utf-8",newline="") as f:
+            records=list(csv.DictReader(f))
+        columns=[k for k in records[0] if k!=target]
+        _save(path,columns,[[r[k] for k in columns] for r in records])
+        self.manifest["files"]["samples"]["sha256"]=_digest(self.root/"samples.csv")
+        for item in self.manifest["matrices"]:
+            if item["omic"]=="proteomics":
+                item["file"]["sha256"]=_digest(path)
+        (self.root/"manifest.json").write_text(json.dumps(self.manifest))
+        report=assess_pk_readiness(self.root,self.availability)
+        self.assertEqual(report["n_original_biological_people"],12)
+        self.assertEqual(report["n_omic_assay_rows"],23)
+        self.assertEqual(report["n_unique_one_assay_people_by_modality"]
+                         ["proteomics"],11)
+        self.assertEqual(report["n_intersecting_biological_people_by_modalities"]
+                         ["proteomics+transcriptomics"],11)
+        self.assertEqual(report["n_predose_qualified_by_modalities"]
+                         ["proteomics+transcriptomics"],11)
+
     def test_unknown_biological_person_is_rejected(self):
         self.availability[0]["subject_id"]="FICTIONAL_UNKNOWN"
         with self.assertRaisesRegex(PKReadinessError,"unknown participants"):
