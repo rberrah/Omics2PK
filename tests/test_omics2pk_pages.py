@@ -23,7 +23,7 @@ class Omics2PKPagesTests(unittest.TestCase):
 
     def test_five_pages_with_identical_four_goal_dropdowns(self):
         pages=["index.html","learn/index.html","analyze/index.html",
-               "disciplines/index.html","resources/index.html"]
+               "ecosystem/index.html","disciplines/index.html","resources/index.html"]
         for page in pages:
             html=(self.root/page).read_text(encoding="utf-8")
             self.assertEqual(html.count('<details class="goal"'),4,page)
@@ -46,7 +46,7 @@ class Omics2PKPagesTests(unittest.TestCase):
 
     def test_local_routes_really_resolve_from_each_page(self):
         for page in ["index.html","learn/index.html","analyze/index.html",
-                     "disciplines/index.html","resources/index.html"]:
+                     "ecosystem/index.html","disciplines/index.html","resources/index.html"]:
             html=(self.root/page).read_text(encoding="utf-8")
             for href in re.findall(r'href="([^"]+)"',html):
                 if href.startswith(('http:', 'https:', '#')):
@@ -72,12 +72,12 @@ class Omics2PKPagesTests(unittest.TestCase):
         self.assertIn("no clinically validated dosing", evidence.lower())
 
     def test_ecosystem_destinations_and_graphical_abstract(self):
-        for page in ("index.html","disciplines/index.html"):
+        for page in ("index.html","ecosystem/index.html","disciplines/index.html"):
             html=(self.root/page).read_text(encoding="utf-8")
             self.assertIn('https://rberrah.github.io/',html)
             self.assertIn('https://rberrah.github.io/multiomics/',html)
             self.assertIn('https://github.com/rberrah/Omics2PK',html)
-        ecosystem=(self.root/"disciplines/index.html").read_text(encoding="utf-8")
+        ecosystem=(self.root/"ecosystem/index.html").read_text(encoding="utf-8")
         self.assertIn('Ecosystem / Écosystème',ecosystem)
         self.assertIn('PMx Explain',ecosystem)
         self.assertIn('MultiOmics',ecosystem)
@@ -105,8 +105,9 @@ class Omics2PKPagesTests(unittest.TestCase):
     def test_built_site_sitemap_and_404_free_project_routes(self):
         self.assertTrue((self.root/".nojekyll").exists())
         sitemap=(self.root/"sitemap.xml").read_text()
-        self.assertEqual(sitemap.count("<loc>"),5)
+        self.assertEqual(sitemap.count("<loc>"),6)
         self.assertIn("https://rberrah.github.io/Omics2PK/analyze/",sitemap)
+        self.assertIn("https://rberrah.github.io/Omics2PK/ecosystem/",sitemap)
 
 
 if __name__ == "__main__":
