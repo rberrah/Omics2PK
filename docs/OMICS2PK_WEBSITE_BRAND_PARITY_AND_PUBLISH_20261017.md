@@ -4,10 +4,10 @@
 
 ## Design and links
 
-- Four accessible drop-down menus: **Learn**, **Analyze**, **Other Disciplines**, **Ressources** (English Resources).
+- Four accessible drop-down menus: **Learn**, **Analyze**, **Ecosystem**, **Ressources** (English Resources).
 - PMx editorial paper (#fbfaf8), ink, terracotta (#a4441f), light and dark palette, Source Serif 4 / Inter / JetBrains Mono font stacks, fixed 59px header, 1100px mobile breakpoint and purpose-based native `details` dropdowns.
 - FR/EN toggle, dark/light theme, mobile hamburger menu, outside click, Escape focus behavior, reduced-motion and original site footer.
-- Omics2PK entry is present in its own Other Disciplines page alongside PMx Explain and MultiOmics. Other dedicated repos must link here only after the URL has passed public deployment verification.
+- Omics2PK entry is present in its own Ecosystem page alongside PMx Explain and MultiOmics. Other dedicated repos must link here only after the URL has passed public deployment verification.
 - Evidence cards explicitly present prior **real** original donor-level study analyses in aggregate without donor values: EPA100 CYP, TKI21, SMX26. Clinical PK is still unverified.
 - Analyze is a static research-result browser and does not pretend to be a hosted omics analysis or dosing service.
 
@@ -25,7 +25,7 @@ The pull request CI builds and uploads the artifact `omics2pk-static-pages-previ
 1. In GitHub `rberrah/Omics2PK` open **Settings → Pages → Build and deployment → Source: GitHub Actions**.
 2. Open **Actions → Publish Omics2PK website to GitHub Pages (manual)** and select **Run workflow**, branch **main**. The build validates all pages and uses official `actions/configure-pages@v5`, `actions/upload-pages-artifact@v4` and `actions/deploy-pages@v4`.
 3. If Pages is enabled, the expected project path is **https://rberrah.github.io/Omics2PK/**. Verify live HTTP 200 and all five page routes before announcing availability; the presence of a workflow in GitHub is not verification of a deployed website.
-4. On live verification, add its exact URL to **Other Disciplines** in PMx Explain and MultiOmics. Do not change the codebases owned by their separate maintainers unintentionally.
+4. On live verification, add its exact URL to **Ecosystem** in PMx Explain and MultiOmics. Do not change the codebases owned by their separate maintainers unintentionally.
 
 ## Scientific status
 

@@ -66,7 +66,7 @@ Si une jointure structurelle exacte de 40 personnes est trouvée, **aucun score 
 
 ## Etat actuel
 
-- [x] Publication site Omics2PK et intégration Other Disciplines PMx / MultiOmics, CI verte.
+- [x] Publication site Omics2PK et intégration Ecosystem PMx / MultiOmics, CI verte.
 - [x] MAF authentiques vérifiés ; pas d'intensité numérique traitée dans ces tables.
 - [x] Notebook original et cinq liens Drive identifiés ; essais urllib et gdown infructueux.
 - [x] **Validateur local privé et sans fuite** permettant l'import de vrais CSV originaux et le contrôle exact d'identifiants.

@@ -79,9 +79,9 @@ For method ablations, additionally compare reference+direct RNA scores **without
 
 Source of truth: Omics2PK repository is a research engine/contract; MultiOmics performs exploratory/confirmatory omic QC and pathway analysis; rberrah.github.io is a static entry point, learning interface and approved public demo. Do not insert a clinical predictive service into a static GitHub Pages site or collect clinical omics/PK data on third-party endpoints.
 
-### Future section: Other Disciplines → Omics and pharmacometrics
+### Future section: Ecosystem → Omics and pharmacometrics
 Proposed concise path: **/omics2pk/** (final route to be reconciled with active site navigation, not introduced until gates E2–E4 are demonstrably complete).
-- FR/EN, light/dark, consistent header/logo, margins, Resources and Other Disciplines, return link to rberrah.github.io, accessible navigation and research-level warnings.
+- FR/EN, light/dark, consistent header/logo, margins, Resources and Ecosystem, return link to rberrah.github.io, accessible navigation and research-level warnings.
 - Courses: (1) DNA vs RNA vs protein vs metabolite; (2) linking phenotype to CYP/transporter/organ activity; (3) CLint vs plasma CL/CL-F and IVIVE; (4) dose–concentration and PopPK; (5) time/provenance and patient identity; (6) baseline PGx vs omics incremental value; (7) SWEET network inductive vs transductive; (8) confidence, confounding, missingness and C-level abstention.
 - Beginner “discover in one click” demos should use reproducible **public or explicitly synthetic** data and report what was and was not measured, uncertainty, provenance and version.
 - Professional tool: validated input schema → QC report → profile/pathway scores → optional qualified SWEET → exported **PK covariate research package** (not automated dosage advice). Actual PopPK estimation stays in an authorized scientific backend only.

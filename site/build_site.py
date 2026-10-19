@@ -1,7 +1,7 @@
 """Render the Omics2PK static research portal, same editorial design as PMx Explain.
 
 No JavaScript framework, tracking, external fonts, data upload, or clinical claims.
-Static project Pages paths: /Omics2PK/{learn,analyze,disciplines,resources}/
+Static project Pages paths: /Omics2PK/{learn,analyze,ecosystem,disciplines,resources}/
 """
 from __future__ import annotations
 import argparse
@@ -43,7 +43,7 @@ def lucide(name, size=16):
 
 def nav(base,page):
     groups = [
-      ("learn","Learn","Learn",[
+      ("learn","Apprendre","Learn",[
          ("learn/","Apprendre les méthodes","Learn the methods",False),
          ("learn/#sources","Comprendre les preuves","Understand evidence",False)
       ]),
