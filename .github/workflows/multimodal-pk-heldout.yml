@@ -1,0 +1,32 @@
+name: Fair mono-/multi-omics original-person PK ablation qualification
+on:
+  push:
+    paths:
+      - "src/omics2pk/multimodal_pk_ablation.py"
+      - "src/omics2pk/multimodal_exchange_pk.py"
+      - "tests/test_multimodal_pk_ablation.py"
+      - "tests/test_multimodal_exchange_pk.py"
+      - ".github/workflows/multimodal-pk-heldout.yml"
+  pull_request:
+    paths:
+      - "src/omics2pk/multimodal_pk_ablation.py"
+      - "src/omics2pk/multimodal_exchange_pk.py"
+      - "tests/test_multimodal_pk_ablation.py"
+      - "tests/test_multimodal_exchange_pk.py"
+      - ".github/workflows/multimodal-pk-heldout.yml"
+permissions:
+  contents: read
+jobs:
+  source-contracts-no-original-people:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+      - run: python -m pip install -e .
+      - run: python -m pip install numpy==2.3.5 scikit-learn==1.7.2
+      - run: python -m unittest discover -s tests -p 'test_multimodal_pk_ablation.py' -v
+      - run: python -m unittest discover -s tests -p 'test_multimodal_exchange_pk.py' -v
+      - run: python -m compileall -q src
