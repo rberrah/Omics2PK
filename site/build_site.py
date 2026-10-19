@@ -51,10 +51,10 @@ def nav(base,page):
          ("analyze/","Explorer les résultats validés","Explore validated results",False),
          ("analyze/#methodes","Méthodes reproductibles","Reproducible methods",False)
       ]),
-      ("disciplines","Other Disciplines","Other Disciplines",[
+      ("disciplines","Écosystème","Ecosystem",[
+         ("disciplines/","Vue d’ensemble","Ecosystem overview",False),
          (PMX,"PMx Explain ↗","PMx Explain ↗",True),
-         (MULTIOMICS,"MultiOmics ↗","MultiOmics ↗",True),
-         ("disciplines/","Écosystème des disciplines","Discipline ecosystem",False)
+         (MULTIOMICS,"MultiOmics ↗","MultiOmics ↗",True)
       ]),
       ("resources","Ressources","Resources",[
          ("resources/","Références et documentation","References and documentation",False),
@@ -100,7 +100,7 @@ def home(base):
         a('learn/','Comprendre les liens biologiques','Understand biological relationships',base=base)+
         a('analyze/','Examiner des résultats réels','Inspect measured results',base=base)+
         a('resources/','Reproduire une analyse','Reproduce an analysis',base=base)+
-        a('disciplines/','Explorer les outils associés','Explore related tools',base=base)+
+        a('disciplines/','Explorer l’écosystème','Explore the ecosystem',base=base)+
         '</div></section><section class="section"><p class="eyebrow">Evidence first</p>'
         +t('Preuves disponibles et limites', 'What is established — and what is not','h2')
         +'<div class="cards">'
@@ -165,15 +165,32 @@ def analyze(base):
              'All displayed numbers concern in-vitro metabolism, not individualized clinical PK prediction.','p')+'</section>')
 
 def disciplines(base):
-    return ('<section class="small-hero"><p class="eyebrow">Other Disciplines</p>'
-         +t('Un même écosystème, trois spécialisations','One ecosystem, three specialties','h1')
-         +t('Une navigation harmonisée avec PMx Explain et MultiOmics ; chaque outil conserve sa mission et ses limites méthodologiques.',
-           'Shared navigation and design with PMx Explain and MultiOmics; each tool retains its research scope and limitations.','p','lede')+'</section>'
+    return ('<section class="small-hero"><p class="eyebrow">Ecosystem / Écosystème</p>'
+         +t('Apprendre. Analyser. Intégrer.','Learn. Analyze. Integrate.','h1')
+         +t('PMx Explain, MultiOmics et Omics2PK sont trois outils séparés reliés par une même logique de reproductibilité, de provenance et de niveaux de preuve explicites.',
+           'PMx Explain, MultiOmics and Omics2PK are separate tools connected by shared principles of reproducibility, provenance and explicit evidence levels.','p','lede')+'</section>'
+         +'<figure class="ecosystem-figure"><img src="'+base+'assets/ecosystem-graphical-abstract.svg" alt="PMx Explain for learning, MultiOmics for analysis and Omics2PK for PK integration">'
+         +t('Parcours commun ; dépôts et responsabilités scientifiques séparés.','Shared journey; separate repositories and scientific responsibilities.','figcaption')+'</figure>'
          +'<div class="cards section">'
-         +card('PK/PD','PMx Explain','PMx Explain','Cours, animations et outils de pharmacométrie ; point d’entrée pédagogique principal.','Pharmacometrics lessons, interactive visualizations and research tools.',PMX,'Visiter','Open site',base=base)
-         +card('Omics','MultiOmics','MultiOmics','Analyse transcriptomique, protéomique et métabolomique : extraction reproductible des signatures moléculaires.','Transcriptomic, proteomic and metabolomic analyses to derive reproducible molecular signatures.',MULTIOMICS,'Visiter','Open site',base=base)
-         +card('Molecular PK','Omics2PK','Omics2PK','Validation du lien omiques → métabolisme → PK ; analyses de recherche, non utilisation clinique.','Evidence connecting omics to metabolism and PK; research-only, not a clinical tool.','analyze/','Voir la recherche','See the research',base=base)
-         +'</div>')
+         +card('01 · Learn / Apprendre','PMx Explain','PMx Explain',
+           'Comprendre PK/PD, PopPK, covariables et MIPD avant d’interpréter un signal biologique.',
+           'Understand PK/PD, PopPK, covariates and MIPD before interpreting a biological signal.',
+           PMX,'Ouvrir','Open',base=base)
+         +card('02 · Analyze / Analyser','MultiOmics','MultiOmics',
+           'Contrôler la qualité et produire des analyses, signatures et exports omiques traçables.',
+           'Quality-control omics data and produce traceable analyses, signatures and exports.',
+           MULTIOMICS,'Ouvrir','Open',base=base)
+         +card('03 · Integrate / Intégrer','Omics2PK','Omics2PK',
+           'Tester si des états moléculaires individuels améliorent une question PK au-delà des données cliniques et pharmacogénétiques.',
+           'Test whether individual molecular states improve a PK question beyond clinical and pharmacogenetic information.',
+           'analyze/','Voir la recherche','See the research',base=base)
+         +'</div>'
+         +'<section class="ecosystem-boundary">'
+         +t('La chaîne scientifique','Scientific handoff','p','eyebrow')
+         +t('Échange moléculaire vérifié ≠ bénéfice PK démontré','Verified molecular exchange ≠ demonstrated PK benefit','h2')
+         +t('MultiOmics peut fournir des mesures et métadonnées individuelles traçables. Omics2PK exige ensuite les mêmes sujets avec chronologie, covariables de référence, doses et concentrations authentiques. La compatibilité technique seule ne valide ni une covariable ni une recommandation de dose.',
+           'MultiOmics can provide traceable individual measurements and metadata. Omics2PK then requires the same subjects with timing, reference covariates and genuine dose/concentration observations. Technical compatibility alone validates neither a covariate nor a dosing recommendation.','p')
+         +'</section>')
 
 def resources(base):
     refs=[
@@ -198,7 +215,7 @@ def resources(base):
 def document(page,body,base):
     titles={'home':'Omics2PK – omiques vers pharmacocinétique',
             'learn':'Learn – Omics2PK','analyze':'Analyze – Omics2PK',
-            'disciplines':'Other Disciplines – Omics2PK','resources':'Resources – Omics2PK'}
+            'disciplines':'Ecosystem – Omics2PK','resources':'Resources – Omics2PK'}
     return ('<!doctype html><html lang="fr"><head>'
        '<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">'
        '<meta name="theme-color" content="#fbfaf8"><meta name="referrer" content="strict-origin-when-cross-origin">'
