@@ -54,3 +54,17 @@ Ask the cohort team first for a **privacy-preserving, aggregate-only availabilit
 ## Primary source provenance notes
 
 This inventory was verified from original publisher/PMC study pages on 2026-10-19. It does not assert downloadability of individual patient matrices where only papers/supplemental images/tables are available. Original subjects' personal research data, original numerical matrices, consent information and copyrighted files are **never committed** to Omics2PK public GitHub. Previously public reported n/R2/MAE numbers are reported with study design caveats, not as new software evaluation output.
+
+## BIOMARGIN/ROCKET source capacity before ABIS linkage
+
+A direct 2025 BIOMARGIN clinical pipeline publication (PMID 40315594, DOI [10.1016/j.jpba.2025.116911](https://doi.org/10.1016/j.jpba.2025.116911)) documents **>1,300 enrolled transplant patients, >2,500 biopsies, ~4,200 plasma and ~9,700 urine samples** across a longitudinal multicentre clinical design. This is a large *parent project inventory*, NOT evidence that all these specimens have multiomics, original CYP3A4/5 PGx or independently measured tac C(t).
+
+The BIOMARGIN-linked ROCKET [2025 multi-omic factor study](https://www.sciencedirect.com/science/article/abs/pii/S0085253825005125) mentions **131 individuals** with paired blood and urine collected at the time of biopsy across centers. This is a potentially suitable biological unit for external site-heldout molecular-fusion methodology, but the original participant-wise tacrolimus dosing, CYP alleles and drug TDM linkage are **not independently demonstrated**. In kidney recipients, **peripheral blood transcriptome** can track inflammatory state without directly measuring **hepatic/intestinal CYP3A4/5**, so direct claims of functional CYP expression from blood are prohibited. Consider immune/inflammation score, measured plasma metabolome, and direct genotypes as *distinct* hypotheses.
+
+**First BIOMARGIN/ABIS meeting:** do not ask immediately for every raw archive. Obtain a study/data-steward-reported **intersection count table only**, stratified by centre, transplant stage (early vs stable), molecular modality and actual tac PK availability. A matched n in the same study is not an actual patient-level join until original pseudonym mapping, sample timing and legal grounds are independently verified. Restrict private source transfer to approved local institutional infrastructure.
+
+Suggested three-tier minimal source release, after authorized agreement:
+
+- Tier 1: aggregate table of n exact unique matched people/sample-visits by centre, modality and drug, missingness/batch plus legal/consent feasibility (no patient IDs);
+- Tier 2: authorized original pseudonymous person+assay+dose+concentration and **one molecular layer** for fixed mechanistic score-versus-PGx proof, retaining original drug units/time and hematocrit;
+- Tier 3: transcriptome+proteome+metabolome matched longitudinal source, plus centre-stratified independent replication cohort to compare graph SWEET, XGBoost and factor fusion. Not assume Tier 3 exists.
