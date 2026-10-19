@@ -109,7 +109,7 @@ Full source-level audit: [REAL_MULTIOMICS_OUTPUT_AUDIT_AND_PK_ADAPTER_GAPS_20261
 - [ ] Separate **transcriptomics→measured PK** source (or functional assay), not just phenotype→tumor response.
 - [ ] Actual clinical BIOMARGIN/authorized linked tacrolimus or MPA TDM cohort with patient-date/dose/concentration links (ethics/license gate).
 - [ ] Compare clinical+PGx reference → prespecified direct RNA scores → qualified SWEET RNA → parallel protein/metabolite → optional integrated latent scores, on identical held-out patients; external validation + Pillar C adjudication.
-- [ ] **After proof only**: design public learning/tool at rberrah.github.io with FR/EN, dark/light, Resources, Other Disciplines, persistent provenance and no user clinical-data upload.
+- [ ] **After proof only**: design public learning/tool at rberrah.github.io with FR/EN, dark/light, Resources, Ecosystem, persistent provenance and no user clinical-data upload.
 
 ## E2 REAL original measured biological phenotype→drug-metabolism proof (2026-10-16)
 - [x] Tucatinib: n=21 independent original HLM donors, published source Table 1 manually transcribed and **all four published Spearman CYP↔CL correlations reproduced**; 21 leave-donor-out folds MAE mean 6.246 vs 2 CYP proteins 2.041 vs 2 CYP enzyme activities 1.940 µL/min/mg, explicitly nonclinical and original single cohort. Corrected source narrative/table inconsistency identified; donor measurements not redistributed. Detailed [tucatinib proof](TUCATINIB_21_DONOR_MEASURED_VALIDATION_20261016.md).
