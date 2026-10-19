@@ -25,6 +25,25 @@ The comparison is designed to be falsifiable: an omic signal may be redundant, u
 
 **No one omic layer, SWEET graph or ML method is assumed superior.** Original SWEET concerns RNA networks; MS1 peaks must not be relabelled as RNA features. Train/test separation includes all molecular preprocessing, imputation, signature weights, graph reference fitting, XGBoost tuning and latent factors. A true PopPK comparison requires original doses, times and concentration observations; regressing an already estimated CL/F is only a preliminary benchmark.
 
+### Original-cohort PK/PGx readiness — available without model fitting
+
+Before searching for an apparent omic effect, assess the original biological
+person/sample overlap and clinical PK/PGx availability. The new standard-library
+`omics2pk audit-pk-readiness /path/to/exchange` command checks a genuine
+MultiOmics V1 source and reports **unique subjects versus assay rows**, one
+specimen per modality, repeated samples, and all mono-/multiomic intersections.
+It deliberately reports **unknown** clinical PK/genotype eligibility if the
+original clinical crosswalk was not provided. With authorized private in-memory
+availability metadata, the API also checks **subject + original assay +
+specimen** and *original* pre-dose collection clocks before deeming an
+individual potentially eligible for PK benchmarking. It never exposes
+individual measurements or identifiers.
+
+The [BIOMARGIN–ABIS readiness protocol](docs/MULTIOMICS_PK_READINESS_AND_BIOMARGIN_ABIS_JOIN_20261019.md)
+specifies the minimal source-key and availability counts to request before
+patient-level transfer, and why a large public RNA dataset by itself does not
+establish drug PK predictive benefit.
+
 ### New fair single- versus multi-omic benchmark (research, synthetic tests)
 
 The library now provides a strictly donor-/patient-held-out **five-fold** ablation that compares a clinical reference and genuine PGx, individual modality PCA2 and direct Ridge, optional **externally fixed biological scores**, unsupervised PCA **early fusion** and a **fixed late fusion** of single-omic predictions. Optional XGBoost on low-dimensional projections is intentionally blocked when fewer than 80 original people are available. **No ranking or performance claim has been established on a new original clinical cohort by the software addition alone.**
