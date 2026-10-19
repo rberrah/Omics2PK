@@ -87,4 +87,4 @@ Conserver les sorties RNA seules, deux omiques ou trois omiques : aucune obligat
 - **E4** omiques **elles-mêmes longitudinales** et PK longitudinales : variation état biologique aux landmarks et paramètres PK dépendants du temps, sans RNA obtenu après le début d'une fenêtre cible ni transport futur dans le passé.
 - Aucune affirmation d'amélioration prédictive de **vraie PK clinique par MultiOmics** avant d'avoir un jeu source réellement apparié. Tests actuels V1 natifs = synthétiques et disponibilité logicielle seulement.
 
-Les prochains changements du site `rberrah.github.io` dépendront des preuves et de l'accord des agents MultiOmics et PMx Explain, sous conventions FR/EN, sombre/clair, Resources et Other Disciplines.
+Les prochains changements du site `rberrah.github.io` dépendront des preuves et de l'accord des agents MultiOmics et PMx Explain, sous conventions FR/EN, sombre/clair, Resources et Ecosystem.
