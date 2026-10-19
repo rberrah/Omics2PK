@@ -15,7 +15,7 @@ class GraphicalAbstractReleaseTests(unittest.TestCase):
         ns = "{http://www.w3.org/2000/svg}"
         self.assertEqual(root.tag, ns + "svg")
         self.assertEqual(root.attrib.get("role"), "img")
-        self.assertEqual(root.attrib.get("viewBox"), "0 0 1500 800")
+        self.assertEqual(root.attrib.get("viewBox"), "0 0 1600 900")
         self.assertEqual(root.attrib.get("aria-labelledby"), "ga-title ga-desc")
         self.assertTrue((root.find(ns + "title").text or "").startswith("Omics2PK"))
         self.assertIn("not yet demonstrated", root.find(ns + "desc").text)
