@@ -45,6 +45,7 @@ class MultimodalOriginalExchangeFictionalTests(unittest.TestCase):
             assays={m:f"FICTIONAL_{m}_ASSAY_{i}" for m in self.omics}
             self.sidecar.append(dict(
                 subject_id=p,assay_ids_by_omic=assays,
+                sample_ids_by_omic={m:f"FAKE_SPECIMEN_{i}" for m in self.omics},
                 collected_at_by_omic={m:"2025-01-02T08:00:00+00:00"
                                       for m in self.omics},
                 index_dose_at="2025-01-03T09:00:00Z",
@@ -118,6 +119,39 @@ class MultimodalOriginalExchangeFictionalTests(unittest.TestCase):
         a["assay_ids_by_omic"][m],b["assay_ids_by_omic"][m]=(
             b["assay_ids_by_omic"][m],a["assay_ids_by_omic"][m])
         with self.assertRaisesRegex(MultimodalExchangePKError,"identity mismatch"):
+            self.call()
+
+    def test_crossed_source_specimen_must_fail_even_if_assay_correct(self):
+        m="transcriptomics"
+        a,b=self.sidecar[0],self.sidecar[1]
+        a["sample_ids_by_omic"][m],b["sample_ids_by_omic"][m]=(
+            b["sample_ids_by_omic"][m],a["sample_ids_by_omic"][m])
+        with self.assertRaisesRegex(MultimodalExchangePKError,
+                                    "specimen-to-patient"):
+            self.call()
+
+    def test_missing_source_specimen_mapping_cannot_pass(self):
+        self.sidecar[0].pop("sample_ids_by_omic")
+        with self.assertRaisesRegex(MultimodalExchangePKError,
+                                    "specimen/time maps"):
+            self.call()
+
+    def test_qualified_original_requires_absolute_source_clock(self):
+        self.kwargs["source_kind"]="original_source_declared"
+        self.manifest["validation"]["status"]="qualified_for_declared_scope"
+        with (self.root/"samples.csv").open("r",newline="") as f:
+            records=list(csv.DictReader(f))
+        for rec in records:
+            rec["collection_time"]="T0"
+        csvfile(self.root/"samples.csv",
+                ["assay_id","sample_id","subject_id","omic","tissue",
+                 "collection_time"],
+                [[r[k] for k in ("assay_id","sample_id","subject_id","omic",
+                                 "tissue","collection_time")] for r in records])
+        self.manifest["files"]["samples"]["sha256"]=checksum(self.root/"samples.csv")
+        self.save()
+        with self.assertRaisesRegex(MultimodalExchangePKError,
+                                    "absolute specimen collection clock"):
             self.call()
 
     def test_t0_is_not_an_absolute_timestamp(self):
