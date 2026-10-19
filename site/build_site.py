@@ -66,7 +66,7 @@ def nav(base,page):
     for key,fr,en,links in groups:
         inner="".join(a(path,lfr,len_,base=base,external=ext) for path,lfr,len_,ext in links)
         details.append('<details class="goal" name="site-objective" data-testid="goal-'+key+'">'
-          '<summary'+(' class="active"' if page==key else '')+'>'+lucide(key,16)
+          '<summary'+(' class="active"' if (page==key or (key=="disciplines" and page=="ecosystem")) else '')+'>'+lucide(key,16)
           +t(fr,en)+lucide("down",13)+'</summary><div class="goal-links">'+inner+'</div></details>')
     return ('<header class="site-header"><a class="logo" href="'+base+'" aria-label="Omics2PK, accueil" data-testid="logo-link">'
         '<span class="mark" aria-hidden="true">oP</span><span class="word">Omics<em>2PK</em></span></a>'
