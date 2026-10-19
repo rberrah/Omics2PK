@@ -1,0 +1,38 @@
+name: BIOMARGIN public MOFA2 original identity/source gate
+on:
+  push:
+    paths:
+      - "scripts/qualify_public_biomargin_131_original_source.py"
+      - "tests/test_public_biomargin_131_source.py"
+      - ".github/workflows/biomargin-131-public-source.yml"
+  pull_request:
+    paths:
+      - "scripts/qualify_public_biomargin_131_original_source.py"
+      - "tests/test_public_biomargin_131_source.py"
+      - ".github/workflows/biomargin-131-public-source.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  fictional-regressions:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+      - run: python -m pip install -e .
+      - run: python -m unittest discover -s tests -p "test_public_biomargin_131_source.py" -v
+  original-author-and-geo-source:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+      - run: python -m pip install -e .
+      - name: Ephemeral real original source verification, aggregate-only output
+        run: python -m scripts.qualify_public_biomargin_131_original_source --include-geo-counts
+      - name: No research source blobs as published GitHub workflow artifacts
+        run: test ! -e GSE175718_counts.csv.gz && test ! -e Notebook_MOFA2_model_training.ipynb
