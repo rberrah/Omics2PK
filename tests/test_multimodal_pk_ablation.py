@@ -47,6 +47,59 @@ class MultimodalPatientPKTests(unittest.TestCase):
                 "tissue":"blood_plasma","value_type":"ms1_peak_area"},
         }
 
+    def test_four_source_sites_are_held_out_whole(self):
+        d=copy.deepcopy(self.d)
+        n=len(d["subject_ids"])
+        d["site_ids"]=[f"FAKE_CENTER_{i%4}" for i in range(n)]
+        d["validation_mode"]="leave_one_site_out"
+        r=compare_modalities_pk(**d)
+        self.assertEqual(r["validation_mode"],"leave_one_site_out")
+        self.assertEqual(r["n_attested_unique_source_sites"],4)
+        self.assertEqual(r["n_outer_splits"],4)
+        self.assertEqual(r["models"]["clinical_pgx"]["n_heldout_biological_people"],n)
+        self.assertFalse(r["external_validation"])
+        self.assertTrue(r["site_disjoint_holdout_is_not_independent_external_cohort"])
+        self.assertNotIn("FAKE_CENTER_",json.dumps(r))
+
+    def test_source_site_cv_invariant_to_original_row_order(self):
+        d=copy.deepcopy(self.d)
+        n=len(d["subject_ids"])
+        d["site_ids"]=[f"FAKE_CENTER_{i%3}" for i in range(n)]
+        d["validation_mode"]="leave_one_site_out"
+        original=compare_modalities_pk(**d)
+        rng=np.random.default_rng(202601)
+        p=rng.permutation(n)
+        for key in ("subject_ids","site_ids","clinical","genotype_dosages",
+                    "measured_pk","index_dose_at"):
+            d[key]=np.asarray(d[key])[p].tolist()
+        for source in d["modalities"].values():
+            for key in ("values","collected_at"):
+                source[key]=np.asarray(source[key])[p].tolist()
+        self.assertEqual(original,compare_modalities_pk(**d))
+
+    def test_no_silent_mixed_site_participant_cv(self):
+        d=copy.deepcopy(self.d)
+        d["site_ids"]=["FAKE_CENTER_A"]*len(d["subject_ids"])
+        with self.assertRaisesRegex(MultimodalPKBenchmarkError,
+                                    "no silent center mixing"):
+            compare_modalities_pk(**d)
+
+    def test_single_site_cannot_impersonate_external_validation(self):
+        d=copy.deepcopy(self.d)
+        d["validation_mode"]="leave_one_site_out"
+        d["site_ids"]=["FAKE_CENTER_A"]*len(d["subject_ids"])
+        with self.assertRaisesRegex(MultimodalPKBenchmarkError,
+                                    "distinct original source sites"):
+            compare_modalities_pk(**d)
+
+    def test_one_site_too_large_makes_training_unqualified(self):
+        d=copy.deepcopy(self.d)
+        d["validation_mode"]="leave_one_site_out"
+        d["site_ids"]=["FAKE_CENTER_A"]*14+["FAKE_CENTER_B"]*4
+        with self.assertRaisesRegex(MultimodalPKBenchmarkError,
+                                    ">=8 actual training people"):
+            compare_modalities_pk(**d)
+
     def test_same_patient_same_fold_all_methods_and_privacy(self):
         r=compare_modalities_pk(**self.d)
         self.assertEqual(r["primary_reference"],"clinical_pgx")
