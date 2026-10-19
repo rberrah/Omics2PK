@@ -52,7 +52,7 @@ def nav(base,page):
          ("analyze/#methodes","Méthodes reproductibles","Reproducible methods",False)
       ]),
       ("disciplines","Écosystème","Ecosystem",[
-         ("disciplines/","Vue d’ensemble","Ecosystem overview",False),
+         ("ecosystem/","Vue d’ensemble","Ecosystem overview",False),
          (PMX,"PMx Explain ↗","PMx Explain ↗",True),
          (MULTIOMICS,"MultiOmics ↗","MultiOmics ↗",True)
       ]),
@@ -215,7 +215,7 @@ def resources(base):
 def document(page,body,base):
     titles={'home':'Omics2PK – omiques vers pharmacocinétique',
             'learn':'Learn – Omics2PK','analyze':'Analyze – Omics2PK',
-            'disciplines':'Ecosystem – Omics2PK','resources':'Resources – Omics2PK'}
+            'ecosystem':'Ecosystem – Omics2PK','disciplines':'Ecosystem – Omics2PK','resources':'Resources – Omics2PK'}
     return ('<!doctype html><html lang="fr"><head>'
        '<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">'
        '<meta name="theme-color" content="#fbfaf8"><meta name="referrer" content="strict-origin-when-cross-origin">'
@@ -239,6 +239,7 @@ def render(out):
     mapping={'home':(Path('index.html'),'.',home),
              'learn':(Path('learn/index.html'),'..',learn),
              'analyze':(Path('analyze/index.html'),'..',analyze),
+             'ecosystem':(Path('ecosystem/index.html'),'..',disciplines),
              'disciplines':(Path('disciplines/index.html'),'..',disciplines),
              'resources':(Path('resources/index.html'),'..',resources)}
     for page,(path,depth,func) in mapping.items():
@@ -254,7 +255,7 @@ def render(out):
     (out/'sitemap.xml').write_text(
       '<?xml version="1.0" encoding="UTF-8"?>'
       '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'
-      +''.join('<url><loc>'+ROOT+(page+'/' if page else '')+'</loc></url>' for page in ('','learn','analyze','disciplines','resources'))
+      +''.join('<url><loc>'+ROOT+(page+'/' if page else '')+'</loc></url>' for page in ('','learn','analyze','ecosystem','disciplines','resources'))
       +'</urlset>',encoding='utf-8')
 
 if __name__=='__main__':
