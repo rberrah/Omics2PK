@@ -96,6 +96,12 @@ button{font:inherit;cursor:pointer}
 table{width:100%;border-collapse:collapse;margin:24px 0;display:block;overflow-x:auto;white-space:nowrap;font-size:14px}
 th{text-align:left;background:var(--bg-secondary);color:var(--text-primary)}th,td{padding:13px 18px;border-bottom:1px solid var(--border-subtle)}
 .callout{border-left:3px solid var(--accent-pk);background:var(--bg-secondary);padding:12px 20px;margin:28px 0}
+.ecosystem-figure{margin:24px 0 48px;padding:14px;border:1px solid var(--border-subtle);border-radius:8px;background:var(--bg-secondary)}
+.ecosystem-figure img{display:block;width:100%;height:auto;border-radius:6px}
+.ecosystem-figure figcaption{margin-top:10px;text-align:center;color:var(--text-secondary);font-size:var(--text-sm)}
+.ecosystem-boundary{margin:24px 0 54px;padding:24px;border:1px solid var(--border-subtle);border-left:3px solid var(--accent-pk);border-radius:5px;background:var(--bg-secondary)}
+.ecosystem-boundary h2{margin:8px 0 12px}
+.ecosystem-boundary p:last-child{max-width:82ch;color:var(--text-secondary)}
 .references{padding-left:24px;max-width:820px}.references li{padding:12px 6px;border-bottom:1px solid var(--border-subtle)}
 .site-footer{border-top:1px solid var(--border-subtle);background:var(--bg-secondary);color:var(--text-secondary)}
 .footer-shell{max-width:var(--maxw);margin:0 auto;padding:var(--space-8) var(--space-6);display:flex;justify-content:space-between;align-items:start;gap:32px}
