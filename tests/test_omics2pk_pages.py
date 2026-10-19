@@ -71,12 +71,19 @@ class Omics2PKPagesTests(unittest.TestCase):
         self.assertIn("local transcription of the article source table",evidence)
         self.assertIn("no clinically validated dosing", evidence.lower())
 
-    def test_external_discipline_destinations(self):
+    def test_ecosystem_destinations_and_graphical_abstract(self):
         for page in ("index.html","disciplines/index.html"):
             html=(self.root/page).read_text(encoding="utf-8")
             self.assertIn('https://rberrah.github.io/',html)
             self.assertIn('https://rberrah.github.io/multiomics/',html)
             self.assertIn('https://github.com/rberrah/Omics2PK',html)
+        ecosystem=(self.root/"disciplines/index.html").read_text(encoding="utf-8")
+        self.assertIn('Ecosystem / Écosystème',ecosystem)
+        self.assertIn('PMx Explain',ecosystem)
+        self.assertIn('MultiOmics',ecosystem)
+        self.assertIn('Omics2PK',ecosystem)
+        self.assertIn('ecosystem-graphical-abstract.svg',ecosystem)
+        self.assertTrue((self.root/"assets/ecosystem-graphical-abstract.svg").is_file())
 
     def test_theme_css_and_behavior_and_no_tracking(self):
         css=(self.root/"assets/styles.css").read_text()
