@@ -17,7 +17,7 @@ from typing import Mapping
 import numpy as np
 from sklearn.decomposition import PCA
 from sklearn.linear_model import Ridge
-from sklearn.model_selection import KFold
+from sklearn.model_selection import KFold, LeaveOneGroupOut
 from sklearn.preprocessing import StandardScaler
 
 
@@ -96,7 +96,7 @@ def compare_modalities_pk(
     measured_pk, index_dose_at, pk_target_name, pk_target_unit,
     source_kind, source_sha256, genotype_dosages=None, fixed_scores=None,
     n_outer_splits=5, max_lookback_days=30,
-    include_xgboost=False,
+    include_xgboost=False, validation_mode="participant_kfold", site_ids=None,
 ):
     """Compare single-omic, combined and optionally fixed biological scores.
 
@@ -131,6 +131,16 @@ def compare_modalities_pk(
     _assert(isinstance(max_lookback_days,(float,int)) and 0 < max_lookback_days <= 365,
             "Invalid prespecified sampling lookback")
     _assert(2 <= n_outer_splits <= min(10,n), "Invalid fixed outer patient folds")
+    _assert(validation_mode in ("participant_kfold", "leave_one_site_out"),
+            "Explicit participant-vs-site validation mode required")
+    if validation_mode == "participant_kfold":
+        _assert(site_ids is None,
+                "Site labels supplied: use leave_one_site_out; no silent center mixing")
+    else:
+        _assert(site_ids is not None and len(site_ids) == n,
+                "Site-disjoint validation requires a known site for every original person")
+        _assert(all(isinstance(site,str) and site.strip() for site in site_ids),
+                "Missing or empty original site provenance is not qualified")
     _assert(isinstance(modalities,Mapping) and 1 <= len(modalities) <= 3
             and set(modalities) <= {"transcriptomics","proteomics","metabolomics"},
             "One to three recognized individual omic modalities required")
@@ -153,6 +163,17 @@ def compare_modalities_pk(
     # Stable whole-person folds independent of original per-assay row order.
     canonical=np.argsort(np.asarray(ids),kind="stable")
     C=C[canonical]; B=B[canonical]; y=y[canonical]
+    groups=None
+    outer_folds=n_outer_splits
+    if validation_mode == "leave_one_site_out":
+        groups=np.asarray(site_ids,dtype=str)[canonical]
+        original_sites=set(groups.tolist())
+        outer_folds=len(original_sites)
+        _assert(2 <= outer_folds <= 10,
+                "Need 2-10 distinct original source sites for whole-center validation")
+        counts={site:int(np.count_nonzero(groups == site)) for site in original_sites}
+        _assert(n-max(counts.values())>=8,
+                "Each held-out site must leave >=8 actual training people")
     dose_dates=[_date(index_dose_at[i]) for i in canonical]
     samples={}
     score_weights={}
@@ -212,8 +233,11 @@ def compare_modalities_pk(
         names += ["reference_xgboost","omic_pca_xgboost"]
     predictions={name:np.full(n,np.nan,dtype=float) for name in names}
     # KFold is deterministic on *sorted unique biological IDs*, no assay rows.
-    for train,test in KFold(
-            n_splits=n_outer_splits,shuffle=True,random_state=20261019).split(ids):
+    folds=(KFold(n_splits=n_outer_splits,shuffle=True,
+                 random_state=20261019).split(np.arange(n))
+           if validation_mode=="participant_kfold"
+           else LeaveOneGroupOut().split(np.arange(n),groups=groups))
+    for train,test in folds:
         pred={"clinical":_fit_ridge(C[train],C[test],y[train])}
         if G is not None:
             pred["clinical_pgx"]=_fit_ridge(B[train],B[test],y[train])
@@ -280,9 +304,15 @@ def compare_modalities_pk(
     return {
         "status":("SYNTHETIC_METHOD_CONTRACT_NO_HUMAN_PK_EVIDENCE" if source_kind=="synthetic"
                   else "ORIGINAL_SOURCE_DECLARED_EXPLORATORY_NOT_EXTERNAL_VALIDATION"),
-        "method":"canonical_person_heldout_5fold_ridge_log_pk_fixed_arms",
+        "method":("source_site_disjoint_heldout_fold_fixed_arms"
+                  if validation_mode=="leave_one_site_out"
+                  else "canonical_person_heldout_kfold_ridge_log_pk_fixed_arms"),
+        "validation_mode":validation_mode,
+        "n_attested_unique_source_sites":(outer_folds if groups is not None else None),
+        "site_identity_caller_attested_not_independently_verified":groups is not None,
+        "site_disjoint_holdout_is_not_independent_external_cohort":groups is not None,
         "n_independent_people":n,
-        "n_outer_splits":n_outer_splits,
+        "n_outer_splits":outer_folds,
         "pk_target_name":pk_target_name,
         "pk_target_unit_as_declared":pk_target_unit,
         "source_sha256":source_sha256,
