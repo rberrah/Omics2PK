@@ -38,6 +38,7 @@ def run_multimodal_exchange_pk(
     per original unique human, each with:
       subject_id: source original pseudonym key
       assay_ids_by_omic: {omic: original assay_id}
+      sample_ids_by_omic: {omic: original source specimen ID}
       collected_at_by_omic: {omic: timezone-aware original ISO timestamp}
       index_dose_at: ISO timestamp of predictive index administration
       measured_pk: actually measured patient PK outcome (e.g. AUC, CL/F)
@@ -102,18 +103,26 @@ def run_multimodal_exchange_pk(
     for p in ids:
         rec=by_person[p]
         assays=rec.get("assay_ids_by_omic")
+        specimens=rec.get("sample_ids_by_omic")
         collected=rec.get("collected_at_by_omic")
-        _require(isinstance(assays,dict) and isinstance(collected,dict),
-                 "Original per-person assay/time maps required; no inferred T0")
+        _require(isinstance(assays,dict) and isinstance(specimens,dict)
+                 and isinstance(collected,dict),
+                 "Original assay/specimen/time maps required; no inferred T0")
         for omic in selected_omics:
             row=original_samples[omic][p]
             _require(assays.get(omic)==row["assay_id"],
                      "Clinical and omic assay-to-patient identity mismatch")
+            _require(specimens.get(omic)==row["sample_id"],
+                     "Clinical and omic specimen-to-patient identity mismatch")
             _require(isinstance(collected.get(omic),str) and collected[omic],
                      "Original absolute collection time required for every modality")
             # V1 may preserve true absolute source collection timestamps.
             # A numeric/relative label is NOT inferred to be that timestamp.
             source_time=row.get("collection_time","").strip()
+            if source_kind=="original_source_declared":
+                _require(source_time and "T" in source_time and
+                         "-" in source_time and ":" in source_time,
+                         "Original source absolute specimen collection clock missing")
             if source_time and ("T" in source_time) and (
                     "-" in source_time and ":" in source_time):
                 from datetime import datetime
