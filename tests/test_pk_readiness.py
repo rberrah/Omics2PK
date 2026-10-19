@@ -145,8 +145,8 @@ class SyntheticOriginalPKSourceReadinessTests(unittest.TestCase):
                          ["proteomics+transcriptomics"],11)
 
     def test_source_without_original_absolute_collection_clock_never_qualifies(self):
-        rows=list(csv.DictReader((self.root/"samples.csv").open(
-            encoding="utf-8",newline="")))
+        with (self.root/"samples.csv").open(encoding="utf-8",newline="") as source:
+            rows=list(csv.DictReader(source))
         for r in rows:
             r["collection_time"]=""
         _save(self.root/"samples.csv",list(rows[0]),[[r[k] for k in rows[0]]
@@ -161,8 +161,8 @@ class SyntheticOriginalPKSourceReadinessTests(unittest.TestCase):
         self.assertTrue(report["blocking_requirements"])
 
     def test_missing_one_proteome_specimen_decreases_true_complete_case_n(self):
-        rows=list(csv.DictReader((self.root/"samples.csv").open(
-            encoding="utf-8",newline="")))
+        with (self.root/"samples.csv").open(encoding="utf-8",newline="") as source:
+            rows=list(csv.DictReader(source))
         target=self.assay[("proteomics",self.ids[-1])]
         rows=[r for r in rows if r["assay_id"]!=target]
         _save(self.root/"samples.csv",list(rows[0]),[[r[k] for k in rows[0]]
