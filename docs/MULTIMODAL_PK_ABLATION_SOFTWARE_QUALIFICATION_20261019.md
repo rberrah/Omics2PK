@@ -116,3 +116,28 @@ Never upload protected clinical/omics source ZIPs to GitHub, CI artifacts or use
 - Use approved public source matched RNA/proteomics/metabolomics to **qualify the representation software**, without inventing an observed PK label.
 - Once a real **paired same-patient** tacrolimus or other drug original source is obtained, preregister a small number of score definitions and exact PGx reference. Compare at original patient/site-heldout scale and obtain an independent external cohort for biological conclusions.
 - After positive externally qualified scalar-PK evidence, integrate actual dose–concentration–time PopPK/NLME with appropriate IIV, uncertainty and identifiability diagnostics, as a distinct experimental phase.
+
+## Secondary validation mode: leave-one-ORIGINAL-center-out (19 October 2026)
+
+A multicenter patient/omic collection such as BIOMARGIN/ROCKET can contain center-associated population, assay batch or clinical practice differences. Mixed-center patient-random K-fold can remain optimistic under this dataset shift even when the same donor is never in both train and test.
+
+`compare_modalities_pk(..., validation_mode="leave_one_site_out", site_ids=original_site_ids)` now supports **held-out-whole-center cross-validation**:
+
+- Requires **original source-attested** site ID for **every eligible original person**. Each patient belongs to exactly one holdout site for this particular single-landmark benchmark; multi-center transfers / changing care sites need a separately qualified design.
+- Requires 2–10 distinct sites and at least 8 actually measured training persons after withholding any one site. This is a **software eligibility minimum**, NOT adequate power for model comparisons or proof of clinical transfer.
+- Keeps identical person/center partitions for clinical, clinical+real PGx, all direct omics, fixed biological score, PCA, early/late fusion and optional XGBoost. All preprocessing/model fitting remains strictly training-only.
+- **Refuses** patient-random CV when `site_ids` have been provided, rather than silently mixing source centers and calling this transportability.
+- Returns only aggregate prediction errors across all held-out people, `validation_mode`, a count of distinct sites and the number of folds. It never outputs individual center identifiers, held-out specimen IDs, site-specific small cell results or predictions.
+- **This is NOT independent external validation**: sites and patients still arise from the same parent source/collection. A genuinely external time/center cohort withheld from all model/feature development remains necessary before a robust prospective portability claim.
+
+In the native MultiOmics exchange adapter, provide `site_id` for every record in the protected original clinical sidecar and select `validation_mode="leave_one_site_out"`. Missing or partially mapped sites are rejected. User-attested site strings are not validated against an external hospital registry by the software.
+
+```python
+report = compare_modalities_pk(
+    # ... exact original matched arrays from the preceding example ...
+    site_ids=authorized_original_site_labels_by_person,
+    validation_mode="leave_one_site_out",
+)
+```
+
+The above is a signature illustration, not an executable standalone clinical example or claim of outcome accuracy. Initial tests use only invented original source people and fake centers, including full-center donor/site disjointness, patient-order invariance, incomplete provenance and inadequate fold train-size refusal.

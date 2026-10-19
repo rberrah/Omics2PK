@@ -30,7 +30,7 @@ def run_multimodal_exchange_pk(
     selected_omics, pk_target_name, pk_target_unit,
     source_kind, source_sha256, fixed_scores=None,
     allow_complete_case=False, include_xgboost=False,
-    n_outer_splits=5,
+    n_outer_splits=5, validation_mode="participant_kfold",
 ):
     """Read same-person MultiOmics source V1, with strict source clinical join.
 
@@ -160,6 +160,16 @@ def run_multimodal_exchange_pk(
             "tissue":original_samples[omic][ids[0]]["tissue"],
             "value_type":entry["value_type"],
         }
+    _require(validation_mode in ("participant_kfold","leave_one_site_out"),
+             "Explicit participant or whole-site validation required")
+    original_sites=[by_person[p].get("site_id") for p in ids]
+    if validation_mode=="leave_one_site_out":
+        _require(all(isinstance(x,str) and x.strip() for x in original_sites),
+                 "Every PK person needs a source-attested site for leave-one-site-out")
+    else:
+        _require(not any(x is not None for x in original_sites),
+                 "Original site metadata detected: do not silently use mixed-site folds")
+        original_sites=None
     pgx=[by_person[p].get("genotype_dosages") for p in ids]
     if all(g is None for g in pgx):
         pgx=None
@@ -176,7 +186,8 @@ def run_multimodal_exchange_pk(
             pk_target_name=pk_target_name,pk_target_unit=pk_target_unit,
             source_kind=source_kind,source_sha256=source_sha256,
             fixed_scores=fixed_scores,n_outer_splits=n_outer_splits,
-            include_xgboost=include_xgboost)
+            include_xgboost=include_xgboost,
+            validation_mode=validation_mode,site_ids=original_sites)
     except (ValueError,KeyError,TypeError) as exc:
         if isinstance(exc,MultimodalPKBenchmarkError):
             raise
