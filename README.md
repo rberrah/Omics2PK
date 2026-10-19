@@ -1,8 +1,8 @@
 # Omics2PK
 
-**Research software for testing whether molecular phenotypes improve individual pharmacokinetic prediction beyond clinical variables and pharmacogenetics.** The primary target is **tacrolimus**, with CYP3A4/CYP3A5 as the mechanistic starting point.
+**General-purpose research framework for evaluating how transcriptomic, proteomic and metabolomic states improve individual pharmacokinetic prediction beyond clinical information and pharmacogenetics.** Tacrolimus/CYP3A is a current flagship validation case, **not a restriction of the framework to one drug or pathway**.
 
-![Graphical abstract: matched patient clinical data, CYP3A4/5 genotype and pre-landmark omics are evaluated with identical held-out patients against observed tacrolimus PK. Scientific superiority is not established.](docs/assets/omics2pk-graphical-abstract.svg)
+![General Omics2PK graphical abstract: measured clinical/genetic and single/multiomics data pass through direct-feature, functional-score, RNA-network or latent representations, compared with regression, XGBoost and PopPK on held-out patients and genuine measured PK.](docs/assets/omics2pk-graphical-abstract.svg)
 
 [View full-size graphical abstract](docs/assets/omics2pk-graphical-abstract.svg) · [Scientific tacrolimus protocol](docs/TACROLIMUS_FIRST_CYP3A4_CYP3A5_RESEARCH_PROTOCOL_20261019.md) · [Real-cohort source audit](docs/CYP3A_TACROLIMUS_OMICS_PK_PUBLIC_SOURCE_ACQUISITION_AUDIT_20261019.md) · [MultiOmics producer](https://github.com/rberrah/MultiOmics)
 
@@ -10,7 +10,7 @@
 
 ## The question
 
-For the **same people, PK observations, prediction landmark and held-out folds**, does an individual molecular state improve prediction of tacrolimus AUC, CL/F or measured concentrations **after conditioning on clinical information and verified CYP3A4/5 genotype**?
+For the **same people, measured PK outcomes, prediction landmark and held-out folds**, do individual molecular states improve prediction of drug AUC, CL/F or observed concentrations **beyond the clinical and authentic genotype reference appropriate to that drug**? Tacrolimus with CYP3A4/CYP3A5 is the initial flagship, but the contract permits other medicines and relevant CYP, UGT, transporter or biological pathways.
 
 The comparison is designed to be falsifiable: an omic signal may be redundant, unstable, tissue-inappropriate, or harmful for predictive performance. Links between RNA, enzyme activity and ex-vivo intrinsic clearance are **not** equivalent to predicting in-vivo tacrolimus disposition.
 
@@ -24,6 +24,14 @@ The comparison is designed to be falsifiable: an omic signal may be redundant, u
 | **Drug-specific processes** | CYP3A4/5 metabolism; intestinal first pass; ABCB1 transport; whole-blood partition; post-transplant state | Prespecified, measured or explicitly unavailable covariates |
 
 **No one omic layer, SWEET graph or ML method is assumed superior.** Original SWEET concerns RNA networks; MS1 peaks must not be relabelled as RNA features. Train/test separation includes all molecular preprocessing, imputation, signature weights, graph reference fitting, XGBoost tuning and latent factors. A true PopPK comparison requires original doses, times and concentration observations; regressing an already estimated CL/F is only a preliminary benchmark.
+
+### New fair single- versus multi-omic benchmark (research, synthetic tests)
+
+The library now provides a strictly donor-/patient-held-out **five-fold** ablation that compares a clinical reference and genuine PGx, individual modality PCA2 and direct Ridge, optional **externally fixed biological scores**, unsupervised PCA **early fusion** and a **fixed late fusion** of single-omic predictions. Optional XGBoost on low-dimensional projections is intentionally blocked when fewer than 80 original people are available. **No ranking or performance claim has been established on a new original clinical cohort by the software addition alone.**
+
+For private authorized originals, `src/omics2pk/multimodal_exchange_pk.py` consumes versioned and SHA-checked source `DOWNSTREAM_EXCHANGE_V1` matrices plus a separately supplied **in-memory person→assay→collection time→PK/PGx** sidecar, with explicit complete-case eligibility. It refuses row-order joins, repeated participant assays, source-unknown patients and invented `T0` timestamps. The benchmark `src/omics2pk/multimodal_pk_ablation.py` fits modality transforms only inside outer training folds and emits **only aggregate error metrics**, with descriptive paired bootstrap intervals explicitly lacking model refitting. Requires `pip install -e '.[benchmark]'` and suitable original measured PK outcomes; no clinical/PK data belong in the public repository.
+
+See [matched-modalities research protocol](docs/MULTIMODAL_PK_ABLATION_SOFTWARE_QUALIFICATION_20261019.md) for API, assumptions and leakage guards.
 
 ## What is already established?
 
