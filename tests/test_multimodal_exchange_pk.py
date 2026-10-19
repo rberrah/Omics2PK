@@ -108,6 +108,32 @@ class MultimodalOriginalExchangeFictionalTests(unittest.TestCase):
         self.assertTrue(r["all_test_arms_share_identical_complete_case_people"])
         self.assertNotIn("FAKE_",json.dumps(r))
 
+    def test_private_original_site_labels_drive_whole_center_holdout(self):
+        for i,r in enumerate(self.sidecar):
+            r["site_id"]=f"FAKE_CENTER_{i%4}"
+        self.kwargs["validation_mode"]="leave_one_site_out"
+        out=self.call()
+        self.assertEqual(out["n_outer_splits"],4)
+        self.assertEqual(out["validation_mode"],"leave_one_site_out")
+        self.assertTrue(out["site_disjoint_holdout_is_not_independent_external_cohort"])
+        self.assertNotIn("FAKE_CENTER_",json.dumps(out))
+        self.sidecar.reverse()
+        self.assertEqual(out,self.call())
+
+    def test_site_metadata_cannot_be_silently_mixed(self):
+        for i,r in enumerate(self.sidecar):
+            r["site_id"]=f"FAKE_CENTER_{i%4}"
+        with self.assertRaisesRegex(MultimodalExchangePKError,
+                                    "do not silently use mixed-site folds"):
+            self.call()
+
+    def test_partial_center_identity_rejected(self):
+        self.sidecar[0]["site_id"]="FAKE_CENTER_A"
+        self.kwargs["validation_mode"]="leave_one_site_out"
+        with self.assertRaisesRegex(MultimodalExchangePKError,
+                                    "Every PK person needs"):
+            self.call()
+
     def test_permuted_original_clinical_rows_gives_same_report(self):
         report=self.call()
         self.sidecar.reverse()
