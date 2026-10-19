@@ -47,12 +47,12 @@ def nav(base,page):
          ("learn/","Apprendre les méthodes","Learn the methods",False),
          ("learn/#sources","Comprendre les preuves","Understand evidence",False)
       ]),
-      ("analyze","Analyze","Analyze",[
-         ("analyze/","Explorer les résultats validés","Explore validated results",False),
-         ("analyze/#methodes","Méthodes reproductibles","Reproducible methods",False)
+      ("analyze","Intégrer","Integrate",[
+         ("analyze/","Tester les signaux omiques","Test omics signals",False),
+         ("analyze/#methodes","Comparaisons reproductibles","Reproducible comparisons",False)
       ]),
       ("disciplines","Écosystème","Ecosystem",[
-         ("disciplines/","Vue d’ensemble","Ecosystem overview",False),
+         ("ecosystem/","Vue d’ensemble","Ecosystem overview",False),
          (PMX,"PMx Explain ↗","PMx Explain ↗",True),
          (MULTIOMICS,"MultiOmics ↗","MultiOmics ↗",True)
       ]),
@@ -66,7 +66,7 @@ def nav(base,page):
     for key,fr,en,links in groups:
         inner="".join(a(path,lfr,len_,base=base,external=ext) for path,lfr,len_,ext in links)
         details.append('<details class="goal" name="site-objective" data-testid="goal-'+key+'">'
-          '<summary'+(' class="active"' if page==key else '')+'>'+lucide(key,16)
+          '<summary'+(' class="active"' if (page==key or (key=="disciplines" and page=="ecosystem")) else '')+'>'+lucide(key,16)
           +t(fr,en)+lucide("down",13)+'</summary><div class="goal-links">'+inner+'</div></details>')
     return ('<header class="site-header"><a class="logo" href="'+base+'" aria-label="Omics2PK, accueil" data-testid="logo-link">'
         '<span class="mark" aria-hidden="true">oP</span><span class="word">Omics<em>2PK</em></span></a>'
@@ -100,7 +100,7 @@ def home(base):
         a('learn/','Comprendre les liens biologiques','Understand biological relationships',base=base)+
         a('analyze/','Examiner des résultats réels','Inspect measured results',base=base)+
         a('resources/','Reproduire une analyse','Reproduce an analysis',base=base)+
-        a('disciplines/','Explorer l’écosystème','Explore the ecosystem',base=base)+
+        a('ecosystem/','Explorer l’écosystème','Explore the ecosystem',base=base)+
         '</div></section><section class="section"><p class="eyebrow">Evidence first</p>'
         +t('Preuves disponibles et limites', 'What is established — and what is not','h2')
         +'<div class="cards">'
@@ -130,7 +130,7 @@ def analyze(base):
     source1='https://github.com/rberrah/Omics2PK/blob/main/docs/EPA_100_LIVER_EIGHT_CYP_BONFERRONI_REAL_RESULTS_20261017.md'
     source2='https://github.com/rberrah/Omics2PK/blob/main/docs/MEASURED_TKI_TWO_DRUG_ORIGINAL_RESULTS_20261017.md'
     issue='https://github.com/rberrah/Omics2PK/issues/38'
-    return ('<section class="small-hero"><p class="eyebrow">Analyze / Analyser</p>'
+    return ('<section class="small-hero"><p class="eyebrow">Integrate / Intégrer</p>'
         +t('Résultats réels, scripts et limites','Measured results, source scripts and limitations','h1')
         +t('Cette page présente des analyses pré-calculées et vérifiées ; elle n’est pas un moteur en ligne de calcul PK ou de prédiction thérapeutique.',
            'This page shows precomputed, source-verified research results; it is not an online PK analysis engine or clinical dosing predictor.','p','lede')+'</section>'
@@ -214,8 +214,8 @@ def resources(base):
 
 def document(page,body,base):
     titles={'home':'Omics2PK – omiques vers pharmacocinétique',
-            'learn':'Learn – Omics2PK','analyze':'Analyze – Omics2PK',
-            'disciplines':'Ecosystem – Omics2PK','resources':'Resources – Omics2PK'}
+            'learn':'Learn – Omics2PK','analyze':'Integrate – Omics2PK',
+            'ecosystem':'Ecosystem – Omics2PK','disciplines':'Ecosystem – Omics2PK','resources':'Resources – Omics2PK'}
     return ('<!doctype html><html lang="fr"><head>'
        '<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">'
        '<meta name="theme-color" content="#fbfaf8"><meta name="referrer" content="strict-origin-when-cross-origin">'
@@ -239,6 +239,7 @@ def render(out):
     mapping={'home':(Path('index.html'),'.',home),
              'learn':(Path('learn/index.html'),'..',learn),
              'analyze':(Path('analyze/index.html'),'..',analyze),
+             'ecosystem':(Path('ecosystem/index.html'),'..',disciplines),
              'disciplines':(Path('disciplines/index.html'),'..',disciplines),
              'resources':(Path('resources/index.html'),'..',resources)}
     for page,(path,depth,func) in mapping.items():
@@ -254,7 +255,7 @@ def render(out):
     (out/'sitemap.xml').write_text(
       '<?xml version="1.0" encoding="UTF-8"?>'
       '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'
-      +''.join('<url><loc>'+ROOT+(page+'/' if page else '')+'</loc></url>' for page in ('','learn','analyze','disciplines','resources'))
+      +''.join('<url><loc>'+ROOT+(page+'/' if page else '')+'</loc></url>' for page in ('','learn','analyze','ecosystem','disciplines','resources'))
       +'</urlset>',encoding='utf-8')
 
 if __name__=='__main__':
