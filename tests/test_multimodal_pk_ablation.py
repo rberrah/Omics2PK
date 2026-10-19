@@ -124,6 +124,42 @@ class MultimodalPatientPKTests(unittest.TestCase):
         with self.assertRaisesRegex(MultimodalPKBenchmarkError,">=80"):
             compare_modalities_pk(**d)
 
+    def test_real_software_xgboost_branch_on_fictional_80_people(self):
+        try:
+            import xgboost  # available only in the benchmark qualification job
+        except ImportError:
+            self.skipTest("Optional XGBoost benchmark dependency missing")
+        rng=np.random.default_rng(2001)
+        n=80
+        d=dict(
+            subject_ids=[f"FAKE_XGB_{i:04d}" for i in range(n)],
+            clinical=rng.normal(size=(n,3)),
+            genotype_dosages=rng.integers(0,3,size=(n,2)),
+            measured_pk=np.exp(rng.normal(3,0.2,size=n)),
+            index_dose_at=["2025-01-02T15:00:00+00:00"]*n,
+            modalities={
+                "transcriptomics":{
+                    "feature_ids":[f"FAKE_XGENE{i}" for i in range(7)],
+                    "values":rng.normal(size=(n,7)),
+                    "collected_at":["2025-01-01T15:00:00+00:00"]*n,
+                    "tissue":"liver","value_type":"normalized_vst_expression"},
+                "metabolomics":{
+                    "feature_ids":[f"FAKE_XMS{i}" for i in range(6)],
+                    "values":rng.uniform(0,1e5,size=(n,6)),
+                    "collected_at":["2025-01-01T15:00:00+00:00"]*n,
+                    "tissue":"plasma","value_type":"ms1_peak_area"},
+            },
+            pk_target_name="FICTIONAL_PK",pk_target_unit="FAKE_UNITS",
+            source_kind="synthetic",source_sha256="f"*64,
+            include_xgboost=True,
+        )
+        r=compare_modalities_pk(**d)
+        self.assertIn("reference_xgboost",r["models"])
+        self.assertIn("omic_pca_xgboost",r["models"])
+        self.assertEqual(r["models"]["omic_pca_xgboost"]["n_heldout_biological_people"],80)
+        self.assertTrue(np.isfinite(r["models"]["omic_pca_xgboost"]["mae"]))
+        self.assertNotIn("FAKE_XGB_",json.dumps(r))
+
     def test_no_genetic_source_status_not_genotype_justification(self):
         d=copy.deepcopy(self.d)
         d["genotype_dosages"]=None
