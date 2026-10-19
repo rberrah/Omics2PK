@@ -30,6 +30,8 @@ class Omics2PKPagesTests(unittest.TestCase):
             for goal in ("learn","analyze","disciplines","resources"):
                 self.assertIn('data-testid="goal-'+goal+'"',html,page)
             self.assertIn("Integrate",html,page)
+            self.assertIn('data-fr="Apprendre"',html,page)
+            self.assertIn('data-en="Ecosystem"',html,page)
             self.assertIn("site-header",html)
             self.assertIn('data-testid="logo-link"',html)
             self.assertIn('data-testid="language-toggle"',html)
