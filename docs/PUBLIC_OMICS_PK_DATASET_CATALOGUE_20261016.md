@@ -64,7 +64,7 @@
 3. **P1 wider transcriptomic**: qualify per-donor CYP activity outcomes and lawful exact join for 2010 HLC/GSE9588; refuse if no open outcome file.
 4. **P1 separate PK**: source-audit the original Wegler 15-donor × five-substrate HH/HLM CLint supplement, and obtain author data if not tabulated.
 5. **P2 clinical**: contact 2022 tacrolimus metabolomics study authors for matrices and/or verify feasibility of lawful BIOMARGIN molecular ↔ ABIS drug dose/concentration linkage; do not fabricate or fuzzy-match subjects.
-6. **P3 site**: only after validated empirical proof and source/legal checks, expose static safe research lessons and tools at rberrah.github.io with FR/EN, dark/light, Resources and Other Disciplines; no patient-level uploads or public model-driven dosing.
+6. **P3 site**: only after validated empirical proof and source/legal checks, expose static safe research lessons and tools at rberrah.github.io with FR/EN, dark/light, Resources and Ecosystem; no patient-level uploads or public model-driven dosing.
 
 **Audit certainty:** literature and official dataset identity/public download statements checked as of 2026-10-16; a published paper describing a paired assay is *not* proof every raw feature/outcome join is unrestricted and accessible. A green source-format CI is not a green scientific validation.
 
