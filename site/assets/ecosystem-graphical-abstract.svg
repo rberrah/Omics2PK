@@ -1,46 +1,86 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 900" role="img" aria-labelledby="title desc">
-  <title id="title">PMx research ecosystem: learn, analyze, integrate</title>
-  <desc id="desc">PMx Explain supports learning, MultiOmics supports reproducible omics analysis, and Omics2PK integrates molecular information with pharmacokinetic research. The tools remain separate and evidence-bounded.</desc>
-  <rect width="1440" height="900" rx="36" fill="#fbfaf8"/>
-  <text x="720" y="82" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="34" font-weight="700" fill="#1f2933">Research ecosystem · Écosystème de recherche</text>
-  <text x="720" y="124" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="20" fill="#5f6b76">Learn · Apprendre  →  Analyze · Analyser  →  Integrate · Intégrer</text>
-  <rect x="95" y="210" width="360" height="360" rx="28" fill="#ffffff" stroke="#d9d5cf" stroke-width="2"/>
-  <rect x="540" y="210" width="360" height="360" rx="28" fill="#ffffff" stroke="#d9d5cf" stroke-width="2"/>
-  <rect x="985" y="210" width="360" height="360" rx="28" fill="#ffffff" stroke="#d9d5cf" stroke-width="2"/>
-  <rect x="125" y="242" width="70" height="70" rx="18" fill="#a4441f"/>
-  <text x="160" y="287" text-anchor="middle" font-family="Georgia, serif" font-size="28" font-weight="700" fill="#ffffff">Pk</text>
-  <text x="220" y="266" font-family="Inter, Arial, sans-serif" font-size="18" font-weight="700" fill="#a4441f">LEARN · APPRENDRE</text>
-  <text x="125" y="336" font-family="Georgia, serif" font-size="34" font-weight="700" fill="#1f2933">PMx Explain</text>
-  <text x="125" y="382" font-family="Inter, Arial, sans-serif" font-size="20" fill="#374151">Concepts PK/PD, PopPK, MIPD,</text>
-  <text x="125" y="414" font-family="Inter, Arial, sans-serif" font-size="20" fill="#374151">covariables, simulations and teaching.</text>
-  <text x="125" y="474" font-family="Inter, Arial, sans-serif" font-size="18" font-weight="600" fill="#5f6b76">Question</text>
-  <text x="125" y="504" font-family="Inter, Arial, sans-serif" font-size="18" fill="#374151">How should a biological signal</text>
-  <text x="125" y="532" font-family="Inter, Arial, sans-serif" font-size="18" fill="#374151">be interpreted in pharmacometrics?</text>
-  <rect x="570" y="242" width="70" height="70" rx="18" fill="#a4441f"/>
-  <text x="605" y="287" text-anchor="middle" font-family="Georgia, serif" font-size="26" font-weight="700" fill="#ffffff">mO</text>
-  <text x="665" y="266" font-family="Inter, Arial, sans-serif" font-size="18" font-weight="700" fill="#a4441f">ANALYZE · ANALYSER</text>
-  <text x="570" y="336" font-family="Georgia, serif" font-size="34" font-weight="700" fill="#1f2933">MultiOmics</text>
-  <text x="570" y="382" font-family="Inter, Arial, sans-serif" font-size="20" fill="#374151">QC, single-/multi-omics methods,</text>
-  <text x="570" y="414" font-family="Inter, Arial, sans-serif" font-size="20" fill="#374151">native-R evidence and traceable export.</text>
-  <text x="570" y="474" font-family="Inter, Arial, sans-serif" font-size="18" font-weight="600" fill="#5f6b76">Output</text>
-  <text x="570" y="504" font-family="Inter, Arial, sans-serif" font-size="18" fill="#374151">Individual molecular measurements,</text>
-  <text x="570" y="532" font-family="Inter, Arial, sans-serif" font-size="18" fill="#374151">signatures and provenance.</text>
-  <rect x="1015" y="242" width="70" height="70" rx="18" fill="#a4441f"/>
-  <text x="1050" y="287" text-anchor="middle" font-family="Georgia, serif" font-size="26" font-weight="700" fill="#ffffff">oP</text>
-  <text x="1110" y="266" font-family="Inter, Arial, sans-serif" font-size="18" font-weight="700" fill="#a4441f">INTEGRATE · INTÉGRER</text>
-  <text x="1015" y="336" font-family="Georgia, serif" font-size="34" font-weight="700" fill="#1f2933">Omics2PK</text>
-  <text x="1015" y="382" font-family="Inter, Arial, sans-serif" font-size="20" fill="#374151">Molecular + clinical + PGx + PK,</text>
-  <text x="1015" y="414" font-family="Inter, Arial, sans-serif" font-size="20" fill="#374151">held-out comparisons and PK hypotheses.</text>
-  <text x="1015" y="474" font-family="Inter, Arial, sans-serif" font-size="18" font-weight="600" fill="#5f6b76">Question</text>
-  <text x="1015" y="504" font-family="Inter, Arial, sans-serif" font-size="18" fill="#374151">Do molecular states improve PK</text>
-  <text x="1015" y="532" font-family="Inter, Arial, sans-serif" font-size="18" fill="#374151">prediction beyond clinical + PGx?</text>
-  <path d="M455 390 H520" stroke="#a4441f" stroke-width="4" stroke-linecap="round"/>
-  <path d="M510 378 L526 390 L510 402" fill="none" stroke="#a4441f" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
-  <path d="M900 390 H965" stroke="#a4441f" stroke-width="4" stroke-linecap="round"/>
-  <path d="M955 378 L971 390 L955 402" fill="none" stroke="#a4441f" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
-  <rect x="155" y="660" width="1130" height="130" rx="26" fill="#f1ede8" stroke="#d9d5cf" stroke-width="2"/>
-  <text x="720" y="706" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="20" font-weight="700" fill="#1f2933">Shared principles · Principes communs</text>
-  <text x="720" y="746" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="19" fill="#374151">Reproducibility · provenance · explicit evidence levels · independent validation · research use</text>
-  <text x="720" y="778" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="17" fill="#5f6b76">No automatic causal, PK-readiness, dosing or clinical-validity claim is transferred between tools.</text>
-  <text x="720" y="850" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="16" fill="#6b7280">Separate repositories · shared navigation · explicit scientific boundaries</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 960" role="img" aria-labelledby="title desc">
+  <title id="title">Research ecosystem: PMx Explain, MultiOmics and Omics2PK</title>
+  <desc id="desc">Three complementary tools: PMx Explain for learning pharmacometrics, MultiOmics for reproducible omics analysis, and Omics2PK for testing the added value of molecular information in pharmacokinetic research. The analytical bridge runs from omics data through MultiOmics to an individual export, then Omics2PK and PK validation.</desc>
+
+  <rect width="1440" height="960" rx="36" fill="#fbfaf8"/>
+
+  <text x="720" y="70" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="36" font-weight="700" fill="#1f2933">Research ecosystem · Écosystème de recherche</text>
+  <text x="720" y="112" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="19" fill="#5f6b76">Three complementary roles · Trois rôles complémentaires</text>
+
+  <!-- PMx Explain -->
+  <rect x="70" y="170" width="400" height="360" rx="28" fill="#ffffff" stroke="#d9d5cf" stroke-width="2"/>
+  <rect x="100" y="202" width="178" height="38" rx="19" fill="#f5e8e2"/>
+  <text x="189" y="227" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="15" font-weight="700" fill="#a4441f">01 · LEARN / APPRENDRE</text>
+  <rect x="374" y="196" width="62" height="62" rx="16" fill="#a4441f"/>
+  <text x="405" y="236" text-anchor="middle" font-family="Georgia, serif" font-size="24" font-weight="700" fill="#ffffff">Pk</text>
+  <text x="100" y="292" font-family="Georgia, 'Times New Roman', serif" font-size="31" font-weight="700" fill="#1f2933">PMx Explain</text>
+  <text x="100" y="334" font-family="Inter, Arial, sans-serif" font-size="17" fill="#374151">PK/PD · PopPK · MIPD · simulation</text>
+  <text x="100" y="362" font-family="Inter, Arial, sans-serif" font-size="17" fill="#374151">Teaching · concepts · interpretation</text>
+  <line x1="100" y1="398" x2="440" y2="398" stroke="#e7e2dc" stroke-width="2"/>
+  <text x="100" y="434" font-family="Inter, Arial, sans-serif" font-size="15" font-weight="700" fill="#5f6b76">ROLE</text>
+  <text x="100" y="466" font-family="Inter, Arial, sans-serif" font-size="17" fill="#374151">Understand assumptions before using</text>
+  <text x="100" y="494" font-family="Inter, Arial, sans-serif" font-size="17" fill="#374151">biological signals in PK/PD models.</text>
+
+  <!-- MultiOmics -->
+  <rect x="520" y="170" width="400" height="360" rx="28" fill="#ffffff" stroke="#d9d5cf" stroke-width="2"/>
+  <rect x="550" y="202" width="202" height="38" rx="19" fill="#f5e8e2"/>
+  <text x="651" y="227" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="15" font-weight="700" fill="#a4441f">02 · ANALYZE / ANALYSER</text>
+  <rect x="824" y="196" width="62" height="62" rx="16" fill="#a4441f"/>
+  <text x="855" y="236" text-anchor="middle" font-family="Georgia, serif" font-size="22" font-weight="700" fill="#ffffff">mO</text>
+  <text x="550" y="292" font-family="Georgia, 'Times New Roman', serif" font-size="31" font-weight="700" fill="#1f2933">MultiOmics</text>
+  <text x="550" y="334" font-family="Inter, Arial, sans-serif" font-size="17" fill="#374151">QC · single-omics · multi-omics</text>
+  <text x="550" y="362" font-family="Inter, Arial, sans-serif" font-size="17" fill="#374151">Qualified methods · traceable outputs</text>
+  <line x1="550" y1="398" x2="890" y2="398" stroke="#e7e2dc" stroke-width="2"/>
+  <text x="550" y="434" font-family="Inter, Arial, sans-serif" font-size="15" font-weight="700" fill="#5f6b76">OUTPUT</text>
+  <text x="550" y="466" font-family="Inter, Arial, sans-serif" font-size="17" fill="#374151">Individual measurements, signatures</text>
+  <text x="550" y="494" font-family="Inter, Arial, sans-serif" font-size="17" fill="#374151">and provenance for reproducible reuse.</text>
+
+  <!-- Omics2PK -->
+  <rect x="970" y="170" width="400" height="360" rx="28" fill="#ffffff" stroke="#d9d5cf" stroke-width="2"/>
+  <rect x="1000" y="202" width="210" height="38" rx="19" fill="#f5e8e2"/>
+  <text x="1105" y="227" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="15" font-weight="700" fill="#a4441f">03 · INTEGRATE / INTÉGRER</text>
+  <rect x="1274" y="196" width="62" height="62" rx="16" fill="#a4441f"/>
+  <text x="1305" y="236" text-anchor="middle" font-family="Georgia, serif" font-size="22" font-weight="700" fill="#ffffff">oP</text>
+  <text x="1000" y="292" font-family="Georgia, 'Times New Roman', serif" font-size="31" font-weight="700" fill="#1f2933">Omics2PK</text>
+  <text x="1000" y="334" font-family="Inter, Arial, sans-serif" font-size="17" fill="#374151">Clinical · PGx · molecular · PK</text>
+  <text x="1000" y="362" font-family="Inter, Arial, sans-serif" font-size="17" fill="#374151">Held-out comparisons · PK hypotheses</text>
+  <line x1="1000" y1="398" x2="1340" y2="398" stroke="#e7e2dc" stroke-width="2"/>
+  <text x="1000" y="434" font-family="Inter, Arial, sans-serif" font-size="15" font-weight="700" fill="#5f6b76">QUESTION</text>
+  <text x="1000" y="466" font-family="Inter, Arial, sans-serif" font-size="17" fill="#374151">Do molecular states improve PK</text>
+  <text x="1000" y="494" font-family="Inter, Arial, sans-serif" font-size="17" fill="#374151">prediction beyond clinical + PGx?</text>
+
+  <!-- Analytical bridge -->
+  <rect x="70" y="590" width="1300" height="214" rx="28" fill="#f1ede8" stroke="#d9d5cf" stroke-width="2"/>
+  <text x="110" y="638" font-family="Inter, Arial, sans-serif" font-size="18" font-weight="700" fill="#1f2933">Research bridge · Chaîne analytique</text>
+  <text x="110" y="670" font-family="Inter, Arial, sans-serif" font-size="16" fill="#5f6b76">The analytical handoff is separate from the learning layer.</text>
+
+  <rect x="110" y="704" width="170" height="50" rx="12" fill="#ffffff" stroke="#cfc8bf" stroke-width="2"/>
+  <text x="195" y="736" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="16" font-weight="600" fill="#1f2933">Omics data</text>
+  <path d="M300 729 H340" stroke="#a4441f" stroke-width="3" stroke-linecap="round"/>
+  <path d="M330 720 L342 729 L330 738" fill="none" stroke="#a4441f" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <rect x="360" y="704" width="180" height="50" rx="12" fill="#ffffff" stroke="#cfc8bf" stroke-width="2"/>
+  <text x="450" y="736" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="16" font-weight="600" fill="#1f2933">MultiOmics</text>
+  <path d="M560 729 H600" stroke="#a4441f" stroke-width="3" stroke-linecap="round"/>
+  <path d="M590 720 L602 729 L590 738" fill="none" stroke="#a4441f" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <rect x="620" y="704" width="200" height="50" rx="12" fill="#ffffff" stroke="#cfc8bf" stroke-width="2"/>
+  <text x="720" y="736" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="16" font-weight="600" fill="#1f2933">Individual export</text>
+  <path d="M840 729 H880" stroke="#a4441f" stroke-width="3" stroke-linecap="round"/>
+  <path d="M870 720 L882 729 L870 738" fill="none" stroke="#a4441f" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <rect x="900" y="704" width="180" height="50" rx="12" fill="#ffffff" stroke="#cfc8bf" stroke-width="2"/>
+  <text x="990" y="736" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="16" font-weight="600" fill="#1f2933">Omics2PK</text>
+  <path d="M1100 729 H1140" stroke="#a4441f" stroke-width="3" stroke-linecap="round"/>
+  <path d="M1130 720 L1142 729 L1130 738" fill="none" stroke="#a4441f" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <rect x="1160" y="704" width="170" height="50" rx="12" fill="#ffffff" stroke="#cfc8bf" stroke-width="2"/>
+  <text x="1245" y="736" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="16" font-weight="600" fill="#1f2933">PK validation</text>
+
+  <text x="720" y="786" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="15" fill="#5f6b76">PMx Explain supports interpretation across the workflow; it is not a required data-processing step.</text>
+
+  <!-- Shared principles -->
+  <text x="720" y="860" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="17" font-weight="700" fill="#1f2933">Shared principles · Principes communs</text>
+  <text x="720" y="893" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="16" fill="#374151">Reproducibility · provenance · explicit evidence levels · independent validation · research use</text>
+  <text x="720" y="924" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="14" fill="#6b7280">Separate repositories · explicit scientific boundaries · no automatic causal, clinical-validity or dosing claim</text>
 </svg>
