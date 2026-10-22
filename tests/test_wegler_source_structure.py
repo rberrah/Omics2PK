@@ -62,6 +62,8 @@ class WeglerStructuralTests(unittest.TestCase):
         self.assertGreaterEqual(
             out["numeric_dense_candidate_row_counts_by_page"]["2"],2)
         self.assertFalse(out["raw_source_lines_or_values_exported"])
+        skeletons=out["redacted_candidate_row_skeletons_by_page"]["2"]
+        self.assertTrue(any("<NUM>" in x for x in skeletons))
         for forbidden in ("DONOR_A","DONOR_B","1.1","6.7"):
             self.assertNotIn(forbidden,repr(out))
 
