@@ -375,12 +375,14 @@ def pdf_structure(binary: bytes) -> dict:
     shape=_native_pdf_table_shape(page_texts)
     kinetics_records=_parse_wegler_kinetics_records(page_texts)
     kinetics_aggregate=_aggregate_kinetics_records(kinetics_records)
+    protein_clint_benchmark=_protein_to_raw_clint_lodo(kinetics_records)
     return {
         "source":"supporting PDF native text, without extracting donor values",
         "pdf_pages":len(doc.pages),
         "pdf_pages_with_native_text":populated_pages,
         **shape,
         "kinetics_table_S3_aggregate":kinetics_aggregate,
+        "protein_to_raw_clint_held_donor_benchmark":protein_clint_benchmark,
         "donor_level_clint_table_verified":True,
         "verification_note":(
             "Native Table S3 parser requires exactly the same 15 donor/batch IDs "
