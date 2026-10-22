@@ -71,6 +71,7 @@ def _fingerprint_pipeline(
     reference_fingerprint: str,
     edge_selection_mode: str | None = None,
     edge_selection_top_k: int | None = None,
+    edge_selection_fingerprint: str | None = None,
 ) -> str:
     """Fingerprint prediction state plus the frozen edge-selection protocol.
 
@@ -101,6 +102,7 @@ def _fingerprint_pipeline(
             repr(float(k)),
             edge_selection_mode,
             str(edge_selection_top_k),
+            str(edge_selection_fingerprint),
             preprocessor_fingerprint,
             reference_fingerprint,
         )
@@ -215,6 +217,7 @@ def fit_frozen_inductive_sweet_pipeline(
         reference_fingerprint=reference.fingerprint,
         edge_selection_mode=selector.mode,
         edge_selection_top_k=selector.top_k,
+        edge_selection_fingerprint=selector.fingerprint,
     )
     return FrozenInductiveSweetPipeline(
         genes=full_genes,
@@ -678,6 +681,9 @@ def load_frozen_inductive_sweet_pipeline(
         ),
         edge_selection_top_k=(
             None if fingerprint_version == 1 else edge_selection_top_k
+        ),
+        edge_selection_fingerprint=(
+            None if fingerprint_version == 1 else edge_selection_fingerprint
         ),
     )
     if pipeline_fingerprint != expected_pipeline:
