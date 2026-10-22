@@ -50,11 +50,13 @@ def reference_indices(gsm, strategy="first75"):
     if strategy=="first75":
         return list(range(n))
     repeat=re.fullmatch(r"sha256_r(\d+)_gsm\d+",strategy)
-    salt=("Omics2PK:GSE9588:reference:v1:"
-          +(f"repeat:{repeat.group(1)}:" if repeat else "baseline:"))
-    ranked=sorted(
-        range(len(gsm)),
-        key=lambda i:(sha256((salt+gsm[i]).encode()).hexdigest(),gsm[i]))
+    if repeat:
+        salt=f"Omics2PK:GSE9588:reference:v1:repeat:{repeat.group(1)}:"
+        key=lambda i:(sha256((salt+gsm[i]).encode()).hexdigest(),gsm[i])
+    else:
+        # Preserve the historical deterministic split exactly.
+        key=lambda i:(sha256(gsm[i].encode()).hexdigest(),gsm[i])
+    ranked=sorted(range(len(gsm)),key=key)
     return sorted(ranked[:n])
 
 
