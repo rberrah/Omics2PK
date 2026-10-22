@@ -1,5 +1,6 @@
 """Synthetic-only tests for the authenticated multi-CYP source gate."""
 import unittest
+from pathlib import Path
 
 from omics2pk.multicyp_rna_protein_activity_source_gate import (
     LABELS,
@@ -171,6 +172,13 @@ class MultiCYPSourceGateTests(unittest.TestCase):
         rows[0]["rna_value"]="0"
         with self.assertRaisesRegex(MultiCYPSourceNotQualified,"strictly positive"):
             source_contract(rows)
+
+
+    def test_public_header_only_author_source_template_matches_validator(self):
+        path=Path(__file__).resolve().parents[1]/"docs"/"templates"/"multicyp_same_donor_source_template.csv"
+        header=path.read_text(encoding="utf-8").strip().split(",")
+        self.assertEqual(tuple(header),LABELS)
+
 
 
 if __name__=="__main__":
