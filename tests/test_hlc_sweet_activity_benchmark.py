@@ -72,6 +72,28 @@ class HLCSweetActivityBenchmarkTests(unittest.TestCase):
             self.assertGreaterEqual(site["heldout_weight_clamp_fraction"], 0)
             self.assertLessEqual(site["heldout_weight_clamp_fraction"], 1)
 
+    def test_direct_cyp_comparator_can_use_multiple_source_probes(self):
+        out = evaluate_hlc_sweet_activity(
+            self.x,
+            genes=self.genes,
+            subject_ids=self.ids,
+            site_ids=self.sites,
+            ages=self.age,
+            sexes=self.sex,
+            activities=self.activity,
+            direct_cyp_gene=("CYP3A4", "G00", "G01"),
+            activity_label="synthetic_midazolam_turnover",
+            activity_unit="synthetic_units",
+            edge_top_k=12,
+            internal_crossfit_folds=5,
+        )
+        self.assertEqual(out["n_direct_cyp_expression_features"], 3)
+        self.assertEqual(
+            out["direct_cyp_expression_features"],
+            ("CYP3A4", "G00", "G01"),
+        )
+        self.assertIn("age_sex_plus_direct_cyp_rna", out["mae_by_model"])
+
     def test_heldout_site_expression_cannot_change_its_training_selection_or_reference(self):
         a = self.run_benchmark()
         changed = self.x.copy()

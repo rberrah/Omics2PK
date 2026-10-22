@@ -159,3 +159,33 @@ materialize their raw bytes from the project Library, so **no new HLC
 SWEET-vs-RNA numerical result is claimed by this PR**. The next authorized
 local run should consume those same original files without committing them and
 retain only aggregate metrics and source hashes.
+
+## Authorized local execution bridge
+
+The already-qualified HLC ZIP parser is now the single source reader for the
+new network benchmark; Omics2PK does **not** maintain a second ad-hoc importer.
+
+The original donor IDs use the source Table-S1 centre codebook:
+
+- `111…` → Vanderbilt;
+- `222…` → Pittsburgh;
+- `333…` → Merck.
+
+Any other prefix fails closed. The mapping is used only in memory and no
+individual donor ID is emitted.
+
+The direct-RNA comparator uses **all source-annotated array probes for the
+target CYP**, matching the historical HLC benchmark rather than selecting a
+single convenient probe.
+
+Authorized local command:
+
+    python -m scripts.benchmark_authorized_hlc_original \
+      --expression /private/curatedExpressionLiver.zip \
+      --phenotype /private/curatedPhenotypesynapse.zip \
+      --sweet --sweet-activity CYP3A4M_activity
+
+The bridge verifies the previously qualified archive SHA-256 values before
+running. The default first target is CYP3A4 midazolam activity; CYP3A4
+testosterone and the other source CYP assays can be run separately without
+mixing their physical endpoints.

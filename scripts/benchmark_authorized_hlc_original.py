@@ -36,6 +36,14 @@ def main(argv=None):
                         help="Optional fixed nonlinear XGBoost 10-CYP source ablation; xgboost package required")
     parser.add_argument("--fullarray",action="store_true",
                         help="Expensive optional 40k-probe PCA8 train-only control, 5 CYP endpoints")
+    parser.add_argument("--sweet",action="store_true",
+                        help="Run experimental site-disjoint inductive SWEET v1 E2 benchmark")
+    parser.add_argument("--sweet-activity",default="CYP3A4M_activity",
+                        help="One original HLC CYP activity endpoint for --sweet")
+    parser.add_argument("--sweet-edge-top-k",type=int,default=32,
+                        help="Outer-train-only variance-selected SWEET edge probes (default 32)")
+    parser.add_argument("--sweet-folds",type=int,default=5,
+                        help="Subject-disjoint crossfit folds inside each SWEET outer training centre")
     parser.add_argument("--permutations",type=int,default=199,
                         help="Within age-sex stratum RNA negative-control permutations (default 199)")
     args=parser.parse_args(argv)
@@ -59,6 +67,14 @@ def main(argv=None):
                 benchmark_original_hlc_fullarray)
             results["full_transcriptome_PCA8"]=benchmark_original_hlc_fullarray(
                 args.expression,args.phenotype)
+        if args.sweet:
+            from omics2pk.hlc_authorized_sweet_bridge import (
+                benchmark_authorized_hlc_sweet)
+            results["inductive_SWEET_v1_site_disjoint"]=benchmark_authorized_hlc_sweet(
+                args.expression,args.phenotype,
+                activity_key=args.sweet_activity,
+                edge_top_k=args.sweet_edge_top_k,
+                internal_crossfit_folds=args.sweet_folds)
     except (OriginalHLCQualificationError,OSError,ValueError) as err:
         raise SystemExit("HLC original source scientific qualification denied: "
                          +str(err)) from None

@@ -84,8 +84,14 @@ def load_original_hlc(expression_zip,phenotype_zip):
     exp[~np.isfinite(exp)]=np.nan
     yy={key:to_numeric(ph.loc[key],errors="coerce").to_numpy(float)
         for key in ACTIVITIES}
-    return {"sample_ids":ids.tolist(),"clinical":clin,
-            "rna":exp,"gene_rows":positions,"outcomes":yy}
+    return {
+        "sample_ids":ids.tolist(),
+        "clinical":clin,
+        "rna":exp,
+        "feature_ids":feature["feature_id"].astype(str).tolist(),
+        "gene_rows":positions,
+        "outcomes":yy,
+    }
 
 
 def _prediction_errors(x,y,folds):
