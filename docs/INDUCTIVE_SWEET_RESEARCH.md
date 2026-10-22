@@ -224,6 +224,44 @@ This does not prove passthrough is universally optimal. The remaining gate is
 source-specific batch/tissue/platform transportability on biologically
 independent cohorts with authenticated donor identities and outcomes.
 
+## Prospective train-frozen artifact
+
+The leakage-safe outer-split functions are useful for benchmarking, but a
+prospective deployment contract needs a stronger separation: fitting must end
+before the first future subject is seen. Omics2PK now exposes a distinct
+\`FrozenInductiveSweetPipeline\` research artifact for that purpose.
+
+\`fit_frozen_inductive_sweet_pipeline\` accepts **training subjects only** and
+freezes, in one immutable object:
+
+- the complete ordered transcriptomic gene universe used for sample weighting;
+- the prespecified ordered edge-gene panel;
+- the training-only transcriptome preprocessor and its fingerprint;
+- the transformed training reference and SWEET-inspired similarity
+  calibration;
+- tissue, \`k\`, and the explicit graph construction;
+- a composite SHA-256 pipeline fingerprint.
+
+The new prospective path defaults explicitly to
+\`query_anchored_duplicate_v1\`. Historical lower-level APIs keep their v0
+default so previous numerical experiments are not silently rewritten.
+
+\`predict_frozen_inductive_sweet_pipeline\` then accepts exactly **one new
+subject profile**. It applies the frozen preprocessor and frozen reference
+without recalculating cohort statistics. A second future subject cannot alter
+the first subject's prediction or the pipeline fingerprint. Reusing a training
+subject as a nominally new query, changing gene identity/order, or supplying a
+multi-subject query fails closed.
+
+This closes the software distinction between **leakage-controlled
+cross-validation** and a genuine **train-once / predict-new-subject** research
+workflow. It does not establish that the frozen representation transports
+across sites, batches, tissues or platforms, and it does not establish PK
+benefit. Any data-driven gene selection or hyperparameter tuning performed
+outside this object must itself remain nested inside the training partition;
+the object deliberately treats the edge panel and hyperparameters it receives
+as already prespecified/frozen.
+
 ## Gates and known limitations
 
 1. **Public outcome-free sanity check:** official SWEET 80-sample RNA
