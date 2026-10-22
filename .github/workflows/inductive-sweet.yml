@@ -16,6 +16,7 @@ on:
     paths:
       - "src/omics2pk/inductive_sweet.py"
       - "src/omics2pk/transcriptome_preprocessing.py"
+      - "src/omics2pk/frozen_sweet_pipeline.py"
       - "tests/test_inductive_sweet.py"
       - "tests/test_transcriptome_preprocessing.py"
       - "tests/test_frozen_sweet_pipeline.py"
