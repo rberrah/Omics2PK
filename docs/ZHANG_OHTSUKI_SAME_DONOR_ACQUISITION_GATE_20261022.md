@@ -26,6 +26,16 @@ interindividual variation in:
 The current publisher/ScienceDirect record also states that supplemental
 material exists.
 
+A second 2016 paper from the same Zhengzhou group
+(`10.1124/dmd.116.069849`, PMID `27271371`, open access) independently
+documents the **provenance of the measurement matrix**: it states that mRNA,
+protein and activity levels of 10 CYPs were simultaneously quantified in the
+**same set of 100 HLMs** used by Zhang et al. 2016. That paper also describes a
+database relating POR expression to the 10 CYP expression/activity measurements.
+This is strong evidence that the requested three-layer donor matrix existed,
+but it is **same-bank supporting evidence, not an independent replication** and
+does not provide a substitute donor-level table.
+
 ### What is NOT yet qualified
 
 No current public route inspected on 22 October 2026 yielded an authenticated,
@@ -141,9 +151,12 @@ that both Zhang and Ohtsuki contain the relevant biological measurements, and
 Ohtsuki explicitly documents individual-donor protein supplements.
 
 What is still missing is **the authenticated donor-level numerical source
-matrix itself**. The next legitimate route is authenticated institutional /
-publisher access or an author-provided original file, followed by hashing and
-the existing strict donor-level source gate.
+matrix itself**. Repeated public endpoint probing is no longer the preferred
+next step. The next legitimate route is authenticated institutional/publisher
+access or an author-provided original file, followed by hashing and the
+existing strict donor-level source gate. The exact minimal request and import
+schema are frozen in
+`ZHANG_OHTSUKI_AUTHOR_SOURCE_REQUEST_MANIFEST_20261022.md`.
 
 Until it is obtained legitimately, RNA vs protein vs RNA+protein superiority
 remains **unestablished**.
