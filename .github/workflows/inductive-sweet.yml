@@ -6,10 +6,12 @@ on:
       - "src/omics2pk/transcriptome_preprocessing.py"
       - "src/omics2pk/frozen_sweet_pipeline.py"
       - "src/omics2pk/hlc_sweet_activity_benchmark.py"
+      - "src/omics2pk/hlc_synapse_same_donor_gate.py"
       - "tests/test_inductive_sweet.py"
       - "tests/test_transcriptome_preprocessing.py"
       - "tests/test_frozen_sweet_pipeline.py"
       - "tests/test_hlc_sweet_activity_benchmark.py"
+      - "tests/test_hlc_synapse_same_donor_gate.py"
       - "pyproject.toml"
       - "scripts/pilot_inductive_public.py"
       - "tests/test_crossfit.py"
@@ -19,9 +21,13 @@ on:
       - "src/omics2pk/inductive_sweet.py"
       - "src/omics2pk/transcriptome_preprocessing.py"
       - "src/omics2pk/frozen_sweet_pipeline.py"
+      - "src/omics2pk/hlc_sweet_activity_benchmark.py"
+      - "src/omics2pk/hlc_synapse_same_donor_gate.py"
       - "tests/test_inductive_sweet.py"
       - "tests/test_transcriptome_preprocessing.py"
       - "tests/test_frozen_sweet_pipeline.py"
+      - "tests/test_hlc_sweet_activity_benchmark.py"
+      - "tests/test_hlc_synapse_same_donor_gate.py"
       - "pyproject.toml"
       - ".github/workflows/inductive-sweet.yml"
 permissions:
@@ -41,6 +47,7 @@ jobs:
       - run: python -m unittest discover -s tests -p test_transcriptome_preprocessing.py -v
       - run: python -m unittest discover -s tests -p test_frozen_sweet_pipeline.py -v
       - run: python -m unittest discover -s tests -p test_hlc_sweet_activity_benchmark.py -v
+      - run: python -m unittest discover -s tests -p test_hlc_synapse_same_donor_gate.py -v
       - uses: actions/checkout@v5
         with:
           repository: SysMednet/SWEET
