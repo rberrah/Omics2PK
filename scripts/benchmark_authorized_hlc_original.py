@@ -36,10 +36,13 @@ def main(argv=None):
                         help="Optional fixed nonlinear XGBoost 10-CYP source ablation; xgboost package required")
     parser.add_argument("--fullarray",action="store_true",
                         help="Expensive optional 40k-probe PCA8 train-only control, 5 CYP endpoints")
-    parser.add_argument("--sweet",action="store_true",
-                        help="Run experimental site-disjoint inductive SWEET v1 E2 benchmark")
-    parser.add_argument("--sweet-activity",default="CYP3A4M_activity",
-                        help="One original HLC CYP activity endpoint for --sweet")
+    sweet_mode=parser.add_mutually_exclusive_group()
+    sweet_mode.add_argument("--sweet",action="store_true",
+                        help="Run one experimental site-disjoint inductive SWEET v1 E2 endpoint")
+    sweet_mode.add_argument("--sweet-all",action="store_true",
+                        help="Run the prespecified family of all 10 original HLC CYP activity endpoints")
+    parser.add_argument("--sweet-activity",default=None,
+                        help="One original HLC CYP activity endpoint for --sweet; default CYP3A4M_activity")
     parser.add_argument("--sweet-edge-top-k",type=int,default=32,
                         help="Outer-train-only variance-selected SWEET edge probes (default 32)")
     parser.add_argument("--sweet-folds",type=int,default=5,
@@ -49,6 +52,8 @@ def main(argv=None):
     args=parser.parse_args(argv)
     if args.permutations<1 or args.permutations>999:
         raise SystemExit("Permutations must be between 1 and 999")
+    if args.sweet_all and args.sweet_activity is not None:
+        raise SystemExit("--sweet-activity cannot be combined with --sweet-all")
     try:
         results=benchmark_original_hlc_expression(
             args.expression,args.phenotype,permutations=args.permutations)
@@ -72,7 +77,14 @@ def main(argv=None):
                 benchmark_authorized_hlc_sweet)
             results["inductive_SWEET_v1_site_disjoint"]=benchmark_authorized_hlc_sweet(
                 args.expression,args.phenotype,
-                activity_key=args.sweet_activity,
+                activity_key=args.sweet_activity or "CYP3A4M_activity",
+                edge_top_k=args.sweet_edge_top_k,
+                internal_crossfit_folds=args.sweet_folds)
+        if args.sweet_all:
+            from omics2pk.hlc_authorized_sweet_bridge import (
+                benchmark_authorized_hlc_sweet_all)
+            results["inductive_SWEET_v1_site_disjoint_all_10"]=benchmark_authorized_hlc_sweet_all(
+                args.expression,args.phenotype,
                 edge_top_k=args.sweet_edge_top_k,
                 internal_crossfit_folds=args.sweet_folds)
     except (OriginalHLCQualificationError,OSError,ValueError) as err:
