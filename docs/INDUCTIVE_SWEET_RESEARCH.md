@@ -138,11 +138,29 @@ For legacy v0, broader weighting also improves uniqueness from **238/352 to
 
 This strongly indicates that the narrow 24-probe sample-weight universe was a
 major source of the apparent calibration failure. It does **not** prove that
-512 probes are sufficient or equivalent to a genome-wide SWEET input. A
-residual shift remains (22 low clamps, mean z −1.301), and the first-75-column
-reference itself is still arbitrary. The next software gate is therefore
-reference-selection/sample-count sensitivity using broad training-only sample
-weights, not ad-hoc modification of the weighting formula.
+512 probes are sufficient or equivalent to a genome-wide SWEET input.
+
+A second outcome-free sensitivity replaced the source-order `first75`
+reference with 75 GSM IDs selected deterministically by SHA-256 rank. Each
+reference strategy independently selected its 512 train-variable weight probes;
+neither expression values nor outcomes influenced which GSMs entered the
+reference. With v1:
+
+- clamps: **24 → 11**;
+- low clamps: **22 → 5**; high clamps: **2 → 6**;
+- zero weights: **22 → 5**;
+- |similarity z| > 3: **17 → 1**;
+- mean similarity z: **−1.301 → −0.200**;
+- median unclipped position: **0.333 → 0.545**;
+- v1 graph hashes remain **352/352 unique**.
+
+This demonstrates that GEO source order was another major contributor to the
+apparent distribution shift. It does **not** establish SHA-256 selection as an
+optimal biological reference; it is deliberately value/outcome-independent and
+serves only as an order-bias diagnostic. The remaining methodological gate is
+reference-size and repeated deterministic split sensitivity, ideally followed
+by genuinely independent donor/site validation once biological IDs and outcomes
+are available.
 
 ## Gates and known limitations
 
