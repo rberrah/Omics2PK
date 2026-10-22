@@ -26,6 +26,17 @@ class Omics2PKPagesTests(unittest.TestCase):
                 "analyze/index.html","ecosystem/index.html","disciplines/index.html",
                 "resources/index.html"]
 
+    def test_static_pages_declare_their_public_canonical_url(self):
+        origin="https://rberrah.github.io/Omics2PK/"
+        for path in self.pages():
+            html=(self.root/path).read_text(encoding="utf-8")
+            route=path.replace("index.html","")
+            if route=="learn/":
+                route="guide/"
+            expected=origin+route
+            self.assertEqual(html.count('rel="canonical"'),1,path)
+            self.assertIn(f'<link rel="canonical" href="{expected}">',html,path)
+
     def test_pages_keep_shared_navigation_and_learn_subpages(self):
         for page in self.pages():
             html=(self.root/page).read_text(encoding="utf-8")
@@ -69,12 +80,17 @@ class Omics2PKPagesTests(unittest.TestCase):
     def test_scientific_demo_answers_why_without_overclaiming(self):
         demo=(self.root/"demo/index.html").read_text(encoding="utf-8")
         self.assertIn('data-testid="central-hypothesis"',demo)
-        for term in ("−5.589","−11.757","−337.278","3,09465","4,19763",
+        for term in ("−5.589","−11.757","−337.278",
+                     "−0.2724","−0.4721","−0.0905","−0.0084",
+                     "3,09465","4,19763",
                      "7.343413","9.888019","4.601193","4.748841",
                      "2826.0472","2825.0240","115.1113","118.1449"):
             self.assertIn(term,demo)
         self.assertIn("valeur ajoutée moléculaire n’est pas confirmée",demo)
         self.assertIn("Omics2PK conserve ce résultat négatif",demo)
+        self.assertIn('id="wegler"',demo)
+        self.assertIn("Benchmark Wegler donneur-protéine→CLint",demo)
+        self.assertIn("elle n’est pas un substitut universel",demo)
         self.assertIn("Pourquoi Omics2PK",demo)
         self.assertIn("Apprendre · Objectif",demo)
         self.assertNotIn("lancer l’analyse",demo.lower())
