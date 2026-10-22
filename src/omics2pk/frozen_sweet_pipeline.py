@@ -499,8 +499,10 @@ def load_frozen_inductive_sweet_pipeline(
         manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError, TypeError) as exc:
         raise FrozenSweetPipelineError("Invalid frozen artifact manifest") from exc
-    if manifest.get("schema") != ARTIFACT_SCHEMA:
+    artifact_schema = manifest.get("schema")
+    if artifact_schema not in {ARTIFACT_SCHEMA_V1, ARTIFACT_SCHEMA}:
         raise FrozenSweetPipelineError("Unknown frozen artifact schema")
+    legacy_v1 = artifact_schema == ARTIFACT_SCHEMA_V1
     arrays_meta = manifest.get("arrays")
     if (
         not isinstance(arrays_meta, dict)
@@ -529,7 +531,29 @@ def load_frozen_inductive_sweet_pipeline(
         expected_preprocessor = str(pipeline_meta["preprocessing_fingerprint"])
         expected_reference = str(pipeline_meta["reference_fingerprint"])
         expected_pipeline = str(pipeline_meta["pipeline_fingerprint"])
+        if legacy_v1:
+            if pipeline_meta.get("schema") != "omics2pk.frozen-inductive-sweet.v1":
+                raise FrozenSweetPipelineError("Legacy artifact/pipeline schema mismatch")
+            edge_selection_mode = EDGE_SELECTION_PRESPECIFIED
+            edge_selection_top_k = len(edge_genes)
+            edge_selection_fingerprint = _prespecified_selector_fingerprint(
+                preprocessing_mode=mode,
+                subject_ids=subjects,
+                edge_genes=edge_genes,
+            )
+            fingerprint_version = 1
+        else:
+            if pipeline_meta.get("schema") != "omics2pk.frozen-inductive-sweet.v2":
+                raise FrozenSweetPipelineError("Artifact/pipeline schema mismatch")
+            edge_selection_mode = str(pipeline_meta["edge_selection_mode"])
+            edge_selection_top_k = int(pipeline_meta["edge_selection_top_k"])
+            edge_selection_fingerprint = str(
+                pipeline_meta["edge_selection_fingerprint"]
+            )
+            fingerprint_version = 2
     except (KeyError, TypeError, ValueError) as exc:
+        if isinstance(exc, FrozenSweetPipelineError):
+            raise
         raise FrozenSweetPipelineError("Incomplete frozen artifact metadata") from exc
     if (
         not genes
@@ -540,8 +564,22 @@ def load_frozen_inductive_sweet_pipeline(
         or not subjects
         or len(set(subjects)) != len(subjects)
         or any(not x.strip() for x in genes + edge_genes + subjects)
+        or edge_selection_mode not in EDGE_SELECTION_MODES
+        or edge_selection_top_k != len(edge_genes)
+        or len(edge_selection_fingerprint) != 64
+        or any(ch not in "0123456789abcdef" for ch in edge_selection_fingerprint)
     ):
         raise FrozenSweetPipelineError("Invalid frozen artifact identities")
+    if (
+        edge_selection_mode == EDGE_SELECTION_PRESPECIFIED
+        and edge_selection_fingerprint
+        != _prespecified_selector_fingerprint(
+            preprocessing_mode=mode,
+            subject_ids=subjects,
+            edge_genes=edge_genes,
+        )
+    ):
+        raise FrozenSweetPipelineError("Frozen prespecified selector fingerprint mismatch")
 
     try:
         with np.load(arrays_path, allow_pickle=False) as arrays:
@@ -635,6 +673,12 @@ def load_frozen_inductive_sweet_pipeline(
         k=k,
         preprocessor_fingerprint=preprocessor.fingerprint,
         reference_fingerprint=reference.fingerprint,
+        edge_selection_mode=(
+            None if fingerprint_version == 1 else edge_selection_mode
+        ),
+        edge_selection_top_k=(
+            None if fingerprint_version == 1 else edge_selection_top_k
+        ),
     )
     if pipeline_fingerprint != expected_pipeline:
         raise FrozenSweetPipelineError("Frozen pipeline fingerprint mismatch")
@@ -649,7 +693,11 @@ def load_frozen_inductive_sweet_pipeline(
         preprocessing_mode=mode,
         construction=construction,
         k=k,
+        edge_selection_mode=edge_selection_mode,
+        edge_selection_top_k=edge_selection_top_k,
+        edge_selection_fingerprint=edge_selection_fingerprint,
         preprocessor=preprocessor,
         reference=reference,
         fingerprint=pipeline_fingerprint,
+        fingerprint_version=fingerprint_version,
     )
