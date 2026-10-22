@@ -29,8 +29,7 @@ def a(path,label_fr,label_en,*,base,external=False):
 # Inline original Lucide icon SVG paths, same glyphs and sizes used by the Svelte sites.
 # Decorative icons contain no interactive handler and do not require a client bundle.
 LUCIDE = {
-    "demo": '<path d="M9 3h6"/><path d="M10 9h4"/><path d="M10 3v6l-5 9a2 2 0 0 0 1.7 3h10.6a2 2 0 0 0 1.7-3l-5-9V3"/><path d="M7.5 15h9"/>',
-    "guide": '<path d="M12 5v16"/><path d="M20.001 19A2 2 0 0022 17V5a2 2 0 00-1.999-2L16 3.002A5 5 0 0012 5a5 5 0 00-4-2H4a2 2 0 00-2 2v12a2 2 0 001.999 2H8a5 5 0 014 2 5 5 0 014-2z"/>',
+    "learn": '<path d="M12 5v16"/><path d="M20.001 19A2 2 0 0022 17V5a2 2 0 00-1.999-2L16 3.002A5 5 0 0012 5a5 5 0 00-4-2H4a2 2 0 00-2 2v12a2 2 0 001.999 2H8a5 5 0 014 2 5 5 0 014-2z"/>',
     "analyze": '<path d="M12 16v5"/><path d="M16 14.639V21"/><path d="M20 10.656V21"/><path d="m22 3-8.646 8.646a.5.5 0 0 1-.708 0L9.354 8.354a.5.5 0 0 0-.707 0L2 15"/><path d="M4 18.463V21"/><path d="M8 14.656V21"/>',
     "disciplines": '<path d="m16 6 4 14"/><path d="M12 6v14"/><path d="M8 8v12"/><path d="M4 4v16"/>',
     "resources": '<path d="m16 6 4 14"/><path d="M12 6v14"/><path d="M8 8v12"/><path d="M4 4v16"/>',
@@ -45,15 +44,11 @@ def lucide(name, size=16):
 
 def nav(base,page):
     groups = [
-      ("demo","Pourquoi ?","Why?",[
-         ("demo/","Démo scientifique","Scientific demo",False),
-         ("demo/#conclusion","Ce que les preuves disent","What the evidence says",False)
+      ("learn","Apprendre","Learn",[
+         ("demo/","Objectif","Objective",False),
+         ("guide/","Démo guidée","Guided demo",False)
       ]),
-      ("guide","Comment faire ?","How?",[
-         ("guide/","Cours guidé","Guided course",False),
-         ("guide/#checklist","Checklist d’une étude","Study checklist",False)
-      ]),
-      ("analyze","Analyser","Analyze",[
+      ("analyze","Analyze","Analyze",[
          ("analyze/","En cours de développement","In development",False)
       ]),
       ("disciplines","Écosystème","Ecosystem",[
@@ -71,7 +66,7 @@ def nav(base,page):
     for key,fr,en,links in groups:
         inner="".join(a(path,lfr,len_,base=base,external=ext) for path,lfr,len_,ext in links)
         details.append('<details class="goal" name="site-objective" data-testid="goal-'+key+'">'
-          '<summary'+(' class="active"' if (page==key or (key=="guide" and page=="learn") or (key=="disciplines" and page=="ecosystem")) else '')+'>'+lucide(key,16)
+          '<summary'+(' class="active"' if (page==key or (key=="learn" and page in ("demo","guide","learn")) or (key=="disciplines" and page=="ecosystem")) else '')+'>'+lucide(key,16)
           +t(fr,en)+lucide("down",13)+'</summary><div class="goal-links">'+inner+'</div></details>')
     return ('<header class="site-header"><a class="logo" href="'+base+'" aria-label="Omics2PK, accueil" data-testid="logo-link">'
         '<span class="mark" aria-hidden="true">oP</span><span class="word">Omics<em>2PK</em></span></a>'
@@ -97,14 +92,14 @@ def home(base):
            "From omics to PK: a hypothesis to test, not a promise.",'h1')
         +t("Omics2PK demande si un état moléculaire mesuré chez un individu apporte une information pharmacocinétique au-delà des covariables cliniques et pharmacogénétiques. Le site sépare volontairement la question scientifique, la méthode pour y répondre et le futur outil d’analyse.",
            "Omics2PK asks whether an individual's measured molecular state adds pharmacokinetic information beyond clinical and pharmacogenetic covariates. The site deliberately separates the scientific question, the method used to test it, and the future analysis tool.",'p','lede')
-        +'<div class="cta">'+a("demo/","Voir pourquoi","See why",base=base)
-        +'<a class="btn btn-outline" href="'+base+'guide/" data-fr="Apprendre comment faire" data-en="Learn how to do it">Apprendre comment faire</a></div>'
+        +'<div class="cta">'+a("demo/","Comprendre l’objectif","Understand the objective",base=base)
+        +'<a class="btn btn-outline" href="'+base+'guide/" data-fr="Suivre la démo guidée" data-en="Follow the guided demo">Suivre la démo guidée</a></div>'
         +t("Recherche exploratoire — valeur ajoutée des omiques en PK non démontrée de façon générale ; aucun modèle de dose clinique validé.",
            "Exploratory research — general added value of omics for PK is not established; no clinically validated dosing model.",'p','hero-note')+'</section>'
         +'<section class="objectives" aria-labelledby="objective-title">'+t("Par où commencer ?", "Where should I start?",'h2')+
         '<div class="objectives-grid">'+
-        a('demo/','Pourquoi tester les omiques en PK ?','Why test omics in PK?',base=base)+
-        a('guide/','Comment concevoir l’étude ?','How should the study be designed?',base=base)+
+        a('demo/','Objectif : pourquoi tester les omiques en PK ?','Objective: why test omics in PK?',base=base)+
+        a('guide/','Démo guidée : comment concevoir l’étude ?','Guided demo: how should the study be designed?',base=base)+
         a('analyze/','Analyze — en cours','Analyze — in development',base=base)+
         a('ecosystem/','Voir l’écosystème','Explore the ecosystem',base=base)+
         '</div></section><section class="section"><p class="eyebrow">Scientific status</p>'
@@ -124,7 +119,7 @@ def demo(base):
     metformin=REPO+'/blob/main/docs/E3_REAL_METFORMIN33_PREDOSE_384_OMICS_AUC_CLR_HELDOUT_20261018.md'
     epa=REPO+'/blob/main/docs/EPA_100_LIVER_EIGHT_CYP_BONFERRONI_REAL_RESULTS_20261017.md'
     jarmusch=REPO+'/blob/main/docs/JARMUSCH14_PUBLIC_REAL_CLINICAL_PK_PGX_20261018.md'
-    return ('<section class="small-hero"><p class="eyebrow">Démo scientifique / Scientific demo</p>'
+    return ('<section class="small-hero"><p class="eyebrow">Apprendre · Objectif / Learn · Objective</p>'
         +t('Pourquoi Omics2PK ?', 'Why Omics2PK?','h1')
         +t('La question n’est pas « peut-on entraîner un modèle avec des omiques ? », mais « un état moléculaire mesuré avant l’exposition apporte-t-il une information PK utile au-delà de ce que l’on savait déjà ? »',
            'The question is not “can we train a model using omics?” but “does molecular state measured before exposure add useful PK information beyond what was already known?”','p','lede')+'</section>'
@@ -177,7 +172,7 @@ def demo(base):
         +'</section>')
 
 def guide(base):
-    return ('<section class="small-hero"><p class="eyebrow">Cours guidé / Guided course</p>'
+    return ('<section class="small-hero"><p class="eyebrow">Apprendre · Démo guidée / Learn · Guided demo</p>'
         +t('Comment construire une étude Omics→PK correcte ?', 'How do you build a valid Omics→PK study?','h1')
         +t('Ce parcours suit la décision scientifique dans l’ordre. L’objectif n’est pas de choisir immédiatement un algorithme, mais d’empêcher les erreurs d’identité, de temporalité, de comparaison et de validation qui rendraient le résultat impossible à interpréter.',
            'This course follows the scientific decision in order. The goal is not to choose an algorithm immediately, but to prevent identity, timing, comparison and validation errors that would make the result uninterpretable.','p','lede')+'</section>'
@@ -264,7 +259,7 @@ def analyze(base):
         +'<div class="callout">'+t('Pour l’instant, aucune zone de dépôt de données et aucun bouton « lancer l’analyse » ne sont affichés. Les utilisateurs de recherche avancés peuvent consulter le code et les protocoles reproductibles dans le dépôt GitHub.',
              'For now, no data-upload area and no “run analysis” button are shown. Advanced research users can inspect the reproducible code and protocols in the GitHub repository.','p')+'</div>'
         +'<div class="cta">'+a('demo/','Démo scientifique','Scientific demo',base=base)
-        +'<a class="btn btn-outline" href="'+base+'guide/" data-fr="Cours guidé" data-en="Guided course">Cours guidé</a>'
+        +'<a class="btn btn-outline" href="'+base+'guide/" data-fr="Démo guidée" data-en="Guided demo">Démo guidée</a>'
         +'<a class="btn btn-outline" href="'+REPO+'" target="_blank" rel="noopener noreferrer" data-fr="Code de recherche ↗" data-en="Research code ↗">Code de recherche ↗</a></div>'
         +'</section>')
 
@@ -317,9 +312,9 @@ def resources(base):
 
 def document(page,body,base):
     titles={'home':'Omics2PK – omiques vers pharmacocinétique',
-            'demo':'Démo scientifique – Omics2PK',
-            'guide':'Cours guidé – Omics2PK',
-            'learn':'Cours guidé – Omics2PK',
+            'demo':'Objectif – Omics2PK',
+            'guide':'Démo guidée – Omics2PK',
+            'learn':'Démo guidée – Omics2PK',
             'analyze':'Analyze – en cours – Omics2PK',
             'ecosystem':'Ecosystem – Omics2PK','disciplines':'Ecosystem – Omics2PK','resources':'Resources – Omics2PK'}
     return ('<!doctype html><html lang="fr"><head>'

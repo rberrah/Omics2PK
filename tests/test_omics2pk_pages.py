@@ -26,16 +26,18 @@ class Omics2PKPagesTests(unittest.TestCase):
                 "analyze/index.html","ecosystem/index.html","disciplines/index.html",
                 "resources/index.html"]
 
-    def test_pages_use_new_why_how_analyze_navigation(self):
+    def test_pages_keep_shared_navigation_and_learn_subpages(self):
         for page in self.pages():
             html=(self.root/page).read_text(encoding="utf-8")
-            self.assertEqual(html.count('<details class="goal"'),5,page)
-            for goal in ("demo","guide","analyze","disciplines","resources"):
+            self.assertEqual(html.count('<details class="goal"'),4,page)
+            for goal in ("learn","analyze","disciplines","resources"):
                 self.assertIn('data-testid="goal-'+goal+'"',html,page)
-            self.assertIn('data-fr="Pourquoi ?"',html,page)
-            self.assertIn('data-fr="Comment faire ?"',html,page)
-            self.assertIn('data-fr="Analyser"',html,page)
-            self.assertNotIn('data-fr="Apprendre"',html,page)
+            self.assertIn('data-fr="Apprendre"',html,page)
+            self.assertIn('data-fr="Analyze"',html,page)
+            self.assertIn('data-fr="Écosystème"',html,page)
+            self.assertIn('data-fr="Ressources"',html,page)
+            self.assertIn('data-fr="Objectif"',html,page)
+            self.assertIn('data-fr="Démo guidée"',html,page)
             self.assertIn("site-header",html)
             self.assertIn('data-testid="logo-link"',html)
             self.assertIn('data-testid="language-toggle"',html)
@@ -73,6 +75,7 @@ class Omics2PKPagesTests(unittest.TestCase):
         self.assertIn("valeur ajoutée moléculaire n’est pas confirmée",demo)
         self.assertIn("ce n’est pas une preuve que les omiques battent le génotype",demo)
         self.assertIn("Pourquoi Omics2PK",demo)
+        self.assertIn("Apprendre · Objectif",demo)
         self.assertNotIn("lancer l’analyse",demo.lower())
 
     def test_guided_course_teaches_how_in_scientific_order(self):
@@ -87,8 +90,8 @@ class Omics2PKPagesTests(unittest.TestCase):
             self.assertIn(term,guide)
         self.assertIn('id="checklist"',guide)
         self.assertIn("Même personne et même visite vérifiées",guide)
-        self.assertIn("Cours guidé / Guided course",legacy)
-        self.assertNotIn("Learn / Apprendre",legacy)
+        self.assertIn("Apprendre · Démo guidée / Learn · Guided demo",guide)
+        self.assertIn("Apprendre · Démo guidée / Learn · Guided demo",legacy)
 
     def test_analyze_is_explicitly_in_progress_and_has_no_analyzer(self):
         analyze=(self.root/"analyze/index.html").read_text(encoding="utf-8")
