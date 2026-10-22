@@ -19,8 +19,25 @@ Primary sources:
 The source article reports microsomal activities for nine CYP enzymes in
 398 HLC liver samples, with two CYP3A4 probe substrates (midazolam and
 testosterone), and source-normalized liver expression from the same parent
-cohort. The cohort sizes at the project/entity level are **not** an automatic
-same-donor crosswalk.
+cohort. Current Synapse metadata reports 465 samples for `syn88644` and 836 for
+`syn4629`; these entity-level counts are **not** an automatic complete-case
+same-donor count.
+
+
+### Preferred source join: Synapse-to-Synapse, not GEO-to-Synapse
+
+The primary local acquisition route should use the owner-obtained original
+`curatedExpressionLiver` (`syn88644`) and `curatedPhenotype` (`syn4629`)
+assets from the same HLC project. If their source donor keys are demonstrably
+compatible, this is preferable to forcing a `GSE9588 GSM -> Synapse donor`
+crosswalk. GSE9588 remains an independently public expression reference and a
+useful numerical stress test, but it is **not required** for the HLC activity
+benchmark when the original Synapse expression entity is available.
+
+No row-order join is allowed: the shared biological donor key must be explicit
+in the source assets. The historical 466-study / 465-current-expression /
+427-GEO / 398-activity counts must remain distinct until the actual source join
+is executed.
 
 ## Why this benchmark is preferable to forcing SWEET onto EPA100
 
