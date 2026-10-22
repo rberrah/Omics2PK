@@ -35,6 +35,29 @@ The GitHub Actions job executes the same **public-only software regression**
 as a small automated check. It downloads no controlled data, exports no
 individual molecular profiles, and retains only aggregate comparison metrics.
 
+## Pinned upstream edge-case characterization
+
+The same pinned upstream revision is also exercised on synthetic-only pathological
+inputs. This is a characterization of current upstream behavior, not a claim that
+those behaviors are scientifically desirable.
+
+- Step 1 rejects the literal token `NA`, but a numeric `nan` token can propagate
+  to non-finite sample weights without a failing process exit.
+- Step 2 converts a missing expression token to zero, removes a gene when its
+  row **sum equals zero** even if the gene is not constant, and can emit non-finite
+  correlation edges for a constant gene.
+- Step 3 uses Python `argparse type=bool`; therefore `-z False` is still truthy.
+  If the global raw-edge SD is zero, standardized edge values are undefined and
+  become non-finite.
+
+Omics2PK does not silently emulate or repair these edge cases. The exchange-to-
+SWEET preflight rejects missing or non-finite expression, constant gene profiles,
+constant sample profiles, and nonconstant exactly zero-sum gene profiles before
+writing an upstream input. Negative expression values are not rejected merely
+for being negative when the matrix otherwise passes these safety checks. This
+keeps the original SWEET reproduction intact while preventing known degenerate
+inputs from entering the research pipeline.
+
 ## Important research limitations
 
 - Upstream sample weights and correlations are transductive: they include all
