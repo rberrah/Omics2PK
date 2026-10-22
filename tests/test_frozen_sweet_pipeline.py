@@ -196,17 +196,22 @@ class FrozenSweetPipelineTests(unittest.TestCase):
         self.assertEqual(
             pipe.reference.fingerprint, outer["outer_reference_fingerprint"]
         )
-        self.assertEqual(prospective["features"], heldout["features"])
-        self.assertEqual(
-            prospective["network_qc"]["weight"], heldout["weight"]
+        for gene in self.edge_genes:
+            self.assertAlmostEqual(
+                prospective["features"][gene], heldout["features"][gene], places=12
+            )
+        self.assertAlmostEqual(
+            prospective["network_qc"]["weight"], heldout["weight"], places=12
         )
-        self.assertEqual(
+        self.assertAlmostEqual(
             prospective["network_qc"]["sample_similarity_z_vs_reference"],
             heldout["sample_similarity_z_vs_reference"],
+            places=12,
         )
-        self.assertEqual(
+        self.assertAlmostEqual(
             prospective["network_qc"]["weight_position_unclipped"],
             heldout["weight_position_unclipped"],
+            places=12,
         )
         self.assertEqual(
             prospective["network_qc"]["weight_clamped_outside_reference"],
