@@ -3,7 +3,9 @@ import io
 import unittest
 import zipfile
 
-from scripts.audit_wegler_source_structure import workbook_structure_only
+from scripts.audit_wegler_source_structure import (
+    _native_pdf_table_shape,workbook_structure_only,
+)
 
 
 def fake_xlsx() -> bytes:
@@ -42,6 +44,37 @@ class WeglerStructuralTests(unittest.TestCase):
         self.assertNotIn("DO_NOT_LEAK", repr(data))
         self.assertNotIn("DONOR_ID", repr(data))
         self.assertNotIn("234.5", repr(data))
+
+
+    def test_native_pdf_shape_finds_candidate_without_returning_source_rows(self):
+        pages=[
+            "Supporting information donor characteristics and methods.",
+            "Table S3 intrinsic clearance CLint HH HLM midazolam omeprazole "
+            "bupropion diclofenac bufuralol\n"
+            "DONOR_A 1.1 2.2 3.3 4.4 5.5 6.6\n"
+            "DONOR_B 1.2 2.3 3.4 4.5 5.6 6.7",
+            "Figure S4 unrelated narrative.",
+        ]
+        out=_native_pdf_table_shape(pages)
+        self.assertTrue(out["native_table_parser_feasible_candidate"])
+        self.assertEqual(out["candidate_native_clint_table_pages"],[2])
+        self.assertEqual(out["pages_with_all_five_probe_drugs"],[2])
+        self.assertGreaterEqual(
+            out["numeric_dense_candidate_row_counts_by_page"]["2"],2)
+        self.assertFalse(out["raw_source_lines_or_values_exported"])
+        for forbidden in ("DONOR_A","DONOR_B","1.1","6.7"):
+            self.assertNotIn(forbidden,repr(out))
+
+    def test_keyword_without_native_numeric_rows_does_not_verify_table(self):
+        pages=[
+            "Clearance and CLint were investigated in all donors. "
+            "Midazolam and bupropion were studied.",
+            "Figure S1 shows kinetics but no tabular values in native text.",
+        ]
+        out=_native_pdf_table_shape(pages)
+        self.assertFalse(out["native_table_parser_feasible_candidate"])
+        self.assertEqual(out["candidate_native_clint_table_pages"],[])
+        self.assertTrue(out["pages_with_clearance_or_clint"])
 
     def test_wrong_sheet_fails_closed(self):
         with self.assertRaisesRegex(ValueError, "No required compartments"):
