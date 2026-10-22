@@ -172,11 +172,31 @@ reference:
 
 All four v1 runs retain **100% unique graph hashes**. The result is not
 monotonic at small/medium n, so it does not justify a universal threshold.
-The zero-clamp n=150 result is a promising software-QC observation on one
-deterministic nested split only. The next gate is therefore **repeated
-outcome-free deterministic n=150 splits** before choosing a default minimum
-reference size, followed later by independent donor/site validation once
-biological IDs and outcomes are available.
+The original zero-clamp n=150 result was therefore tested across four
+additional, predeclared salted SHA-256 reference rankings. Reference membership
+used GSM identifiers only; expression values and outcomes never selected the
+150 reference samples.
+
+Across the **five** n=150 references (277 held-out queries each):
+
+| Reference | v1 clamps | Clamp fraction | Low / high | Zero weights | |z|>3 | Mean z |
+|---|---:|---:|---:|---:|---:|---:|
+| historical sha256 baseline | 0 | 0% | 0 / 0 | 0 | 0 | −0.201 |
+| repeat 1 | 3 | 1.083% | 3 / 0 | 3 | 0 | −0.060 |
+| repeat 2 | 1 | 0.361% | 0 / 1 | 0 | 0 | +0.151 |
+| repeat 3 | 5 | 1.805% | 3 / 2 | 3 | 1 | −0.007 |
+| repeat 4 | 0 | 0% | 0 / 0 | 0 | 1 | −0.137 |
+
+Thus **2/5** deterministic n=150 references have zero clamps and the worst
+observed clamp fraction is **1.805%**. n=150 is materially better calibrated
+than the historical first-75 reference, but the single zero-clamp result was
+not universally reproducible. This does **not** justify a universal
+"minimum n=150" rule. Reference composition still matters.
+
+The next gate is therefore no longer to search for a convenient reference
+size. It is to qualify upstream train-only preprocessing/normalisation and then
+test stability across biologically independent donor/site cohorts when such
+source identities and outcomes are available.
 
 ## Gates and known limitations
 
