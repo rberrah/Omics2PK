@@ -9,6 +9,8 @@ from __future__ import annotations
 
 import argparse
 from collections import Counter
+from math import exp, log, sqrt
+from statistics import mean, median
 import io
 import json
 import re
