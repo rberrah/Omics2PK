@@ -36,6 +36,8 @@ class FrozenReference:
     gene_correlation: np.ndarray
     sample_similarity_min: float
     sample_similarity_max: float
+    sample_similarity_mean: float
+    sample_similarity_std: float
     k: float
     fingerprint: str
     weight_expression: np.ndarray
@@ -101,7 +103,8 @@ def fit_frozen_reference(
     n = len(subjects)
     means = (np.sum(subject_corr, axis=1) - 1.0) / (n - 1)
     lo, hi = float(means.min()), float(means.max())
-    if hi - lo <= 1e-12:
+    sim_mean, sim_std = float(means.mean()), float(means.std())
+    if hi - lo <= 1e-12 or sim_std <= 1e-12:
         raise InductiveNetworkError("Reference similarity range is degenerate")
     digest = hashlib.sha256()
     digest.update("\n".join(genes).encode())
@@ -115,7 +118,8 @@ def fit_frozen_reference(
     wx.setflags(write=False)
     gene_corr.setflags(write=False)
     return FrozenReference(genes, subjects, tissue, x, gene_corr,
-                           lo, hi, float(k), digest.hexdigest(), wx, wgenes)
+                           lo, hi, sim_mean, sim_std, float(k),
+                           digest.hexdigest(), wx, wgenes)
 
 
 def predict_network(
@@ -188,10 +192,20 @@ def predict_network(
             or not np.isfinite(anchor).all() or not np.isfinite(perturbed).all()):
         raise InductiveNetworkError("Undefined augmented Pearson correlations")
     similarity = float(query_similarities.mean())
-    position = (similarity - reference.sample_similarity_min + EPSILON) / (
-        reference.sample_similarity_max - reference.sample_similarity_min + EPSILON)
-    clamped = not (0 <= position <= 1)
-    position = float(np.clip(position, 0.0, 1.0))
+    position_unclipped = (
+        similarity - reference.sample_similarity_min + EPSILON
+    ) / (
+        reference.sample_similarity_max - reference.sample_similarity_min + EPSILON
+    )
+    clamped = not (0 <= position_unclipped <= 1)
+    clamp_direction = (
+        "low" if position_unclipped < 0
+        else ("high" if position_unclipped > 1 else "none")
+    )
+    position = float(np.clip(position_unclipped, 0.0, 1.0))
+    similarity_z = (
+        similarity - reference.sample_similarity_mean
+    ) / reference.sample_similarity_std
     weight = reference.k * effective_cohort_n * position
     graph = anchor + weight * (perturbed - anchor)
     if not np.isfinite(graph).all():
@@ -207,8 +221,16 @@ def predict_network(
         "weight_genes": len(reference.weight_genes),
         "uses_full_weight_expression": reference.weight_genes != reference.genes,
         "sample_similarity": similarity,
-        "weight": weight,
+        "reference_sample_similarity_min": reference.sample_similarity_min,
+        "reference_sample_similarity_max": reference.sample_similarity_max,
+        "reference_sample_similarity_mean": reference.sample_similarity_mean,
+        "reference_sample_similarity_std": reference.sample_similarity_std,
+        "sample_similarity_z_vs_reference": float(similarity_z),
+        "weight_position_unclipped": float(position_unclipped),
+        "weight_position_clipped": position,
         "weight_clamped_outside_reference": clamped,
+        "weight_clamp_direction": clamp_direction,
+        "weight": weight,
         "construction": construction,
         "query_specific_anchor_includes_query_once": construction == CONSTRUCTION_V1,
         "perturbation_duplicates_query_once": construction == CONSTRUCTION_V1,
