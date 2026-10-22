@@ -113,6 +113,37 @@ verified GSM→independent-donor crosswalk, no probe→gene mechanistic annotati
 in this smoke test and no matched CYP activity/PK endpoint.
 Therefore this result is not evidence of predictive PK utility.
 
+### Sample-weight universe sensitivity on the same GSE9588 split
+
+The historical GSE9588 smoke used the same 24 probes both for network edges and
+for sample-weight similarity. This is narrower than the published SWEET design,
+where sample weights are derived from a much broader expression universe.
+A source-identical sensitivity therefore kept the 24 edge probes fixed but
+expanded sample weighting to **512 finite probes selected for non-zero variance
+inside the same 75-reference training set only**.
+
+On the same 75-reference / 352-query split, query-anchored v1 changed from:
+
+- clamped weights: **117 → 24**;
+- low clamps: **115 → 22**; high clamps remain **2 → 2**;
+- zero weights: **115 → 22**;
+- queries with |similarity z| > 3: **69 → 17**;
+- mean similarity z: **−1.757 → −1.301**;
+- median unclipped weight position: **0.156 → 0.333**;
+- minimum unclipped position: **−0.677 → −0.230**;
+- v1 graph hashes remain **352/352 unique** in both settings.
+
+For legacy v0, broader weighting also improves uniqueness from **238/352 to
+331/352** graphs because fewer queries collapse to a zero-update reference.
+
+This strongly indicates that the narrow 24-probe sample-weight universe was a
+major source of the apparent calibration failure. It does **not** prove that
+512 probes are sufficient or equivalent to a genome-wide SWEET input. A
+residual shift remains (22 low clamps, mean z −1.301), and the first-75-column
+reference itself is still arbitrary. The next software gate is therefore
+reference-selection/sample-count sensitivity using broad training-only sample
+weights, not ad-hoc modification of the weighting formula.
+
 ## Gates and known limitations
 
 1. **Public outcome-free sanity check:** official SWEET 80-sample RNA
