@@ -241,6 +241,7 @@ def build_preprocessed_inductive_outer_split(
     construction: str = "query_anchored_duplicate_v1",
     edge_selection_mode: str = EDGE_SELECTION_PRESPECIFIED,
     edge_top_k: int | None = None,
+    topology_control_seed: int | None = None,
 ) -> dict[str, object]:
     """Preprocess on outer train, then build leakage-controlled inductive features.
 
@@ -272,7 +273,7 @@ def build_preprocessed_inductive_outer_split(
         train_ids=prep["train_ids"],test_ids=prep["test_ids"],
         tissue=tissue,folds=folds,k=k,
         weight_expression=combined,weight_genes=all_genes,
-        construction=construction)
+        construction=construction,topology_control_seed=topology_control_seed)
     out.update({
         "preprocessing_mode":mode,
         "preprocessing_fingerprint":prep["preprocessing_fingerprint"],
