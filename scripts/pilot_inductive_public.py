@@ -68,18 +68,30 @@ def pilot(upstream: Path) -> dict:
     ]
     if frozen_pipeline.reference.fingerprint != split["outer_reference_fingerprint"]:
         raise ValueError("Frozen prospective reference differs from outer-split reference")
+    parity_atol = 1e-12
+    max_feature_parity_difference = 0.0
+    max_qc_parity_difference = 0.0
     for prospective, heldout in zip(frozen_predictions, split["test"]):
-        if prospective["features"] != heldout["features"]:
-            raise ValueError("Frozen prospective features differ from outer-split heldout features")
+        for gene, value in prospective["features"].items():
+            diff = abs(value - heldout["features"][gene])
+            max_feature_parity_difference = max(max_feature_parity_difference, diff)
+            if diff > parity_atol:
+                raise ValueError("Frozen prospective features differ from outer-split heldout features")
         qc = prospective["network_qc"]
+        for key in (
+            "weight",
+            "sample_similarity_z_vs_reference",
+            "weight_position_unclipped",
+        ):
+            diff = abs(qc[key] - heldout[key])
+            max_qc_parity_difference = max(max_qc_parity_difference, diff)
+            if diff > parity_atol:
+                raise ValueError("Frozen prospective QC differs from outer-split heldout QC")
         if (
-            qc["weight"] != heldout["weight"]
-            or qc["sample_similarity_z_vs_reference"] != heldout["sample_similarity_z_vs_reference"]
-            or qc["weight_position_unclipped"] != heldout["weight_position_unclipped"]
-            or qc["weight_clamped_outside_reference"] != heldout["weight_clamped_outside_reference"]
+            qc["weight_clamped_outside_reference"] != heldout["weight_clamped_outside_reference"]
             or qc["weight_clamp_direction"] != heldout["weight_clamp_direction"]
         ):
-            raise ValueError("Frozen prospective QC differs from outer-split heldout QC")
+            raise ValueError("Frozen prospective categorical QC differs from outer-split heldout QC")
     ref = fit_frozen_reference(
         values[:, :60], genes=genes, subject_ids=train,
         tissue="TCGA-archived-unspecified",
@@ -160,6 +172,9 @@ def pilot(upstream: Path) -> dict:
             len({r["reference_fingerprint"] for r in split["test"]}) == 1),
         "prospective_frozen_pipeline_fingerprint": frozen_pipeline.fingerprint,
         "prospective_frozen_pipeline_matches_outer_split_all_test_subjects": True,
+        "prospective_frozen_pipeline_parity_absolute_tolerance": parity_atol,
+        "prospective_frozen_pipeline_max_feature_abs_difference": max_feature_parity_difference,
+        "prospective_frozen_pipeline_max_qc_abs_difference": max_qc_parity_difference,
         "prospective_frozen_pipeline_refits_query": False,
         "heldout_patient_invariant_to_other_heldout_profile": True,
         "clipped_test_weights": clipped,
