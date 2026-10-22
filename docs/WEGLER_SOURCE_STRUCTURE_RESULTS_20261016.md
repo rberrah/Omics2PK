@@ -1,34 +1,123 @@
-# Wegler 2021 — source structure verified, donor-CLint still unverified
+# Wegler 2021 — original donor CLint/protein crosswalk and held-donor benchmark
 
-Date: **2026-10-16**. Public GitHub Actions: https://github.com/rberrah/Omics2PK/actions/runs/38922776553
+Updated: **22 October 2026**.
 
 ## Source provenance
-Wegler C et al., *Molecular Pharmaceutics* 2021, DOI [10.1021/acs.molpharmaceut.1c00053](https://doi.org/10.1021/acs.molpharmaceut.1c00053), PMCID PMC8041379. The paper studies donor-matched HH and HLM in-vitro intrinsic clearance (CLint) and proteomics in 15 human liver donors for five CYP probe substrates. This is **NOT** a clinical PopPK dataset of dose and patient plasma concentrations.
 
-All three supporting files were downloaded temporarily through official PMC AWS (version PMC8041379.1), checked against fixed SHA-256 hashes and inspected **without storing donor IDs, individual protein values or CLint outcomes** in GitHub CI artifacts.
+Wegler C et al., *Molecular Pharmaceutics* 2021, DOI
+[10.1021/acs.molpharmaceut.1c00053](https://doi.org/10.1021/acs.molpharmaceut.1c00053),
+PMCID PMC8041379.
 
-## Observed source structure
+The study contains donor-matched human hepatocytes (HH) and human liver
+microsomes (HLM) from **15 human liver donors**, five CYP probe substrates and
+quantitative CYP/proteomic measurements. This is an **in-vitro drug-metabolism
+E2 benchmark**, not clinical plasma PK, PopPK or a dosing model.
 
-| Public support | Structural result | Scientific interpretation |
-|---|---|---|
-| Supplemental PDF | 21 pages, all with native text; 4 distinct table-number references, 10 distinct figure-number references | Contents searchable, but **no donor-level CLint table confirmed** |
-| Data S1 — Hepatocytes | 4,785 XML rows; 34 cell elements in each of first four rows | Large global proteomics matrix; rows/cells are **not independent donors** |
-| Data S1 — Microsomes | 5,173 XML rows; 34 cell elements in each of first four rows | Separate compartment-specific global proteome |
-| Data S1 — Description | 8 XML rows | Metadata, not a measured PK outcome table |
-| Data S2 — bioinformatics | Original contrast worksheets and fixed hash verified | Cannot be presumed to contain donor-level PK outcomes |
+Official PMC AWS source files are SHA-locked:
 
-A PDF keyword match, clearance plot, workbook sheet, or correlation does not prove that original numerical CLint observations per donor and compound can be matched to source proteome columns. The source audit explicitly leaves donor-level CLint table verification and numerical outcome extraction at FALSE.
+- supporting PDF: `5beaab1117a32bb281734504dc19237bd264b5db0857837dfd794a9319892bab`;
+- Data S1 proteomics: `8ce5df4f3e167915bbb963c8706b747360cf8ea9dd9538e7184d2a454d9c6ea6`;
+- Data S2 bioinformatics: `623b6f4813193c348aa4a213ea9c4f5d380230a8932145cab472420059b3b213`.
 
-## Blocking scientific work, issue #11
+No donor identifier, individual protein value, CLint value or prediction is
+stored in GitHub artifacts or committed to the repository.
 
-1. Independently review the original PDF: which tables include exact **donor × five drugs × HH/HLM** numerical CLint values (not merely figure axes or group summaries)? Record original assay units, unbound/total basis, missingness/censoring and technical repeats.
-2. Identify provenance-supported donor IDs in the S1 Hepatocytes and Microsomes matrices and prove the correspondence to CLint measurements. 34 populated cells in an XML row do **not** mean 34 donors.
-3. Only then build a donor/compound/system crosswalk; if exact per-donor source CLint is not tabulated, request original outcome tables from study authors. Image/plot digitization, if used, must be a separately labelled **low-fidelity exploratory** sensitivity, never a "measured original data" benchmark.
-4. Once eligible, run prespecified donor-disjoint leave-one-donor-out drug-specific reference vs measured-CYP protein vs carefully defined HLM→HH transfer models with clustered uncertainty and all null findings.
+## Source Table S3 is now qualified
 
-## Thesis fit
-- Chapter 4: molecular functional phenotype and IVIVE.
-- Chapter 10: molecular protein–in-vitro CLint proof; **not** yet RNA→clinical PK.
-- Chapter 13: provenance, mediation and abstention when source data cannot be transported.
-- Clinical R2 and future dosing require real linked individual dose/time/concentration records, not this liver-protein bench.
-- Negative NCI-60 GI50 results remain PD-related, not PK.
+The 21-page supporting PDF is native text; OCR or figure digitisation is not
+required. A strict source parser identifies Table S3 over pages 5–7:
+
+- **75 source rows = 15 donors × 5 probe drugs**;
+- the exact same 15 donor/batch identifiers occur in every drug block;
+- drugs: midazolam, omeprazole, diclofenac, bupropion and bufuralol;
+- columns contain corresponding CYP concentrations in HLM/HH/HL, CYP amount in
+  incubation, HH Kpuu and five equation-derived clearance columns;
+- `ND` is retained as source missingness rather than converted to zero.
+
+The equation-column mapping is independently checked against the paper:
+
+- `eq.1` = source HLM `CLint,mic`, mL/min/kg body weight;
+- `eq.4` = source HH `CLint,hep`, mL/min/kg body weight.
+
+For midazolam, parsed aggregate `eq.1` is **374.7 (203.4–818.9)** and
+`eq.4` is **134.0 (45.5–413.1)**, reproducing the rounded values reported in
+the article. Bufuralol has exactly **2 ND HLM CLint** rows, also matching the
+published description.
+
+Therefore the former status
+`donor_level_clint_table_verified = false` is obsolete.
+
+## Prespecified held-donor benchmark
+
+For each drug and assay system separately:
+
+1. target = log source CLint;
+2. baseline = training-donor mean log CLint;
+3. biological predictor = **one corresponding CYP protein concentration**
+   measured in the same system;
+4. fixed Ridge alpha = 1 after train-only standardisation;
+5. leave-one-donor-out;
+6. no variable selection or hyperparameter search;
+7. paired donor bootstrap of the loss difference is descriptive only and is
+   not multiplicity-adjusted.
+
+Primary metric below is
+`Δ log-MAE = MAE(CYP protein) − MAE(training mean)`; negative is better.
+
+### Human hepatocytes (HH)
+
+| Probe drug | CYP | n | Baseline log-MAE | CYP protein log-MAE | Δ log-MAE | Descriptive 95% paired bootstrap |
+|---|---|---:|---:|---:|---:|---:|
+| midazolam | CYP3A | 15 | 0.4350 | **0.1626** | **−0.2724** | **[−0.4603, −0.1115]** |
+| omeprazole | CYP2C19 | 15 | 0.9011 | **0.4289** | **−0.4721** | **[−0.7624, −0.1496]** |
+| diclofenac | CYP2C9 | 15 | 0.2344 | **0.1439** | **−0.0905** | **[−0.1624, −0.0110]** |
+| bupropion | CYP2B6 | 15 | 0.2826 | 0.2702 | −0.0124 | [−0.0589, 0.0322] |
+| bufuralol | CYP2D6 | 15 | 0.3405 | 0.3751 | +0.0347 | [−0.0024, 0.0794] |
+
+Descriptive pooled log-MAE across the repeated drug observations is
+**0.4387 → 0.2762** (Δ −0.1626). This pooled number is **not an independent
+75-person analysis**: the same 15 donors contribute up to five drugs.
+
+### Human liver microsomes (HLM)
+
+| Probe drug | CYP | n | Baseline log-MAE | CYP protein log-MAE | Δ log-MAE | Descriptive 95% paired bootstrap |
+|---|---|---:|---:|---:|---:|---:|
+| midazolam | CYP3A | 15 | 0.3390 | 0.2199 | −0.1191 | [−0.2571, 0.0116] |
+| omeprazole | CYP2C19 | 15 | 0.7936 | 0.7673 | −0.0263 | [−0.1704, 0.1648] |
+| diclofenac | CYP2C9 | 15 | 0.4812 | 0.4882 | +0.0070 | [−0.0369, 0.0572] |
+| bupropion | CYP2B6 | 15 | 0.4866 | 0.5184 | +0.0317 | [−0.0435, 0.1181] |
+| bufuralol | CYP2D6 | 13 | 0.4172 | 0.4932 | +0.0760 | [−0.0073, 0.2142] |
+
+Descriptive pooled log-MAE is **0.5059 → 0.4975** (Δ −0.0084). None of the
+five per-drug descriptive bootstrap intervals excludes zero.
+
+## Scientific interpretation
+
+This is a genuine same-donor demonstration that measured molecular protein
+abundance can carry predictive information for measured drug metabolism.
+However the effect is **system- and substrate-dependent**.
+
+The strongest signal occurs in intact hepatocytes for midazolam,
+omeprazole and diclofenac. It is weak or absent for other substrate/system
+pairs, and the HLM pooled improvement is negligible. Protein abundance is
+therefore **not a universal surrogate for CLint**.
+
+This result supports Omics2PK's central concept of testing a functional
+molecular phenotype against a pharmacological outcome, while also showing why
+the platform must preserve negative and heterogeneous results.
+
+It does **not** establish:
+
+- RNA superiority or RNA+protein benefit — Wegler has no qualified matched RNA;
+- systemic patient clearance, AUC or concentration prediction;
+- external donor/site validation;
+- causal mediation;
+- a clinical dose recommendation.
+
+## Remaining optional Wegler extension
+
+Data S1 contains the global HH/HLM proteomic matrices. A future high-dimensional
+or multi-protein benchmark would require a separately prespecified donor-column
+mapping and nested feature handling. It is **not required** for the primary
+targeted-CYP result above and should not replace it with a p≫n search on 15
+donors.

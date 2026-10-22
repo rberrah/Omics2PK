@@ -9,6 +9,9 @@ from __future__ import annotations
 
 import argparse
 from collections import Counter
+from math import exp, log, sqrt
+from statistics import mean, median
+from random import Random
 import io
 import json
 import re
@@ -31,35 +34,385 @@ EXPECTED_HASHES = {
 }
 
 
+DRUG_TERMS=("midazolam","omeprazole","bupropion","diclofenac","bufuralol")
+
+
+
+def _redacted_line_skeleton(line: str) -> str:
+    """Preserve table words/layout but remove source numeric values and IDs."""
+    # Mixed alpha-numeric assay/donor-like tokens are masked before numbers.
+    out=re.sub(
+        r"\b(?:donor|sample|subject|batch)[_-]?[A-Za-z0-9_.-]*\b",
+        "<ID>",line,flags=re.I)
+    out=re.sub(r"\b(?=\w*[A-Za-z])(?=\w*\d)[A-Za-z0-9_.-]+\b","<ID>",out)
+    out=re.sub(
+        r"(?<![A-Za-z])[-+]?(?:\d+(?:\.\d*)?|\.\d+)(?:[Ee][-+]?\d+)?",
+        "<NUM>",out)
+    out=re.sub(r"\s+"," ",out).strip()
+    return out[:240]
+
+
+
+KINETICS_COLUMNS=(
+    "cyp_hlm_pmol_per_mg","cyp_hh_pmol_per_mg","cyp_hl_pmol_per_mg",
+    "cyp_hlm_pmol_in_incubation","cyp_hh_pmol_in_incubation","kpuu_hh",
+    "source_eq1","source_eq2","source_eq3","source_eq4","source_eq5",
+)
+
+
+def _parse_source_number(token: str):
+    token=token.strip()
+    if token.upper()=="ND":
+        return None
+    try:
+        value=float(token.replace("−","-"))
+    except ValueError:
+        return ...
+    return value if value==value and abs(value)!=float("inf") else ...
+
+
+def _parse_wegler_kinetics_records(page_texts: list[str]) -> list[dict]:
+    """Parse native Table S3 rows from PDF text without OCR.
+
+    Returned donor rows are transient and must never be printed or serialized.
+    Exact structural invariants protect against silently parsing narrative text.
+    """
+    if len(page_texts)<7:
+        raise ValueError("Wegler kinetics parser requires source PDF pages 5-7")
+    records=[]
+    current_drug=None
+    for content in page_texts[4:7]:
+        for raw in content.splitlines():
+            line=raw.strip()
+            folded=line.casefold()
+            matched=next((d for d in DRUG_TERMS if folded==d),None)
+            if matched:
+                current_drug=matched
+                continue
+            if current_drug is None:
+                continue
+            parts=line.split()
+            if len(parts)!=12:
+                continue
+            values=[_parse_source_number(x) for x in parts[1:]]
+            if any(x is ... for x in values):
+                continue
+            donor=parts[0].strip()
+            # Donor/batch labels must be compact identifiers, never numeric data.
+            if (not donor or len(donor)>40
+                    or not re.fullmatch(r"[A-Za-z0-9_.-]+",donor)
+                    or _parse_source_number(donor) is not ...):
+                continue
+            records.append({
+                "donor_id":donor,
+                "drug":current_drug,
+                **dict(zip(KINETICS_COLUMNS,values)),
+            })
+    by_drug={d:[r for r in records if r["drug"]==d] for d in DRUG_TERMS}
+    if set(by_drug)!=set(DRUG_TERMS) or any(len(rows)!=15 for rows in by_drug.values()):
+        raise ValueError(
+            "Source Table S3 did not yield exactly 15 native-text rows for each probe drug")
+    donor_sets={d:{r["donor_id"] for r in rows} for d,rows in by_drug.items()}
+    if any(len(x)!=15 for x in donor_sets.values()):
+        raise ValueError("Duplicate donor/batch row in source kinetics table")
+    first=next(iter(donor_sets.values()))
+    if any(x!=first for x in donor_sets.values()):
+        raise ValueError("Five source probe-drug blocks do not share the same 15 donors")
+    return records
+
+
+RAW_CLINT_MAPPING={
+    "HLM":("cyp_hlm_pmol_per_mg","source_eq1"),
+    "HH":("cyp_hh_pmol_per_mg","source_eq4"),
+}
+
+
+def _validate_raw_clint_column_mapping(records: list[dict]) -> dict:
+    """Cross-check Table S3 columns against independently published aggregates."""
+    mid=[r for r in records if r["drug"]=="midazolam"]
+    def summary(key):
+        values=sorted(float(r[key]) for r in mid if r[key] is not None)
+        return min(values),float(median(values)),max(values)
+    mic=summary("source_eq1")
+    hep=summary("source_eq4")
+    published=((203.0,375.0,819.0),(45.0,134.0,414.0))
+    if any(abs(a-b)>1.1 for got,ref in zip((mic,hep),published)
+           for a,b in zip(got,ref)):
+        raise ValueError("Table S3 eq1/eq4 no longer match published midazolam raw CLint")
+    buf=[r for r in records if r["drug"]=="bufuralol"]
+    if sum(r["source_eq1"] is None for r in buf)!=2:
+        raise ValueError("Expected two source-ND bufuralol HLM raw CLint rows")
+    if any(r["source_eq4"] is None for r in buf):
+        raise ValueError("Unexpected missing bufuralol HH raw CLint")
+    return {
+        "source_eq1_semantics":"raw HLM CLint,mic scaled to mL/min/kg bw",
+        "source_eq4_semantics":"raw HH CLint,hep scaled to mL/min/kg bw",
+        "midazolam_eq1_aggregate_matches_published_rounding":True,
+        "midazolam_eq4_aggregate_matches_published_rounding":True,
+        "bufuralol_two_HLM_ND_rows_match_published_description":True,
+    }
+
+
+def _ridge_one_feature_predict(train_x,train_y,query_x,alpha=1.0):
+    mx=mean(train_x)
+    sx=sqrt(sum((x-mx)**2 for x in train_x)/len(train_x))
+    my=mean(train_y)
+    if sx<=1e-12:
+        return my
+    z=[(x-mx)/sx for x in train_x]
+    zq=(query_x-mx)/sx
+    beta=sum(a*(b-my) for a,b in zip(z,train_y))/(sum(a*a for a in z)+alpha)
+    return my+beta*zq
+
+
+def _paired_loss_bootstrap_ci(differences,seed,draws=10000):
+    """Deterministic paired donor bootstrap; descriptive, not multiplicity-adjusted."""
+    values=[float(x) for x in differences]
+    if len(values)<8:
+        return None
+    rng=Random(seed)
+    n=len(values)
+    boot=[]
+    for _ in range(draws):
+        boot.append(mean(values[rng.randrange(n)] for _ in range(n)))
+    boot.sort()
+    lo=boot[int(0.025*(draws-1))]
+    hi=boot[int(0.975*(draws-1))]
+    return [round(lo,6),round(hi,6)]
+
+def _protein_to_raw_clint_lodo(records: list[dict]) -> dict:
+    """Held-donor protein -> raw CLint benchmark, aggregate output only."""
+    mapping=_validate_raw_clint_column_mapping(records)
+    systems={}
+    for system,(protein_key,outcome_key) in RAW_CLINT_MAPPING.items():
+        drug_results={}
+        all_baseline=[]
+        all_protein=[]
+        for drug in DRUG_TERMS:
+            rows=[
+                r for r in records
+                if r["drug"]==drug
+                and r[protein_key] is not None and r[outcome_key] is not None
+                and float(r[protein_key])>0 and float(r[outcome_key])>0
+            ]
+            if len(rows)<8:
+                drug_results[drug]={
+                    "status":"ABSTAIN_TOO_FEW_COMPLETE_DONORS",
+                    "n_complete_donors":len(rows),
+                }
+                continue
+            baseline_errors=[]
+            protein_errors=[]
+            for i,held in enumerate(rows):
+                train=[x for j,x in enumerate(rows) if j!=i]
+                tx=[log(float(x[protein_key])) for x in train]
+                ty=[log(float(x[outcome_key])) for x in train]
+                qx=log(float(held[protein_key]))
+                target=log(float(held[outcome_key]))
+                baseline=mean(ty)
+                pred=_ridge_one_feature_predict(tx,ty,qx,alpha=1.0)
+                baseline_errors.append(abs(baseline-target))
+                protein_errors.append(abs(pred-target))
+            paired_differences=[
+                p-b for p,b in zip(protein_errors,baseline_errors)]
+            delta=mean(paired_differences)
+            all_baseline.extend(baseline_errors)
+            all_protein.extend(protein_errors)
+            drug_seed=20261022+sum(ord(ch) for ch in (system+drug))
+            drug_results[drug]={
+                "status":"HELD_DONOR_COMPLETE_CASE",
+                "n_complete_donors":len(rows),
+                "baseline_log_MAE":round(mean(baseline_errors),6),
+                "CYP_protein_log_MAE":round(mean(protein_errors),6),
+                "delta_log_MAE_protein_minus_baseline":round(delta,6),
+                "paired_donor_bootstrap_CI95_delta_log_MAE":
+                    _paired_loss_bootstrap_ci(paired_differences,drug_seed),
+                "bootstrap_is_descriptive_not_multiplicity_adjusted":True,
+                "protein_better_than_baseline":delta<0,
+                "n_donors_lower_abs_log_error_with_protein":sum(
+                    p<b for p,b in zip(protein_errors,baseline_errors)),
+                "geometric_fold_error_baseline":round(exp(mean(baseline_errors)),6),
+                "geometric_fold_error_CYP_protein":round(exp(mean(protein_errors)),6),
+            }
+        systems[system]={
+            "per_drug":drug_results,
+            "pooled_descriptive_log_MAE_baseline":round(mean(all_baseline),6),
+            "pooled_descriptive_log_MAE_CYP_protein":round(mean(all_protein),6),
+            "pooled_descriptive_delta":round(mean(all_protein)-mean(all_baseline),6),
+            "n_held_donor_predictions":len(all_baseline),
+        }
+    return {
+        "status":"REAL_WEGLER_TABLE_S3_HELD_DONOR_PROTEIN_TO_RAW_CLINT",
+        "source_mapping_validation":mapping,
+        "model":"per-drug donor-LODO; log CLint; one log CYP-protein feature; fixed ridge alpha=1",
+        "systems":systems,
+        "no_hyperparameter_search":True,
+        "per_drug_inference":"paired donor bootstrap; descriptive; no multiplicity-adjusted confirmatory claim",
+        "pooled_metrics_are_descriptive_only_due_to_repeated_donors_across_drugs":True,
+        "no_individual_predictions_exported":True,
+        "clinical_PK_claim":False,
+    }
+
+def _aggregate_kinetics_records(records: list[dict]) -> dict:
+    """Aggregate-only source report; never returns donor identifiers or rows."""
+    from statistics import median
+    out={}
+    for drug in DRUG_TERMS:
+        rows=[r for r in records if r["drug"]==drug]
+        eq={}
+        for key in KINETICS_COLUMNS[6:]:
+            observed=[float(r[key]) for r in rows if r[key] is not None]
+            eq[key]={
+                "n_observed":len(observed),
+                "n_ND":len(rows)-len(observed),
+                "median":round(float(median(observed)),6) if observed else None,
+                "min":round(min(observed),6) if observed else None,
+                "max":round(max(observed),6) if observed else None,
+            }
+        out[drug]={
+            "n_source_donor_rows":len(rows),
+            "equation_columns":eq,
+        }
+    return {
+        "status":"NATIVE_TABLE_S3_PARSED_AGGREGATE_ONLY",
+        "n_probe_drugs":len(out),
+        "n_unique_source_donors":len({r["donor_id"] for r in records}),
+        "same_15_donors_across_all_drugs":True,
+        "drug_aggregate_equation_columns":out,
+        "donor_ids_or_individual_values_exported":False,
+    }
+
+
+def _native_pdf_table_shape(page_texts: list[str]) -> dict:
+    """Aggregate native-text table diagnostics without exporting source values.
+
+    No line text, donor identifier, numeric assay value or table cell is
+    returned.  This is a structural gate used to decide whether a source-exact
+    parser is feasible without OCR/figure digitisation.
+    """
+    term_pages=Counter()
+    possible_tables=set()
+    possible_figures=set()
+    pages_with_clint=[]
+    pages_with_both_systems=[]
+    pages_with_all_five_drugs=[]
+    pages_with_dense_candidate_rows=[]
+    dense_row_counts={}
+    dense_row_skeletons={}
+    donor_keyword_pages=[]
+    table_caption_skeletons={}
+    clearance_context_skeletons={}
+    parser_design_context={}
+    for pageno,content in enumerate(page_texts,start=1):
+        folded=content.casefold()
+        if "donor" in folded:
+            donor_keyword_pages.append(pageno)
+        for term in ("clearance","clint","kinetics","donor","cyp3a4",
+                     *DRUG_TERMS,"hepatocyte","microsome"):
+            if term in folded:
+                term_pages[term]+=1
+        if "clint" in folded or "clearance" in folded:
+            pages_with_clint.append(pageno)
+        # Source may spell compartments as HH/HLM or in full.
+        has_hh=bool(re.search(r"\bHH\b",content,re.I) or "hepatocyte" in folded)
+        has_hlm=bool(re.search(r"\bHLM\b",content,re.I) or "microsome" in folded)
+        if has_hh and has_hlm:
+            pages_with_both_systems.append(pageno)
+        if all(drug in folded for drug in DRUG_TERMS):
+            pages_with_all_five_drugs.append(pageno)
+        for match in re.finditer(r"\b(?:Table|TABLE)\s*S?([1-9]\d?)\b",content):
+            possible_tables.add(match.group(1))
+        for match in re.finditer(r"\b(?:Figure|FIGURE|Fig\.?)\s*S?([1-9]\d?)\b",content):
+            possible_figures.add(match.group(1))
+
+        lines=content.splitlines()
+        if pageno in (5,6,7):
+            safe=[]
+            for line in lines:
+                skeleton=_redacted_line_skeleton(line)
+                if skeleton and skeleton not in safe and len(safe)<48:
+                    safe.append(skeleton)
+            parser_design_context[str(pageno)]=safe
+        for idx,line in enumerate(lines):
+            if re.search(r"\bTable\s*S?[1-9]\d?\b",line,re.I):
+                context=" ".join(lines[idx:min(len(lines),idx+2)])
+                table_caption_skeletons.setdefault(str(pageno),[]).append(
+                    _redacted_line_skeleton(context))
+            lf=line.casefold()
+            if "clint" in lf or "clearance" in lf or "kinetics" in lf:
+                context=" ".join(lines[max(0,idx-1):min(len(lines),idx+2)])
+                bucket=clearance_context_skeletons.setdefault(str(pageno),[])
+                skeleton=_redacted_line_skeleton(context)
+                if skeleton and skeleton not in bucket and len(bucket)<8:
+                    bucket.append(skeleton)
+
+        # Native PDF tables often become one row per extracted text line.
+        # Count only the *shape*: >=4 numeric fields plus a relevant assay term
+        # or a compact row with >=6 numeric fields.  Never retain line content.
+        dense=0
+        for line in content.splitlines():
+            nums=re.findall(
+                r"(?<![A-Za-z])[-+]?(?:\d+(?:\.\d*)?|\.\d+)(?:[Ee][-+]?\d+)?",
+                line)
+            lf=line.casefold()
+            relevant=(
+                "clint" in lf or "clearance" in lf
+                or any(drug in lf for drug in DRUG_TERMS)
+                or bool(re.search(r"\b(?:HH|HLM)\b",line,re.I))
+            )
+            if len(nums)>=6 or (relevant and len(nums)>=4):
+                dense+=1
+                skeleton=_redacted_line_skeleton(line)
+                if skeleton:
+                    bucket=dense_row_skeletons.setdefault(str(pageno),[])
+                    if skeleton not in bucket and len(bucket)<8:
+                        bucket.append(skeleton)
+        if dense:
+            pages_with_dense_candidate_rows.append(pageno)
+            dense_row_counts[str(pageno)]=dense
+    candidate_pages=sorted(set(pages_with_clint) & set(pages_with_dense_candidate_rows))
+    return {
+        "pages_containing_research_terms":dict(sorted(term_pages.items())),
+        "n_distinct_table_number_mentions":len(possible_tables),
+        "n_distinct_figure_number_mentions":len(possible_figures),
+        "pages_with_clearance_or_clint":pages_with_clint,
+        "pages_with_HH_and_HLM_context":pages_with_both_systems,
+        "pages_with_all_five_probe_drugs":pages_with_all_five_drugs,
+        "pages_with_donor_keyword":donor_keyword_pages,
+        "pages_with_numeric_dense_candidate_rows":pages_with_dense_candidate_rows,
+        "numeric_dense_candidate_row_counts_by_page":dense_row_counts,
+        "redacted_candidate_row_skeletons_by_page":dense_row_skeletons,
+        "redacted_table_caption_context_by_page":table_caption_skeletons,
+        "redacted_clearance_context_by_page":clearance_context_skeletons,
+        "redacted_parser_design_context_pages_5_7":parser_design_context,
+        "candidate_native_clint_table_pages":candidate_pages,
+        "native_table_parser_feasible_candidate":bool(candidate_pages),
+        "raw_source_lines_or_values_exported":False,
+    }
+
+
 def pdf_structure(binary: bytes) -> dict:
     from pypdf import PdfReader  # only needed in the dedicated research CI
-    doc = PdfReader(io.BytesIO(binary))
-    term_counts = Counter()
-    populated_pages = 0
-    possible_tables = set()
-    possible_figures = set()
-    for page in doc.pages:
-        # PDF native text only: NO OCR, NO raw assay values exported.
-        content = page.extract_text() or ""
-        if len(content.strip()) > 40:
-            populated_pages += 1
-        for term in ("clearance", "clint", "kinetics", "donor", "CYP3A4",
-                     "midazolam", "bupropion", "omeprazole"):
-            if term.casefold() in content.casefold():
-                term_counts[term] += 1
-        for match in re.finditer(r"\b(?:Table|TABLE)\s*S?([1-9]\d?)\b", content):
-            possible_tables.add(match.group(1))
-        for match in re.finditer(r"\b(?:Figure|FIGURE|Fig\.?)\s*S?([1-9]\d?)\b", content):
-            possible_figures.add(match.group(1))
+    doc=PdfReader(io.BytesIO(binary))
+    page_texts=[page.extract_text() or "" for page in doc.pages]
+    populated_pages=sum(len(x.strip())>40 for x in page_texts)
+    shape=_native_pdf_table_shape(page_texts)
+    kinetics_records=_parse_wegler_kinetics_records(page_texts)
+    kinetics_aggregate=_aggregate_kinetics_records(kinetics_records)
+    protein_clint_benchmark=_protein_to_raw_clint_lodo(kinetics_records)
     return {
-        "source": "supporting PDF native text, without extracting donor values",
-        "pdf_pages": len(doc.pages),
-        "pdf_pages_with_native_text": populated_pages,
-        "pages_containing_research_terms": dict(sorted(term_counts.items())),
-        "n_distinct_table_number_mentions": len(possible_tables),
-        "n_distinct_figure_number_mentions": len(possible_figures),
-        "donor_level_clint_table_verified": False,
-        "verification_note": "Keyword and caption counts cannot establish donor-level numerical endpoint availability.",
+        "source":"supporting PDF native text, without extracting donor values",
+        "pdf_pages":len(doc.pages),
+        "pdf_pages_with_native_text":populated_pages,
+        **shape,
+        "kinetics_table_S3_aggregate":kinetics_aggregate,
+        "protein_to_raw_clint_held_donor_benchmark":protein_clint_benchmark,
+        "donor_level_clint_table_verified":True,
+        "verification_note":(
+            "Native Table S3 parser requires exactly the same 15 donor/batch IDs "
+            "for all five probe drugs and exports aggregate equation-column QC only. "
+            "Equation semantics still require published-method cross-check before fitting."
+        ),
     }
 
 
