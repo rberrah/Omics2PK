@@ -12,7 +12,10 @@ if np is not None:
         MODE_PASSTHROUGH,
         MODE_TRAIN_ZSCORE,
         TranscriptomePreprocessingError,
+        EDGE_SELECTION_PRESPECIFIED,
+        EDGE_SELECTION_TRAIN_VARIANCE,
         build_preprocessed_inductive_outer_split,
+        fit_edge_gene_selector,
         fit_transcriptome_preprocessor,
         preprocess_outer_split,
         transform_transcriptome,
@@ -132,6 +135,77 @@ class TranscriptomePreprocessingTests(unittest.TestCase):
         self.assertFalse(a["batch_correction_executed"])
         self.assertEqual(a["n_preprocessing_genes"],16)
         self.assertEqual(a["n_edge_genes"],8)
+
+    def test_train_variance_edge_selection_is_outer_train_only(self):
+        all_genes=tuple(f"G{i}" for i in range(20))
+        ids=tuple(f"P{i:02}" for i in range(18))
+        rng=np.random.default_rng(441)
+        x=rng.normal(size=(20,18))
+        train=ids[:13]; test=ids[13:]
+        # Make three training genes clearly dominant without using held-out values.
+        x[1,:13]*=12
+        x[7,:13]*=10
+        x[13,:13]*=8
+        a=build_preprocessed_inductive_outer_split(
+            x,genes=all_genes,subject_ids=ids,
+            train_ids=train,test_ids=test,tissue="liver",
+            mode=MODE_PASSTHROUGH,
+            edge_selection_mode=EDGE_SELECTION_TRAIN_VARIANCE,
+            edge_top_k=6,
+            construction="query_anchored_duplicate_v1")
+        changed=x.copy()
+        changed[:,13:]*=1000
+        changed[19,13:]+=np.linspace(-1e6,1e6,5)
+        b=build_preprocessed_inductive_outer_split(
+            changed,genes=all_genes,subject_ids=ids,
+            train_ids=train,test_ids=test,tissue="liver",
+            mode=MODE_PASSTHROUGH,
+            edge_selection_mode=EDGE_SELECTION_TRAIN_VARIANCE,
+            edge_top_k=6,
+            construction="query_anchored_duplicate_v1")
+        self.assertEqual(a["edge_genes"],b["edge_genes"])
+        self.assertEqual(a["edge_selection_fingerprint"],b["edge_selection_fingerprint"])
+        self.assertEqual(a["outer_reference_fingerprint"],b["outer_reference_fingerprint"])
+        self.assertEqual(a["training"],b["training"])
+        self.assertTrue(a["edge_selection_fitted_on_outer_train_only"])
+        self.assertFalse(a["edge_selection_pk_pd_target_used"])
+        self.assertEqual(a["edge_selection_mode"],EDGE_SELECTION_TRAIN_VARIANCE)
+        self.assertEqual(len(a["edge_genes"]),6)
+        self.assertTrue({"G1","G7","G13"}.issubset(set(a["edge_genes"])))
+
+    def test_train_variance_selection_uses_pre_zscore_training_scale(self):
+        genes=tuple(f"G{i}" for i in range(8))
+        ids=tuple(f"S{i:02}" for i in range(10))
+        rng=np.random.default_rng(99)
+        x=rng.normal(size=(8,10))
+        x[3,:]*=30
+        selector=fit_edge_gene_selector(
+            x,genes=genes,subject_ids=ids,mode=MODE_TRAIN_ZSCORE,
+            selection_mode=EDGE_SELECTION_TRAIN_VARIANCE,top_k=3)
+        self.assertIn("G3",selector.selected_genes)
+        self.assertEqual(selector.mode,EDGE_SELECTION_TRAIN_VARIANCE)
+
+    def test_train_variance_selection_rejects_invalid_topk_and_constant_pool(self):
+        with self.assertRaisesRegex(TranscriptomePreprocessingError,"top_k"):
+            fit_edge_gene_selector(
+                self.x[:,:10],genes=self.genes,subject_ids=self.train,
+                mode=MODE_PASSTHROUGH,
+                selection_mode=EDGE_SELECTION_TRAIN_VARIANCE,top_k=2)
+        flat=np.ones((10,10))
+        with self.assertRaisesRegex(TranscriptomePreprocessingError,"Too few"):
+            fit_edge_gene_selector(
+                flat,genes=self.genes,subject_ids=self.train,
+                mode=MODE_PASSTHROUGH,
+                selection_mode=EDGE_SELECTION_TRAIN_VARIANCE,top_k=3)
+
+    def test_prespecified_selection_remains_backward_compatible(self):
+        selector=fit_edge_gene_selector(
+            self.x[:,:10],genes=self.genes,subject_ids=self.train,
+            mode=MODE_PASSTHROUGH,
+            selection_mode=EDGE_SELECTION_PRESPECIFIED,
+            prespecified_genes=self.genes[:4])
+        self.assertEqual(selector.selected_genes,self.genes[:4])
+        self.assertEqual(selector.top_k,4)
 
     def test_inductive_wrapper_requires_prespecified_edge_subset(self):
         with self.assertRaisesRegex(TranscriptomePreprocessingError,"Edge genes"):

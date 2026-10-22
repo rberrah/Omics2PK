@@ -278,6 +278,29 @@ source cohort's authorization and redistribution constraints. Real patient
 artifacts must remain in authorized private research storage and must not be
 committed to this public repository or attached to public CI.
 
+## Train-frozen edge-gene selection
+
+The inductive pipeline now distinguishes two legitimate edge-gene modes:
+
+- **prespecified**: a biological/mechanistic panel is fixed before the outer split;
+- **outer_train_variance**: an optional unsupervised panel is learned only from
+  outer-training molecular measurements, with deterministic variance ranking
+  and gene-ID tie breaking.
+
+For the data-driven mode, ranking is performed **before train z-scoring** so
+selection is not rendered meaningless by unit-variance scaling. For raw counts,
+selection uses the same per-sample CPM/log1p source transform; for normalized
+expression with missing values, training medians are learned from the outer
+training subjects only. The selected gene set and selector fingerprint are
+frozen before any held-out subject is transformed or networked. Perturbing any
+outer-test expression cannot change the selected genes, selector fingerprint,
+training features or frozen SWEET reference. No PK/PD endpoint enters this API.
+
+This closes a software leakage route; it does **not** establish that variance
+selection is biologically optimal. Mechanistic panels should remain preferred
+when prospectively justified, and selector choice itself must be fixed before
+comparing PK performance.
+
 ## Gates and known limitations
 
 1. **Public outcome-free sanity check:** official SWEET 80-sample RNA
