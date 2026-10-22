@@ -98,7 +98,7 @@ class Omics2PKPagesTests(unittest.TestCase):
         self.assertIn("aucune zone de dépôt de données",analyze)
         self.assertNotIn("<form",analyze.lower())
         self.assertNotIn('type="file"',analyze.lower())
-        self.assertNotIn("run analysis",analyze.lower())
+        self.assertNotIn('type="submit"',analyze.lower())
 
     def test_ecosystem_destinations_and_graphical_abstract(self):
         for page in ("index.html","ecosystem/index.html","disciplines/index.html"):
