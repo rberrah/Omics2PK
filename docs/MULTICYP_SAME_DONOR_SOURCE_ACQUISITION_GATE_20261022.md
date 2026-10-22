@@ -71,6 +71,16 @@ small n makes it less suitable than Zhang n=100 as the primary proof.
 
 Current status: **PUBLISHED_MATCHED / ABSTAIN_SOURCE_ROWS_NOT_ACQUIRED.**
 
+A dedicated public source audit now probes the historical ASPET DOI supplement
+landing route
+`https://dmd.aspetjournals.org/lookup/suppl/doi:10.1124/dmd.111.042259/-/DC1`
+and the current DMD article route. On 22 October 2026 **both returned HTTP 403**
+from GitHub Actions. No file, donor row or supplement manifest was recovered.
+This result is reproducible with
+`scripts/audit_ohtsuki2012_official_supplement.py` and does not imply the
+supplement is absent; it establishes that the tested official programmatic
+publisher routes are currently inaccessible to this workflow.
+
 ## Other candidates
 
 - **Jamwal 2018 n=74:** CYP3A4 mRNA, targeted protein and measured midazolam
