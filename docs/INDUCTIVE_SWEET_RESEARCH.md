@@ -157,10 +157,26 @@ reference. With v1:
 This demonstrates that GEO source order was another major contributor to the
 apparent distribution shift. It does **not** establish SHA-256 selection as an
 optimal biological reference; it is deliberately value/outcome-independent and
-serves only as an order-bias diagnostic. The remaining methodological gate is
-reference-size and repeated deterministic split sensitivity, ideally followed
-by genuinely independent donor/site validation once biological IDs and outcomes
-are available.
+serves only as an order-bias diagnostic.
+
+A nested SHA-256 reference-size sensitivity then used n=50, 75, 100 and 150,
+with 512 train-variable sample-weight probes selected independently inside each
+reference:
+
+| Reference n | Query n | v1 clamps | Clamp fraction | Low / high | Zero weights | |z|>3 | Mean z |
+|---:|---:|---:|---:|---:|---:|---:|---:|
+| 50 | 377 | 17 | 4.51% | 10 / 7 | 10 | 0 | −0.097 |
+| 75 | 352 | 11 | 3.13% | 5 / 6 | 5 | 1 | −0.200 |
+| 100 | 327 | 12 | 3.67% | 6 / 6 | 6 | 2 | −0.161 |
+| 150 | 277 | **0** | **0%** | 0 / 0 | 0 | 0 | −0.201 |
+
+All four v1 runs retain **100% unique graph hashes**. The result is not
+monotonic at small/medium n, so it does not justify a universal threshold.
+The zero-clamp n=150 result is a promising software-QC observation on one
+deterministic nested split only. The next gate is therefore **repeated
+outcome-free deterministic n=150 splits** before choosing a default minimum
+reference size, followed later by independent donor/site validation once
+biological IDs and outcomes are available.
 
 ## Gates and known limitations
 
