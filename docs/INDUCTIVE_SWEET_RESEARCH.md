@@ -193,10 +193,36 @@ than the historical first-75 reference, but the single zero-clamp result was
 not universally reproducible. This does **not** justify a universal
 "minimum n=150" rule. Reference composition still matters.
 
-The next gate is therefore no longer to search for a convenient reference
-size. It is to qualify upstream train-only preprocessing/normalisation and then
-test stability across biologically independent donor/site cohorts when such
-source identities and outcomes are available.
+The next gate was therefore no longer to search for a convenient reference
+size, but to qualify upstream train-only preprocessing/normalisation.
+
+### Source-specific preprocessing sensitivity — GSE9588
+
+On the same five deterministic n=150 references (277 held-out GSM columns each),
+Omics2PK compared the original **source-normalized passthrough** with a
+per-probe z-score fitted only on the 150 reference samples and frozen for the
+277 queries. No CYP activity, PK endpoint or held-out sample was used to fit
+preprocessing.
+
+| Reference | Passthrough clamps | Train-zscore clamps | Δ clamps |
+|---|---:|---:|---:|
+| sha256 baseline | 0 / 277 (0.0%) | 31 / 277 (11.19%) | +31 |
+| repeat 1 | 3 / 277 (1.08%) | 5 / 277 (1.81%) | +2 |
+| repeat 2 | 1 / 277 (0.36%) | 49 / 277 (17.69%) | +48 |
+| repeat 3 | 5 / 277 (1.81%) | 6 / 277 (2.17%) | +1 |
+| repeat 4 | 0 / 277 (0.0%) | 4 / 277 (1.44%) | +4 |
+
+Thus train-only z-scoring is leakage-safe but **not calibration-neutral** for
+this sample-similarity construction. It increases high-side clamping in all
+five references and shifts mean query similarity upward in the strongest
+cases. For this already normalized microarray source, the source-normalized
+values therefore remain the prespecified representation for SWEET-inspired
+sample-weight similarity; train-zscore is retained as an explicit sensitivity,
+not selected as a replacement.
+
+This does not prove passthrough is universally optimal. The remaining gate is
+source-specific batch/tissue/platform transportability on biologically
+independent cohorts with authenticated donor identities and outcomes.
 
 ## Gates and known limitations
 
