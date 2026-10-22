@@ -8,6 +8,7 @@ try:
         MODE_PASSTHROUGH,
         MODE_TRAIN_ZSCORE,
         TranscriptomePreprocessingError,
+        build_preprocessed_inductive_outer_split,
         fit_transcriptome_preprocessor,
         preprocess_outer_split,
         transform_transcriptome,
@@ -99,6 +100,40 @@ class TranscriptomePreprocessingTests(unittest.TestCase):
                 self.x,genes=self.genes,subject_ids=self.ids,
                 train_ids=self.train,test_ids=self.test[:-1],
                 mode=MODE_TRAIN_ZSCORE)
+
+    def test_inductive_wrapper_freezes_preprocessing_and_other_test_predictions(self):
+        all_genes=tuple(f"G{i}" for i in range(16))
+        ids=tuple(f"P{i:02}" for i in range(18))
+        rng=np.random.default_rng(1234)
+        x=rng.normal(size=(16,18))
+        train=ids[:13]; test=ids[13:]
+        edge_genes=all_genes[:8]
+        a=build_preprocessed_inductive_outer_split(
+            x,genes=all_genes,edge_genes=edge_genes,subject_ids=ids,
+            train_ids=train,test_ids=test,tissue="liver",
+            mode=MODE_TRAIN_ZSCORE,construction="query_anchored_duplicate_v1")
+        changed=x.copy()
+        changed[:,-1]+=np.linspace(-50,50,16)
+        b=build_preprocessed_inductive_outer_split(
+            changed,genes=all_genes,edge_genes=edge_genes,subject_ids=ids,
+            train_ids=train,test_ids=test,tissue="liver",
+            mode=MODE_TRAIN_ZSCORE,construction="query_anchored_duplicate_v1")
+        self.assertEqual(a["preprocessing_fingerprint"],b["preprocessing_fingerprint"])
+        self.assertEqual(a["outer_reference_fingerprint"],b["outer_reference_fingerprint"])
+        self.assertEqual(a["training"],b["training"])
+        self.assertEqual(a["test"][:-1],b["test"][:-1])
+        self.assertTrue(a["preprocessing_fitted_on_outer_train_only"])
+        self.assertFalse(a["preprocessing_pk_pd_target_used"])
+        self.assertFalse(a["batch_correction_executed"])
+        self.assertEqual(a["n_preprocessing_genes"],16)
+        self.assertEqual(a["n_edge_genes"],8)
+
+    def test_inductive_wrapper_requires_prespecified_edge_subset(self):
+        with self.assertRaisesRegex(TranscriptomePreprocessingError,"Edge genes"):
+            build_preprocessed_inductive_outer_split(
+                self.x,genes=self.genes,edge_genes=("G0","G1","MISSING"),
+                subject_ids=self.ids,train_ids=self.train,test_ids=self.test,
+                tissue="liver",mode=MODE_TRAIN_ZSCORE)
 
     def test_raw_counts_reject_negative_and_empty_library(self):
         counts=np.ones((10,14))
