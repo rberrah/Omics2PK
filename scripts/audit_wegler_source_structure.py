@@ -11,6 +11,7 @@ import argparse
 from collections import Counter
 from math import exp, log, sqrt
 from statistics import mean, median
+from random import Random
 import io
 import json
 import re
@@ -164,6 +165,21 @@ def _ridge_one_feature_predict(train_x,train_y,query_x,alpha=1.0):
     return my+beta*zq
 
 
+def _paired_loss_bootstrap_ci(differences,seed,draws=10000):
+    """Deterministic paired donor bootstrap; descriptive, not multiplicity-adjusted."""
+    values=[float(x) for x in differences]
+    if len(values)<8:
+        return None
+    rng=Random(seed)
+    n=len(values)
+    boot=[]
+    for _ in range(draws):
+        boot.append(mean(values[rng.randrange(n)] for _ in range(n)))
+    boot.sort()
+    lo=boot[int(0.025*(draws-1))]
+    hi=boot[int(0.975*(draws-1))]
+    return [round(lo,6),round(hi,6)]
+
 def _protein_to_raw_clint_lodo(records: list[dict]) -> dict:
     """Held-donor protein -> raw CLint benchmark, aggregate output only."""
     mapping=_validate_raw_clint_column_mapping(records)
@@ -197,15 +213,21 @@ def _protein_to_raw_clint_lodo(records: list[dict]) -> dict:
                 pred=_ridge_one_feature_predict(tx,ty,qx,alpha=1.0)
                 baseline_errors.append(abs(baseline-target))
                 protein_errors.append(abs(pred-target))
-            delta=mean(protein_errors)-mean(baseline_errors)
+            paired_differences=[
+                p-b for p,b in zip(protein_errors,baseline_errors)]
+            delta=mean(paired_differences)
             all_baseline.extend(baseline_errors)
             all_protein.extend(protein_errors)
+            drug_seed=20261022+sum(ord(ch) for ch in (system+drug))
             drug_results[drug]={
                 "status":"HELD_DONOR_COMPLETE_CASE",
                 "n_complete_donors":len(rows),
                 "baseline_log_MAE":round(mean(baseline_errors),6),
                 "CYP_protein_log_MAE":round(mean(protein_errors),6),
                 "delta_log_MAE_protein_minus_baseline":round(delta,6),
+                "paired_donor_bootstrap_CI95_delta_log_MAE":
+                    _paired_loss_bootstrap_ci(paired_differences,drug_seed),
+                "bootstrap_is_descriptive_not_multiplicity_adjusted":True,
                 "protein_better_than_baseline":delta<0,
                 "n_donors_lower_abs_log_error_with_protein":sum(
                     p<b for p,b in zip(protein_errors,baseline_errors)),
@@ -225,6 +247,8 @@ def _protein_to_raw_clint_lodo(records: list[dict]) -> dict:
         "model":"per-drug donor-LODO; log CLint; one log CYP-protein feature; fixed ridge alpha=1",
         "systems":systems,
         "no_hyperparameter_search":True,
+        "per_drug_inference":"paired donor bootstrap; descriptive; no multiplicity-adjusted confirmatory claim",
+        "pooled_metrics_are_descriptive_only_due_to_repeated_donors_across_drugs":True,
         "no_individual_predictions_exported":True,
         "clinical_PK_claim":False,
     }
