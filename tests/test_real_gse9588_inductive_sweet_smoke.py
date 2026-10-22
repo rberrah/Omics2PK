@@ -53,6 +53,20 @@ class SourceFrozenReferenceTests(unittest.TestCase):
         self.assertEqual(selected_ids,{reversed_gsm[i] for i in reversed_idx})
         self.assertNotEqual(selected,list(range(TRAIN)))
 
+
+    def test_hash_reference_sizes_are_nested_and_prespecified(self):
+        gsm=[f"GSM{700000+i}" for i in range(N)]
+        ids_by_n={}
+        for n in (50,75,100,150):
+            idx=reference_indices(gsm,f"sha256_gsm{n}")
+            self.assertEqual(len(idx),n)
+            ids_by_n[n]={gsm[i] for i in idx}
+        self.assertTrue(ids_by_n[50] < ids_by_n[75])
+        self.assertTrue(ids_by_n[75] < ids_by_n[100])
+        self.assertTrue(ids_by_n[100] < ids_by_n[150])
+        with self.assertRaises(ValueError):
+            reference_indices(gsm,"sha256_gsm10")
+
     def test_hash_reference_extracts_probe_sets_using_its_training_only_variance(self):
         names,edges,weights,n=extract_train_variable_array_probe_sets(
             toy(),reference_strategy="sha256_gsm75")
@@ -130,6 +144,19 @@ class SourceFrozenReferenceTests(unittest.TestCase):
         self.assertFalse(result["reference_selection_uses_PK_or_outcomes"])
         self.assertEqual(result["fixed_reference_training_GSM_samples"],TRAIN)
         self.assertEqual(result["query_anchored_v1"]["unseen_GSM_samples_projected"],352)
+        self.assertFalse(result["predictive_CYP_activity_test_executed"])
+
+
+    @unittest.skipUnless(importlib.util.find_spec("numpy"),"Optional numpy not installed")
+    def test_hash_reference_50_has_dynamic_query_count(self):
+        ids,edges,weights,n=extract_train_variable_array_probe_sets(
+            toy(),reference_strategy="sha256_gsm50")
+        idx=reference_indices(ids,"sha256_gsm50")
+        result=real_gse_frozen_network_smoke(
+            ids,edges,n,weight_probe_values=weights,
+            train_indices=idx,reference_strategy="sha256_gsm50")
+        self.assertEqual(result["fixed_reference_training_GSM_samples"],50)
+        self.assertEqual(result["query_anchored_v1"]["unseen_GSM_samples_projected"],377)
         self.assertFalse(result["predictive_CYP_activity_test_executed"])
 
 if __name__=="__main__":unittest.main()
