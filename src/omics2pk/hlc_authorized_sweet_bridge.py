@@ -49,7 +49,7 @@ def _sha256(path) -> str:
 def source_center_from_hlc_donor_id(donor_id: str) -> str:
     """Use the public HLC source codebook; never infer an unknown prefix."""
     donor = str(donor_id).strip()
-    if not re.fullmatch(r"\\d{7}", donor):
+    if len(donor) != 7 or not donor.isdecimal():
         raise OriginalHLCQualificationError(
             "HLC source donor ID must be an original seven-digit identifier"
         )
