@@ -110,6 +110,22 @@ def _fingerprint_pipeline(
     return digest.hexdigest()
 
 
+def _prespecified_selector_fingerprint(
+    *,
+    preprocessing_mode: str,
+    subject_ids: tuple[str, ...],
+    edge_genes: tuple[str, ...],
+) -> str:
+    """Reproduce the selector fingerprint for a prespecified panel."""
+    digest = hashlib.sha256()
+    digest.update(EDGE_SELECTION_PRESPECIFIED.encode())
+    digest.update(preprocessing_mode.encode())
+    digest.update("\n".join(subject_ids).encode())
+    digest.update("\n".join(edge_genes).encode())
+    digest.update(str(len(edge_genes)).encode())
+    return digest.hexdigest()
+
+
 def fit_frozen_inductive_sweet_pipeline(
     expression: Any,
     *,
@@ -400,6 +416,7 @@ def save_frozen_inductive_sweet_pipeline(
         or pipeline.preprocessor.genes != pipeline.genes
         or pipeline.reference.weight_genes != pipeline.genes
         or pipeline.reference.genes != pipeline.edge_genes
+        or pipeline.fingerprint_version not in (1, 2)
         or pipeline.edge_selection_mode not in EDGE_SELECTION_MODES
         or pipeline.edge_selection_top_k != len(pipeline.edge_genes)
         or len(pipeline.edge_selection_fingerprint) != 64
