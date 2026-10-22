@@ -301,6 +301,23 @@ selection is biologically optimal. Mechanistic panels should remain preferred
 when prospectively justified, and selector choice itself must be fixed before
 comparing PK performance.
 
+## Large-cohort execution optimization
+
+The numerical definition of v0/v1 is unchanged, but execution now avoids two
+redundant operations that became material for HLC-scale transcriptomes:
+
+- query sample-weight similarity computes only **query ↔ frozen-reference**
+  Pearson correlations instead of rebuilding the complete augmented
+  reference×reference correlation matrix for every query;
+- grouped cross-fitting fits one frozen reference **per held-out fold**, then
+  reuses that immutable reference for all subjects in the same fold. Strict
+  leave-one-out still fits one reference per held-out subject because every LOO
+  reference is genuinely different.
+
+Independent NumPy-oracle tests continue to check the original Pearson/SWEET-v1
+formula to floating-point tolerance. These changes are computational only and
+must not alter the scientific output or reference fingerprint.
+
 ## Gates and known limitations
 
 1. **Public outcome-free sanity check:** official SWEET 80-sample RNA

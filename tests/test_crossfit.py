@@ -1,5 +1,6 @@
 """Synthetic-only split/leakage controls for experimental SWEET-inspired features."""
 import unittest
+from unittest.mock import patch
 
 try:
     import numpy as np
@@ -87,6 +88,29 @@ class CrossfitTests(unittest.TestCase):
         self.assertEqual(first["training"], second["training"])
         self.assertEqual(first["outer_reference_fingerprint"],
                          second["outer_reference_fingerprint"])
+
+    def test_fold_crossfit_fits_one_frozen_reference_per_fold(self):
+        with patch(
+            "omics2pk.inductive_sweet.fit_frozen_reference",
+            wraps=fit_frozen_reference,
+        ) as mocked_fit:
+            records = crossfit_training_features(
+                self.x[:, :13],
+                genes=self.genes,
+                subject_ids=self.train,
+                tissue="liver",
+                folds=3,
+                construction=CONSTRUCTION_V1,
+            )
+        self.assertEqual(len(records), 13)
+        self.assertEqual(mocked_fit.call_count, 3)
+        groups = {}
+        for record in records:
+            groups.setdefault(record["excluded_fold"], set()).add(
+                record["reference_fingerprint"]
+            )
+        self.assertEqual(len(groups), 3)
+        self.assertTrue(all(len(fingerprints) == 1 for fingerprints in groups.values()))
 
     def test_crossfit_references_exclude_complete_training_fold(self):
         r = self.split(folds=3)

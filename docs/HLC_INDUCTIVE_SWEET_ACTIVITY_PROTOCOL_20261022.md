@@ -59,6 +59,14 @@ HLC provides the appropriate whole-transcriptome setting. It also provides a
 harder transportability test because the original paper reports study-site /
 processing effects as important covariates.
 
+**Important limitation:** the available curated HLC expression is already a
+source-processed representation. Published HLC methods report adjustment for
+age, sex and centre of origin before downstream association analyses. Thus a
+leave-one-centre-out Omics2PK analysis is a stronger stress test than random
+patient folds, but it is **not a pristine raw-array external validation**:
+source-level normalization/covariate processing can precede the Omics2PK split.
+This limitation must accompany any numerical result.
+
 ## Source gate before any numerical claim
 
 A real run is permitted only after an authenticated local join establishes:
@@ -88,7 +96,9 @@ Within every outer training set:
 - source-normalized expression is passed through unchanged;
 - optional edge genes are selected by deterministic variance using only outer
   training RNA;
-- SWEET v1 training features are subject-disjoint cross-fitted;
+- SWEET v1 training features are subject-disjoint cross-fitted; grouped
+  cross-fitting reuses one immutable frozen reference per training fold without
+  changing the v1 formula;
 - the held-out site is transformed/networked only from the frozen outer
   training reference;
 - model standardization is fitted on outer training donors only;

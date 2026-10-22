@@ -42,6 +42,7 @@ class FrozenReference:
     fingerprint: str
     weight_expression: np.ndarray
     weight_genes: tuple[str, ...]
+    weight_profile_norms: np.ndarray
 
 
 def _matrix(values: Any) -> np.ndarray:
@@ -98,7 +99,15 @@ def fit_frozen_reference(
         raise InductiveNetworkError("Constant sample in weight-expression reference")
     gene_corr = np.corrcoef(x)
     subject_corr = np.corrcoef(wx.T)
-    if not np.isfinite(gene_corr).all() or not np.isfinite(subject_corr).all():
+    weight_profile_norms = np.linalg.norm(
+        wx - np.mean(wx, axis=0, keepdims=True), axis=0
+    )
+    if (
+        not np.isfinite(gene_corr).all()
+        or not np.isfinite(subject_corr).all()
+        or not np.isfinite(weight_profile_norms).all()
+        or np.any(weight_profile_norms <= 1e-12)
+    ):
         raise InductiveNetworkError("Undefined Pearson correlation")
     n = len(subjects)
     means = (np.sum(subject_corr, axis=1) - 1.0) / (n - 1)
@@ -117,9 +126,12 @@ def fit_frozen_reference(
     x.setflags(write=False)
     wx.setflags(write=False)
     gene_corr.setflags(write=False)
-    return FrozenReference(genes, subjects, tissue, x, gene_corr,
-                           lo, hi, sim_mean, sim_std, float(k),
-                           digest.hexdigest(), wx, wgenes)
+    weight_profile_norms.setflags(write=False)
+    return FrozenReference(
+        genes, subjects, tissue, x, gene_corr,
+        lo, hi, sim_mean, sim_std, float(k),
+        digest.hexdigest(), wx, wgenes, weight_profile_norms
+    )
 
 
 def predict_network(
@@ -171,8 +183,21 @@ def predict_network(
             or not np.isfinite(wquery).all() or np.std(wquery) <= 1e-12):
         raise InductiveNetworkError("Invalid or constant weight-query profile")
     # Weight correlations use the complete, training-frozen gene universe.
-    query_weight_matrix = np.column_stack((reference.weight_expression, wquery))
-    query_similarities = np.corrcoef(query_weight_matrix.T)[-1, :-1]
+    # Compute only query↔reference correlations. np.corrcoef on the augmented
+    # (n_reference+1) x n_genes matrix would recompute every reference↔reference
+    # pair for every new subject although those pairs are already frozen.
+    # For a centered query q, q·(r-mean(r)) == q·r because sum(q)==0.
+    # The expression below is therefore algebraically identical to Pearson
+    # correlation while scaling linearly with reference size.
+    wquery_centered = wquery - float(np.mean(wquery))
+    wquery_norm = float(np.linalg.norm(wquery_centered))
+    if not math.isfinite(wquery_norm) or wquery_norm <= 1e-12:
+        raise InductiveNetworkError("Invalid or constant weight-query profile")
+    query_similarities = (
+        wquery_centered @ reference.weight_expression
+    ) / (
+        wquery_norm * reference.weight_profile_norms
+    )
     # Edge correlations use only the prespecified mechanism/panel genes.
     query_anchor = np.corrcoef(np.column_stack((reference.expression, x)))
     if construction == CONSTRUCTION_V1:
@@ -301,15 +326,25 @@ def crossfit_training_features(
     # IDs determine deterministic folds, independent of input column order.
     assignment = {sid: j % folds for j, sid in enumerate(sorted(subjects))} if folds else {}
     records = []
+    reference_cache: dict[int, FrozenReference] = {}
+    included_cache: dict[int, list[int]] = {}
     for pos, sid in enumerate(subjects):
         test_group = assignment.get(sid, pos) if folds else pos
-        included = [j for j, other in enumerate(subjects)
-                    if (assignment[other] != test_group if folds else j != pos)]
+        included = included_cache.get(test_group)
+        if included is None:
+            included = [
+                j for j, other in enumerate(subjects)
+                if (assignment[other] != test_group if folds else j != pos)
+            ]
+            included_cache[test_group] = included
         try:
-            ref = fit_frozen_reference(
-                x[:, included], genes=names,
-                subject_ids=[subjects[j] for j in included], tissue=tissue, k=k,
-                weight_expression=wx[:, included], weight_genes=wnames)
+            ref = reference_cache.get(test_group)
+            if ref is None:
+                ref = fit_frozen_reference(
+                    x[:, included], genes=names,
+                    subject_ids=[subjects[j] for j in included], tissue=tissue, k=k,
+                    weight_expression=wx[:, included], weight_genes=wnames)
+                reference_cache[test_group] = ref
             graph, info = predict_network(
                 ref, x[:, pos], subject_id=sid, genes=names, tissue=tissue,
                 weight_query=wx[:, pos], weight_genes=wnames,
