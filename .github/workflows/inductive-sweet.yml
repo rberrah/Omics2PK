@@ -3,7 +3,9 @@ on:
   pull_request:
     paths:
       - "src/omics2pk/inductive_sweet.py"
+      - "src/omics2pk/transcriptome_preprocessing.py"
       - "tests/test_inductive_sweet.py"
+      - "tests/test_transcriptome_preprocessing.py"
       - "pyproject.toml"
       - "scripts/pilot_inductive_public.py"
       - "tests/test_crossfit.py"
@@ -11,7 +13,9 @@ on:
   push:
     paths:
       - "src/omics2pk/inductive_sweet.py"
+      - "src/omics2pk/transcriptome_preprocessing.py"
       - "tests/test_inductive_sweet.py"
+      - "tests/test_transcriptome_preprocessing.py"
       - "pyproject.toml"
       - ".github/workflows/inductive-sweet.yml"
 permissions:
@@ -28,6 +32,7 @@ jobs:
       - run: python -m pip install -e '.[sweet-inductive]'
       - run: python -m unittest discover -s tests -p test_inductive_sweet.py -v
       - run: python -m unittest discover -s tests -p test_crossfit.py -v
+      - run: python -m unittest discover -s tests -p test_transcriptome_preprocessing.py -v
       - uses: actions/checkout@v5
         with:
           repository: SysMednet/SWEET
