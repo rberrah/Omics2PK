@@ -169,7 +169,7 @@ Full links, licenses and scientific restrictions: [public Omics×PK data catalog
 - [ ] Separate no-TDM prediction from C0/MAP Bayesian personalization; avoid endpoint leakage.
 
 ## P5 — frozen validation, delivery
-- [x] Freeze the prespecified gene universe/edge panel, training-only transformations, SWEET reference, graph construction and hyperparameters in one prospective `FrozenInductiveSweetPipeline`. A future subject is transformed and predicted independently without refitting. Any learned gene selection or tuning outside this artifact must still occur strictly inside the outer training partition.
+- [x] Freeze the gene universe/edge panel, training-only transformations, SWEET reference, graph construction and hyperparameters in one prospective `FrozenInductiveSweetPipeline`. The artifact now supports both a prespecified mechanistic panel and the outcome-free `outer_train_variance` selector fit on training subjects only; selector mode/count/fingerprint are persisted in artifact v2 and bound into pipeline identity, while legacy v1 prespecified artifacts remain loadable. A future subject is transformed and predicted independently without refitting. Any other learned tuning outside this artifact must still occur strictly inside the outer training partition.
 - [ ] Evaluate against locked external cohort; compute uncertainty, calibration, and subgroup transportability.
 - [ ] Replicate reproducible open example and full manuscript methods; never claim clinical validation from synthetic runs.
 - [ ] Add opt-in MultiOmics page for *qualified* public demos, via already established rberrah.github.io URL architecture. Static site only, local/authorized compute for real analyses.

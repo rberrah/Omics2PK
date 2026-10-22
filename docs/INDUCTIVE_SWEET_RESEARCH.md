@@ -235,7 +235,10 @@ before the first future subject is seen. Omics2PK now exposes a distinct
 freezes, in one immutable object:
 
 - the complete ordered transcriptomic gene universe used for sample weighting;
-- the prespecified ordered edge-gene panel;
+- the frozen ordered edge-gene panel, either prospectively prespecified or
+  selected by the outcome-free `outer_train_variance` rule using training
+  subjects only;
+- the edge-selection mode, selected-gene count and selector fingerprint;
 - the training-only transcriptome preprocessor and its fingerprint;
 - the transformed training reference and SWEET-inspired similarity
   calibration;
@@ -257,10 +260,12 @@ This closes the software distinction between **leakage-controlled
 cross-validation** and a genuine **train-once / predict-new-subject** research
 workflow. It does not establish that the frozen representation transports
 across sites, batches, tissues or platforms, and it does not establish PK
-benefit. Any data-driven gene selection or hyperparameter tuning performed
-outside this object must itself remain nested inside the training partition;
-the object deliberately treats the edge panel and hyperparameters it receives
-as already prespecified/frozen.
+benefit. The artifact itself now supports both a prospectively prespecified
+edge panel and the same outcome-free `outer_train_variance` selector used in
+outer-split benchmarking. Selector fitting occurs before preprocessing/network
+prediction of any future subject and is part of the frozen provenance.
+Hyperparameter tuning outside this object must still remain nested inside the
+training partition.
 
 
 For a true train-once workflow across processes, the fitted object can also be
@@ -295,6 +300,9 @@ training subjects only. The selected gene set and selector fingerprint are
 frozen before any held-out subject is transformed or networked. Perturbing any
 outer-test expression cannot change the selected genes, selector fingerprint,
 training features or frozen SWEET reference. No PK/PD endpoint enters this API.
+The same selector can now be persisted inside the prospective
+`FrozenInductiveSweetPipeline`; save/load round-trips preserve the selected
+genes, selector fingerprint and prospective prediction exactly.
 
 This closes a software leakage route; it does **not** establish that variance
 selection is biologically optimal. Mechanistic panels should remain preferred

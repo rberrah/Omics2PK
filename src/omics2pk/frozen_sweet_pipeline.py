@@ -25,8 +25,11 @@ from omics2pk.inductive_sweet import (
     predict_network,
 )
 from omics2pk.transcriptome_preprocessing import (
+    EDGE_SELECTION_MODES,
+    EDGE_SELECTION_PRESPECIFIED,
     MODE_PASSTHROUGH,
     FrozenTranscriptomePreprocessor,
+    fit_edge_gene_selector,
     fit_transcriptome_preprocessor,
     transform_transcriptome,
 )
@@ -47,9 +50,13 @@ class FrozenInductiveSweetPipeline:
     preprocessing_mode: str
     construction: str
     k: float
+    edge_selection_mode: str
+    edge_selection_top_k: int
+    edge_selection_fingerprint: str
     preprocessor: FrozenTranscriptomePreprocessor
     reference: FrozenReference
     fingerprint: str
+    fingerprint_version: int
 
 
 def _fingerprint_pipeline(
@@ -62,21 +69,62 @@ def _fingerprint_pipeline(
     k: float,
     preprocessor_fingerprint: str,
     reference_fingerprint: str,
+    edge_selection_mode: str | None = None,
+    edge_selection_top_k: int | None = None,
+    edge_selection_fingerprint: str | None = None,
 ) -> str:
+    """Fingerprint prediction state plus the frozen edge-selection protocol.
+
+    Supplying no selection metadata reproduces the historical v1 fingerprint,
+    which keeps old persisted artifacts loadable. New fits always use v2.
+    """
     digest = hashlib.sha256()
-    digest.update(b"omics2pk.frozen-inductive-sweet.v1\n")
-    for value in (
-        "\n".join(genes),
-        "\n".join(edge_genes),
-        tissue,
-        preprocessing_mode,
-        construction,
-        repr(float(k)),
-        preprocessor_fingerprint,
-        reference_fingerprint,
-    ):
+    if edge_selection_mode is None:
+        digest.update(b"omics2pk.frozen-inductive-sweet.v1\n")
+        values = (
+            "\n".join(genes),
+            "\n".join(edge_genes),
+            tissue,
+            preprocessing_mode,
+            construction,
+            repr(float(k)),
+            preprocessor_fingerprint,
+            reference_fingerprint,
+        )
+    else:
+        digest.update(b"omics2pk.frozen-inductive-sweet.v2\n")
+        values = (
+            "\n".join(genes),
+            "\n".join(edge_genes),
+            tissue,
+            preprocessing_mode,
+            construction,
+            repr(float(k)),
+            edge_selection_mode,
+            str(edge_selection_top_k),
+            str(edge_selection_fingerprint),
+            preprocessor_fingerprint,
+            reference_fingerprint,
+        )
+    for value in values:
         digest.update(value.encode("utf-8"))
         digest.update(b"\0")
+    return digest.hexdigest()
+
+
+def _prespecified_selector_fingerprint(
+    *,
+    preprocessing_mode: str,
+    subject_ids: tuple[str, ...],
+    edge_genes: tuple[str, ...],
+) -> str:
+    """Reproduce the selector fingerprint for a prespecified panel."""
+    digest = hashlib.sha256()
+    digest.update(EDGE_SELECTION_PRESPECIFIED.encode())
+    digest.update(preprocessing_mode.encode())
+    digest.update("\n".join(subject_ids).encode())
+    digest.update("\n".join(edge_genes).encode())
+    digest.update(str(len(edge_genes)).encode())
     return digest.hexdigest()
 
 
@@ -85,23 +133,25 @@ def fit_frozen_inductive_sweet_pipeline(
     *,
     genes: list[str] | tuple[str, ...],
     subject_ids: list[str] | tuple[str, ...],
-    edge_genes: list[str] | tuple[str, ...],
+    edge_genes: list[str] | tuple[str, ...] | None = None,
     tissue: str,
     mode: str,
     k: float = 0.1,
     construction: str = CONSTRUCTION_V1,
+    edge_selection_mode: str = EDGE_SELECTION_PRESPECIFIED,
+    edge_top_k: int | None = None,
 ) -> FrozenInductiveSweetPipeline:
     """Fit one complete RNA-to-network pipeline on training subjects only.
 
-    expression is full-gene expression for TRAINING subjects only
-    (genes x subjects). edge_genes is a prespecified ordered subset.
-    The same frozen transformed full-gene matrix is used for sample-weight
-    calibration and the subset is used for network edges.
+    expression contains TRAINING subjects only. Edge genes are either a
+    prospectively prespecified panel or an outcome-free variance panel learned
+    exclusively from those training molecular measurements. The selected genes,
+    selector fingerprint, preprocessor and SWEET reference are then frozen
+    together before any new subject is transformed.
 
     No endpoint, test cohort or hyperparameter search is accepted here.
     """
     full_genes = tuple(genes)
-    edges = tuple(edge_genes)
     subjects = tuple(subject_ids)
     if construction not in CONSTRUCTIONS:
         raise FrozenSweetPipelineError("Unknown inductive SWEET construction")
@@ -114,16 +164,24 @@ def fit_frozen_inductive_sweet_pipeline(
         raise FrozenSweetPipelineError("k must be finite and in (0, 1]")
     if not isinstance(tissue, str) or not tissue.strip():
         raise FrozenSweetPipelineError("Tissue must be a nonempty prespecified label")
-    if len(edges) < 3 or len(set(edges)) != len(edges):
-        raise FrozenSweetPipelineError("Need at least three unique prespecified edge genes")
+    if edge_selection_mode not in EDGE_SELECTION_MODES:
+        raise FrozenSweetPipelineError("Unknown edge-gene selection mode")
     positions = {gene: i for i, gene in enumerate(full_genes)}
-    if len(positions) != len(full_genes) or any(gene not in positions for gene in edges):
-        raise FrozenSweetPipelineError(
-            "Edge genes must be a unique subset of the full gene universe"
-        )
-    edge_indices = tuple(positions[gene] for gene in edges)
+    if len(positions) != len(full_genes):
+        raise FrozenSweetPipelineError("Full gene universe must be unique")
 
     try:
+        selector = fit_edge_gene_selector(
+            expression,
+            genes=full_genes,
+            subject_ids=subjects,
+            mode=mode,
+            selection_mode=edge_selection_mode,
+            prespecified_genes=edge_genes,
+            top_k=edge_top_k,
+        )
+        edges = selector.selected_genes
+        edge_indices = tuple(positions[gene] for gene in edges)
         preprocessor = fit_transcriptome_preprocessor(
             expression,
             genes=full_genes,
@@ -157,6 +215,9 @@ def fit_frozen_inductive_sweet_pipeline(
         k=float(k),
         preprocessor_fingerprint=preprocessor.fingerprint,
         reference_fingerprint=reference.fingerprint,
+        edge_selection_mode=selector.mode,
+        edge_selection_top_k=selector.top_k,
+        edge_selection_fingerprint=selector.fingerprint,
     )
     return FrozenInductiveSweetPipeline(
         genes=full_genes,
@@ -166,9 +227,13 @@ def fit_frozen_inductive_sweet_pipeline(
         preprocessing_mode=mode,
         construction=construction,
         k=float(k),
+        edge_selection_mode=selector.mode,
+        edge_selection_top_k=selector.top_k,
+        edge_selection_fingerprint=selector.fingerprint,
         preprocessor=preprocessor,
         reference=reference,
         fingerprint=fingerprint,
+        fingerprint_version=2,
     )
 
 
@@ -219,6 +284,7 @@ def predict_frozen_inductive_sweet_pipeline(
     return {
         "subject_id": subject_id,
         "pipeline_fingerprint": pipeline.fingerprint,
+        "pipeline_fingerprint_version": pipeline.fingerprint_version,
         "preprocessing_fingerprint": pipeline.preprocessor.fingerprint,
         "reference_fingerprint": pipeline.reference.fingerprint,
         "training_subject_count": len(pipeline.reference.subject_ids),
@@ -228,6 +294,10 @@ def predict_frozen_inductive_sweet_pipeline(
         "tissue": pipeline.tissue,
         "n_weight_genes": len(pipeline.genes),
         "n_edge_genes": len(pipeline.edge_genes),
+        "edge_selection_mode": pipeline.edge_selection_mode,
+        "edge_selection_top_k": pipeline.edge_selection_top_k,
+        "edge_selection_fingerprint": pipeline.edge_selection_fingerprint,
+        "edge_selector_refit_for_query": False,
         "features": gene_strength_features(graph, genes=pipeline.edge_genes),
         "network_qc": {
             "sample_similarity": network_info["sample_similarity"],
@@ -255,8 +325,12 @@ def frozen_pipeline_manifest(
     pipeline: FrozenInductiveSweetPipeline,
 ) -> dict[str, Any]:
     """Return non-expression metadata suitable for provenance records."""
-    return {
-        "schema": "omics2pk.frozen-inductive-sweet.v1",
+    base = {
+        "schema": (
+            "omics2pk.frozen-inductive-sweet.v1"
+            if pipeline.fingerprint_version == 1
+            else "omics2pk.frozen-inductive-sweet.v2"
+        ),
         "pipeline_fingerprint": pipeline.fingerprint,
         "preprocessing_fingerprint": pipeline.preprocessor.fingerprint,
         "reference_fingerprint": pipeline.reference.fingerprint,
@@ -272,9 +346,20 @@ def frozen_pipeline_manifest(
         "equivalent_to_official_sweet": False,
         "validated_for_pk": False,
     }
+    if pipeline.fingerprint_version == 2:
+        base.update({
+            "edge_selection_mode": pipeline.edge_selection_mode,
+            "edge_selection_top_k": pipeline.edge_selection_top_k,
+            "edge_selection_fingerprint": pipeline.edge_selection_fingerprint,
+            "edge_selection_fitted_on_training_only": True,
+        })
+    elif pipeline.fingerprint_version != 1:
+        raise FrozenSweetPipelineError("Unknown frozen pipeline fingerprint version")
+    return base
 
 
-ARTIFACT_SCHEMA = "omics2pk.frozen-inductive-sweet.artifact.v1"
+ARTIFACT_SCHEMA_V1 = "omics2pk.frozen-inductive-sweet.artifact.v1"
+ARTIFACT_SCHEMA = "omics2pk.frozen-inductive-sweet.artifact.v2"
 ARTIFACT_ARRAYS = "arrays.npz"
 ARTIFACT_MANIFEST = "manifest.json"
 
@@ -334,6 +419,11 @@ def save_frozen_inductive_sweet_pipeline(
         or pipeline.preprocessor.genes != pipeline.genes
         or pipeline.reference.weight_genes != pipeline.genes
         or pipeline.reference.genes != pipeline.edge_genes
+        or pipeline.fingerprint_version not in (1, 2)
+        or pipeline.edge_selection_mode not in EDGE_SELECTION_MODES
+        or pipeline.edge_selection_top_k != len(pipeline.edge_genes)
+        or len(pipeline.edge_selection_fingerprint) != 64
+        or any(ch not in "0123456789abcdef" for ch in pipeline.edge_selection_fingerprint)
     ):
         raise FrozenSweetPipelineError("Inconsistent in-memory frozen pipeline state")
 
@@ -367,9 +457,14 @@ def save_frozen_inductive_sweet_pipeline(
         ),
     )
     arrays_sha256 = _sha256_file(arrays_path)
+    pipeline_manifest = frozen_pipeline_manifest(pipeline)
     manifest = {
-        "schema": ARTIFACT_SCHEMA,
-        "pipeline": frozen_pipeline_manifest(pipeline),
+        "schema": (
+            ARTIFACT_SCHEMA_V1
+            if pipeline.fingerprint_version == 1
+            else ARTIFACT_SCHEMA
+        ),
+        "pipeline": pipeline_manifest,
         "training_subject_ids": list(pipeline.reference.subject_ids),
         "has_scaling_state": has_scaling,
         "arrays": {
@@ -407,8 +502,10 @@ def load_frozen_inductive_sweet_pipeline(
         manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError, TypeError) as exc:
         raise FrozenSweetPipelineError("Invalid frozen artifact manifest") from exc
-    if manifest.get("schema") != ARTIFACT_SCHEMA:
+    artifact_schema = manifest.get("schema")
+    if artifact_schema not in {ARTIFACT_SCHEMA_V1, ARTIFACT_SCHEMA}:
         raise FrozenSweetPipelineError("Unknown frozen artifact schema")
+    legacy_v1 = artifact_schema == ARTIFACT_SCHEMA_V1
     arrays_meta = manifest.get("arrays")
     if (
         not isinstance(arrays_meta, dict)
@@ -437,7 +534,29 @@ def load_frozen_inductive_sweet_pipeline(
         expected_preprocessor = str(pipeline_meta["preprocessing_fingerprint"])
         expected_reference = str(pipeline_meta["reference_fingerprint"])
         expected_pipeline = str(pipeline_meta["pipeline_fingerprint"])
+        if legacy_v1:
+            if pipeline_meta.get("schema") != "omics2pk.frozen-inductive-sweet.v1":
+                raise FrozenSweetPipelineError("Legacy artifact/pipeline schema mismatch")
+            edge_selection_mode = EDGE_SELECTION_PRESPECIFIED
+            edge_selection_top_k = len(edge_genes)
+            edge_selection_fingerprint = _prespecified_selector_fingerprint(
+                preprocessing_mode=mode,
+                subject_ids=subjects,
+                edge_genes=edge_genes,
+            )
+            fingerprint_version = 1
+        else:
+            if pipeline_meta.get("schema") != "omics2pk.frozen-inductive-sweet.v2":
+                raise FrozenSweetPipelineError("Artifact/pipeline schema mismatch")
+            edge_selection_mode = str(pipeline_meta["edge_selection_mode"])
+            edge_selection_top_k = int(pipeline_meta["edge_selection_top_k"])
+            edge_selection_fingerprint = str(
+                pipeline_meta["edge_selection_fingerprint"]
+            )
+            fingerprint_version = 2
     except (KeyError, TypeError, ValueError) as exc:
+        if isinstance(exc, FrozenSweetPipelineError):
+            raise
         raise FrozenSweetPipelineError("Incomplete frozen artifact metadata") from exc
     if (
         not genes
@@ -448,8 +567,22 @@ def load_frozen_inductive_sweet_pipeline(
         or not subjects
         or len(set(subjects)) != len(subjects)
         or any(not x.strip() for x in genes + edge_genes + subjects)
+        or edge_selection_mode not in EDGE_SELECTION_MODES
+        or edge_selection_top_k != len(edge_genes)
+        or len(edge_selection_fingerprint) != 64
+        or any(ch not in "0123456789abcdef" for ch in edge_selection_fingerprint)
     ):
         raise FrozenSweetPipelineError("Invalid frozen artifact identities")
+    if (
+        edge_selection_mode == EDGE_SELECTION_PRESPECIFIED
+        and edge_selection_fingerprint
+        != _prespecified_selector_fingerprint(
+            preprocessing_mode=mode,
+            subject_ids=subjects,
+            edge_genes=edge_genes,
+        )
+    ):
+        raise FrozenSweetPipelineError("Frozen prespecified selector fingerprint mismatch")
 
     try:
         with np.load(arrays_path, allow_pickle=False) as arrays:
@@ -543,6 +676,15 @@ def load_frozen_inductive_sweet_pipeline(
         k=k,
         preprocessor_fingerprint=preprocessor.fingerprint,
         reference_fingerprint=reference.fingerprint,
+        edge_selection_mode=(
+            None if fingerprint_version == 1 else edge_selection_mode
+        ),
+        edge_selection_top_k=(
+            None if fingerprint_version == 1 else edge_selection_top_k
+        ),
+        edge_selection_fingerprint=(
+            None if fingerprint_version == 1 else edge_selection_fingerprint
+        ),
     )
     if pipeline_fingerprint != expected_pipeline:
         raise FrozenSweetPipelineError("Frozen pipeline fingerprint mismatch")
@@ -557,7 +699,11 @@ def load_frozen_inductive_sweet_pipeline(
         preprocessing_mode=mode,
         construction=construction,
         k=k,
+        edge_selection_mode=edge_selection_mode,
+        edge_selection_top_k=edge_selection_top_k,
+        edge_selection_fingerprint=edge_selection_fingerprint,
         preprocessor=preprocessor,
         reference=reference,
         fingerprint=pipeline_fingerprint,
+        fingerprint_version=fingerprint_version,
     )
