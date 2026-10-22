@@ -1,0 +1,33 @@
+name: Zhang same-100-HLM companion supplement audit
+
+on:
+  pull_request:
+    paths:
+      - "scripts/audit_zhang100_companion_pmc4986620.py"
+      - "tests/test_zhang100_companion_pmc4986620.py"
+      - ".github/workflows/zhang100-companion-pmc4986620.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  source-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+      - name: Synthetic source-boundary tests
+        run: python -m unittest tests.test_zhang100_companion_pmc4986620 -v
+      - name: Inspect official Europe PMC supplement structure
+        run: |
+          python -m scripts.audit_zhang100_companion_pmc4986620             --out zhang100_companion_pmc4986620_source.json
+      - name: Upload metadata-only source audit
+        uses: actions/upload-artifact@v6
+        with:
+          name: zhang100-companion-pmc4986620-metadata-only
+          path: zhang100_companion_pmc4986620_source.json
+          retention-days: 14
