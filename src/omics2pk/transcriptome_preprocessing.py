@@ -151,3 +151,45 @@ def preprocess_outer_split(
         "pk_pd_target_used":False,
         "frozen":frozen,
     }
+
+def build_preprocessed_inductive_outer_split(
+    expression: Any, *, genes, edge_genes, subject_ids, train_ids, test_ids,
+    tissue: str, mode: str, folds: int = 0, k: float = 0.1,
+    construction: str = "query_anchored_duplicate_v1",
+) -> dict[str, object]:
+    """Preprocess on outer train, then build leakage-controlled inductive features.
+
+    The full gene universe is used for sample-weight similarity after the same
+    frozen preprocessing; ``edge_genes`` is a prespecified subset used for the
+    network edges. No endpoint is accepted anywhere in this API.
+    """
+    prep=preprocess_outer_split(
+        expression,genes=genes,subject_ids=subject_ids,
+        train_ids=train_ids,test_ids=test_ids,mode=mode)
+    all_genes=tuple(genes)
+    edges=tuple(edge_genes)
+    if (len(edges)<3 or len(set(edges))!=len(edges)
+            or not set(edges).issubset(set(all_genes))):
+        raise TranscriptomePreprocessingError(
+            "Edge genes must be a unique prespecified subset of the frozen gene universe")
+    combined=np.column_stack((prep["training"],prep["test"]))
+    combined_ids=tuple(prep["train_ids"])+tuple(prep["test_ids"])
+    pos={g:i for i,g in enumerate(all_genes)}
+    edge_values=combined[[pos[g] for g in edges],:]
+    from omics2pk.inductive_sweet import build_outer_split_features
+    out=build_outer_split_features(
+        edge_values,genes=edges,subject_ids=combined_ids,
+        train_ids=prep["train_ids"],test_ids=prep["test_ids"],
+        tissue=tissue,folds=folds,k=k,
+        weight_expression=combined,weight_genes=all_genes,
+        construction=construction)
+    out.update({
+        "preprocessing_mode":mode,
+        "preprocessing_fingerprint":prep["preprocessing_fingerprint"],
+        "preprocessing_fitted_on_outer_train_only":True,
+        "batch_correction_executed":False,
+        "preprocessing_pk_pd_target_used":False,
+        "n_preprocessing_genes":len(all_genes),
+        "n_edge_genes":len(edges),
+    })
+    return out
