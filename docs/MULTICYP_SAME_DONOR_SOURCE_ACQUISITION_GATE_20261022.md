@@ -35,6 +35,13 @@ This is currently the strongest acquisition target because it combines:
 - measured drug-substrate metabolism;
 - multiple CYP axes in one source study.
 
+A related open-access paper from the same group
+(`10.1124/dmd.116.069849`) explicitly states that the 10 CYP mRNA, protein and
+activity levels were quantified simultaneously in the **same set of 100 HLMs**.
+This strongly supports existence of the donor-level three-layer matrix and
+justifies a focused author/source request. Because it reuses the same liver
+bank, it is provenance evidence only, not an external validation cohort.
+
 ### Important CYP3A interpretation
 
 Midazolam metabolism in human liver microsomes reflects the CYP3A axis and must
@@ -158,3 +165,13 @@ Until then the correct result is:
 
 The software being ready is not evidence that protein improves RNA, and this
 in-vitro benchmark is not evidence of clinical Omics→PK superiority.
+
+## Acquisition hand-off
+
+The minimal source request is frozen in
+`docs/ZHANG_OHTSUKI_AUTHOR_SOURCE_REQUEST_MANIFEST_20261022.md` and a
+header-only import template is available at
+`docs/templates/multicyp_same_donor_source_template.csv`. Once a legitimate
+file is received, do not manually reshape values into a result table first:
+retain the original bytes, hash them, then create the private long-form extract
+and run the existing fail-closed source gate.
