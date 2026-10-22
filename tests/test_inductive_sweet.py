@@ -46,6 +46,14 @@ class InductiveSWEETTests(unittest.TestCase):
         self.assertTrue(info["query_specific_anchor_includes_query_once"])
         self.assertTrue(info["perturbation_duplicates_query_once"])
         self.assertEqual(info["effective_cohort_n_for_weight"],len(self.subjects)+1)
+        self.assertTrue(np.isfinite(info["sample_similarity_z_vs_reference"]))
+        self.assertTrue(np.isfinite(info["weight_position_unclipped"]))
+        self.assertGreaterEqual(info["weight_position_clipped"],0.0)
+        self.assertLessEqual(info["weight_position_clipped"],1.0)
+        self.assertIn(info["weight_clamp_direction"],("low","none","high"))
+        self.assertEqual(
+            info["weight_clamped_outside_reference"],
+            info["weight_clamp_direction"]!="none")
 
 
     def test_v1_matches_query_anchor_then_duplicate_formula(self):
@@ -77,6 +85,25 @@ class InductiveSWEETTests(unittest.TestCase):
             predict_network(
                 self.reference,self.query,subject_id="NEW_1",genes=self.genes,
                 tissue="blood",construction="invented")
+
+
+    def test_clamp_direction_and_unclipped_position_are_consistent(self):
+        # Force one profile far from the reference while preserving finite,
+        # nonconstant values. We do not require which direction a random
+        # reference produces; we require internally consistent QC semantics.
+        query=np.linspace(-30,30,len(self.genes))
+        _, info=self.predict(query,patient="NEW_EXTREME")
+        if info["weight_position_unclipped"] < 0:
+            self.assertEqual(info["weight_clamp_direction"],"low")
+            self.assertEqual(info["weight_position_clipped"],0.0)
+        elif info["weight_position_unclipped"] > 1:
+            self.assertEqual(info["weight_clamp_direction"],"high")
+            self.assertEqual(info["weight_position_clipped"],1.0)
+        else:
+            self.assertEqual(info["weight_clamp_direction"],"none")
+            self.assertEqual(
+                info["weight_position_clipped"],
+                info["weight_position_unclipped"])
 
     def test_other_test_subjects_cannot_change_frozen_prediction(self):
         first, a = self.predict(self.query)
