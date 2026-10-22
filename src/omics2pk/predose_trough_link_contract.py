@@ -123,6 +123,9 @@ def qualify_predose_trough_longitudinal_link(
     concentration_units = set()
 
     for row in troughs:
+        agent = _text(row.get("drug"), "drug").casefold()
+        if agent != target:
+            continue
         observation = _text(row.get("observation_id"), "observation_id")
         if observation in seen_observations:
             raise PredoseTroughLinkError("Duplicate trough observation_id")
@@ -135,9 +138,6 @@ def qualify_predose_trough_longitudinal_link(
         if key in seen_subject_visit:
             raise PredoseTroughLinkError("More than one modeled trough for subject/visit")
         seen_subject_visit.add(key)
-        agent = _text(row.get("drug"), "drug").casefold()
-        if agent != target:
-            continue
 
         sampled = _time(row.get("sampled_at"), "sampled_at")
         _positive(row.get("concentration"), "concentration")
