@@ -139,15 +139,8 @@ def prepare_authorized_hlc_sweet_input(
     }
 
 
-def benchmark_authorized_hlc_sweet(
-    expression_zip,
-    phenotype_zip,
-    *,
-    activity_key: str = "CYP3A4M_activity",
-    edge_top_k: int = 32,
-    internal_crossfit_folds: int = 5,
-) -> dict[str, Any]:
-    """Run the site-disjoint SWEET E2 benchmark on exact authorized archives."""
+def _load_qualified_authorized_hlc(expression_zip, phenotype_zip):
+    """Hash and parse the two exact private source archives once."""
     expression_sha = _sha256(expression_zip)
     phenotype_sha = _sha256(phenotype_zip)
     if expression_sha != EXPRESSION_ARCHIVE_SHA256:
@@ -158,23 +151,20 @@ def benchmark_authorized_hlc_sweet(
         raise OriginalHLCQualificationError(
             "Authorized HLC phenotype archive SHA-256 differs from qualified source"
         )
-
-    parsed = load_original_hlc(expression_zip, phenotype_zip)
-    prepared = prepare_authorized_hlc_sweet_input(parsed, activity_key=activity_key)
-    result = evaluate_hlc_sweet_activity(
-        prepared["expression"],
-        genes=prepared["genes"],
-        subject_ids=prepared["subject_ids"],
-        site_ids=prepared["site_ids"],
-        ages=prepared["ages"],
-        sexes=prepared["sexes"],
-        activities=prepared["activities"],
-        direct_cyp_gene=prepared["direct_cyp_features"],
-        activity_label=prepared["activity_label"],
-        activity_unit=prepared["activity_unit"],
-        edge_top_k=edge_top_k,
-        internal_crossfit_folds=internal_crossfit_folds,
+    return (
+        load_original_hlc(expression_zip, phenotype_zip),
+        expression_sha,
+        phenotype_sha,
     )
+
+
+def _annotate_authorized_result(
+    result: dict[str, Any],
+    prepared: dict[str, Any],
+    *,
+    expression_sha: str,
+    phenotype_sha: str,
+) -> dict[str, Any]:
     result.update({
         "status": "AUTHORIZED_ORIGINAL_HLC_SITE_DISJOINT_SWEET_E2",
         "source_expression_archive_sha256": expression_sha,
@@ -193,3 +183,118 @@ def benchmark_authorized_hlc_sweet(
         ),
     })
     return result
+
+
+def _evaluate_prepared_authorized_hlc_sweet(
+    prepared: dict[str, Any],
+    *,
+    edge_top_k: int,
+    internal_crossfit_folds: int,
+) -> dict[str, Any]:
+    return evaluate_hlc_sweet_activity(
+        prepared["expression"],
+        genes=prepared["genes"],
+        subject_ids=prepared["subject_ids"],
+        site_ids=prepared["site_ids"],
+        ages=prepared["ages"],
+        sexes=prepared["sexes"],
+        activities=prepared["activities"],
+        direct_cyp_gene=prepared["direct_cyp_features"],
+        activity_label=prepared["activity_label"],
+        activity_unit=prepared["activity_unit"],
+        edge_top_k=edge_top_k,
+        internal_crossfit_folds=internal_crossfit_folds,
+    )
+
+
+def benchmark_authorized_hlc_sweet(
+    expression_zip,
+    phenotype_zip,
+    *,
+    activity_key: str = "CYP3A4M_activity",
+    edge_top_k: int = 32,
+    internal_crossfit_folds: int = 5,
+) -> dict[str, Any]:
+    """Run one prespecified site-disjoint SWEET E2 endpoint."""
+    parsed, expression_sha, phenotype_sha = _load_qualified_authorized_hlc(
+        expression_zip, phenotype_zip
+    )
+    prepared = prepare_authorized_hlc_sweet_input(parsed, activity_key=activity_key)
+    result = _evaluate_prepared_authorized_hlc_sweet(
+        prepared,
+        edge_top_k=edge_top_k,
+        internal_crossfit_folds=internal_crossfit_folds,
+    )
+    return _annotate_authorized_result(
+        result,
+        prepared,
+        expression_sha=expression_sha,
+        phenotype_sha=phenotype_sha,
+    )
+
+
+def benchmark_authorized_hlc_sweet_all(
+    expression_zip,
+    phenotype_zip,
+    *,
+    edge_top_k: int = 32,
+    internal_crossfit_folds: int = 5,
+) -> dict[str, Any]:
+    """Run the complete prespecified 10-endpoint HLC SWEET family.
+
+    Endpoints remain separate because their activity scales differ. The summary
+    contains only descriptive win counts, never pooled/averaged MAE.
+    """
+    parsed, expression_sha, phenotype_sha = _load_qualified_authorized_hlc(
+        expression_zip, phenotype_zip
+    )
+    endpoints = {}
+    for activity_key in ACTIVITIES:
+        prepared = prepare_authorized_hlc_sweet_input(
+            parsed, activity_key=activity_key
+        )
+        result = _evaluate_prepared_authorized_hlc_sweet(
+            prepared,
+            edge_top_k=edge_top_k,
+            internal_crossfit_folds=internal_crossfit_folds,
+        )
+        endpoints[activity_key] = _annotate_authorized_result(
+            result,
+            prepared,
+            expression_sha=expression_sha,
+            phenotype_sha=phenotype_sha,
+        )
+
+    def wins(delta_key: str) -> int:
+        return sum(float(row[delta_key]) < 0 for row in endpoints.values())
+
+    return {
+        "status": "AUTHORIZED_ORIGINAL_HLC_ALL_10_SITE_DISJOINT_SWEET_E2",
+        "prespecified_endpoints": list(ACTIVITIES),
+        "n_prespecified_endpoints": len(ACTIVITIES),
+        "endpoint_results": endpoints,
+        "descriptive_endpoint_win_counts": {
+            "SWEET_better_than_direct_CYP_RNA": wins(
+                "delta_MAE_sweet_minus_direct_cyp_rna"
+            ),
+            "SWEET_better_than_train_selected_RNA": wins(
+                "delta_MAE_sweet_minus_selected_rna"
+            ),
+            "SWEET_better_than_PCA4": wins(
+                "delta_MAE_sweet_minus_pca4"
+            ),
+            "SWEET_better_than_topology_permuted_control": wins(
+                "delta_MAE_sweet_minus_topology_permuted_control"
+            ),
+        },
+        "MAE_not_pooled_across_endpoints": True,
+        "endpoint_scales_may_differ": True,
+        "endpoint_win_counts_are_descriptive_not_independent_tests": True,
+        "familywise_confirmatory_inference_performed": False,
+        "source_expression_archive_sha256": expression_sha,
+        "source_phenotype_archive_sha256": phenotype_sha,
+        "individual_source_rows_or_ids_exported": False,
+        "evidence_boundary": (
+            "E2 human liver microsomal CYP activity; not clinical PK/PopPK"
+        ),
+    }
