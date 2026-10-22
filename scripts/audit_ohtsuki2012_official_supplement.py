@@ -38,7 +38,6 @@ APPROVED_HOSTS={
     "sciencedirect.com",
     "linkinghub.elsevier.com",
     "ars.els-cdn.com",
-    "static-content.springer.com",  # never expected; kept out of discovery below
 }
 SUPPLEMENT_EXTENSIONS={".pdf",".xls",".xlsx",".doc",".docx",".csv",".tsv",".zip"}
 
