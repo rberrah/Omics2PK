@@ -60,6 +60,24 @@ def reference_indices(gsm, strategy="first75"):
     return sorted(ranked[:n])
 
 
+def train_only_zscore_source_normalized(gsm,weight_probe_values,*,reference_strategy):
+    """Train-only gene standardisation sensitivity for source-normalized arrays."""
+    import numpy as np
+    weight=np.asarray(weight_probe_values,dtype=float)
+    if weight.shape!=(WEIGHT_PANEL,N_EXPECTED) or not np.isfinite(weight).all():
+        raise ValueError("Invalid GSE9588 weight-expression matrix")
+    train_idx=reference_indices(gsm,reference_strategy)
+    train=weight[:,train_idx]
+    means=train.mean(axis=1)
+    scales=train.std(axis=1)
+    if np.any(scales<=1e-12) or not np.isfinite(scales).all():
+        raise ValueError("Constant training probe in z-score sensitivity")
+    transformed=(weight-means[:,None])/scales[:,None]
+    if not np.isfinite(transformed).all():
+        raise ValueError("Nonfinite train-only z-score sensitivity transform")
+    return transformed
+
+
 def weight_reference_qc_only(gsm,weight_probe_values,*,reference_strategy):
     """Fast exact sample-weight QC without constructing any gene network.
 
@@ -360,6 +378,31 @@ def main():
     b_ids,_b_edges,b_weights,_b_n,_b_idx=_load_reference_strategy("sha256_gsm150")
     baseline150_fast=weight_reference_qc_only(
         b_ids,b_weights,reference_strategy="sha256_gsm150")
+
+    # Source-normalized passthrough vs an explicit train-only gene z-score
+    # sensitivity. This never chooses a preferred transform from outcomes.
+    preprocessing_n150={}
+    cached={"sha256_gsm150":(b_ids,b_weights)}
+    for strategy in N150_REPEAT_STRATEGIES:
+        r_ids,_r_edges,r_weights,_r_n,_r_idx=_load_reference_strategy(strategy)
+        cached[strategy]=(r_ids,r_weights)
+    for strategy,(p_ids,p_weights) in cached.items():
+        passthrough=weight_reference_qc_only(
+            p_ids,p_weights,reference_strategy=strategy)
+        zweights=train_only_zscore_source_normalized(
+            p_ids,p_weights,reference_strategy=strategy)
+        train_zscore=weight_reference_qc_only(
+            p_ids,zweights,reference_strategy=strategy)
+        preprocessing_n150[strategy]={
+            "source_normalized_passthrough":passthrough,
+            "source_normalized_train_zscore":train_zscore,
+            "delta_clamps_zscore_minus_passthrough":
+                train_zscore["v1_clamps"]-passthrough["v1_clamps"],
+            "delta_abs_similarity_z_gt3_zscore_minus_passthrough":
+                train_zscore["v1_abs_similarity_z_gt3"]-passthrough["v1_abs_similarity_z_gt3"],
+            "preprocessing_fit_uses_test_subjects":False,
+            "preprocessing_uses_PK_or_CYP_outcome":False,
+        }
     baseline150_full=size_runs["150"]["query_anchored_v1"]
     if (
         baseline150_fast["v1_clamps"]
@@ -402,6 +445,11 @@ def main():
             "sha256_gsm150":baseline150_fast,
             **repeated_n150,
         },
+        "sha256_n150_preprocessing_sensitivity":preprocessing_n150,
+        "n150_preprocessing_modes_compared":[
+            "source_normalized_passthrough",
+            "source_normalized_train_zscore",
+        ],
         "n150_repeat_count_including_baseline":1+len(repeated_n150),
         "n150_all_references_zero_clamp":all(
             x["v1_clamps"]==0
