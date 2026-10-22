@@ -3,6 +3,10 @@ import unittest
 
 try:
     import numpy as np
+except ModuleNotFoundError:
+    np=None
+
+if np is not None:
     from omics2pk.transcriptome_preprocessing import (
         MODE_COUNTS_CPM_LOG1P_ZSCORE,
         MODE_PASSTHROUGH,
@@ -13,10 +17,11 @@ try:
         preprocess_outer_split,
         transform_transcriptome,
     )
-except ModuleNotFoundError as exc:
-    if exc.name!="numpy":
-        raise
-    np=None
+else:
+    # Defaults must exist while unittest defines skipped methods.
+    MODE_PASSTHROUGH="source_normalized_passthrough"
+    MODE_TRAIN_ZSCORE="source_normalized_train_zscore"
+    MODE_COUNTS_CPM_LOG1P_ZSCORE="raw_counts_cpm_log1p_train_zscore"
 
 
 @unittest.skipIf(np is None,"NumPy optional extra not installed")
