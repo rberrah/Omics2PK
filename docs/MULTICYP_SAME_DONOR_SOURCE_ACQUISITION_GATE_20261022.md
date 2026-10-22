@@ -59,7 +59,11 @@ result may be claimed from the published correlations or figures.
 The study reports 17 human liver biopsies with absolute protein quantification
 of multiple CYPs and comparison to mRNA expression and functional enzyme
 activities. The publisher page explicitly states that supplemental material is
-available.
+available. The published methods further state that **individual-donor protein
+quantification is reported in Supplemental Tables S5 and S6**, and that values
+can be under the limit of quantification when fewer than three MRM transitions
+are obtained. This is why the Omics2PK source schema now models BLQ explicitly
+rather than requiring 17 positive values.
 
 This is a valuable **independent secondary source**, especially if individual
 RNA, protein and activity rows can be recovered with stable donor identity. Its
@@ -88,30 +92,46 @@ The local validator
 `src/omics2pk/multicyp_rna_protein_activity_source_gate.py` accepts an
 authorized UTF-8 CSV with **one row per donor × included CYP**:
 
-`donor_id, source_doi, row_kind, cyp_isoform, probe_substrate, rna_value, rna_unit, protein_value, protein_unit, activity_value, activity_unit`
+`donor_id, source_doi, row_kind, cyp_isoform, probe_substrate, rna_value, rna_unit, rna_status, protein_value, protein_unit, protein_status, activity_value, activity_unit, activity_status`
+
+Allowed measurement statuses are:
+- `observed`: numeric value required;
+- `blq`: value field must be blank;
+- `missing`: value field must be blank;
+- `not_measured`: value field must be blank.
 
 Rules:
 
 - `row_kind=individual` only;
 - one DOI per file;
 - stable biological donor IDs, never row-order matching;
-- strictly positive original assay values;
+- every source donor remains represented, including explicit BLQ or missing
+  measurements; BLQ/missing values are **never coerced to zero**;
+- observed measurements must be finite and strictly positive;
 - consistent physical/relative units within each CYP assay;
 - one prespecified probe activity per CYP benchmark;
 - no pooled rows, simulated PBPK rows, figure-digitized pseudo-data or
   reconstructed correlations;
-- every included CYP must contain the complete published donor count:
-  - Zhang 2016: **100 donors**;
-  - Ohtsuki 2012: **17 donors**.
+- every included CYP must retain one row for the complete published source
+  cohort:
+  - Zhang 2016: **100 source donors represented**;
+  - Ohtsuki 2012: **17 source donors represented**.
 
 A file may contain a subset of CYP endpoints from the publication, but it may
-not contain a post-hoc subset of donors for an included CYP.
+not contain a post-hoc subset of donors for an included CYP. Numerical fitting
+uses only the donors with RNA, protein and activity all observed for that CYP,
+on the **same complete-case donor set across every compared arm**. No
+imputation is performed. Fewer than 8 complete donors returns
+`ABSTAIN_INSUFFICIENT_COMPLETE_DONORS`.
 
 ## Preregistered numerical analysis
 
 For each included CYP independently:
 
-- donor leave-one-out;
+- preserve the full source cohort and report RNA/protein/activity missingness;
+- define one complete-case donor set requiring all three measurements observed;
+- no BLQ substitution, no zero filling and no statistical imputation;
+- donor leave-one-out on that fixed complete-case set;
 - fixed Ridge alpha=1;
 - log1p RNA, protein and measured activity;
 - fold-local predictor scaling through the existing verified native Ridge;
