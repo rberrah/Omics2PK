@@ -101,9 +101,59 @@ class ContractTests(unittest.TestCase):
                 ["ENSG000001","NA","2"], ["ENSG000002","3","4"]])
             m["matrices"][0]["file"]["sha256"]=sha(root/"matrices/transcriptomics.csv")
             (root/"manifest.json").write_text(json.dumps(m))
-            with self.assertRaisesRegex(ExchangeError,"cannot contain NA"):
+            with self.assertRaisesRegex(ExchangeError,"cannot contain missing values"):
                 prepare_sweet(root,p/"out")
             self.assertFalse((p/"out").exists())
+
+
+    def _rewrite_expression(self, root, rows):
+        m=json.loads((root/"manifest.json").read_text())
+        write(root/"matrices/transcriptomics.csv",["feature_id","A1","A2"],rows)
+        m["matrices"][0]["file"]["sha256"]=sha(root/"matrices/transcriptomics.csv")
+        (root/"manifest.json").write_text(json.dumps(m))
+
+    def test_constant_gene_rejected_before_sweet_export(self):
+        with tempfile.TemporaryDirectory() as td:
+            p=Path(td); root=p/"exchange"; fixture(root)
+            self._rewrite_expression(root,[
+                ["ENSG000001","1","1"],
+                ["ENSG000002","3","4"],
+            ])
+            with self.assertRaisesRegex(ExchangeError,"constant gene"):
+                prepare_sweet(root,p/"out")
+            self.assertFalse((p/"out").exists())
+
+    def test_constant_sample_rejected_before_sweet_export(self):
+        with tempfile.TemporaryDirectory() as td:
+            p=Path(td); root=p/"exchange"; fixture(root)
+            self._rewrite_expression(root,[
+                ["ENSG000001","1","2"],
+                ["ENSG000002","1","3"],
+            ])
+            with self.assertRaisesRegex(ExchangeError,"constant sample"):
+                prepare_sweet(root,p/"out")
+
+    def test_nonconstant_zero_sum_gene_rejected_for_upstream_step2_semantics(self):
+        with tempfile.TemporaryDirectory() as td:
+            p=Path(td); root=p/"exchange"; fixture(root)
+            self._rewrite_expression(root,[
+                ["ENSG000001","-1","1"],
+                ["ENSG000002","2","3"],
+            ])
+            with self.assertRaisesRegex(ExchangeError,"deletes zero-sum gene"):
+                prepare_sweet(root,p/"out")
+
+    def test_negative_values_are_not_blanket_rejected_when_upstream_safe(self):
+        with tempfile.TemporaryDirectory() as td:
+            p=Path(td); root=p/"exchange"; fixture(root)
+            self._rewrite_expression(root,[
+                ["ENSG000001","-1","2"],
+                ["ENSG000002","3","5"],
+            ])
+            out=prepare_sweet(root,p/"out")
+            self.assertTrue(out["sweet_input_preflight"]["finite_expression"])
+            self.assertEqual(out["sweet_input_preflight"]["constant_genes"],0)
+            self.assertEqual(out["sweet_input_preflight"]["zero_sum_nonconstant_genes"],0)
 
     def test_assay_mismatch_rejected(self):
         with tempfile.TemporaryDirectory() as td:
