@@ -4,6 +4,8 @@ import unittest
 try:
     import numpy as np
     from omics2pk.inductive_sweet import (
+        CONSTRUCTION_V0,
+        CONSTRUCTION_V1,
         InductiveNetworkError,
         fit_frozen_reference,
         gene_strength_features,
@@ -39,6 +41,37 @@ class InductiveSWEETTests(unittest.TestCase):
         self.assertEqual(len(gene_strength_features(graph, genes=self.genes)), 9)
         self.assertFalse(info["equivalent_to_official_sweet"])
         self.assertFalse(info["validated_for_pk"])
+        self.assertEqual(info["construction"],CONSTRUCTION_V1)
+        self.assertTrue(info["query_specific_anchor_includes_query_once"])
+        self.assertTrue(info["perturbation_duplicates_query_once"])
+        self.assertEqual(info["effective_cohort_n_for_weight"],len(self.subjects)+1)
+
+
+    def test_v1_matches_query_anchor_then_duplicate_formula(self):
+        graph, info = self.predict(self.query)
+        anchor = np.corrcoef(np.column_stack((self.reference.expression, self.query)))
+        perturbed = np.corrcoef(np.column_stack(
+            (self.reference.expression, self.query, self.query)))
+        expected = anchor + info["weight"] * (perturbed - anchor)
+        expected = (expected + expected.T) * 0.5
+        np.fill_diagonal(expected,0.0)
+        np.testing.assert_allclose(graph,expected,rtol=0,atol=1e-12)
+
+    def test_v0_is_retained_for_reproducibility_but_not_default(self):
+        v1, i1 = self.predict(self.query)
+        v0, i0 = predict_network(
+            self.reference,self.query,subject_id="NEW_1",genes=self.genes,
+            tissue="blood",construction=CONSTRUCTION_V0)
+        self.assertEqual(i0["construction"],CONSTRUCTION_V0)
+        self.assertEqual(i0["effective_cohort_n_for_weight"],len(self.subjects))
+        self.assertFalse(i0["query_specific_anchor_includes_query_once"])
+        self.assertFalse(np.array_equal(v0,v1))
+
+    def test_unknown_construction_rejected(self):
+        with self.assertRaisesRegex(InductiveNetworkError,"Unknown"):
+            predict_network(
+                self.reference,self.query,subject_id="NEW_1",genes=self.genes,
+                tissue="blood",construction="invented")
 
     def test_other_test_subjects_cannot_change_frozen_prediction(self):
         first, a = self.predict(self.query)
