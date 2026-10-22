@@ -30,9 +30,22 @@ from scripts.qualify_gse9588_real_human_liver_expression import (
 TRAIN=75
 PANEL=24
 WEIGHT_PANEL=512
+REFERENCE_STRATEGIES={"first75","sha256_gsm75"}
 
 
-def extract_train_variable_array_probe_sets(lines):
+def reference_indices(gsm, strategy="first75"):
+    if strategy not in REFERENCE_STRATEGIES:
+        raise ValueError("Unknown GSE9588 reference strategy")
+    if len(gsm)!=N_EXPECTED or len(set(gsm))!=N_EXPECTED:
+        raise ValueError("Reference selection requires unique complete GSM IDs")
+    if strategy=="first75":
+        return list(range(TRAIN))
+    ranked=sorted(range(len(gsm)),
+                  key=lambda i:(sha256(gsm[i].encode()).hexdigest(),gsm[i]))
+    return sorted(ranked[:TRAIN])
+
+
+def extract_train_variable_array_probe_sets(lines, *, reference_strategy="first75"):
     gsm=None
     rows=[]
     n_scan=0
@@ -56,6 +69,7 @@ def extract_train_variable_array_probe_sets(lines):
                 raise ValueError("GEO original 427 accession codes inconsistent")
             if any(not re.fullmatch(r"GSM\d{5,9}",x) for x in gsm):
                 raise ValueError("Original expression column not a GEO sample ID")
+            train_idx=reference_indices(gsm,reference_strategy)
             continue
         n_scan+=1
         if n_scan>MAX_PROBES:
@@ -69,10 +83,10 @@ def extract_train_variable_array_probe_sets(lines):
             continue
         if not all(isfinite(x) for x in vals):
             continue
-        # This RNA probe universe is fixed solely by the FIRST ORIGINAL
-        # TRAINING samples. Heldout sample variance is not consulted.
+        # Probe selection uses only the selected reference samples. Query
+        # variance is never consulted.
         from statistics import pstdev
-        if pstdev(vals[:TRAIN])<1e-8:continue
+        if pstdev([vals[i] for i in train_idx])<1e-8:continue
         rows.append(vals)
     if not gsm or len(rows)!=WEIGHT_PANEL or n_scan<1000:
         raise ValueError("Too few valid original GEO probe measurements")
@@ -86,7 +100,8 @@ def extract_train_variable_array_probes(lines):
 
 
 def real_gse_frozen_network_smoke(
-    gsm,probe_values,n_probes,*,weight_probe_values=None
+    gsm,probe_values,n_probes,*,weight_probe_values=None,
+    train_indices=None,reference_strategy="first75"
 ):
     import numpy as np
     from omics2pk.inductive_sweet import (
@@ -96,6 +111,17 @@ def real_gse_frozen_network_smoke(
     mat=np.asarray(probe_values,dtype=float)
     if mat.shape!=(PANEL,N_EXPECTED):
         raise ValueError("Incorrect original GEO panel by sample schema")
+    train_idx=(reference_indices(gsm,reference_strategy)
+               if train_indices is None else list(train_indices))
+    if (len(train_idx)!=TRAIN or len(set(train_idx))!=TRAIN
+            or any(i<0 or i>=N_EXPECTED for i in train_idx)):
+        raise ValueError("Reference must contain exactly 75 unique source columns")
+    if train_indices is not None and train_idx!=reference_indices(gsm,reference_strategy):
+        raise ValueError("Reference indices disagree with declared strategy")
+    train_set=set(train_idx)
+    query_idx=[i for i in range(N_EXPECTED) if i not in train_set]
+    if len(query_idx)!=N_EXPECTED-TRAIN:
+        raise ValueError("Reference/query partition inconsistent")
     # Names are syntactic PANEL PROXIES, not genomic annotations.
     probe_names=[f"UNANNOTATED_GEO_PROBE_{i+1:02d}" for i in range(PANEL)]
     if weight_probe_values is None:
@@ -114,10 +140,11 @@ def real_gse_frozen_network_smoke(
         weight_names[:PANEL]=probe_names
         weight_universe="broader_train_variable_probe_universe"
     trained=fit_frozen_reference(
-        mat[:,:TRAIN],genes=probe_names,subject_ids=gsm[:TRAIN],
+        mat[:,train_idx],genes=probe_names,
+        subject_ids=[gsm[i] for i in train_idx],
         tissue="Human liver (GEO GSE9588 microarray, source context)",
         k=0.1,
-        weight_expression=weight_mat[:,:TRAIN],weight_genes=weight_names
+        weight_expression=weight_mat[:,train_idx],weight_genes=weight_names
     )
     def project(construction):
         strengths=[]
@@ -130,7 +157,7 @@ def real_gse_frozen_network_smoke(
         signatures=set()
         # Exactly held-out GSM sample columns, fixed same reference; no training
         # objective is re-fit while predicting any query graph.
-        for i in range(TRAIN,N_EXPECTED):
+        for i in query_idx:
             graph,details=predict_network(
                 trained,mat[:,i],subject_id=gsm[i],
                 genes=probe_names,tissue=trained.tissue,
@@ -186,6 +213,9 @@ def real_gse_frozen_network_smoke(
         "genuine_input_original_probe_rows_scanned":n_probes,
         "unsupervised_array_probes_chosen_by_train_only_variance":PANEL,
         "fixed_reference_training_GSM_samples":TRAIN,
+        "reference_selection_strategy":reference_strategy,
+        "reference_selection_uses_expression_values":False,
+        "reference_selection_uses_PK_or_outcomes":False,
         "sample_weight_expression_probe_count":len(weight_names),
         "sample_weight_universe":weight_universe,
         "legacy_v0":legacy,
@@ -221,22 +251,39 @@ def real_gse_frozen_network_smoke(
     }
 
 
-def main():
+def _load_reference_strategy(strategy):
     with urlopen(Request(URL,headers={
         "User-Agent":"Omics2PK-original-427-geo-sweet-inspired-frozen-reference-matrix/1.0"
     }),timeout=90) as resp:
         with gzip.GzipFile(fileobj=resp) as source:
-            ids,edges,weights,n=extract_train_variable_array_probe_sets(source)
-    narrow=real_gse_frozen_network_smoke(ids,edges,n)
+            ids,edges,weights,n=extract_train_variable_array_probe_sets(
+                source,reference_strategy=strategy)
+    idx=reference_indices(ids,strategy)
+    return ids,edges,weights,n,idx
+
+
+def main():
+    ids,edges,weights,n,first_idx=_load_reference_strategy("first75")
+    narrow=real_gse_frozen_network_smoke(
+        ids,edges,n,train_indices=first_idx,reference_strategy="first75")
     broad=real_gse_frozen_network_smoke(
-        ids,edges,n,weight_probe_values=weights)
+        ids,edges,n,weight_probe_values=weights,
+        train_indices=first_idx,reference_strategy="first75")
+
+    h_ids,h_edges,h_weights,h_n,hash_idx=_load_reference_strategy("sha256_gsm75")
+    hashed=real_gse_frozen_network_smoke(
+        h_ids,h_edges,h_n,weight_probe_values=h_weights,
+        train_indices=hash_idx,reference_strategy="sha256_gsm75")
+
     narrow_v1=narrow["query_anchored_v1"]
     broad_v1=broad["query_anchored_v1"]
+    hash_v1=hashed["query_anchored_v1"]
     return {
-        "status":"REAL_PUBLIC_GSE9588_WEIGHT_UNIVERSE_SENSITIVITY_ONLY",
+        "status":"REAL_PUBLIC_GSE9588_WEIGHT_AND_REFERENCE_SENSITIVITY_ONLY",
         "authentic_source_accession":"GSE9588",
         "legacy_24_probe_weighting":narrow,
         "broader_512_probe_weighting":broad,
+        "sha256_reference_75_broader_512_probe_weighting":hashed,
         "v1_clamp_reduction_with_broader_weight_universe":(
             narrow_v1["n_original_queries_clamped_reference_weight"]
             - broad_v1["n_original_queries_clamped_reference_weight"]),
@@ -246,6 +293,13 @@ def main():
         "v1_zero_weight_reduction_with_broader_weight_universe":(
             narrow_v1["n_original_queries_zero_graph_update_weight"]
             - broad_v1["n_original_queries_zero_graph_update_weight"]),
+        "v1_hash_reference_clamp_delta_vs_first75_broad":(
+            hash_v1["n_original_queries_clamped_reference_weight"]
+            - broad_v1["n_original_queries_clamped_reference_weight"]),
+        "v1_hash_reference_mean_similarity_z_delta_vs_first75_broad":round(
+            hash_v1["mean_similarity_z_vs_reference"]
+            - broad_v1["mean_similarity_z_vs_reference"],6),
+        "reference_sensitivity_uses_only_GSM_identifiers_not_expression_or_outcome":True,
         "no_PK_or_CYP_outcome_used":True,
         "no_GSM_or_expression_rows_exported":True,
     }
