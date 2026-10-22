@@ -18,6 +18,11 @@ from omics2pk.inductive_sweet import (
     CONSTRUCTION_V0, CONSTRUCTION_V1,
     build_outer_split_features, fit_frozen_reference, predict_network,
 )
+from omics2pk.frozen_sweet_pipeline import (
+    fit_frozen_inductive_sweet_pipeline,
+    predict_frozen_inductive_sweet_pipeline,
+)
+from omics2pk.transcriptome_preprocessing import MODE_PASSTHROUGH
 
 
 def pilot(upstream: Path) -> dict:
@@ -52,6 +57,29 @@ def pilot(upstream: Path) -> dict:
         train_ids=train, test_ids=test, tissue="TCGA-archived-unspecified", folds=0,
         weight_expression=all_values, weight_genes=all_genes,
         construction=CONSTRUCTION_V1)
+    frozen_pipeline = fit_frozen_inductive_sweet_pipeline(
+        all_values[:, :60], genes=all_genes, subject_ids=train,
+        edge_genes=genes, tissue="TCGA-archived-unspecified",
+        mode=MODE_PASSTHROUGH, construction=CONSTRUCTION_V1)
+    frozen_predictions = [
+        predict_frozen_inductive_sweet_pipeline(
+            frozen_pipeline, all_values[:, col], subject_id=sid, genes=all_genes)
+        for col, sid in zip(range(60, len(samples)), test)
+    ]
+    if frozen_pipeline.reference.fingerprint != split["outer_reference_fingerprint"]:
+        raise ValueError("Frozen prospective reference differs from outer-split reference")
+    for prospective, heldout in zip(frozen_predictions, split["test"]):
+        if prospective["features"] != heldout["features"]:
+            raise ValueError("Frozen prospective features differ from outer-split heldout features")
+        qc = prospective["network_qc"]
+        if (
+            qc["weight"] != heldout["weight"]
+            or qc["sample_similarity_z_vs_reference"] != heldout["sample_similarity_z_vs_reference"]
+            or qc["weight_position_unclipped"] != heldout["weight_position_unclipped"]
+            or qc["weight_clamped_outside_reference"] != heldout["weight_clamped_outside_reference"]
+            or qc["weight_clamp_direction"] != heldout["weight_clamp_direction"]
+        ):
+            raise ValueError("Frozen prospective QC differs from outer-split heldout QC")
     ref = fit_frozen_reference(
         values[:, :60], genes=genes, subject_ids=train,
         tissue="TCGA-archived-unspecified",
@@ -130,6 +158,9 @@ def pilot(upstream: Path) -> dict:
         "test_network_reference_n": 60,
         "all_heldout_predictions_share_frozen_fingerprint": (
             len({r["reference_fingerprint"] for r in split["test"]}) == 1),
+        "prospective_frozen_pipeline_fingerprint": frozen_pipeline.fingerprint,
+        "prospective_frozen_pipeline_matches_outer_split_all_test_subjects": True,
+        "prospective_frozen_pipeline_refits_query": False,
         "heldout_patient_invariant_to_other_heldout_profile": True,
         "clipped_test_weights": clipped,
         "test_abs_strength_min": float(np.min(abs_strength)),
