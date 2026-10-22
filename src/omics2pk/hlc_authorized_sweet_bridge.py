@@ -184,7 +184,9 @@ def benchmark_authorized_hlc_sweet(
         "source_center_complete_case_counts": prepared["center_counts"],
         "center_codebook": "Schadt_2008_Table_S1_prefix_111_222_333",
         "source_processed_expression_precedes_outer_CV": True,
-        "source_methods_adjusted_expression_for_center_age_sex": True,
+        "source_article_reports_center_age_sex_control_in_analysis": True,
+        "archive_exact_covariate_residualization_verified": False,
+        "end_to_end_raw_expression_train_frozen": False,
         "individual_source_rows_or_ids_exported": False,
         "evidence_boundary": (
             "E2 human liver microsomal CYP activity; not clinical PK/PopPK"
