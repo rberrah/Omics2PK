@@ -20,11 +20,25 @@ and should not be called a CYP/ABCB1 activity measurement.
 - The outputs are per-gene unsigned connection strengths, unvalidated
   descriptions of the network, not mechanistic covariates.
 
-For reference expression `X_train` (genes × subjects),
-`A = corr_genes(X_train)`. For one unseen subject's expression `x`,
-`B = corr_genes([X_train, x])`. This preliminary variant uses
-`G(x) = A + w(x) * (B-A)`, where the weight is a bounded
-function of query-to-training expression-profile correlations.
+Two constructions are retained.
+
+**v0 (historical Omics2PK prototype):**
+`A = corr_genes(X_train)`, `B = corr_genes([X_train, x])`, then
+`G0(x) = A + w0(x) * (B-A)`.
+
+**v1 (current default, query-anchored):**
+`A_x = corr_genes([X_train, x])` and
+`B_x = corr_genes([X_train, x, x])`, then
+`G1(x) = A_x + w1(x) * (B_x-A_x)`.
+
+v1 mirrors the perturbation structure of published SWEET more closely: the
+target sample exists once in its query-specific anchor and is duplicated once
+in the perturbed matrix. The **training reference remains frozen**: no other
+held-out subject, PK endpoint or outcome is used. The query's own expression is
+allowed to construct its own network, just as a deployed model may use the new
+patient's measured RNA.
+
+v0 remains selectable only for reproducibility of earlier experiments.
 
 ### Sample weighting and difference from official SWEET
 
@@ -41,17 +55,26 @@ training subject-similarity distribution and clips values outside its range;
 this is **not** the transductive published sample-weight procedure. The
 reference sizes also differ by one between LOO training and held-out tests.
 
-**Measured public-data diagnostic (CI, 2026-10-16):**
+**Measured public-data diagnostic (updated 2026-10-22):**
 the original SWEET example has 80 expression samples and 100 genes.
-Using all 100 genes for sample weighting and the first 25 genes for
-network edges: training 60, held-out 20; training LOO references 59 and
-held-out references 60. All test networks share one training-frozen
-fingerprint; 1 of 20 test weights was clipped outside the reference range.
-For one test subject, the relative Frobenius difference between this
-inductive network and the published SWEET **transductive formula**
-applied to all 80 subjects was **0.27065** (27.1%), illustrating
-non-equivalence under different reference-cohort definitions.
-No outcome labels or PK/PD concentrations are present in this diagnostic.
+Using all 100 genes for sample weighting and a fixed first-25-gene edge panel,
+the first 60 samples form the frozen training cohort and the last 20 are
+held out. Training features are cross-fitted; every test subject uses the same
+60-person reference fingerprint.
+
+Against the published SWEET **transductive** 80-person formula, relative
+Frobenius differences across the 20 held-out subjects are:
+
+- historical v0: mean **0.27257**, median **0.27380**;
+- query-anchored v1: mean **0.26729**, median **0.27115**;
+- v1 is closer for **19/20** held-out subjects;
+- first held-out subject: **0.27065 → 0.25586**.
+
+This is a modest mathematical improvement, **not equivalence**. The official
+comparison includes all 80 subjects in its reference and is therefore
+transductive; a deployable inductive method cannot be expected to reproduce it
+exactly without reintroducing held-out cohort information. No outcome labels,
+PK/PD concentrations or biological claims enter this diagnostic.
 
 This remains **SWEET-inspired**: not a clinical predictor and not a
 validated replacement for official SWEET. Do not present correlation
@@ -70,13 +93,14 @@ network strengths as mechanistic enzyme activities.
    preprocessed matrix. Upstream feature selection, batch correction,
    scaling, imputation and gene mapping must be fit **inside each outer
    training fold** and frozen for test subjects. Not currently implemented.
-3. **Training/test distribution mismatch:** LOO reference size n-1,
-   test reference size n; K-fold references are smaller still. Quantify
-   impact on feature scale and calibration.
+3. **Training/test distribution mismatch:** for v1, a cross-fitted training
+   query has an anchor reconstructed from its n-1 reference + itself, whereas
+   an outer test query uses the full n-person training reference + itself.
+   Quantify the remaining feature-scale/calibration shift explicitly.
 4. **Biological scope:** experimental 128-gene maximum; heterogeneous
    RNA cell types and tissue availability may invalidate transfer.
 5. **External scientific comparison:** compare original transductive SWEET,
-   frozen-reference scores, raw expression, simple PCA/pathway scores, null
+   v0/v1 frozen-reference scores, raw expression, simple PCA/pathway scores, null
    and permuted networks on a **measured molecular or pharmacological target**.
    Avoid post-hoc claims of causality or CYP functional activity.
 6. **Graph-to-PopPK:** do not build M3/M4 until an appraised, patient-paired
