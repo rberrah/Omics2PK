@@ -68,6 +68,7 @@ def _native_pdf_table_shape(page_texts: list[str]) -> dict:
     donor_keyword_pages=[]
     table_caption_skeletons={}
     clearance_context_skeletons={}
+    parser_design_context={}
     for pageno,content in enumerate(page_texts,start=1):
         folded=content.casefold()
         if "donor" in folded:
@@ -91,6 +92,13 @@ def _native_pdf_table_shape(page_texts: list[str]) -> dict:
             possible_figures.add(match.group(1))
 
         lines=content.splitlines()
+        if pageno in (5,6,7):
+            safe=[]
+            for line in lines:
+                skeleton=_redacted_line_skeleton(line)
+                if skeleton and skeleton not in safe and len(safe)<48:
+                    safe.append(skeleton)
+            parser_design_context[str(pageno)]=safe
         for idx,line in enumerate(lines):
             if re.search(r"\bTable\s*S?[1-9]\d?\b",line,re.I):
                 context=" ".join(lines[idx:min(len(lines),idx+2)])
@@ -142,6 +150,7 @@ def _native_pdf_table_shape(page_texts: list[str]) -> dict:
         "redacted_candidate_row_skeletons_by_page":dense_row_skeletons,
         "redacted_table_caption_context_by_page":table_caption_skeletons,
         "redacted_clearance_context_by_page":clearance_context_skeletons,
+        "redacted_parser_design_context_pages_5_7":parser_design_context,
         "candidate_native_clint_table_pages":candidate_pages,
         "native_table_parser_feasible_candidate":bool(candidate_pages),
         "raw_source_lines_or_values_exported":False,
