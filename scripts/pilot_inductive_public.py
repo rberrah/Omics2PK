@@ -101,6 +101,11 @@ def pilot(upstream: Path) -> dict:
                 max(np.linalg.norm(transductive), 1e-12)))
     d0=np.asarray(differences[CONSTRUCTION_V0])
     d1=np.asarray(differences[CONSTRUCTION_V1])
+    # Public software-regression gate only. This does not establish biological
+    # validity; it protects the intended mathematical improvement of v1.
+    if not (np.mean(d1) < np.mean(d0) and np.sum(d1 < d0) >= 15):
+        raise ValueError(
+            "Query-anchored v1 no longer improves the public mathematical diagnostic")
     clipped = sum(x["weight_clamped_outside_reference"] for x in split["test"])
     abs_strength = np.array([list(r["features"].values()) for r in split["test"]])
     return {
