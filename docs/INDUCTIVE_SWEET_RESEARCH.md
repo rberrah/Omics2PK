@@ -94,14 +94,23 @@ Observed on the official GEO matrix (2026-10-22):
 
 - v0: **238/352 unique graph hashes**, 114 collisions;
 - v1: **352/352 unique graph hashes**, 0 collisions;
-- both: **117 clamped weights** and **115 zero weights**.
+- both: **117 clamped weights** and **115 zero weights**;
+- clamp direction: **115 low**, **2 high**;
+- mean query similarity z-score versus the 75-reference distribution:
+  **−1.757**, range **−5.476 to +2.382**; **69/352** queries have |z| > 3;
+- unclipped weight position: median **0.156**, range **−0.677 to 1.052**.
 
 Thus v1 fixes a specific software-personalization failure of v0: when the
 network-update weight is zero, v1 still retains a query-specific anchor rather
 than collapsing every affected subject to the identical training-only graph.
-It does **not** solve weight calibration or source distribution shift. There is
-still no verified GSM→independent-donor crosswalk, no probe→gene mechanistic
-annotation in this smoke test and no matched CYP activity/PK endpoint.
+It does **not** solve weight calibration or source distribution shift. The
+strongly negative similarity shift also makes the historical choice of the
+**first 75 GEO columns** a methodological sensitivity factor: GEO source order
+was not designed as a representative training sample. A separate outcome-free,
+order-independent reference-selection sensitivity is therefore required before
+interpreting the clamp rate as an intrinsic property of v1. There is still no
+verified GSM→independent-donor crosswalk, no probe→gene mechanistic annotation
+in this smoke test and no matched CYP activity/PK endpoint.
 Therefore this result is not evidence of predictive PK utility.
 
 ## Gates and known limitations
