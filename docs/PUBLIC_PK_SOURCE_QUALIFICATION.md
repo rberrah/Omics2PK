@@ -1,6 +1,6 @@
 # Public PK/proteomics qualification: Wegler 2021 and Yin/Battail 2025
 
-**Status (16 October 2026): source-format inventory, not a donor-level PK fit or clinical validation.**
+**Updated status (22 October 2026): Wegler is now a source-qualified donor-level in-vitro CLint benchmark with aggregate held-donor results; Yin/Battail remains a separate treatment-response/SWEET source. Neither is clinical PK validation.**
 
 ## 1. Priority: measured in-vitro hepatic clearance and proteomics (Wegler 2021)
 
@@ -24,9 +24,9 @@ Official PMC supporting files:
 
 **Important 2026 retrieval change:** In August 2026, NLM/PMC retired its legacy article-dataset FTP and cloud package distribution. The supported public channel is now the PMC AWS Cloud Service (bucket pmc-oa-opendata), whose article metadata includes per-object supplementary URLs and license data. The audit therefore probes the official PMC8041379.1 metadata object as well as historical article bin URLs; individual older downloads can legitimately fail even though the archived article and new cloud objects remain available. Source metadata access by itself proves no quantitative donor-level values. See https://pmc.ncbi.nlm.nih.gov/tools/pmcaws/ and https://pmc-oa-opendata.s3.amazonaws.com/README.txt .
 
-The automated inventory probes format accessibility only. Neither published proteomic protein matrices nor the article figures automatically establish a verified **donor ID ↔ compound ↔ system ↔ CLint ↔ protein abundance** join.
+The original inventory phase probed format accessibility only. That gate has now been surpassed for the **targeted Table S3 Wegler experiment**: the native-text source yields the same 15 donor/batch IDs across all five probe drugs, targeted CYP concentrations in HH/HLM and source CLint equations. The high-dimensional Data S1 proteome remains a separate optional extension.
 
-### Prespecified first modeling protocol (strictly conditional)
+### Qualified targeted-CYP modeling protocol
 
 **Biological unit:** 15 independent liver donors, NOT 75 unrelated individuals (five correlated compounds measured within donors).
 
@@ -42,20 +42,20 @@ The automated inventory probes format accessibility only. Neither published prot
 
 **Metrics:** donor-clustered MAE/log fold-error, bias, by-compound errors and descriptive donor bootstrap intervals. No pseudo-75-patient inference, feature network fitted with test donors, or outcome-selected hyperparameters.
 
-### Mandatory go/no-go
+### Qualified go/no-go result
 
-1. Official supplement contents can actually be retrieved, with immutable hashes.
-2. Original donor-level CLint and proteomics have verified matching identifiers and compatible sample fractions.
-3. Clear extraction of original assay units, missingness/censoring/replicate rules and labels.
-4. If donors cannot be joined without digitizing figures or guessing aliases, **do not fit a model**. Obtain tabular primary CLint data from the authors or use another source.
+1. Official supplements are retrieved through PMC AWS and SHA-locked.
+2. Native Table S3 provides exact same-donor targeted CYP protein and CLint rows for all five probe drugs without OCR or figure digitisation.
+3. HLM `eq.1` and HH `eq.4` CLint semantics are checked against the paper's rounded midazolam aggregates; source `ND` is preserved.
+4. Donor-LODO is executed with fixed alpha=1 and aggregate output only.
 
-The first source availability job does not complete any of these target-pairing gates merely because an XLSX can be downloaded.
+Result: **GO for targeted CYP-protein → in-vitro CLint E2 evidence**; **NO-GO for claims of clinical plasma PK, RNA superiority or high-dimensional proteome benefit**.
 
-### Local curated crosswalk contract (implemented, NOT yet qualified on real rows)
+### Local crosswalk contract and source-qualified targeted result
 
 Use the pure-standard-library omics2pk.clint_contract module to validate manually verified, locally kept source data **after** inspecting the official supplements. Required CLint fields: donor_id, drug, system (HH/HLM), clint, clint_unit, clint_basis (UNBOUND/TOTAL), measurement_status (MEASURED), source_table and source_sha256. Required proteomics fields: donor_id, system, protein_id, abundance, abundance_unit, source_table and source_sha256. Neither raw values nor donor IDs are uploaded to CI artifacts.
 
-The validator rejects invented/imputed non-measured endpoints, non-positive or non-finite values, unrecorded units, conflicting unit/basis within the same drug+system, mismatched donor sets, duplicate technical assay rows and duplicate donor/system/protein profiles. Its leave-one-donor-out split holds all five drug assays and both preparation systems for each donor together. A sample with missing measured outcomes stays explicitly incomplete; no filling of absent drug responses is performed. This is infrastructure for the **conditional** CLint experiment, not fitted biology or an IVIVE clinical claim.
+The validator rejects invented/imputed non-measured endpoints, non-positive or non-finite values, unrecorded units, conflicting unit/basis within the same drug+system, mismatched donor sets, duplicate technical assay rows and duplicate donor/system/protein profiles. Its leave-one-donor-out split holds all five drug assays and both preparation systems for each donor together. A sample with missing measured outcomes stays explicitly incomplete; no filling of absent drug responses is performed. The generic `clint_contract` remains reusable infrastructure. In addition, the Wegler-specific native Table S3 path has now produced a genuine fitted E2 result: strong HH benefit for midazolam/omeprazole/diclofenac, near-neutral/worse results for bupropion/bufuralol, and negligible pooled HLM gain. This is an IVIVE/mechanistic benchmark only.
 
 
 
@@ -77,4 +77,4 @@ The GitHub Actions workflow:
 - On inaccessible sources, records UNAVAILABLE_OR_INVALID; successful CI must never be interpreted as confirmed accessible files unless JSON source states are checked.
 - Never uploads raw biological/proteomic records or supplementary file bytes to any artifact.
 
-**Next engineering target:** strict local-only donor/drug/system/CLint-unit/protein-matrix crosswalk manifest with synthetic anti-leakage tests. Actual numerical CLint models are blocked until a genuine donor-outcome linkage is demonstrated.
+**Next evidence target:** same-donor RNA + protein + activity acquisition (Zhang/Ohtsuki, issue #63) and genuinely paired clinical omics + dose/time/concentration data. Wegler no longer blocks on donor/CLint linkage.
