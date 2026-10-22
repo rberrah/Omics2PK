@@ -3,15 +3,16 @@ import random
 import unittest
 
 from omics2pk.hlc_synapse_same_donor_gate import (
-    CURRENT_EXPRESSION_ENTITY_SAMPLES,
+    CURRENT_SYNAPSE_EXPRESSION_METADATA_N,
+    PUBLISHED_HLC_EXPRESSION_PROFILED_N,
     HLCSynapseJoinError,
     join_original_hlc_synapse,
     summarize_private_hlc_join,
 )
 
 
-def fixture(n_matched=90):
-    expression = tuple(f"HLC_EXPR_{i:03}" for i in range(CURRENT_EXPRESSION_ENTITY_SAMPLES))
+def fixture(n_matched=90, n_expression=CURRENT_SYNAPSE_EXPRESSION_METADATA_N):
+    expression = tuple(f"HLC_EXPR_{i:03}" for i in range(n_expression))
     rows = []
     for i in range(n_matched):
         rows.append({
@@ -42,6 +43,13 @@ class HLCSynapseSameDonorGateTests(unittest.TestCase):
         self.assertEqual(join.activity_unit, "nmol/min/mg protein")
         out = summarize_private_hlc_join(join)
         self.assertEqual(out["n_same_donor_complete_observations"], 90)
+        self.assertEqual(out["expression_source_unique_donors"], 465)
+        self.assertEqual(out["current_synapse_expression_metadata_n"], 465)
+        self.assertEqual(out["published_HLC_expression_profiled_n"], 466)
+        self.assertTrue(out["expression_count_matches_current_synapse_metadata"])
+        self.assertFalse(out["expression_count_matches_published_study"])
+        self.assertTrue(out["documented_expression_count_discrepancy_present"])
+        self.assertTrue(out["expression_count_is_one_documented_source_count"])
         self.assertEqual(out["n_original_sites"], 3)
         self.assertTrue(out["ready_for_site_disjoint_E2_benchmark"])
         self.assertFalse(out["GSE9588_crosswalk_required"])
@@ -96,11 +104,28 @@ class HLCSynapseSameDonorGateTests(unittest.TestCase):
                 expression, rows, assay_id="CYP3A4_midazolam",
                 expression_sha256="not-a-hash", phenotype_sha256="b" * 64)
 
-    def test_requires_current_expression_entity_cardinality_and_three_sites(self):
+    def test_accepts_published_466_archive_count_and_flags_metadata_discrepancy(self):
+        expression, rows = fixture(n_expression=PUBLISHED_HLC_EXPRESSION_PROFILED_N)
+        join = join_original_hlc_synapse(
+            expression, rows, assay_id="CYP3A4_midazolam",
+            expression_sha256="a" * 64, phenotype_sha256="b" * 64)
+        out = summarize_private_hlc_join(join)
+        self.assertEqual(out["expression_source_unique_donors"], 466)
+        self.assertFalse(out["expression_count_matches_current_synapse_metadata"])
+        self.assertTrue(out["expression_count_matches_published_study"])
+        self.assertTrue(out["documented_expression_count_discrepancy_present"])
+        self.assertTrue(out["ready_for_site_disjoint_E2_benchmark"])
+
+    def test_rejects_unexplained_expression_cardinality_and_requires_three_sites(self):
         expression, rows = fixture()
-        with self.assertRaisesRegex(HLCSynapseJoinError, "exactly 465"):
+        with self.assertRaisesRegex(HLCSynapseJoinError, "465 or 466"):
             join_original_hlc_synapse(
                 expression[:-1], rows, assay_id="CYP3A4_midazolam",
+                expression_sha256="a" * 64, phenotype_sha256="b" * 64)
+        expression466, rows466 = fixture(n_expression=PUBLISHED_HLC_EXPRESSION_PROFILED_N)
+        with self.assertRaisesRegex(HLCSynapseJoinError, "465 or 466"):
+            join_original_hlc_synapse(
+                expression466 + ("EXTRA",), rows466, assay_id="CYP3A4_midazolam",
                 expression_sha256="a" * 64, phenotype_sha256="b" * 64)
         two_site = [dict(x) for x in rows]
         for i, row in enumerate(two_site):
