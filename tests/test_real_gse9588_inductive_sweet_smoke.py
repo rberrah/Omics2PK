@@ -54,6 +54,20 @@ class SourceFrozenReferenceTests(unittest.TestCase):
         self.assertNotEqual(selected,list(range(TRAIN)))
 
 
+
+    def test_salted_hash_references_are_deterministic_and_distinct(self):
+        gsm=[f"GSM{700000+i}" for i in range(N)]
+        a=reference_indices(gsm,"sha256_seed0_gsm150")
+        b=reference_indices(gsm,"sha256_seed0_gsm150")
+        c=reference_indices(gsm,"sha256_seed1_gsm150")
+        self.assertEqual(a,b)
+        self.assertEqual(len(a),150)
+        self.assertEqual(len(c),150)
+        self.assertNotEqual(a,c)
+        self.assertNotEqual(
+            {gsm[i] for i in a},
+            {gsm[i] for i in c})
+
     def test_hash_reference_sizes_are_nested_and_prespecified(self):
         gsm=[f"GSM{700000+i}" for i in range(N)]
         ids_by_n={}
@@ -158,5 +172,20 @@ class SourceFrozenReferenceTests(unittest.TestCase):
         self.assertEqual(result["fixed_reference_training_GSM_samples"],50)
         self.assertEqual(result["query_anchored_v1"]["unseen_GSM_samples_projected"],377)
         self.assertFalse(result["predictive_CYP_activity_test_executed"])
+
+
+    @unittest.skipUnless(importlib.util.find_spec("numpy"),"Optional numpy not installed")
+    def test_salted_n150_smoke_has_expected_query_count(self):
+        strategy="sha256_seed3_gsm150"
+        ids,edges,weights,n=extract_train_variable_array_probe_sets(
+            toy(),reference_strategy=strategy)
+        idx=reference_indices(ids,strategy)
+        result=real_gse_frozen_network_smoke(
+            ids,edges,n,weight_probe_values=weights,
+            train_indices=idx,reference_strategy=strategy)
+        self.assertEqual(result["fixed_reference_training_GSM_samples"],150)
+        self.assertEqual(result["query_anchored_v1"]["unseen_GSM_samples_projected"],277)
+        self.assertEqual(result["reference_selection_strategy"],strategy)
+        self.assertFalse(result["reference_selection_uses_PK_or_outcomes"])
 
 if __name__=="__main__":unittest.main()
