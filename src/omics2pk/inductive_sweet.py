@@ -18,6 +18,9 @@ import numpy as np
 MAX_GENES = 128
 MIN_REFERENCE_SAMPLES = 5
 EPSILON = 0.01
+CONSTRUCTION_V0 = "reference_add_query_v0"
+CONSTRUCTION_V1 = "query_anchored_duplicate_v1"
+CONSTRUCTIONS = {CONSTRUCTION_V0, CONSTRUCTION_V1}
 
 
 class InductiveNetworkError(ValueError):
@@ -124,10 +127,21 @@ def predict_network(
     tissue: str,
     weight_query: Any | None = None,
     weight_genes: list[str] | tuple[str, ...] | None = None,
+    construction: str = CONSTRUCTION_V1,
 ) -> tuple[np.ndarray, dict[str, Any]]:
-    """Compute ONE unseen individual's network without updating the reference."""
+    """Compute ONE unseen individual's network from a training-frozen reference.
+
+    v1 mirrors the published SWEET perturbation more closely: the query is
+    first added once to the frozen training cohort to form its query-specific
+    anchor, then duplicated once for the perturbation. No other held-out
+    subject and no outcome enters either matrix.
+
+    v0 is retained only for reproducibility of earlier Omics2PK experiments.
+    """
     if not isinstance(subject_id, str) or not subject_id or subject_id in reference.subject_ids:
         raise InductiveNetworkError("Query subject must be new and have a valid identifier")
+    if construction not in CONSTRUCTIONS:
+        raise InductiveNetworkError("Unknown inductive network construction")
     if tuple(genes) != reference.genes or tissue != reference.tissue:
         raise InductiveNetworkError("Gene order and tissue must match the frozen reference")
     try:
@@ -156,18 +170,30 @@ def predict_network(
     query_weight_matrix = np.column_stack((reference.weight_expression, wquery))
     query_similarities = np.corrcoef(query_weight_matrix.T)[-1, :-1]
     # Edge correlations use only the prespecified mechanism/panel genes.
-    augmented = np.column_stack((reference.expression, x))
-    new_corr = np.corrcoef(augmented)
-    if not np.isfinite(query_similarities).all() or not np.isfinite(new_corr).all():
+    query_anchor = np.corrcoef(np.column_stack((reference.expression, x)))
+    if construction == CONSTRUCTION_V1:
+        # Published SWEET compares a cohort containing the target once against
+        # the same cohort with that target duplicated. For an unseen query, the
+        # frozen training cohort replaces the published transductive cohort.
+        perturbed = np.corrcoef(np.column_stack((reference.expression, x, x)))
+        anchor = query_anchor
+        effective_cohort_n = len(reference.subject_ids) + 1
+    else:
+        # Historical Omics2PK v0: compare training-only correlation against
+        # training plus the query once.
+        perturbed = query_anchor
+        anchor = reference.gene_correlation
+        effective_cohort_n = len(reference.subject_ids)
+    if (not np.isfinite(query_similarities).all()
+            or not np.isfinite(anchor).all() or not np.isfinite(perturbed).all()):
         raise InductiveNetworkError("Undefined augmented Pearson correlations")
     similarity = float(query_similarities.mean())
     position = (similarity - reference.sample_similarity_min + EPSILON) / (
         reference.sample_similarity_max - reference.sample_similarity_min + EPSILON)
     clamped = not (0 <= position <= 1)
     position = float(np.clip(position, 0.0, 1.0))
-    weight = reference.k * len(reference.subject_ids) * position
-    graph = reference.gene_correlation + weight * (
-        new_corr - reference.gene_correlation)
+    weight = reference.k * effective_cohort_n * position
+    graph = anchor + weight * (perturbed - anchor)
     if not np.isfinite(graph).all():
         raise InductiveNetworkError("Non-finite graph")
     graph = (graph + graph.T) * 0.5
@@ -183,7 +209,15 @@ def predict_network(
         "sample_similarity": similarity,
         "weight": weight,
         "weight_clamped_outside_reference": clamped,
-        "method": "experimental_frozen_reference_sweet_inspired_v0",
+        "construction": construction,
+        "query_specific_anchor_includes_query_once": construction == CONSTRUCTION_V1,
+        "perturbation_duplicates_query_once": construction == CONSTRUCTION_V1,
+        "effective_cohort_n_for_weight": effective_cohort_n,
+        "method": (
+            "experimental_frozen_reference_sweet_inspired_v1"
+            if construction == CONSTRUCTION_V1
+            else "experimental_frozen_reference_sweet_inspired_v0"
+        ),
         "equivalent_to_official_sweet": False,
         "validated_for_pk": False,
     }
@@ -211,6 +245,7 @@ def crossfit_training_features(
     k: float = 0.1,
     weight_expression: Any | None = None,
     weight_genes: list[str] | tuple[str, ...] | None = None,
+    construction: str = CONSTRUCTION_V1,
 ) -> list[dict[str, Any]]:
     """Build honest, out-of-reference features for TRAINING subjects only.
 
@@ -255,7 +290,8 @@ def crossfit_training_features(
                 weight_expression=wx[:, included], weight_genes=wnames)
             graph, info = predict_network(
                 ref, x[:, pos], subject_id=sid, genes=names, tissue=tissue,
-                weight_query=wx[:, pos], weight_genes=wnames)
+                weight_query=wx[:, pos], weight_genes=wnames,
+                construction=construction)
         except InductiveNetworkError as exc:
             raise InductiveNetworkError(f"Training subject {sid}: {exc}") from exc
         records.append({
@@ -267,6 +303,8 @@ def crossfit_training_features(
             "weight": info["weight"],
             "weight_clamped_outside_reference": info["weight_clamped_outside_reference"],
             "features": gene_strength_features(graph, genes=names),
+            "construction": info["construction"],
+            "effective_cohort_n_for_weight": info["effective_cohort_n_for_weight"],
             "method": info["method"],
             "equivalent_to_official_sweet": False,
         })
@@ -285,6 +323,7 @@ def build_outer_split_features(
     k: float = 0.1,
     weight_expression: Any | None = None,
     weight_genes: list[str] | tuple[str, ...] | None = None,
+    construction: str = CONSTRUCTION_V1,
 ) -> dict[str, Any]:
     """Use only the outer TRAINING cohort to fit the held-out reference.
 
@@ -316,7 +355,8 @@ def build_outer_split_features(
     train_values = x[:, train_idx]
     training = crossfit_training_features(
         train_values, genes=names, subject_ids=train, tissue=tissue, folds=folds, k=k,
-        weight_expression=wx[:, train_idx], weight_genes=wnames)
+        weight_expression=wx[:, train_idx], weight_genes=wnames,
+        construction=construction)
     reference = fit_frozen_reference(
         train_values, genes=names, subject_ids=train, tissue=tissue, k=k,
         weight_expression=wx[:, train_idx], weight_genes=wnames)
@@ -324,7 +364,8 @@ def build_outer_split_features(
     for sid, col in zip(test, test_idx):
         graph, info = predict_network(
             reference, x[:, col], subject_id=sid, genes=names, tissue=tissue,
-            weight_query=wx[:, col], weight_genes=wnames)
+            weight_query=wx[:, col], weight_genes=wnames,
+            construction=construction)
         held_out.append({
             "subject_id": sid,
             "set": "test",
@@ -334,6 +375,8 @@ def build_outer_split_features(
             "weight": info["weight"],
             "weight_clamped_outside_reference": info["weight_clamped_outside_reference"],
             "features": gene_strength_features(graph, genes=names),
+            "construction": info["construction"],
+            "effective_cohort_n_for_weight": info["effective_cohort_n_for_weight"],
             "method": info["method"],
             "equivalent_to_official_sweet": False,
         })
@@ -345,7 +388,12 @@ def build_outer_split_features(
         "n_test": len(test),
         "n_weight_genes": len(wnames),
         "folds": folds,
-        "method": "experimental_frozen_reference_sweet_inspired_v0",
+        "construction": construction,
+        "method": (
+            "experimental_frozen_reference_sweet_inspired_v1"
+            if construction == CONSTRUCTION_V1
+            else "experimental_frozen_reference_sweet_inspired_v0"
+        ),
         "equivalent_to_official_sweet": False,
         "trained_with_pk_pd_target": False,
     }
