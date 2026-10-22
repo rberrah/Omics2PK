@@ -26,6 +26,17 @@ class Omics2PKPagesTests(unittest.TestCase):
                 "analyze/index.html","ecosystem/index.html","disciplines/index.html",
                 "resources/index.html"]
 
+    def test_static_pages_declare_their_public_canonical_url(self):
+        origin = "https://rberrah.github.io/Omics2PK/"
+        for path in self.pages():
+            html = (self.root / path).read_text(encoding="utf-8")
+            route = path.replace("index.html", "")
+            if route == "learn/":
+                route = "guide/"
+            expected = origin + route
+            self.assertEqual(html.count('rel="canonical"'), 1, path)
+            self.assertIn(f'<link rel="canonical" href="{expected}">', html, path)
+
     def test_pages_keep_shared_navigation_and_learn_subpages(self):
         for page in self.pages():
             html=(self.root/page).read_text(encoding="utf-8")
