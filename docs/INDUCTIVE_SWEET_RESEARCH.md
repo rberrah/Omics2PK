@@ -82,6 +82,28 @@ This remains **SWEET-inspired**: not a clinical predictor and not a
 validated replacement for official SWEET. Do not present correlation
 network strengths as mechanistic enzyme activities.
 
+
+### Real human-liver expression stress test — GSE9588
+
+A second diagnostic uses the authentic processed **GSE9588** human-liver
+microarray matrix: 427 GEO sample columns, first 75 as a fixed reference and
+352 as unseen query columns. The same 24 deterministic, training-variable but
+**unannotated** array probes are used for v0 and v1.
+
+Observed on the official GEO matrix (2026-10-22):
+
+- v0: **238/352 unique graph hashes**, 114 collisions;
+- v1: **352/352 unique graph hashes**, 0 collisions;
+- both: **117 clamped weights** and **115 zero weights**.
+
+Thus v1 fixes a specific software-personalization failure of v0: when the
+network-update weight is zero, v1 still retains a query-specific anchor rather
+than collapsing every affected subject to the identical training-only graph.
+It does **not** solve weight calibration or source distribution shift. There is
+still no verified GSM→independent-donor crosswalk, no probe→gene mechanistic
+annotation in this smoke test and no matched CYP activity/PK endpoint.
+Therefore this result is not evidence of predictive PK utility.
+
 ## Gates and known limitations
 
 1. **Public outcome-free sanity check:** official SWEET 80-sample RNA
@@ -95,10 +117,12 @@ network strengths as mechanistic enzyme activities.
    preprocessed matrix. Upstream feature selection, batch correction,
    scaling, imputation and gene mapping must be fit **inside each outer
    training fold** and frozen for test subjects. Not currently implemented.
-3. **Training/test distribution mismatch:** for v1, a cross-fitted training
-   query has an anchor reconstructed from its n-1 reference + itself, whereas
-   an outer test query uses the full n-person training reference + itself.
-   Quantify the remaining feature-scale/calibration shift explicitly.
+3. **Training/test distribution mismatch and weight calibration:** for v1, a
+   cross-fitted training query has an anchor reconstructed from its n-1
+   reference + itself, whereas an outer test query uses the full n-person
+   training reference + itself. Real GSE9588 removes graph collisions but still
+   yields 117 clamped / 115 zero weights, so calibration remains an explicit
+   unresolved gate.
 4. **Biological scope:** experimental 128-gene maximum; heterogeneous
    RNA cell types and tissue availability may invalidate transfer.
 5. **External scientific comparison:** compare original transductive SWEET,
