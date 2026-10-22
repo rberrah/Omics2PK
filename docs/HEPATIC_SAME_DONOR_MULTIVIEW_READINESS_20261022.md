@@ -14,21 +14,33 @@ the scientific evidence.
 
 | Source | RNA | Protein | Drug-specific observed outcome | Same-donor fit status |
 |---|---|---|---|---|
+| **Zhang 2016 n=100** | authors report 10 CYP mRNA measurements | authors report matching CYP protein content | measured probe-substrate intrinsic activities | **P0 acquisition · `ABSTAIN_SOURCE_ROWS_NOT_ACQUIRED`** |
+| **Ohtsuki 2012 n=17** | authors report matched mRNA | absolute CYP protein quantification | measured CYP functional activities | **P1 replication · `ABSTAIN_SOURCE_ROWS_NOT_ACQUIRED`** |
 | U.S. EPA n≈100 | yes, CYP qPCR | no matched quantitative protein layer | measured CYP microsomal activity | `ABSTAIN_NO_MATCHED_PROTEIN` |
 | Tucatinib/imatinib HLM n21/n17 | no matched RNA | yes, CYP proteins | measured CLint / substrate depletion and functional activity | `ABSTAIN_NO_MATCHED_RNA` |
 | Wegler n15 liver donors | no qualified matched RNA in current source contract | yes, proteomics | measured in-vitro CLint across compounds | `ABSTAIN_NO_MATCHED_RNA` |
 | Jamwal n74 human livers | study reports CYP3A4 mRNA | study reports CYP3A4 protein | measured midazolam 1'-hydroxylation / CLint biology | `ABSTAIN_SOURCE_ROWS_NOT_ACQUIRED` |
 
-The Jamwal 2018 article and its freely described supporting information confirm
-that RNA, CYP3A4 protein and midazolam metabolism were measured in the same
-74-donor study. However, the currently accessible supporting material is
-organized as histology/gender summaries and correlation figures rather than an
-authenticated 74-row individual RNA+protein+activity matrix. Figure
-digitization is not an acceptable substitute.
+The highest-priority source is now **Zhang 2016** (DOI
+https://doi.org/10.1124/jpet.116.233635): the paper reports 100 normal human
+liver samples with ten CYP molecular/functional axes. The source article
+establishes the experiment, but Omics2PK still lacks an authenticated original
+donor-level table with stable donor IDs, mRNA, protein, probe activity and
+units. Midazolam must be treated as a measured CYP3A probe activity rather than
+silently relabelled as perfectly isoform-specific CYP3A4 activity.
 
-Source:
-- DOI: https://doi.org/10.1021/acs.molpharmaceut.8b00159
-- PMC: https://pmc.ncbi.nlm.nih.gov/articles/PMC7065849/
+**Ohtsuki 2012** (DOI https://doi.org/10.1124/dmd.111.042259) is the secondary
+independent acquisition target: 17 human livers with absolute protein,
+corresponding mRNA and functional activities. The publisher explicitly reports
+supplemental material, but the required complete donor-level three-view matrix
+has not yet been qualified.
+
+Jamwal 2018 remains a CYP3A4-focused candidate. Its accessible material has not
+provided an authenticated 74-row individual RNA+protein+activity matrix.
+Figure digitization is not an acceptable substitute.
+
+Detailed source acquisition contract:
+`MULTICYP_SAME_DONOR_SOURCE_ACQUISITION_GATE_20261022.md`.
 
 ## Software gate
 
@@ -51,18 +63,26 @@ Explicit statuses include:
 - `ABSTAIN_INCOMPLETE_CASE_MISMATCH`
 - `READY_SAME_DONOR_RNA_PROTEIN_DRUG_OUTCOME`
 
-The existing Jamwal local benchmark
-`src/omics2pk/cyp3a4_rna_protein_mdz_source_gate.py` remains the numerical
-ablation once an authorized original 74-donor matrix is available.
+Two local numerical gates are available without bundling original donor data:
+
+- `multicyp_rna_protein_activity_source_gate.py`: preregistered multi-CYP
+  donor-LODO RNA / protein / RNA+protein comparison for Zhang n=100 or
+  Ohtsuki n=17, requiring the complete published donor count for every included
+  CYP endpoint;
+- `cyp3a4_rna_protein_mdz_source_gate.py`: Jamwal-specific n=74 comparator.
+
+The multi-CYP gate refuses arbitrary donor subsets, mixed assay units, multiple
+post-hoc probe activities for one CYP endpoint, pooled rows and unknown DOIs.
 
 ## Interpretation
 
 At present Omics2PK has:
 - genuine RNA → enzyme-activity evidence (EPA);
 - genuine protein/activity → drug-specific CLint evidence (TKI/Wegler);
-- a study that biologically contains the desired RNA+protein+midazolam bridge
-  (Jamwal), but not a qualified individual matrix in the repository workflow.
+- several publications whose experiments contain the desired same-liver
+  RNA+protein+activity bridge, with **Zhang n=100 now the primary acquisition
+  target**, but no qualified original individual matrix in the workflow.
 
 Therefore **RNA vs protein vs RNA+protein superiority is not yet numerically
-established**. This is an acquisition limitation, not permission to fuse
-unmatched studies.
+established**. The software gate is ready; the remaining blocker is legitimate
+original-source acquisition and donor-level provenance.
