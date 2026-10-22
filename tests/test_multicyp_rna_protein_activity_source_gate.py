@@ -61,7 +61,8 @@ class MultiCYPSourceGateTests(unittest.TestCase):
     def test_ohtsuki_requires_exact_17_donors_for_included_cyp(self):
         rows=rows_for("10.1124/dmd.111.042259",17)
         out=evaluate_original_source(rows)
-        self.assertEqual(out["expected_source_donors_per_included_cyp"],17)\n        self.assertEqual(out["minimum_complete_donors_required_per_included_cyp"],8)
+        self.assertEqual(out["expected_source_donors_per_included_cyp"],17)
+        self.assertEqual(out["minimum_complete_donors_required_per_included_cyp"],8)
         self.assertEqual(out["results_by_cyp"]["CYP3A4"]["n_held_donor_folds"],17)
         self.assertEqual(out["results_by_cyp"]["CYP3A4"]["n_source_donors"],17)
         with self.assertRaisesRegex(MultiCYPSourceNotQualified,"exactly 17"):
