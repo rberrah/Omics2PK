@@ -4,9 +4,10 @@ Designed for legitimately obtained ORIGINAL individual liver tables such as
 Zhang 2016 (DOI 10.1124/jpet.116.233635; published n=100) or Ohtsuki 2012
 (DOI 10.1124/dmd.111.042259; published n=17). No source rows are bundled.
 
-Input is long-form donor × CYP. Every included CYP must contain the complete
-published donor count for that source and one authenticated row per donor with
-mRNA, protein and measured probe-substrate activity on the same liver.
+Input is long-form donor × CYP. Every included CYP must retain one authenticated
+row for every donor in the published source cohort. Measurements may be
+observed, BLQ, missing or not measured; non-observed values are never coerced
+to zero. Numerical comparison uses one fixed complete-case donor set per CYP.
 
 Research only. Outcome is in-vitro drug metabolism, not clinical plasma PK.
 """
@@ -131,14 +132,20 @@ def source_contract(rows):
     expected=profile["expected_donors_per_included_cyp"]
     if not by_cyp:
         raise MultiCYPSourceNotQualified("No CYP assay rows")
+    donor_sets={}
     for cyp,records in by_cyp.items():
         donors={x["donor_id"] for x in records}
         probes={x["probe_substrate"] for x in records}
         if len(records)!=expected or len(donors)!=expected:
             raise MultiCYPSourceNotQualified(
-                f"{cyp}: require exactly {expected} original donors; no post-hoc subset")
+                f"{cyp}: require exactly {expected} source donor rows; no post-hoc subset")
         if len(probes)!=1:
             raise MultiCYPSourceNotQualified(f"{cyp}: one prespecified probe assay per benchmark")
+        donor_sets[cyp]=donors
+    first_donors=next(iter(donor_sets.values()))
+    if any(donors!=first_donors for donors in donor_sets.values()):
+        raise MultiCYPSourceNotQualified(
+            "All included CYP endpoints must retain the same source donor cohort")
     return doi,profile,dict(by_cyp),units
 
 
@@ -247,6 +254,7 @@ def evaluate_original_source(rows):
         "published_scope":profile["published_scope"],
         "n_included_cyp_endpoints":len(results),
         "included_cyp_isoforms":sorted(results),
+        "expected_source_donors_per_included_cyp":profile["expected_donors_per_included_cyp"],
         "expected_complete_donors_per_included_cyp":profile["expected_donors_per_included_cyp"],
         "results_by_cyp":results,
         "primary_question":"does RNA+protein improve held-donor activity prediction over RNA alone",
