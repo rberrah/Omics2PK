@@ -1,13 +1,18 @@
 """Synthetic tests for the authorized HLC -> inductive SWEET bridge."""
 import unittest
+from unittest.mock import patch
 
 try:
     import numpy as np
     from omics2pk.hlc_authorized_sweet_bridge import (
+        benchmark_authorized_hlc_sweet_all,
         prepare_authorized_hlc_sweet_input,
         source_center_from_hlc_donor_id,
     )
-    from omics2pk.hlc_real_cyp_validation import OriginalHLCQualificationError
+    from omics2pk.hlc_real_cyp_validation import (
+        ACTIVITIES,
+        OriginalHLCQualificationError,
+    )
 except ModuleNotFoundError as exc:
     if exc.name != "numpy":
         raise
@@ -89,6 +94,53 @@ class HLCAuthorizedSweetBridgeTests(unittest.TestCase):
         with self.assertRaisesRegex(OriginalHLCQualificationError,"missing/nonfinite"):
             prepare_authorized_hlc_sweet_input(
                 bad2,activity_key="CYP3A4M_activity")
+
+
+    def test_all_endpoint_runner_is_prespecified_and_never_pools_mae(self):
+        def prepare(_parsed, *, activity_key):
+            return {"activity_label":activity_key,"genes":("G",),
+                    "n_complete":350,"center_counts":{"A":100,"B":120,"C":130}}
+
+        def evaluate(prepared, *, edge_top_k, internal_crossfit_folds):
+            i=ACTIVITIES.index(prepared["activity_label"])
+            signed=-1.0 if i%2==0 else 1.0
+            return {
+                "activity_label":prepared["activity_label"],
+                "delta_MAE_sweet_minus_direct_cyp_rna":signed,
+                "delta_MAE_sweet_minus_selected_rna":signed,
+                "delta_MAE_sweet_minus_pca4":signed,
+                "delta_MAE_sweet_minus_topology_permuted_control":signed,
+            }
+
+        def annotate(result, _prepared, **_kwargs):
+            return dict(result)
+
+        with patch(
+            "omics2pk.hlc_authorized_sweet_bridge._load_qualified_authorized_hlc",
+            return_value=({}, "expr_sha", "pheno_sha")
+        ), patch(
+            "omics2pk.hlc_authorized_sweet_bridge.prepare_authorized_hlc_sweet_input",
+            side_effect=prepare
+        ), patch(
+            "omics2pk.hlc_authorized_sweet_bridge._evaluate_prepared_authorized_hlc_sweet",
+            side_effect=evaluate
+        ), patch(
+            "omics2pk.hlc_authorized_sweet_bridge._annotate_authorized_result",
+            side_effect=annotate
+        ):
+            out=benchmark_authorized_hlc_sweet_all("private-expression","private-phenotype")
+
+        self.assertEqual(tuple(out["prespecified_endpoints"]),ACTIVITIES)
+        self.assertEqual(out["n_prespecified_endpoints"],10)
+        self.assertEqual(set(out["endpoint_results"]),set(ACTIVITIES))
+        self.assertTrue(out["MAE_not_pooled_across_endpoints"])
+        self.assertTrue(out["endpoint_scales_may_differ"])
+        self.assertFalse(out["familywise_confirmatory_inference_performed"])
+        self.assertEqual(
+            out["descriptive_endpoint_win_counts"]["SWEET_better_than_direct_CYP_RNA"],
+            5)
+        self.assertNotIn("pooled_MAE",out)
+
 
 
 if __name__=="__main__":

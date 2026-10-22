@@ -190,14 +190,30 @@ The direct-RNA comparator uses **all source-annotated array probes for the
 target CYP**, matching the historical HLC benchmark rather than selecting a
 single convenient probe.
 
-Authorized local command:
+Authorized local command for one prespecified endpoint:
 
     python -m scripts.benchmark_authorized_hlc_original \
       --expression /private/curatedExpressionLiver.zip \
       --phenotype /private/curatedPhenotypesynapse.zip \
       --sweet --sweet-activity CYP3A4M_activity
 
+Preferred complete-family run once the source archives are locally available:
+
+    python -m scripts.benchmark_authorized_hlc_original \
+      --expression /private/curatedExpressionLiver.zip \
+      --phenotype /private/curatedPhenotypesynapse.zip \
+      --sweet-all
+
 The bridge verifies the previously qualified archive SHA-256 values before
-running. The default first target is CYP3A4 midazolam activity; CYP3A4
-testosterone and the other source CYP assays can be run separately without
-mixing their physical endpoints.
+running. `--sweet-all` evaluates all ten source CYP activity criteria in their
+frozen source order, including both CYP3A4 probe assays. It reports every
+endpoint separately and only descriptive counts of endpoints for which SWEET
+beats direct CYP RNA, selected RNA, PCA4 or the topology-permuted control.
+**Absolute MAE is never averaged across CYP endpoints**, because the assay
+scales are not exchangeable and the endpoints share many of the same donors.
+The win counts are descriptive and are not treated as ten independent
+confirmatory tests.
+
+The single-endpoint mode remains useful for debugging or a genuinely
+prospectively chosen target. It must not be used to select a favorable CYP
+after inspecting the all-endpoint results.
