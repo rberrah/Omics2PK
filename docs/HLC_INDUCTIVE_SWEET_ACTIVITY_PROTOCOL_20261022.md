@@ -36,8 +36,17 @@ benchmark when the original Synapse expression entity is available.
 
 No row-order join is allowed: the shared biological donor key must be explicit
 in the source assets. The historical 466-study / 465-current-expression /
-427-GEO / 398-activity counts must remain distinct until the actual source join
-is executed.
+427-GEO / 398-activity counts must remain distinct.
+
+A **previous owner-authorized local audit** of the obtained HLC archives
+(reported only as aggregate QC and not rerun in this PR) found 466 expression
+identifiers with an exact 466-ID match to the phenotype asset, while
+endpoint-specific CYP activities were available for approximately 387–398
+donors. This makes the current Synapse metadata value of 465 a provenance
+discrepancy to record, **not** a reason to discard an otherwise authenticated
+466-row source archive. The source gate therefore accepts only 465 or 466
+unique expression donor keys, records which documented count is observed, and
+still requires explicit donor-key matching for every modeled activity.
 
 ## Why this benchmark is preferable to forcing SWEET onto EPA100
 
@@ -133,8 +142,10 @@ downstream Omics2PK clinical benchmark.
 The software benchmark is implemented in
 `src/omics2pk/hlc_sweet_activity_benchmark.py` with synthetic leakage tests.
 
-The owner-provided HLC archives have previously been obtained, but the current
-automation environment cannot materialize their raw bytes from the project
-Library. Therefore **no new HLC numerical SWEET-vs-RNA result is claimed by
-this PR**. The next authorized local run should consume those original files
-without committing them and retain only aggregate metrics and source hashes.
+The owner-provided HLC archives have previously been obtained and a prior
+authorized local audit established the aggregate expression/phenotype identity
+structure described above. The current automation environment cannot
+materialize their raw bytes from the project Library, so **no new HLC
+SWEET-vs-RNA numerical result is claimed by this PR**. The next authorized
+local run should consume those same original files without committing them and
+retain only aggregate metrics and source hashes.
