@@ -139,7 +139,7 @@ Full source-level audit: [REAL_MULTIOMICS_OUTPUT_AUDIT_AND_PK_ADAPTER_GAPS_20261
 - [x] Incorporate user-confirmed fact: **BIOMARGIN has no PK**. An ABIS join is only an unconfirmed authorized possibility, not a declared dataset.
 - [ ] Start source-provenance, held-out exploratory tucatinib 21-donor proof; do not count pooled HLM as donor.
 - [ ] Qualify original numeric substrate clearance tables for six donor scRNA PHH, before fitting any RNA activity model.
-- [x] Implement a strict **HLC leave-one-site-out E2 benchmark** comparing age+sex, direct CYP RNA, train-selected RNA, train-only PCA4 and inductive SWEET v1 on identical donors. Software uses outer-train-only gene selection/cross-fitting and reports held-site clamp/OOD QC; real numerical execution remains gated on the authorized direct Synapse source join.
+- [x] Implement a strict **HLC leave-one-site-out E2 benchmark** comparing age+sex, direct CYP RNA, train-selected RNA, train-only PCA4, inductive SWEET v1 and a topology-permuted SWEET negative control on identical donors. Software uses outer-train-only gene selection/cross-fitting and reports held-site clamp/OOD QC. All Omics2PK-fitted components are train-frozen, but the historical curated expression matrix was source-processed before our split, so this is not end-to-end raw-array train-frozen validation. Real numerical SWEET execution remains gated on the authorized archives.
 
 Full links, licenses and scientific restrictions: [public Omics×PK data catalogue](PUBLIC_OMICS_PK_DATASET_CATALOGUE_20261016.md).
 
@@ -159,7 +159,7 @@ Full links, licenses and scientific restrictions: [public Omics×PK data catalog
 - [ ] XGBoost full **multiomics** (M1), SWEET-only (M1bis), omics + SWEET (M2) on genuinely paired patients with verified modalities and full R/clinical outcome; not yet possible from 48 ABC qPCR variables alone.
 - [ ] Low-dimensional SWEET scores without Pillar A vs drug/tissue knowledge-guided scores with Pillar A (M3).
 - [ ] Graph kernels/low-dimensional graph embeddings with and without Pillar A (M4 exploratory).
-- [ ] Negative controls: nonmatched subject/network, shuffled graph edges, off-drug mechanisms, null outcomes.
+- [ ] Negative controls: **shuffled graph-edge topology is now implemented** for the HLC SWEET v1 benchmark using a fixed outcome-free permutation that preserves each graph's edge-value multiset; remaining controls are nonmatched subject/network, off-drug mechanisms and null outcomes.
 - [ ] Keep DNA genotype, RNA phenotype and multiomic phenotype distinct. Penalize redundant effects with existing genotype-based covariates.
 
 ## P4 — genuine PK/PD inference
