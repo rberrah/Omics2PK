@@ -30,10 +30,11 @@ from scripts.qualify_gse9588_real_human_liver_expression import (
 TRAIN=75
 PANEL=24
 WEIGHT_PANEL=512
+N150_REPEAT_STRATEGIES=tuple(f"sha256_r{rep}_gsm150" for rep in range(1,5))
 def _reference_size(strategy):
     if strategy=="first75":
         return TRAIN
-    match=re.fullmatch(r"sha256_gsm(\d+)",strategy)
+    match=re.fullmatch(r"sha256(?:_r\d+)?_gsm(\d+)",strategy)
     if not match:
         raise ValueError("Unknown GSE9588 reference strategy")
     n=int(match.group(1))
@@ -48,10 +49,68 @@ def reference_indices(gsm, strategy="first75"):
     n=_reference_size(strategy)
     if strategy=="first75":
         return list(range(n))
-    ranked=sorted(range(len(gsm)),
-                  key=lambda i:(sha256(gsm[i].encode()).hexdigest(),gsm[i]))
+    repeat=re.fullmatch(r"sha256_r(\d+)_gsm\d+",strategy)
+    salt=("Omics2PK:GSE9588:reference:v1:"
+          +(f"repeat:{repeat.group(1)}:" if repeat else "baseline:"))
+    ranked=sorted(
+        range(len(gsm)),
+        key=lambda i:(sha256((salt+gsm[i]).encode()).hexdigest(),gsm[i]))
     return sorted(ranked[:n])
 
+
+def weight_reference_qc_only(gsm,weight_probe_values,*,reference_strategy):
+    """Fast exact sample-weight QC without constructing any gene network.
+
+    This reproduces the sample-similarity and clipping equations used by
+    fit_frozen_reference/predict_network, but intentionally creates no graph.
+    """
+    import numpy as np
+    from omics2pk.inductive_sweet import EPSILON
+    weight=np.asarray(weight_probe_values,dtype=float)
+    if weight.shape!=(WEIGHT_PANEL,N_EXPECTED) or not np.isfinite(weight).all():
+        raise ValueError("Invalid GSE9588 weight-expression matrix")
+    train_idx=reference_indices(gsm,reference_strategy)
+    train_set=set(train_idx)
+    query_idx=[i for i in range(N_EXPECTED) if i not in train_set]
+    x=weight[:,train_idx]
+    q=weight[:,query_idx]
+
+    def unit_center(a):
+        centered=a-a.mean(axis=0,keepdims=True)
+        norms=np.sqrt(np.sum(centered*centered,axis=0,keepdims=True))
+        if np.any(norms<=1e-12):
+            raise ValueError("Constant sample in repeated reference QC")
+        return centered/norms
+
+    ztrain=unit_center(x)
+    zquery=unit_center(q)
+    corr=ztrain.T@ztrain
+    n=len(train_idx)
+    ref_means=(corr.sum(axis=1)-1.0)/(n-1)
+    similarity=(ztrain.T@zquery).mean(axis=0)
+    lo,hi=float(ref_means.min()),float(ref_means.max())
+    mu,sd=float(ref_means.mean()),float(ref_means.std())
+    if hi-lo<=1e-12 or sd<=1e-12:
+        raise ValueError("Degenerate repeated reference similarity distribution")
+    position=(similarity-lo+EPSILON)/(hi-lo+EPSILON)
+    low=position<0
+    high=position>1
+    z=(similarity-mu)/sd
+    return {
+        "reference_strategy":reference_strategy,
+        "reference_n":n,
+        "query_n":len(query_idx),
+        "v1_clamps":int(np.sum(low|high)),
+        "v1_clamp_fraction":round(float(np.mean(low|high)),6),
+        "v1_low_clamps":int(np.sum(low)),
+        "v1_high_clamps":int(np.sum(high)),
+        "v1_zero_weights":int(np.sum(low)),
+        "v1_abs_similarity_z_gt3":int(np.sum(np.abs(z)>3)),
+        "v1_mean_similarity_z":round(float(np.mean(z)),6),
+        "v1_median_weight_position":round(float(np.median(position)),6),
+        "reference_selection_uses_expression_values":False,
+        "reference_selection_uses_PK_or_outcomes":False,
+    }
 
 def extract_train_variable_array_probe_sets(lines, *, reference_strategy="first75"):
     gsm=None
@@ -288,6 +347,28 @@ def main():
             train_indices=hash_idx,reference_strategy=strategy)
     hashed=size_runs["75"]
 
+    # Repeated n=150 references use four predeclared salted SHA-256 rankings.
+    # Only sample-weight calibration is recomputed here; no graph or outcome is
+    # needed for this robustness gate.
+    repeated_n150={}
+    for strategy in N150_REPEAT_STRATEGIES:
+        r_ids,_r_edges,r_weights,_r_n,_r_idx=_load_reference_strategy(strategy)
+        repeated_n150[strategy]=weight_reference_qc_only(
+            r_ids,r_weights,reference_strategy=strategy)
+    b_ids,_b_edges,b_weights,_b_n,_b_idx=_load_reference_strategy("sha256_gsm150")
+    baseline150_fast=weight_reference_qc_only(
+        b_ids,b_weights,reference_strategy="sha256_gsm150")
+    baseline150_full=size_runs["150"]["query_anchored_v1"]
+    if (
+        baseline150_fast["v1_clamps"]
+        !=baseline150_full["n_original_queries_clamped_reference_weight"]
+        or baseline150_fast["v1_zero_weights"]
+        !=baseline150_full["n_original_queries_zero_graph_update_weight"]
+        or baseline150_fast["v1_abs_similarity_z_gt3"]
+        !=baseline150_full["n_queries_abs_similarity_z_gt3"]
+    ):
+        raise ValueError("Fast repeated-reference QC disagrees with full v1 baseline")
+
     narrow_v1=narrow["query_anchored_v1"]
     broad_v1=broad["query_anchored_v1"]
     hash_v1=hashed["query_anchored_v1"]
@@ -315,6 +396,17 @@ def main():
         "broader_512_probe_weighting":broad,
         "sha256_reference_75_broader_512_probe_weighting":hashed,
         "sha256_reference_size_sensitivity":size_summary,
+        "sha256_n150_repeated_reference_weight_qc":{
+            "sha256_gsm150":baseline150_fast,
+            **repeated_n150,
+        },
+        "n150_repeat_count_including_baseline":1+len(repeated_n150),
+        "n150_all_references_zero_clamp":all(
+            x["v1_clamps"]==0
+            for x in [baseline150_fast,*repeated_n150.values()]),
+        "n150_max_clamp_fraction":max(
+            x["v1_clamp_fraction"]
+            for x in [baseline150_fast,*repeated_n150.values()]),
         "v1_clamp_reduction_with_broader_weight_universe":(
             narrow_v1["n_original_queries_clamped_reference_weight"]
             - broad_v1["n_original_queries_clamped_reference_weight"]),
