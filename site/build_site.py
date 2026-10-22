@@ -169,8 +169,8 @@ def demo(base):
         +'</div></section>'
         '<section class="conclusion-panel" id="conclusion">'
         +t('Alors, pourquoi continuer ?', 'So why continue?','h2')
-        +t('Parce que les trois étages ne donnent pas la même réponse : la plausibilité biologique existe ; un état fonctionnel peut apporter une information distincte du génotype ; mais le premier benchmark clinique omique du dépôt ne démontre pas encore de gain incrémental. La bonne question de recherche reste donc ouverte.',
-           'Because the three evidence levels do not give the same answer: biological plausibility exists; functional state can add information distinct from genotype; but the repository’s first clinical omics benchmark does not yet demonstrate incremental gain. The research question therefore remains open.','p')
+        +t('Parce que les niveaux de preuve ne donnent pas la même réponse : la plausibilité biologique existe ; un état fonctionnel peut apporter une information distincte du génotype ; mais les benchmarks cliniques Jarmusch et metformine ne démontrent pas de gain incrémental de leur représentation omique globale. La bonne question de recherche reste donc ouverte.',
+           'Because the evidence levels do not give the same answer: biological plausibility exists; functional state can add information distinct from genotype; but the Jarmusch and metformin clinical benchmarks do not demonstrate incremental gain from their global omics representations. The research question therefore remains open.','p')
         +'<div class="decision-flow"><span>'+t('Plausible biologiquement','Biologically plausible')+'</span><b>→</b><span>'+t('Testable proprement','Can be tested rigorously')+'</span><b>→</b><span>'+t('Pas encore démontré en général','Not yet generally established')+'</span></div>'
         +'<div class="cta">'+a('guide/','Voir comment construire le test','See how to build the test',base=base)
         +'<a class="btn btn-outline" href="'+base+'analyze/" data-fr="État du futur outil Analyze" data-en="Status of the future Analyze tool">État du futur outil Analyze</a></div>'
