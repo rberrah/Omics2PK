@@ -7,7 +7,8 @@ from io import BytesIO
 from scripts.smoke_real_gse9588_inductive_sweet import (
     TRAIN,PANEL,WEIGHT_PANEL,N150_REPEAT_STRATEGIES,
     extract_train_variable_array_probes,extract_train_variable_array_probe_sets,
-    real_gse_frozen_network_smoke,reference_indices,weight_reference_qc_only
+    real_gse_frozen_network_smoke,reference_indices,weight_reference_qc_only,
+    train_only_zscore_source_normalized
 )
 
 N=427
@@ -187,6 +188,44 @@ class SourceFrozenReferenceTests(unittest.TestCase):
         self.assertAlmostEqual(fast["v1_mean_similarity_z"],v1["mean_similarity_z_vs_reference"],places=6)
         self.assertFalse(fast["reference_selection_uses_expression_values"])
         self.assertFalse(fast["reference_selection_uses_PK_or_outcomes"])
+
+
+    @unittest.skipUnless(importlib.util.find_spec("numpy"),"Optional numpy not installed")
+    def test_train_only_zscore_is_fit_only_on_reference_and_keeps_training_standardized(self):
+        import numpy as np
+        ids,_edges,weights,_n=extract_train_variable_array_probe_sets(
+            toy(),reference_strategy="sha256_gsm150")
+        idx=reference_indices(ids,"sha256_gsm150")
+        transformed=train_only_zscore_source_normalized(
+            ids,weights,reference_strategy="sha256_gsm150")
+        train=transformed[:,idx]
+        np.testing.assert_allclose(train.mean(axis=1),0.0,atol=1e-10,rtol=0)
+        np.testing.assert_allclose(train.std(axis=1),1.0,atol=1e-10,rtol=0)
+
+        changed=np.asarray(weights,dtype=float).copy()
+        idx_set=set(idx)
+        query=[i for i in range(N) if i not in idx_set]
+        changed[:,query]+=17.0
+        transformed_changed=train_only_zscore_source_normalized(
+            ids,changed,reference_strategy="sha256_gsm150")
+        np.testing.assert_allclose(
+            transformed[:,idx],transformed_changed[:,idx],atol=1e-12,rtol=0)
+
+    @unittest.skipUnless(importlib.util.find_spec("numpy"),"Optional numpy not installed")
+    def test_preprocessing_sensitivity_qc_remains_outcome_free(self):
+        ids,_edges,weights,_n=extract_train_variable_array_probe_sets(
+            toy(),reference_strategy="sha256_gsm150")
+        raw=weight_reference_qc_only(
+            ids,weights,reference_strategy="sha256_gsm150")
+        zweights=train_only_zscore_source_normalized(
+            ids,weights,reference_strategy="sha256_gsm150")
+        z=weight_reference_qc_only(
+            ids,zweights,reference_strategy="sha256_gsm150")
+        for out in (raw,z):
+            self.assertFalse(out["reference_selection_uses_expression_values"])
+            self.assertFalse(out["reference_selection_uses_PK_or_outcomes"])
+            self.assertEqual(out["reference_n"],150)
+            self.assertEqual(out["query_n"],277)
 
     @unittest.skipUnless(importlib.util.find_spec("numpy"),"Optional numpy not installed")
     def test_hash_reference_50_has_dynamic_query_count(self):
