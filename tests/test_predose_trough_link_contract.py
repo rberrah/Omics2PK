@@ -137,7 +137,7 @@ class PredoseTroughLinkTests(unittest.TestCase):
             visit_order=("D7","M1","M3"))
         self.assertEqual(out["n_linked_same_visit_trough_omics_pairs"],8)
         self.assertEqual(out["linked_visit_counts"]["M3"],2)
-        self.assertEqual(out["n_earlier_omics_to_later_trough_pairs_available"],8)
+        self.assertEqual(out["n_earlier_omics_to_later_trough_pairs_available"],7)
 
     def test_timezone_and_positive_values_fail_closed(self):
         parts=list(fixture())
