@@ -30,7 +30,8 @@ class InductiveSWEETTests(unittest.TestCase):
 
     def predict(self, x, patient="NEW_1"):
         return predict_network(self.reference, x, subject_id=patient,
-                               genes=self.genes, tissue="blood")
+                               genes=self.genes, tissue="blood",
+                               construction=CONSTRUCTION_V1)
 
     def test_network_and_strength_are_finite_and_symmetric(self):
         graph, info = self.predict(self.query)
@@ -57,12 +58,16 @@ class InductiveSWEETTests(unittest.TestCase):
         np.fill_diagonal(expected,0.0)
         np.testing.assert_allclose(graph,expected,rtol=0,atol=1e-12)
 
-    def test_v0_is_retained_for_reproducibility_but_not_default(self):
-        v1, i1 = self.predict(self.query)
+    def test_v0_remains_legacy_default_and_v1_is_explicit(self):
+        legacy, info_default = predict_network(
+            self.reference,self.query,subject_id="NEW_1",genes=self.genes,
+            tissue="blood")
         v0, i0 = predict_network(
             self.reference,self.query,subject_id="NEW_1",genes=self.genes,
             tissue="blood",construction=CONSTRUCTION_V0)
-        self.assertEqual(i0["construction"],CONSTRUCTION_V0)
+        v1, _ = self.predict(self.query)
+        np.testing.assert_array_equal(legacy,v0)
+        self.assertEqual(info_default["construction"],CONSTRUCTION_V0)
         self.assertEqual(i0["effective_cohort_n_for_weight"],len(self.subjects))
         self.assertFalse(i0["query_specific_anchor_includes_query_once"])
         self.assertFalse(np.array_equal(v0,v1))
