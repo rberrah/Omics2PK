@@ -6,7 +6,8 @@ from io import BytesIO
 
 from scripts.smoke_real_gse9588_inductive_sweet import (
     TRAIN,PANEL,WEIGHT_PANEL,extract_train_variable_array_probes,
-    extract_train_variable_array_probe_sets,real_gse_frozen_network_smoke
+    extract_train_variable_array_probe_sets,real_gse_frozen_network_smoke,
+    reference_indices
 )
 
 N=427
@@ -35,6 +36,26 @@ class SourceFrozenReferenceTests(unittest.TestCase):
 
     def test_toy_extracts_nested_edge_and_weight_probe_universes(self):
         names,edges,weights,n=extract_train_variable_array_probe_sets(toy())
+        self.assertEqual(len(names),N)
+        self.assertEqual(len(edges),PANEL)
+        self.assertEqual(len(weights),WEIGHT_PANEL)
+        self.assertEqual(edges,weights[:PANEL])
+        self.assertEqual(n,1100)
+
+
+    def test_hash_reference_selection_is_order_independent_and_outcome_free(self):
+        gsm=[f"GSM{700000+i}" for i in range(N)]
+        selected=reference_indices(gsm,"sha256_gsm75")
+        self.assertEqual(len(selected),TRAIN)
+        selected_ids={gsm[i] for i in selected}
+        reversed_gsm=list(reversed(gsm))
+        reversed_idx=reference_indices(reversed_gsm,"sha256_gsm75")
+        self.assertEqual(selected_ids,{reversed_gsm[i] for i in reversed_idx})
+        self.assertNotEqual(selected,list(range(TRAIN)))
+
+    def test_hash_reference_extracts_probe_sets_using_its_training_only_variance(self):
+        names,edges,weights,n=extract_train_variable_array_probe_sets(
+            toy(),reference_strategy="sha256_gsm75")
         self.assertEqual(len(names),N)
         self.assertEqual(len(edges),PANEL)
         self.assertEqual(len(weights),WEIGHT_PANEL)
@@ -94,5 +115,21 @@ class SourceFrozenReferenceTests(unittest.TestCase):
         self.assertFalse(result["predictive_CYP_activity_test_executed"])
         self.assertFalse(result["network_features_sufficiently_person_specific_for_individual_PK"])
         self.assertEqual(result["query_anchored_v1"]["unseen_GSM_samples_projected"],352)
+
+
+    @unittest.skipUnless(importlib.util.find_spec("numpy"),"Optional numpy not installed")
+    def test_hash_reference_smoke_preserves_no_pk_claim(self):
+        ids,edges,weights,n=extract_train_variable_array_probe_sets(
+            toy(),reference_strategy="sha256_gsm75")
+        idx=reference_indices(ids,"sha256_gsm75")
+        result=real_gse_frozen_network_smoke(
+            ids,edges,n,weight_probe_values=weights,
+            train_indices=idx,reference_strategy="sha256_gsm75")
+        self.assertEqual(result["reference_selection_strategy"],"sha256_gsm75")
+        self.assertFalse(result["reference_selection_uses_expression_values"])
+        self.assertFalse(result["reference_selection_uses_PK_or_outcomes"])
+        self.assertEqual(result["fixed_reference_training_GSM_samples"],TRAIN)
+        self.assertEqual(result["query_anchored_v1"]["unseen_GSM_samples_projected"],352)
+        self.assertFalse(result["predictive_CYP_activity_test_executed"])
 
 if __name__=="__main__":unittest.main()
