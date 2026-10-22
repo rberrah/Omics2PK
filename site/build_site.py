@@ -322,11 +322,15 @@ def document(page,body,base):
             'learn':'Démo guidée – Omics2PK',
             'analyze':'Analyze – en cours – Omics2PK',
             'ecosystem':'Ecosystem – Omics2PK','disciplines':'Ecosystem – Omics2PK','resources':'Resources – Omics2PK'}
+    # Stable absolute canonical URL for every prerendered page. The historical
+    # /learn/ path is an alias of the /guide/ methodology course.
+    canonical_page = {'home': '', 'learn': 'guide'}.get(page, page)
+    canonical_url = ROOT + (canonical_page + '/' if canonical_page else '')
     return ('<!doctype html><html lang="fr"><head>'
        '<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">'
        '<meta name="theme-color" content="#fbfaf8"><meta name="referrer" content="strict-origin-when-cross-origin">'
        '<meta name="description" content="Omics2PK : démonstration scientifique et méthodologie guidée pour tester rigoureusement les liens entre omiques et pharmacocinétique.">'
-       '<title>'+titles[page]+'</title><link rel="stylesheet" href="'+base+'assets/styles.css">'
+       '<title>'+titles[page]+'</title><link rel="canonical" href="'+canonical_url+'">' + '<link rel="stylesheet" href="'+base+'assets/styles.css">'
        '<script defer src="'+base+'assets/app.js"></script></head><body>'
        '<a href="#content" class="skip-link" data-fr="Aller au contenu" data-en="Skip to content">Aller au contenu</a>'
        '<div class="app">'+nav(base,page)+'<main id="content" class="page-shell">'+body+'</main>'
