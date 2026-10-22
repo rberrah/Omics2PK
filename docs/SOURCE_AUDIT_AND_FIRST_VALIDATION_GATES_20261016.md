@@ -1,6 +1,6 @@
 # Source audit and first scientific validation gates — 16 October 2026
 
-**Result:** primary molecular/functional original-document provenance confirmed; no genuinely fitted measured public RNA→CYP or CYP-proteome→CLint benchmark yet. A green CI code check is NOT positive biology.
+**Updated result (22 Oct 2026):** primary molecular/functional provenance is confirmed and several genuine held-donor E2 benchmarks have now been executed. Wegler 2021 is source-qualified for targeted CYP protein → measured in-vitro CLint; EPA RNA→CYP activity and tucatinib protein/activity→CLint are also qualified elsewhere in the repository. These remain **preclinical functional metabolism**, not clinical plasma PK.
 
 ## A. Peng 2025 — original transcriptome and six measured donor CYP panels
 
@@ -30,7 +30,7 @@ Source: https://pmc.ncbi.nlm.nih.gov/articles/PMC13095627/ DOI 10.1016/j.dmd.202
 
 ## C. Remaining cohorts/claims
 
-- Wegler 2021 original HH/HLM samples, n=15 donors, five drugs: original proteomics files SHA verified, numerical donor-level CLint table still not source-paired (issue #11).
+- Wegler 2021 original HH/HLM samples, n=15 donors, five drugs: **source-qualified and fitted** from native Table S3. Exact same 15 donors are retained across all five drug blocks; targeted CYP protein and raw HLM/HH CLint are paired from the original table. HH shows heterogeneous positive signal (midazolam/omeprazole/diclofenac), while HLM is largely null. Global Data S1 high-dimensional proteomics is not required for this targeted result.
 - Human Liver Cohort, GSE9588: 466 molecular study liver samples, of which **398 have reported enzyme activity**, 427 genotyped GEO expression records; do not silently equate all these cohorts. GEO expressly reports **clinical data not provided by submitter**, so exact indexed CYP activity↔RNA matching still needs a data access audit.
 - Tacrolimus clinical metabolomics, 137 liver recipients/693 samples: genuine reported C0/dose + metabolomics in paper, but independently downloadable paired individual matrix not confirmed. Do not claim a held-out PK benchmark.
 - BIOMARGIN **has no PK**; potential authorized ABIS person+time+data matching is a hypothetical feasibility assessment, not a verified dataset.
@@ -42,7 +42,7 @@ Source: https://pmc.ncbi.nlm.nih.gov/articles/PMC13095627/ DOI 10.1016/j.dmd.202
 | E0 publication, legal/format/file identity | PASS for Peng, partial for tucatinib | Source files verified, not just abstracts |
 | E1 functional CYP donor–RNA assay linkage | PARTIAL | Six exact donor IDs in two assay tables; corresponding feature **expression** absent |
 | E2 RNA-to-CYP measured functional benchmark | ABSTAIN | Source GEO CSV is Seurat metadata, not gene expression |
-| E2 CYP protein-to-measured microsomal clearance | READY FOR LOCAL INPUT | Local donor-held-out code qualified synthetically, original source rows not ingested |
+| E2 CYP protein-to-measured in-vitro clearance | **PASS, heterogeneous** | Wegler n15×5 source-qualified LODO plus separate tucatinib evidence; positive signal is system/substrate dependent, not universal |
 | E3 genuine clinical omics+PK model | NOT VERIFIED | Still need real identical patient × assay × dose × timed concentration records |
 | /omics2pk/ public scientific tool | NOT DEPLOYED | Must await eligible empirical source results and rights review |
 

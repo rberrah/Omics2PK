@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
-"""Public 2021 Wegler supplement *structure* audit, not donor CLint extraction.
+"""Public 2021 Wegler source audit and aggregate held-donor CLint benchmark.
 
 Downloads only original SHA-pinned PMC AWS source documents into transient
-memory. Prints only document structure and aggregate named-table indicators.
-No donor IDs, numerical clearance values, or proteome rows in outputs.
+memory. Donor-level Table S3 values are parsed transiently in memory but never
+printed, serialized or committed. Outputs contain source-structure QC and
+aggregate held-donor results only.
 """
 from __future__ import annotations
 
@@ -401,7 +402,7 @@ def pdf_structure(binary: bytes) -> dict:
     kinetics_aggregate=_aggregate_kinetics_records(kinetics_records)
     protein_clint_benchmark=_protein_to_raw_clint_lodo(kinetics_records)
     return {
-        "source":"supporting PDF native text, without extracting donor values",
+        "source":"supporting PDF native text; donor rows parsed transiently, aggregate output only",
         "pdf_pages":len(doc.pages),
         "pdf_pages_with_native_text":populated_pages,
         **shape,
@@ -411,7 +412,8 @@ def pdf_structure(binary: bytes) -> dict:
         "verification_note":(
             "Native Table S3 parser requires exactly the same 15 donor/batch IDs "
             "for all five probe drugs and exports aggregate equation-column QC only. "
-            "Equation semantics still require published-method cross-check before fitting."
+            "eq.1/eq.4 semantics are cross-checked against published aggregate "
+            "midazolam CLint and source ND behavior before the held-donor fit."
         ),
     }
 
@@ -486,9 +488,10 @@ def get_verified_supplements(fetch=bounded_http) -> dict:
 def audit_source_structures(fetch=bounded_http) -> dict:
     raw = get_verified_supplements(fetch=fetch)
     return {
-        "purpose": "PUBLIC_IN_VITRO_SOURCE_STRUCTURE_ONLY",
+        "purpose": "PUBLIC_IN_VITRO_SOURCE_QUALIFICATION_AND_AGGREGATE_HELD_DONOR_BENCHMARK",
         "population_pk_or_clinical_validation": False,
-        "measured_donor_specific_clint_values_extracted": False,
+        "measured_donor_specific_clint_values_parsed_transiently": True,
+        "measured_donor_specific_clint_values_exported": False,
         "pdf": pdf_structure(raw["wegler_si_methods_pdf"]),
         "protein_workbook": workbook_structure_only(
             raw["wegler_s1_proteomics"], ("Hepatocytes", "Microsomes", "Description")),
@@ -497,8 +500,9 @@ def audit_source_structures(fetch=bounded_http) -> dict:
             ("HigherInMic_Hep", "HigherInHep_Mic")),
         "source_sha256": EXPECTED_HASHES,
         "blocking_next_step": (
-            "Independent manual confirmation of tabular donor-specific original CLint, "
-            "assay units/status and donor-matched proteomics columns before regression."
+            "For RNA-versus-protein multi-view evidence, acquire a same-donor RNA+protein+"
+            "activity source such as Zhang 2016 or Ohtsuki 2012. Wegler targeted CYP-protein "
+            "to CLint E2 qualification itself is complete."
         ),
     }
 
