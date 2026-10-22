@@ -5,7 +5,8 @@ import unittest
 from io import BytesIO
 
 from scripts.smoke_real_gse9588_inductive_sweet import (
-    TRAIN,PANEL,extract_train_variable_array_probes,real_gse_frozen_network_smoke
+    TRAIN,PANEL,WEIGHT_PANEL,extract_train_variable_array_probes,
+    extract_train_variable_array_probe_sets,real_gse_frozen_network_smoke
 )
 
 N=427
@@ -30,6 +31,15 @@ class SourceFrozenReferenceTests(unittest.TestCase):
         self.assertEqual(len(probes),PANEL)
         self.assertEqual(n,1100)
         self.assertNotIn("GSM7000",repr([PANEL,n]))
+
+
+    def test_toy_extracts_nested_edge_and_weight_probe_universes(self):
+        names,edges,weights,n=extract_train_variable_array_probe_sets(toy())
+        self.assertEqual(len(names),N)
+        self.assertEqual(len(edges),PANEL)
+        self.assertEqual(len(weights),WEIGHT_PANEL)
+        self.assertEqual(edges,weights[:PANEL])
+        self.assertEqual(n,1100)
 
     @unittest.skipUnless(importlib.util.find_spec("numpy"),"Optional numpy not installed")
     def test_toy_427_original_style_frozen_reference_does_not_claim_PK(self):
@@ -70,5 +80,19 @@ class SourceFrozenReferenceTests(unittest.TestCase):
         self.assertFalse(result["network_features_sufficiently_person_specific_for_individual_PK"])
         self.assertIn("network_features_sufficiently_person_specific_for_individual_PK",result)
         self.assertNotIn("GSM700",str(result))
+
+
+    @unittest.skipUnless(importlib.util.find_spec("numpy"),"Optional numpy not installed")
+    def test_broader_weight_universe_preserves_no_pk_claim(self):
+        ids,edges,weights,n=extract_train_variable_array_probe_sets(toy())
+        result=real_gse_frozen_network_smoke(
+            ids,edges,n,weight_probe_values=weights)
+        self.assertEqual(result["sample_weight_expression_probe_count"],WEIGHT_PANEL)
+        self.assertEqual(
+            result["sample_weight_universe"],
+            "broader_train_variable_probe_universe")
+        self.assertFalse(result["predictive_CYP_activity_test_executed"])
+        self.assertFalse(result["network_features_sufficiently_person_specific_for_individual_PK"])
+        self.assertEqual(result["query_anchored_v1"]["unseen_GSM_samples_projected"],352)
 
 if __name__=="__main__":unittest.main()

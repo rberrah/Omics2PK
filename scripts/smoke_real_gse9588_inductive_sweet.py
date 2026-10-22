@@ -29,9 +29,10 @@ from scripts.qualify_gse9588_real_human_liver_expression import (
 
 TRAIN=75
 PANEL=24
+WEIGHT_PANEL=512
 
 
-def extract_train_variable_array_probes(lines):
+def extract_train_variable_array_probe_sets(lines):
     gsm=None
     rows=[]
     n_scan=0
@@ -61,7 +62,7 @@ def extract_train_variable_array_probes(lines):
             raise ValueError("Official GEO matrix too many probes")
         if len(fields)!=N_EXPECTED+1:
             raise ValueError("Original microarray input has unequal sample width")
-        if len(rows)==PANEL:continue
+        if len(rows)==WEIGHT_PANEL:continue
         try:
             vals=[float(x.strip().strip(b'"')) for x in fields[1:]]
         except ValueError:
@@ -73,12 +74,20 @@ def extract_train_variable_array_probes(lines):
         from statistics import pstdev
         if pstdev(vals[:TRAIN])<1e-8:continue
         rows.append(vals)
-    if not gsm or len(rows)!=PANEL or n_scan<1000:
+    if not gsm or len(rows)!=WEIGHT_PANEL or n_scan<1000:
         raise ValueError("Too few valid original GEO probe measurements")
-    return gsm,rows,n_scan
+    return gsm,rows[:PANEL],rows,n_scan
 
 
-def real_gse_frozen_network_smoke(gsm,probe_values,n_probes):
+def extract_train_variable_array_probes(lines):
+    """Backward-compatible historical 24-probe extractor."""
+    gsm,edges,_weights,n_scan=extract_train_variable_array_probe_sets(lines)
+    return gsm,edges,n_scan
+
+
+def real_gse_frozen_network_smoke(
+    gsm,probe_values,n_probes,*,weight_probe_values=None
+):
     import numpy as np
     from omics2pk.inductive_sweet import (
         CONSTRUCTION_V0,CONSTRUCTION_V1,
@@ -89,10 +98,26 @@ def real_gse_frozen_network_smoke(gsm,probe_values,n_probes):
         raise ValueError("Incorrect original GEO panel by sample schema")
     # Names are syntactic PANEL PROXIES, not genomic annotations.
     probe_names=[f"UNANNOTATED_GEO_PROBE_{i+1:02d}" for i in range(PANEL)]
+    if weight_probe_values is None:
+        weight_mat=mat
+        weight_names=probe_names
+        weight_universe="legacy_edge_panel_only"
+    else:
+        weight_mat=np.asarray(weight_probe_values,dtype=float)
+        if weight_mat.shape!=(WEIGHT_PANEL,N_EXPECTED):
+            raise ValueError("Incorrect original GEO weight universe by sample schema")
+        if not np.array_equal(weight_mat[:PANEL,:],mat):
+            raise ValueError("Edge panel must be the leading subset of weight universe")
+        weight_names=[f"UNANNOTATED_GEO_WEIGHT_PROBE_{i+1:03d}"
+                      for i in range(WEIGHT_PANEL)]
+        # The first edge probes need the exact same IDs in the weight universe.
+        weight_names[:PANEL]=probe_names
+        weight_universe="broader_train_variable_probe_universe"
     trained=fit_frozen_reference(
         mat[:,:TRAIN],genes=probe_names,subject_ids=gsm[:TRAIN],
         tissue="Human liver (GEO GSE9588 microarray, source context)",
-        k=0.1
+        k=0.1,
+        weight_expression=weight_mat[:,:TRAIN],weight_genes=weight_names
     )
     def project(construction):
         strengths=[]
@@ -109,6 +134,7 @@ def real_gse_frozen_network_smoke(gsm,probe_values,n_probes):
             graph,details=predict_network(
                 trained,mat[:,i],subject_id=gsm[i],
                 genes=probe_names,tissue=trained.tissue,
+                weight_query=weight_mat[:,i],weight_genes=weight_names,
                 construction=construction)
             if graph.shape!=(PANEL,PANEL) or not np.isfinite(graph).all():
                 raise ValueError("Nonfinite or invalid original query graph")
@@ -160,6 +186,8 @@ def real_gse_frozen_network_smoke(gsm,probe_values,n_probes):
         "genuine_input_original_probe_rows_scanned":n_probes,
         "unsupervised_array_probes_chosen_by_train_only_variance":PANEL,
         "fixed_reference_training_GSM_samples":TRAIN,
+        "sample_weight_expression_probe_count":len(weight_names),
+        "sample_weight_universe":weight_universe,
         "legacy_v0":legacy,
         "query_anchored_v1":v1,
         # Backward-compatible aliases preserve the historical v0 report schema.
@@ -198,8 +226,29 @@ def main():
         "User-Agent":"Omics2PK-original-427-geo-sweet-inspired-frozen-reference-matrix/1.0"
     }),timeout=90) as resp:
         with gzip.GzipFile(fileobj=resp) as source:
-            ids,features,n=extract_train_variable_array_probes(source)
-    return real_gse_frozen_network_smoke(ids,features,n)
+            ids,edges,weights,n=extract_train_variable_array_probe_sets(source)
+    narrow=real_gse_frozen_network_smoke(ids,edges,n)
+    broad=real_gse_frozen_network_smoke(
+        ids,edges,n,weight_probe_values=weights)
+    narrow_v1=narrow["query_anchored_v1"]
+    broad_v1=broad["query_anchored_v1"]
+    return {
+        "status":"REAL_PUBLIC_GSE9588_WEIGHT_UNIVERSE_SENSITIVITY_ONLY",
+        "authentic_source_accession":"GSE9588",
+        "legacy_24_probe_weighting":narrow,
+        "broader_512_probe_weighting":broad,
+        "v1_clamp_reduction_with_broader_weight_universe":(
+            narrow_v1["n_original_queries_clamped_reference_weight"]
+            - broad_v1["n_original_queries_clamped_reference_weight"]),
+        "v1_low_clamp_reduction_with_broader_weight_universe":(
+            narrow_v1["n_original_queries_low_clamped"]
+            - broad_v1["n_original_queries_low_clamped"]),
+        "v1_zero_weight_reduction_with_broader_weight_universe":(
+            narrow_v1["n_original_queries_zero_graph_update_weight"]
+            - broad_v1["n_original_queries_zero_graph_update_weight"]),
+        "no_PK_or_CYP_outcome_used":True,
+        "no_GSM_or_expression_rows_exported":True,
+    }
 
 
 if __name__=="__main__":
