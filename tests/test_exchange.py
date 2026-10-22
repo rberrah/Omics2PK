@@ -101,7 +101,7 @@ class ContractTests(unittest.TestCase):
                 ["ENSG000001","NA","2"], ["ENSG000002","3","4"]])
             m["matrices"][0]["file"]["sha256"]=sha(root/"matrices/transcriptomics.csv")
             (root/"manifest.json").write_text(json.dumps(m))
-            with self.assertRaisesRegex(ExchangeError,"cannot contain NA"):
+            with self.assertRaisesRegex(ExchangeError,"cannot contain missing values"):
                 prepare_sweet(root,p/"out")
             self.assertFalse((p/"out").exists())
 
