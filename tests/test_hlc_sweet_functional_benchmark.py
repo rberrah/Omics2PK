@@ -83,13 +83,13 @@ class HLCSiteDisjointBenchmarkTests(unittest.TestCase):
             b["site_results"]["A"]["sweet_pipeline_fingerprint"])
 
     def test_invalid_site_design_fails_closed(self):
-        with self.assertRaisesRegex(HLCFunctionalBenchmarkError,"three sites"):
+        with self.assertRaisesRegex(HLCFunctionalBenchmarkError,"Need >=3 sites"):
             evaluate_site_disjoint_hlc(
                 self.x,genes=self.genes,subject_ids=self.ids,
                 sites=("A",)*9+("B",)*9,activity=self.y,
                 target_gene="CYP3A4",edge_genes=self.edges)
         bad=list(self.sites); bad[-1]="D"
-        with self.assertRaisesRegex(HLCFunctionalBenchmarkError,"three donors"):
+        with self.assertRaisesRegex(HLCFunctionalBenchmarkError,">=3 donors"):
             evaluate_site_disjoint_hlc(
                 self.x,genes=self.genes,subject_ids=self.ids,
                 sites=tuple(bad),activity=self.y,
