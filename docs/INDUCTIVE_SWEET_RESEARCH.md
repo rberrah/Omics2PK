@@ -207,10 +207,16 @@ source identities and outcomes are available.
    training-frozen reference for every held-out subject, and a test for
    invariance of one held-out result to perturbing another held-out profile.
    This **cannot** establish an improvement in PK/PD prediction.
-2. **No outer-fold normalization leak:** this function receives a
-   preprocessed matrix. Upstream feature selection, batch correction,
-   scaling, imputation and gene mapping must be fit **inside each outer
-   training fold** and frozen for test subjects. Not currently implemented.
+2. **Outer-fold preprocessing leak control is now implemented for a bounded,
+   explicit subset of operations.** `transcriptome_preprocessing.py` supports:
+   source-normalized passthrough; train-only median imputation + gene-wise
+   standardisation; and per-sample CPM/log1p for nonnegative raw counts followed
+   by train-only standardisation. The preprocessing fingerprint is fit on outer
+   training subjects only and is invariant to held-out values. A wrapper then
+   uses the same frozen transformed full-gene universe for SWEET sample weights
+   and a prespecified edge-gene subset. **Generic batch correction, assay-specific
+   normalization and gene annotation are still not certified** and must remain
+   source/protocol-specific rather than being silently learned on the full cohort.
 3. **Training/test distribution mismatch and weight calibration:** for v1, a
    cross-fitted training query has an anchor reconstructed from its n-1
    reference + itself, whereas an outer test query uses the full n-person
