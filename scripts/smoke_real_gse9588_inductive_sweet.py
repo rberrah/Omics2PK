@@ -98,6 +98,10 @@ def real_gse_frozen_network_smoke(gsm,probe_values,n_probes):
         strengths=[]
         saturated=0
         zero_weights=0
+        low_clamps=0
+        high_clamps=0
+        similarity_z=[]
+        positions_unclipped=[]
         signatures=set()
         # Exactly held-out GSM sample columns, fixed same reference; no training
         # objective is re-fit while predicting any query graph.
@@ -116,6 +120,10 @@ def real_gse_frozen_network_smoke(gsm,probe_values,n_probes):
             strengths.append(mean(s.values()))
             saturated+=bool(details["weight_clamped_outside_reference"])
             zero_weights+=details["weight"]==0
+            low_clamps+=details["weight_clamp_direction"]=="low"
+            high_clamps+=details["weight_clamp_direction"]=="high"
+            similarity_z.append(details["sample_similarity_z_vs_reference"])
+            positions_unclipped.append(details["weight_position_unclipped"])
             signatures.add(sha256(graph.tobytes()).hexdigest())
         if len(signatures)<50:
             raise ValueError("Near-duplicate or constant projected networks")
@@ -125,6 +133,15 @@ def real_gse_frozen_network_smoke(gsm,probe_values,n_probes):
             "projected_networks_distinct_hash_count":len(signatures),
             "n_original_queries_clamped_reference_weight":saturated,
             "n_original_queries_zero_graph_update_weight":zero_weights,
+            "n_original_queries_low_clamped":low_clamps,
+            "n_original_queries_high_clamped":high_clamps,
+            "min_weight_position_unclipped":round(float(np.min(positions_unclipped)),6),
+            "median_weight_position_unclipped":round(float(np.median(positions_unclipped)),6),
+            "max_weight_position_unclipped":round(float(np.max(positions_unclipped)),6),
+            "mean_similarity_z_vs_reference":round(float(np.mean(similarity_z)),6),
+            "min_similarity_z_vs_reference":round(float(np.min(similarity_z)),6),
+            "max_similarity_z_vs_reference":round(float(np.max(similarity_z)),6),
+            "n_queries_abs_similarity_z_gt3":int(np.sum(np.abs(similarity_z)>3)),
             "n_projected_individual_graph_hash_collisions":len(strengths)-len(signatures),
             "fraction_unique_heldout_network_hashes":round(len(signatures)/len(strengths),6),
             "all_heldout_graph_hashes_unique":len(signatures)==len(strengths),
