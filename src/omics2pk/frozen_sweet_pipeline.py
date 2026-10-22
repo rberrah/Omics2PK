@@ -272,6 +272,10 @@ def predict_frozen_inductive_sweet_pipeline(
         "tissue": pipeline.tissue,
         "n_weight_genes": len(pipeline.genes),
         "n_edge_genes": len(pipeline.edge_genes),
+        "edge_selection_mode": pipeline.edge_selection_mode,
+        "edge_selection_top_k": pipeline.edge_selection_top_k,
+        "edge_selection_fingerprint": pipeline.edge_selection_fingerprint,
+        "edge_selector_refit_for_query": False,
         "features": gene_strength_features(graph, genes=pipeline.edge_genes),
         "network_qc": {
             "sample_similarity": network_info["sample_similarity"],
@@ -300,13 +304,17 @@ def frozen_pipeline_manifest(
 ) -> dict[str, Any]:
     """Return non-expression metadata suitable for provenance records."""
     return {
-        "schema": "omics2pk.frozen-inductive-sweet.v1",
+        "schema": "omics2pk.frozen-inductive-sweet.v2",
         "pipeline_fingerprint": pipeline.fingerprint,
         "preprocessing_fingerprint": pipeline.preprocessor.fingerprint,
         "reference_fingerprint": pipeline.reference.fingerprint,
         "training_subject_count": len(pipeline.reference.subject_ids),
         "genes": list(pipeline.genes),
         "edge_genes": list(pipeline.edge_genes),
+        "edge_selection_mode": pipeline.edge_selection_mode,
+        "edge_selection_top_k": pipeline.edge_selection_top_k,
+        "edge_selection_fingerprint": pipeline.edge_selection_fingerprint,
+        "edge_selection_fitted_on_training_only": True,
         "tissue": pipeline.tissue,
         "preprocessing_mode": pipeline.preprocessing_mode,
         "construction": pipeline.construction,
@@ -318,7 +326,8 @@ def frozen_pipeline_manifest(
     }
 
 
-ARTIFACT_SCHEMA = "omics2pk.frozen-inductive-sweet.artifact.v1"
+ARTIFACT_SCHEMA_V1 = "omics2pk.frozen-inductive-sweet.artifact.v1"
+ARTIFACT_SCHEMA = "omics2pk.frozen-inductive-sweet.artifact.v2"
 ARTIFACT_ARRAYS = "arrays.npz"
 ARTIFACT_MANIFEST = "manifest.json"
 
@@ -378,6 +387,10 @@ def save_frozen_inductive_sweet_pipeline(
         or pipeline.preprocessor.genes != pipeline.genes
         or pipeline.reference.weight_genes != pipeline.genes
         or pipeline.reference.genes != pipeline.edge_genes
+        or pipeline.edge_selection_mode not in EDGE_SELECTION_MODES
+        or pipeline.edge_selection_top_k != len(pipeline.edge_genes)
+        or len(pipeline.edge_selection_fingerprint) != 64
+        or any(ch not in "0123456789abcdef" for ch in pipeline.edge_selection_fingerprint)
     ):
         raise FrozenSweetPipelineError("Inconsistent in-memory frozen pipeline state")
 
