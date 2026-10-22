@@ -42,6 +42,19 @@ jobs:
                 .map(pr => pr.head.ref)
             );
 
+            const closedPulls = await github.paginate(
+              github.rest.pulls.list,
+              { owner, repo, state: "closed", per_page: 100 }
+            );
+            const mergedHeadShas = new Map();
+            for (const pr of closedPulls) {
+              if (!pr.merged_at || pr.head.repo?.full_name !== owner + "/" + repo) continue;
+              if (!mergedHeadShas.has(pr.head.ref)) {
+                mergedHeadShas.set(pr.head.ref, new Set());
+              }
+              mergedHeadShas.get(pr.head.ref).add(pr.head.sha);
+            }
+
             const deleted = [];
             const preserved = [];
             const failed = [];
@@ -80,7 +93,9 @@ jobs:
                 continue;
               }
 
-              if ((comparison.ahead_by ?? 0) !== 0) {
+              const exactMergedPrHead =
+                mergedHeadShas.get(branch.name)?.has(branch.commit.sha) ?? false;
+              if ((comparison.ahead_by ?? 0) !== 0 && !exactMergedPrHead) {
                 preserved.push({
                   branch: branch.name,
                   reason: "unmerged-ahead-" + comparison.ahead_by
