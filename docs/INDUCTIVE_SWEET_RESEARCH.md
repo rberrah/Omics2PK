@@ -262,6 +262,22 @@ outside this object must itself remain nested inside the training partition;
 the object deliberately treats the edge panel and hyperparameters it receives
 as already prespecified/frozen.
 
+
+For a true train-once workflow across processes, the fitted object can also be
+persisted with \`save_frozen_inductive_sweet_pipeline\` and reloaded with
+\`load_frozen_inductive_sweet_pipeline\`. The artifact uses JSON plus compressed
+NumPy arrays with \`allow_pickle=False\`; the array payload is SHA-256 checked,
+then the preprocessing, reference and composite pipeline fingerprints are
+recomputed on load. Corruption or metadata drift therefore fails closed rather
+than silently changing the predictor.
+
+**Privacy boundary:** a persisted frozen artifact necessarily contains
+training-derived transformed molecular reference matrices and the training
+subject identifiers needed to preserve reference identity. It inherits the
+source cohort's authorization and redistribution constraints. Real patient
+artifacts must remain in authorized private research storage and must not be
+committed to this public repository or attached to public CI.
+
 ## Gates and known limitations
 
 1. **Public outcome-free sanity check:** official SWEET 80-sample RNA
