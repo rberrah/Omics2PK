@@ -282,6 +282,43 @@ def gene_strength_features(graph: Any, *, genes: list[str] | tuple[str, ...]) ->
             for i, g in enumerate(genes)}
 
 
+def topology_permuted_gene_strength_features(
+    graph: Any,
+    *,
+    genes: list[str] | tuple[str, ...],
+    seed: int,
+) -> dict[str, float]:
+    """Negative control: preserve edge values but destroy their gene-pair topology.
+
+    One deterministic permutation is derived only from the prespecified gene
+    identities and seed. The same edge-value multiset is reassigned to different
+    undirected gene pairs for every subject. No endpoint or subject metadata is
+    consulted. This is a topology control, not a biological null model.
+    """
+    names = tuple(genes)
+    if isinstance(seed, bool) or not isinstance(seed, int) or not 0 <= seed < 2**31:
+        raise InductiveNetworkError("Topology-control seed must be an integer in [0, 2^31)")
+    a = _matrix(graph)
+    n = len(names)
+    if a.shape != (n, n) or n < 3 or not np.allclose(a, a.T, rtol=0, atol=1e-12):
+        raise InductiveNetworkError("Expected symmetric graph with matching genes")
+    if not np.allclose(np.diag(a), 0, atol=1e-12):
+        raise InductiveNetworkError("Expected zero graph diagonal")
+    upper = np.triu_indices(n, 1)
+    values = np.asarray(a[upper], dtype=np.float64)
+    digest = hashlib.sha256()
+    digest.update(b"omics2pk.sweet-topology-control.v1\n")
+    digest.update(str(seed).encode("ascii"))
+    digest.update(b"\0")
+    digest.update("\n".join(names).encode("utf-8"))
+    rng_seed = int.from_bytes(digest.digest()[:8], "big", signed=False)
+    order = np.random.default_rng(rng_seed).permutation(len(values))
+    shuffled = np.zeros_like(a)
+    shuffled[upper] = values[order]
+    shuffled[(upper[1], upper[0])] = values[order]
+    return gene_strength_features(shuffled, genes=names)
+
+
 def crossfit_training_features(
     expression: Any,
     *,
@@ -293,6 +330,7 @@ def crossfit_training_features(
     weight_expression: Any | None = None,
     weight_genes: list[str] | tuple[str, ...] | None = None,
     construction: str = CONSTRUCTION_V0,
+    topology_control_seed: int | None = None,
 ) -> list[dict[str, Any]]:
     """Build honest, out-of-reference features for TRAINING subjects only.
 
@@ -323,6 +361,12 @@ def crossfit_training_features(
         raise InductiveNetworkError("folds must be 0 (leave-one-out) or 2..n")
     if folds != 0 and n - math.ceil(n / folds) < MIN_REFERENCE_SAMPLES:
         raise InductiveNetworkError("Too few training samples after withholding a fold")
+    if topology_control_seed is not None and (
+        isinstance(topology_control_seed, bool)
+        or not isinstance(topology_control_seed, int)
+        or not 0 <= topology_control_seed < 2**31
+    ):
+        raise InductiveNetworkError("Topology-control seed must be an integer in [0, 2^31)")
     # IDs determine deterministic folds, independent of input column order.
     assignment = {sid: j % folds for j, sid in enumerate(sorted(subjects))} if folds else {}
     records = []
@@ -351,7 +395,7 @@ def crossfit_training_features(
                 construction=construction)
         except InductiveNetworkError as exc:
             raise InductiveNetworkError(f"Training subject {sid}: {exc}") from exc
-        records.append({
+        record = {
             "subject_id": sid,
             "set": "training",
             "reference_n": info["reference_n"],
@@ -367,7 +411,13 @@ def crossfit_training_features(
             "effective_cohort_n_for_weight": info["effective_cohort_n_for_weight"],
             "method": info["method"],
             "equivalent_to_official_sweet": False,
-        })
+        }
+        if topology_control_seed is not None:
+            record["topology_control_features"] = topology_permuted_gene_strength_features(
+                graph, genes=names, seed=topology_control_seed
+            )
+            record["topology_control_seed"] = topology_control_seed
+        records.append(record)
     return records
 
 
@@ -384,6 +434,7 @@ def build_outer_split_features(
     weight_expression: Any | None = None,
     weight_genes: list[str] | tuple[str, ...] | None = None,
     construction: str = CONSTRUCTION_V0,
+    topology_control_seed: int | None = None,
 ) -> dict[str, Any]:
     """Use only the outer TRAINING cohort to fit the held-out reference.
 
@@ -416,7 +467,7 @@ def build_outer_split_features(
     training = crossfit_training_features(
         train_values, genes=names, subject_ids=train, tissue=tissue, folds=folds, k=k,
         weight_expression=wx[:, train_idx], weight_genes=wnames,
-        construction=construction)
+        construction=construction, topology_control_seed=topology_control_seed)
     reference = fit_frozen_reference(
         train_values, genes=names, subject_ids=train, tissue=tissue, k=k,
         weight_expression=wx[:, train_idx], weight_genes=wnames)
@@ -426,7 +477,7 @@ def build_outer_split_features(
             reference, x[:, col], subject_id=sid, genes=names, tissue=tissue,
             weight_query=wx[:, col], weight_genes=wnames,
             construction=construction)
-        held_out.append({
+        record = {
             "subject_id": sid,
             "set": "test",
             "reference_n": info["reference_n"],
@@ -442,7 +493,13 @@ def build_outer_split_features(
             "effective_cohort_n_for_weight": info["effective_cohort_n_for_weight"],
             "method": info["method"],
             "equivalent_to_official_sweet": False,
-        })
+        }
+        if topology_control_seed is not None:
+            record["topology_control_features"] = topology_permuted_gene_strength_features(
+                graph, genes=names, seed=topology_control_seed
+            )
+            record["topology_control_seed"] = topology_control_seed
+        held_out.append(record)
     return {
         "training": training,
         "test": held_out,
@@ -459,4 +516,6 @@ def build_outer_split_features(
         ),
         "equivalent_to_official_sweet": False,
         "trained_with_pk_pd_target": False,
+        "topology_control_seed": topology_control_seed,
+        "topology_control_preserves_edge_value_multiset": topology_control_seed is not None,
     }

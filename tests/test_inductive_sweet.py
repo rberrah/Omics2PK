@@ -10,6 +10,7 @@ try:
         fit_frozen_reference,
         gene_strength_features,
         predict_network,
+        topology_permuted_gene_strength_features,
     )
 except ModuleNotFoundError as exc:
     if exc.name != "numpy":
@@ -55,6 +56,20 @@ class InductiveSWEETTests(unittest.TestCase):
             info["weight_clamped_outside_reference"],
             info["weight_clamp_direction"]!="none")
 
+
+    def test_topology_permutation_control_is_deterministic_and_preserves_edge_mass(self):
+        graph, _ = self.predict(self.query)
+        original = gene_strength_features(graph, genes=self.genes)
+        a = topology_permuted_gene_strength_features(
+            graph, genes=self.genes, seed=20261022)
+        b = topology_permuted_gene_strength_features(
+            graph, genes=self.genes, seed=20261022)
+        self.assertEqual(a, b)
+        self.assertAlmostEqual(sum(original.values()), sum(a.values()), places=12)
+        self.assertTrue(any(abs(original[g]-a[g]) > 1e-12 for g in self.genes))
+        with self.assertRaisesRegex(InductiveNetworkError, "seed"):
+            topology_permuted_gene_strength_features(
+                graph, genes=self.genes, seed=-1)
 
     def test_v1_matches_query_anchor_then_duplicate_formula(self):
         graph, info = self.predict(self.query)

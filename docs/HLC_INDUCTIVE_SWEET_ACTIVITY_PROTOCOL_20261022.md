@@ -60,12 +60,15 @@ harder transportability test because the original paper reports study-site /
 processing effects as important covariates.
 
 **Important limitation:** the available curated HLC expression is already a
-source-processed representation. Published HLC methods report adjustment for
-age, sex and centre of origin before downstream association analyses. Thus a
-leave-one-centre-out Omics2PK analysis is a stronger stress test than random
-patient folds, but it is **not a pristine raw-array external validation**:
-source-level normalization/covariate processing can precede the Omics2PK split.
-This limitation must accompany any numerical result.
+source-processed representation. The source paper reports mean-log expression
+relative to a pooled liver reference and states that study site, sex and age
+were significant covariates that were controlled in the published analyses.
+The current Omics2PK source audit does **not** prove that the archived
+`expression.txt` itself is a covariate-residualized matrix, so it must not make
+that stronger claim. It does prove that source processing occurred before any
+Omics2PK outer split. Thus leave-one-centre-out is a stronger stress test than
+random donor folds, but it is **not end-to-end raw-array train-frozen
+validation**. This provenance boundary must accompany every numerical result.
 
 ## Source gate before any numerical claim
 
@@ -113,7 +116,8 @@ All arms use identical eligible donors and the same held-site folds:
 2. `age_sex_plus_direct_cyp_rna`;
 3. `age_sex_plus_train_selected_rna`;
 4. `age_sex_plus_train_selected_pca4`;
-5. `age_sex_plus_inductive_sweet_v1`.
+5. `age_sex_plus_inductive_sweet_v1`;
+6. `age_sex_plus_sweet_topology_permuted_control`.
 
 The direct RNA arm is essential: SWEET must beat or complement the actual CYP
 transcript, not merely an age/sex baseline.
@@ -126,7 +130,15 @@ Primary SWEET contrasts:
 
 - `MAE(SWEET) - MAE(direct CYP RNA)`;
 - `MAE(SWEET) - MAE(selected RNA Ridge)`;
-- `MAE(SWEET) - MAE(PCA4)`.
+- `MAE(SWEET) - MAE(PCA4)`;
+- `MAE(SWEET) - MAE(topology-permuted SWEET control)`.
+
+The topology control preserves each subject network's undirected edge-value
+multiset but deterministically reassigns those values to different gene pairs,
+using a fixed seed and no phenotype information. It tests whether the biological
+mapping of SWEET edges to gene pairs contributes beyond carrying a similarly
+distributed set of graph weights. It is a negative control, not an inferential
+null distribution.
 
 Lower is better. Results must include held-site SWEET clamp and similarity-shift
 QC.
