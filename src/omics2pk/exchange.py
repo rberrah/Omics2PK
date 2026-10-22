@@ -129,6 +129,60 @@ def inspect_exchange(directory: str | Path) -> dict[str, Any]:
             "matrices": matrices, "clinical_use": False, "network_inferred": False}
 
 
+def _sweet_expression_preflight(
+    rows: list[dict[str, str]], assays: list[str]
+) -> dict[str, Any]:
+    """Reject expression shapes that pinned upstream SWEET handles unsafely.
+
+    The original Step 2 drops a gene when its *sum* is exactly zero rather
+    than when all values are zero, while NumPy correlation returns non-finite
+    values for constant gene/sample profiles.  Omics2PK fails before writing
+    an upstream input instead of silently accepting these cases.
+    """
+    if not rows or not assays:
+        raise ExchangeError("SWEET expression preflight requires genes and assays")
+    matrix: list[list[float]] = []
+    gene_ids: list[str] = []
+    for row in rows:
+        gene_id=row["feature_id"]
+        values=[]
+        for assay in assays:
+            raw=row[assay]
+            if raw=="NA" or raw.strip()=="":
+                raise ExchangeError("SWEET input cannot contain missing values; handle missingness upstream")
+            try:
+                value=float(raw)
+            except (TypeError,ValueError):
+                raise ExchangeError(f"SWEET input contains non-numeric expression: {gene_id}/{assay}") from None
+            if not math.isfinite(value):
+                raise ExchangeError("SWEET input cannot contain NaN or infinite expression")
+            values.append(value)
+        spread=max(values)-min(values)
+        if spread<=1e-12:
+            raise ExchangeError(
+                f"SWEET upstream correlation is undefined for constant gene: {gene_id}")
+        magnitude=max(1.0,math.fsum(abs(x) for x in values))
+        if abs(math.fsum(values))<=1e-12*magnitude:
+            raise ExchangeError(
+                f"SWEET upstream Step 2 deletes zero-sum gene even when nonconstant: {gene_id}")
+        matrix.append(values)
+        gene_ids.append(gene_id)
+    for col,assay in enumerate(assays):
+        values=[row[col] for row in matrix]
+        if max(values)-min(values)<=1e-12:
+            raise ExchangeError(
+                f"SWEET sample-weight correlation is undefined for constant sample: {assay}")
+    return {
+        "finite_expression":True,
+        "constant_genes":0,
+        "constant_samples":0,
+        "zero_sum_nonconstant_genes":0,
+        "n_genes_checked":len(gene_ids),
+        "n_samples_checked":len(assays),
+        "upstream_missing_value_coercion_used":False,
+    }
+
+
 def prepare_sweet(directory: str | Path, output_dir: str | Path) -> dict[str, Any]:
     """Create official SWEET input format; does NOT infer networks.
 
@@ -156,9 +210,7 @@ def prepare_sweet(directory: str | Path, output_dir: str | Path) -> dict[str, An
         raise ExchangeError("Mixed gene ID namespaces require explicit mapping")
     _, rows = _csv(_file(root, entry["file"]), ["feature_id"])
     assays = [s["assay_id"] for s in samples]
-    for row in rows:
-        if any(row[a] == "NA" for a in assays):
-            raise ExchangeError("SWEET input cannot contain NA; handle missingness upstream")
+    preflight=_sweet_expression_preflight(rows,assays)
     out = Path(output_dir).resolve()
     if out == root or root in out.parents:
         raise ExchangeError("Output must be outside source exchange")
@@ -171,5 +223,6 @@ def prepare_sweet(directory: str | Path, output_dir: str | Path) -> dict[str, An
     (out / "patient.txt").write_text("\n".join(assays) + "\n", encoding="utf-8")
     (out / "gene.txt").write_text("\n".join(r["feature_id"] for r in rows) + "\n", encoding="utf-8")
     return {"expression_file": str(out / "expression.txt"), "sample_count": len(assays),
-            "gene_count": len(rows), "requires_independent_sweet_qualification": True,
-            "message": "Inputs only. SWEET not run; out-of-sample network protocol not validated."}
+            "gene_count": len(rows), "sweet_input_preflight":preflight,
+            "requires_independent_sweet_qualification": True,
+            "message": "Inputs only. SWEET not run; upstream edge-case and out-of-sample qualification remain separate."}
