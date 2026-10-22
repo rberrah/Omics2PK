@@ -19,8 +19,9 @@
 - PRIDE: https://proteomecentral.proteomexchange.org/cgi/GetDataset?ID=PXD014131 .
 - **15 biological human liver donors, 5 probe compounds, donor-matched hepatocytes (HH) and liver microsomes (HLM), global proteomics.** Five drug CLint observations per donor are repeated measurements, NOT five independent people.
 - Original PMC AWS PDF and protein XLSX successfully downloaded and SHA-256 verified in Omics2PK CI PR #10/#13. Supporting PDF has 21 native-text pages; proteomics Data S1 contains separate Hepatocytes and Microsomes sheets.
-- **Outstanding:** the exact donor × compound × preparation × original numeric CLint matrix has not been verified as an extractable table/paired outcome. A figure caption or protein file is NOT proof of tabulated clearance. Issue #11 blocks model fitting until that crosswalk is demonstrated.
-- **Scope:** real in-vitro clearance, not clinical PopPK. Cannot evaluate SWEET directly without RNA.
+- **Source-qualified update (22 Oct 2026):** native-text Table S3 was parsed directly from the SHA-locked official supporting PDF and yields exactly **15 donors × 5 probe drugs**, with the same donor set across all drug blocks. Raw HLM `CLint,mic` and HH `CLint,hep` column semantics were independently checked against the article's rounded midazolam aggregates; source `ND` values are preserved.
+- A prespecified donor-LODO benchmark using the **targeted corresponding CYP protein measured in Table S3 itself** is now complete. In HH, protein materially improved held-donor log-MAE for midazolam, omeprazole and diclofenac; HLM gains were weak/absent overall. See `WEGLER_SOURCE_STRUCTURE_RESULTS_20261016.md`.
+- **Scope:** real in-vitro clearance, not clinical PopPK. Cannot evaluate SWEET directly without matched RNA. The global Data S1 proteome remains optional and is not needed for the qualified targeted-CYP result.
 
 ## B. Transcriptomic bridge with observed enzyme metabolism (not yet clinical PK)
 
@@ -62,9 +63,9 @@
 1. **P0 source/rights gate**: obtain the legitimately usable original 21-donor Table 1 numbers for the tucatinib paper; publisher automated access returned 403 and text/data mining rights are reserved. Local-only source contract and cross-validation code are implemented with synthetic tests; validate source units and pooling; fixed leave-one-original-donor-out protein→microsomal CLint benchmark with very small predeclared model set and full negative-result reporting. This is a **targeted proteomics** experiment, NOT thesis proof for transcriptomics or clinical individualized dosing.
 2. **P0 transcriptomic block**: donor-matched six-CYP SCR/MFR panels confirmed, but GEO download is cell metadata only. Retrieve original SRA reads and process to gene counts, or request usable gene expression matrices, before any RNA-CYP association; n=6 remains exploratory.
 3. **P1 wider transcriptomic**: qualify per-donor CYP activity outcomes and lawful exact join for 2010 HLC/GSE9588; refuse if no open outcome file.
-4. **P1 separate PK**: source-audit the original Wegler 15-donor × five-substrate HH/HLM CLint supplement, and obtain author data if not tabulated.
+4. **P1 separate PK — completed for Wegler targeted CYP:** retain the source-qualified n15 × five-substrate HH/HLM benchmark as heterogeneous E2 evidence; do not expand post-hoc into high-dimensional p≫n proteomics without a separate preregistration.
 5. **P2 clinical**: contact 2022 tacrolimus metabolomics study authors for matrices and/or verify feasibility of lawful BIOMARGIN molecular ↔ ABIS drug dose/concentration linkage; do not fabricate or fuzzy-match subjects.
-6. **P3 site**: only after validated empirical proof and source/legal checks, expose static safe research lessons and tools at rberrah.github.io with FR/EN, dark/light, Resources and Ecosystem; no patient-level uploads or public model-driven dosing.
+6. **P3 site**: expose only the qualified public evidence as a research/learning demonstration; no patient-level uploads or public model-driven dosing.
 
 **Audit certainty:** literature and official dataset identity/public download statements checked as of 2026-10-16; a published paper describing a paired assay is *not* proof every raw feature/outcome join is unrestricted and accessible. A green source-format CI is not a green scientific validation.
 
