@@ -75,6 +75,16 @@ class PredoseTroughLinkTests(unittest.TestCase):
         self.assertFalse(out["individual_ids_times_doses_concentrations_exported"])
         self.assertNotIn("SYNTH_",str(out))
 
+    def test_other_drug_trough_same_visit_does_not_block_tacrolimus(self):
+        parts=list(fixture())
+        other=copy.deepcopy(parts[2][0])
+        other["observation_id"]="OTHER_DRUG"
+        other["drug"]="cyclosporine"
+        parts[2].insert(0,other)
+        out=qualify_predose_trough_longitudinal_link(
+            *parts,drug="tacrolimus",visit_order=("D7","M1","M3"))
+        self.assertEqual(out["n_linked_same_visit_trough_omics_pairs"],9)
+
     def test_rejects_morning_dose_as_previous_dose(self):
         parts=list(fixture())
         parts[2][0]["previous_dose_id"]=parts[2][0]["next_dose_id"]
