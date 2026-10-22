@@ -6,7 +6,7 @@
 
 [Original generated image (PNG, full resolution)](docs/assets/omics2pk-generated-original.png) · [Optimized WebP](docs/assets/omics2pk-generated-optimized.webp) · [Editable vector adaptation (SVG)](docs/assets/omics2pk-graphical-abstract.svg) · [Scientific tacrolimus protocol](docs/TACROLIMUS_FIRST_CYP3A4_CYP3A5_RESEARCH_PROTOCOL_20261019.md) · [Real-cohort source audit](docs/CYP3A_TACROLIMUS_OMICS_PK_PUBLIC_SOURCE_ACQUISITION_AUDIT_20261019.md) · [MultiOmics producer](https://github.com/rberrah/MultiOmics)
 
-> **Status (19 October 2026): exploratory, source-qualified research prototype; not clinical software.** The data-ingestion and many research comparators work, but **no independently validated gain in tacrolimus PK prediction over clinical + authentic CYP3A4/5 genotype has yet been demonstrated**. Omics2PK is **not a medical device**, a validated dose recommendation system or an automatically fitted clinical PopPK engine.
+> **Status (22 October 2026): source-qualified research framework with real positive and negative E2/E3 benchmarks; not clinical software.** The repository now includes leakage-controlled source contracts, a qualified experimental inductive RNA-network workflow, real hepatic RNA/protein functional benchmarks and authentic clinical Omics→PK examples. **No independently validated gain in tacrolimus PK prediction over clinical + authentic CYP3A4/5 genotype has yet been demonstrated.** The public **Analyze** interface therefore remains explicitly **in development**. Omics2PK is **not a medical device**, a validated dose recommendation system or an automatically fitted clinical PopPK engine.
 
 ## The question
 
@@ -48,7 +48,9 @@ establish drug PK predictive benefit.
 
 The library now provides a strictly donor-/patient-held-out **five-fold** ablation that compares a clinical reference and genuine PGx, individual modality PCA2 and direct Ridge, optional **externally fixed biological scores**, unsupervised PCA **early fusion** and a **fixed late fusion** of single-omic predictions. Optional XGBoost on low-dimensional projections is intentionally blocked when fewer than 80 original people are available. **No ranking or performance claim has been established on a new original clinical cohort by the software addition alone.**
 
-**Multicenter validation:** an additional `validation_mode="leave_one_site_out"` option holds out each complete original research center in turn (source-attested `site_ids` or clinical-sidecar `site_id`). Site labels cannot silently enter patient-random folds. This is still **within-parent-study site-disjoint validation**, not an independent external cohort.\n\nFor private authorized originals, `src/omics2pk/multimodal_exchange_pk.py` consumes versioned and SHA-checked source `DOWNSTREAM_EXCHANGE_V1` matrices plus a separately supplied **in-memory person→assay→collection time→PK/PGx** sidecar, with explicit complete-case eligibility. It refuses row-order joins, repeated participant assays, source-unknown patients and invented `T0` timestamps. The benchmark `src/omics2pk/multimodal_pk_ablation.py` fits modality transforms only inside outer training folds and emits **only aggregate error metrics**, with descriptive paired bootstrap intervals explicitly lacking model refitting. Requires `pip install -e '.[benchmark]'` and suitable original measured PK outcomes; no clinical/PK data belong in the public repository.
+**Multicenter validation:** an additional `validation_mode="leave_one_site_out"` option holds out each complete original research center in turn (source-attested `site_ids` or clinical-sidecar `site_id`). Site labels cannot silently enter patient-random folds. This is still **within-parent-study site-disjoint validation**, not an independent external cohort.
+
+For private authorized originals, `src/omics2pk/multimodal_exchange_pk.py` consumes versioned and SHA-checked source `DOWNSTREAM_EXCHANGE_V1` matrices plus a separately supplied **in-memory person→assay→collection time→PK/PGx** sidecar, with explicit complete-case eligibility. It refuses row-order joins, repeated participant assays, source-unknown patients and invented `T0` timestamps. The benchmark `src/omics2pk/multimodal_pk_ablation.py` fits modality transforms only inside outer training folds and emits **only aggregate error metrics**, with descriptive paired bootstrap intervals explicitly lacking model refitting. Requires `pip install -e '.[benchmark]'` and suitable original measured PK outcomes; no clinical/PK data belong in the public repository.
 
 See [matched-modalities research protocol](docs/MULTIMODAL_PK_ABLATION_SOFTWARE_QUALIFICATION_20261019.md) for API, assumptions and leakage guards.
 
@@ -57,16 +59,24 @@ See [matched-modalities research protocol](docs/MULTIMODAL_PK_ABLATION_SOFTWARE_
 | Evidence gate | Original observations and result | What it does **not** establish |
 |---|---|---|
 | **Technical exchange** | Real-source-compatible `MultiOmics → DOWNSTREAM_EXCHANGE_V1 → Omics2PK` interface with SHA-256, sample/assay identity checks, private-source support and synthetic CI | End-to-end public-browser export parity in every setting, or biological validity of scores |
-| **Enzyme phenotype (E2)** | Genuine donor-matched human hepatic RNA → measured CYP activity; positive gains for several enzymes in independent donor-heldout tests | In-vivo tacrolimus PK or superiority over complete patient PGx |
+| **RNA → enzyme phenotype (E2)** | Genuine U.S. EPA n≈100 donor-matched human liver RNA → measured CYP activity; several enzymes improve held-donor prediction, with negative CYP2E1 retained | In-vivo tacrolimus PK, protein benefit or superiority over complete patient PGx |
+| **Protein → measured CLint (E2)** | Wegler n=15 same liver donors × five probe drugs: targeted CYP protein improves held-donor HH CLint prediction strongly for midazolam/omeprazole/diclofenac, while HLM gain is nearly null overall | RNA-vs-protein superiority, systemic clearance, clinical dose benefit or external validation |
 | **Measured clinical CYP3A probe PK (E3)** | Original Jarmusch plasma n=13 at predose with CYP3A4/5 and **midazolam** CL/F: clinical + PGx MAE **7.343** vs + global MS1 PCA2 **9.888** on day 1 (worse); day 9 n=12 **4.601 → 4.749** (worse) | Tacrolimus efficacy, omic superiority, independent cohort validation |
 | **Another real clinical PK cohort (E3)** | Rotroff metformin n=32, original predose metabolomics + measured AUC/renal CL: global PCA offered no convincing incremental gain | CYP3A/tacrolimus response |
 | **Transplant multi-view omics** | BIOMARGIN/ROCKET original author notebook: **131** unique people, six RNA/miRNA views (35 six-view complete); public GEO blood RNA-seq **58,828 genes × 384 assays** confirmed | Six distinct omic modalities; GEO ↔ BIOS ↔ ABIS person crosswalk or matched original TAC PK/PGx |
 
-Source reports: [real midazolam pilot](docs/JARMUSCH14_ORIGINAL_GNPS_BIOM_TO_REAL_MIDAZOLAM_PK_20261019.md) · [private MultiOmics numerical parity](docs/JARMUSCH13_PRIVATE_MULTIOMICS_NATIVE_EXPORT_AND_PK_PARITY_20261019.md) · [metformin](docs/E3_REAL_METFORMIN33_PREDOSE_384_OMICS_AUC_CLR_HELDOUT_20261018.md) · [BIOMARGIN public original-data audit](docs/BIOMARGIN_131_REAL_PUBLIC_COUNTS_AND_GEO_BIOS_CROSSWALK_20261019.md).
+Source reports: [Wegler protein→CLint](docs/WEGLER_SOURCE_STRUCTURE_RESULTS_20261016.md) · [real midazolam pilot](docs/JARMUSCH14_ORIGINAL_GNPS_BIOM_TO_REAL_MIDAZOLAM_PK_20261019.md) · [private MultiOmics numerical parity](docs/JARMUSCH13_PRIVATE_MULTIOMICS_NATIVE_EXPORT_AND_PK_PARITY_20261019.md) · [metformin](docs/E3_REAL_METFORMIN33_PREDOSE_384_OMICS_AUC_CLR_HELDOUT_20261018.md) · [BIOMARGIN public original-data audit](docs/BIOMARGIN_131_REAL_PUBLIC_COUNTS_AND_GEO_BIOS_CROSSWALK_20261019.md).
 
-The exploratory midazolam errors are in original source numerical units not yet independently established as physical CL/F units. These small cohorts do not support comparative XGBoost versus SWEET versus multi-omic claims.
+The exploratory midazolam errors are in original source numerical units not yet independently established as physical CL/F units. These small cohorts do not support broad comparative XGBoost-versus-SWEET-versus-multi-omic claims. Wegler is deliberately kept at the **in-vitro E2** level: its heterogeneous HH/HLM result is evidence that a measured molecular phenotype can matter, not evidence that protein universally predicts patient PK.
 
 ### The current *scientific* data bottleneck
+
+The remaining high-priority blockers are now primarily **source acquisition or authorized linkage**, not missing generic modeling code:
+
+- **#63:** authenticated Zhang n100 or Ohtsuki n17 same-donor RNA + protein + CYP-activity matrix;
+- **#50:** original rosuvastatin n40 processed author CSVs with true AUC/Cmax ↔ omics subject crosswalk;
+- **#31:** original Phapale n29 / He n109 patient-level molecular ↔ tacrolimus PK matrices;
+- **#14:** lawful deterministic BIOMARGIN ↔ ABIS patient/date/dose/concentration crosswalk.
 
 To demonstrate the central tacrolimus claim we still need, **within authorized original patients**:
 
@@ -106,7 +116,7 @@ omics2pk validate-exchange /path/to/extracted/exchange
 
 `validate-exchange` checks hashes, sample IDs, matrix schema and numeric content; it is **not** a PK model fit. Use only data you have permission to process. Do not silently infer missing samples or clinical timestamps.
 
-For qualified **normalized individual transcriptomic expression** (not raw RNA counts), an optional exploratory SWEET preparation path is:
+For qualified **normalized individual transcriptomic expression** (not raw RNA counts), an optional exploratory RNA-network preparation path is:
 
 ```bash
 omics2pk prepare-sweet /path/to/exchange /private/sweet_inputs
@@ -118,7 +128,9 @@ For optional Python research estimators:
 python -m pip install -e '.[benchmark]'
 ```
 
-This installs benchmarking dependencies; it does **not** unlock source-restricted datasets or guarantee biomedical superiority. The real Jarmusch/BIOMARGIN source qualification scripts require their original authorized sources or retrieve verified public inputs ephemerally. See the dated study reports before running them. The RNA-only SWEET-inspired experimental network is **not** a verified reproduction of original SWEET.
+This installs benchmarking dependencies; it does **not** unlock source-restricted datasets or guarantee biomedical superiority. The real Jarmusch/BIOMARGIN source qualification scripts require their original authorized sources or retrieve verified public inputs ephemerally. See the dated study reports before running them.
+
+The RNA-only network remains explicitly **SWEET-inspired and inductive**, not a reproduction of original transductive SWEET. The historical upstream z-score archive mismatch is now explained and current-source normalization is numerically qualified. On authentic GSE9588, train-only per-probe z-scoring was leakage-safe but increased sample-weight clamps in all five deterministic n=150 reference sensitivities, so source-normalized values remain the prespecified representation for that already-normalized array source rather than automatically selecting a new preprocessing transform.
 
 ## Reproducibility, release and use boundaries
 
@@ -127,5 +139,9 @@ This installs benchmarking dependencies; it does **not** unlock source-restricte
 - **Privacy:** preserve institutional consent and data-use restrictions; never commit per-patient original omics, genotypes, PK measurements, consent metadata or linkage keys.
 - **Licensing:** [PolyForm Noncommercial 1.0.0](LICENSE); **source-available, not OSI open source**. Third-party sources, data and licensed components retain their own terms. Scientific citation metadata: [CITATION.cff](CITATION.cff).
 - **History:** the former chronological README with dated discovery logs is preserved intact in [docs/history](docs/history/README_CHRONOLOGICAL_ARCHIVE_20261019.md), rather than allowing outdated intermediate source-access states to dominate the project home page.
+
+## Public website boundary
+
+The public site follows the same navigation thread as MultiOmics: **Apprendre / Analyze / Écosystème / Ressources**. Under **Apprendre**, **Objectif** explains *why* Omics2PK is scientifically relevant and **Démo guidée** teaches *how* to design the comparison. **Analyze remains explicitly “en cours”**: there is no public patient-data upload or pretend one-click clinical model while the external data gates above remain unresolved.
 
 This software is for **research and teaching only**, not clinical dose selection or automated therapeutic recommendations.
