@@ -4,9 +4,10 @@ Designed for legitimately obtained ORIGINAL individual liver tables such as
 Zhang 2016 (DOI 10.1124/jpet.116.233635; published n=100) or Ohtsuki 2012
 (DOI 10.1124/dmd.111.042259; published n=17). No source rows are bundled.
 
-Input is long-form donor × CYP. Every included CYP must contain the complete
-published donor count for that source and one authenticated row per donor with
-mRNA, protein and measured probe-substrate activity on the same liver.
+Input is long-form donor × CYP. Every included CYP must retain one authenticated
+row for every donor in the published source cohort. Measurements may be
+observed, BLQ, missing or not measured; non-observed values are never coerced
+to zero. Numerical comparison uses one fixed complete-case donor set per CYP.
 
 Research only. Outcome is in-vitro drug metabolism, not clinical plasma PK.
 """
@@ -38,9 +39,12 @@ SOURCE_PROFILES = {
 
 LABELS = (
     "donor_id", "source_doi", "row_kind", "cyp_isoform", "probe_substrate",
-    "rna_value", "rna_unit", "protein_value", "protein_unit",
-    "activity_value", "activity_unit",
+    "rna_value", "rna_unit", "rna_status",
+    "protein_value", "protein_unit", "protein_status",
+    "activity_value", "activity_unit", "activity_status",
 )
+ALLOWED_MEASUREMENT_STATUS = {"observed", "blq", "missing", "not_measured"}
+MIN_COMPLETE_DONORS = 8
 SEED = 20261022
 
 
@@ -48,14 +52,26 @@ class MultiCYPSourceNotQualified(ValueError):
     pass
 
 
-def _positive(row, key):
-    try:
-        value=float(row[key])
-    except (KeyError,TypeError,ValueError):
-        raise MultiCYPSourceNotQualified("Missing numeric source field: "+key) from None
-    if not isfinite(value) or value<=0:
-        raise MultiCYPSourceNotQualified("Source measurement must be strictly positive: "+key)
-    return value
+def _measurement(row, value_key, status_key):
+    status=str(row.get(status_key,"")).strip().lower()
+    if status not in ALLOWED_MEASUREMENT_STATUS:
+        raise MultiCYPSourceNotQualified(
+            f"Invalid measurement status for {value_key}: {status or '<blank>'}")
+    raw=str(row.get(value_key,"")).strip()
+    if status=="observed":
+        try:
+            value=float(raw)
+        except (TypeError,ValueError):
+            raise MultiCYPSourceNotQualified(
+                "Observed source measurement requires numeric value: "+value_key) from None
+        if not isfinite(value) or value<=0:
+            raise MultiCYPSourceNotQualified(
+                "Observed source measurement must be finite and strictly positive: "+value_key)
+        return value,status
+    if raw:
+        raise MultiCYPSourceNotQualified(
+            f"{value_key} must be blank when {status_key}={status}")
+    return None,status
 
 
 def _text(row,key):
@@ -98,9 +114,9 @@ def source_contract(rows):
             raise MultiCYPSourceNotQualified("Duplicate donor × CYP source row")
         seen.add(key)
         probe=_text(row,"probe_substrate")
-        rna=_positive(row,"rna_value")
-        protein=_positive(row,"protein_value")
-        activity=_positive(row,"activity_value")
+        rna,rna_status=_measurement(row,"rna_value","rna_status")
+        protein,protein_status=_measurement(row,"protein_value","protein_status")
+        activity,activity_status=_measurement(row,"activity_value","activity_status")
         row_units=(
             _text(row,"rna_unit"), _text(row,"protein_unit"), _text(row,"activity_unit")
         )
@@ -109,19 +125,27 @@ def source_contract(rows):
         units[cyp]=row_units
         by_cyp[cyp].append({
             "donor_id":donor, "probe_substrate":probe,
-            "rna":rna, "protein":protein, "activity":activity,
+            "rna":rna, "rna_status":rna_status,
+            "protein":protein, "protein_status":protein_status,
+            "activity":activity, "activity_status":activity_status,
         })
     expected=profile["expected_donors_per_included_cyp"]
     if not by_cyp:
         raise MultiCYPSourceNotQualified("No CYP assay rows")
+    donor_sets={}
     for cyp,records in by_cyp.items():
         donors={x["donor_id"] for x in records}
         probes={x["probe_substrate"] for x in records}
         if len(records)!=expected or len(donors)!=expected:
             raise MultiCYPSourceNotQualified(
-                f"{cyp}: require exactly {expected} original donors; no post-hoc subset")
+                f"{cyp}: require exactly {expected} source donor rows; no post-hoc subset")
         if len(probes)!=1:
             raise MultiCYPSourceNotQualified(f"{cyp}: one prespecified probe assay per benchmark")
+        donor_sets[cyp]=donors
+    first_donors=next(iter(donor_sets.values()))
+    if any(donors!=first_donors for donors in donor_sets.values()):
+        raise MultiCYPSourceNotQualified(
+            "All included CYP endpoints must retain the same source donor cohort")
     return doi,profile,dict(by_cyp),units
 
 
@@ -153,18 +177,58 @@ def _paired_ci(values, seed):
 
 def _evaluate_cyp(records, seed):
     records=sorted(records,key=lambda x:x["donor_id"])
+    complete=[
+        x for x in records
+        if x["rna_status"]=="observed"
+        and x["protein_status"]=="observed"
+        and x["activity_status"]=="observed"
+    ]
+    missingness={
+        "rna_nonobserved":sum(x["rna_status"]!="observed" for x in records),
+        "protein_nonobserved":sum(x["protein_status"]!="observed" for x in records),
+        "activity_nonobserved":sum(x["activity_status"]!="observed" for x in records),
+        "any_nonobserved":sum(
+            not (x["rna_status"]=="observed"
+                 and x["protein_status"]=="observed"
+                 and x["activity_status"]=="observed")
+            for x in records),
+    }
+    status_counts={
+        field:{
+            status:sum(x[field+"_status"]==status for x in records)
+            for status in sorted(ALLOWED_MEASUREMENT_STATUS)
+        }
+        for field in ("rna","protein","activity")
+    }
+    if len(complete)<MIN_COMPLETE_DONORS:
+        return {
+            "status":"ABSTAIN_INSUFFICIENT_COMPLETE_DONORS",
+            "n_source_donors":len(records),
+            "n_complete_case_donors":len(complete),
+            "minimum_complete_donors_required":MIN_COMPLETE_DONORS,
+            "probe_substrate":records[0]["probe_substrate"],
+            "missingness":missingness,
+            "status_counts":status_counts,
+            "complete_case_policy":"no imputation; same donors in every compared arm",
+        }
     arms=("training_mean","RNA_only","protein_only","RNA_plus_protein")
     errors={arm:[] for arm in arms}
-    for i,held in enumerate(records):
-        train=[x for j,x in enumerate(records) if j!=i]
+    for i,held in enumerate(complete):
+        train=[x for j,x in enumerate(complete) if j!=i]
         for arm in arms:
             pred=_predict(train,held,arm)
             errors[arm].append(abs(pred-held["activity"]))
     delta_combo=[a-b for a,b in zip(errors["RNA_plus_protein"],errors["RNA_only"])]
     delta_protein=[a-b for a,b in zip(errors["protein_only"],errors["RNA_only"])]
     return {
-        "n_held_donor_folds":len(records),
+        "status":"QUALIFIED_COMPLETE_CASE_LODO",
+        "n_source_donors":len(records),
+        "n_complete_case_donors":len(complete),
+        "n_held_donor_folds":len(complete),
         "probe_substrate":records[0]["probe_substrate"],
+        "missingness":missingness,
+        "status_counts":status_counts,
+        "complete_case_policy":"no imputation; same donors in every compared arm",
         "mae_by_model":{arm:round(mean(v),6) for arm,v in errors.items()},
         "delta_MAE_RNA_plus_protein_minus_RNA":round(mean(delta_combo),6),
         "delta_MAE_protein_minus_RNA":round(mean(delta_protein),6),
@@ -190,10 +254,12 @@ def evaluate_original_source(rows):
         "published_scope":profile["published_scope"],
         "n_included_cyp_endpoints":len(results),
         "included_cyp_isoforms":sorted(results),
+        "expected_source_donors_per_included_cyp":profile["expected_donors_per_included_cyp"],
         "expected_complete_donors_per_included_cyp":profile["expected_donors_per_included_cyp"],
         "results_by_cyp":results,
         "primary_question":"does RNA+protein improve held-donor activity prediction over RNA alone",
-        "model":"donor-LODO fixed ridge alpha1; log1p measurements; train-only scaling",
+        "model":"complete-case donor-LODO fixed ridge alpha1; log1p measurements; no imputation",
+        "measurement_missingness_policy":"all published donors remain represented; BLQ/missing/not_measured are explicit and never coerced to zero",
         "not_clinical_plasma_PK":True,
         "not_whole_transcriptome_or_whole_proteome":True,
         "not_external_validation":True,
