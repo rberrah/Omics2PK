@@ -84,7 +84,7 @@ def evaluate_hlc_sweet_activity(
     ages,
     sexes,
     activities,
-    direct_cyp_gene: str,
+    direct_cyp_gene,
     activity_label: str,
     activity_unit: str,
     edge_top_k: int = 32,
@@ -120,8 +120,19 @@ def evaluate_hlc_sweet_activity(
         or any(not s for s in subjects)
     ):
         raise HLCSweetBenchmarkError("Invalid source-normalized expression matrix or identities")
-    if direct_cyp_gene not in genes:
-        raise HLCSweetBenchmarkError("Direct CYP gene/probe must be source-annotated in expression")
+    direct_genes = (
+        (direct_cyp_gene,)
+        if isinstance(direct_cyp_gene, str)
+        else tuple(str(g).strip() for g in direct_cyp_gene)
+    )
+    if (
+        not direct_genes
+        or len(set(direct_genes)) != len(direct_genes)
+        or any(not g or g not in genes for g in direct_genes)
+    ):
+        raise HLCSweetBenchmarkError(
+            "Direct CYP gene/probe(s) must be unique and source-annotated in expression"
+        )
     if not activity_label.strip() or not activity_unit.strip():
         raise HLCSweetBenchmarkError("Measured CYP activity label and physical unit are required")
     if isinstance(edge_top_k, bool) or not isinstance(edge_top_k, int) or not 8 <= edge_top_k <= 128:
@@ -149,7 +160,7 @@ def evaluate_hlc_sweet_activity(
         raise HLCSweetBenchmarkError("Each held-out site needs at least five complete donors")
 
     gene_pos = {g: i for i, g in enumerate(genes)}
-    direct_idx = gene_pos[direct_cyp_gene]
+    direct_idx = [gene_pos[g] for g in direct_genes]
     arms = (
         "age_sex",
         "age_sex_plus_direct_cyp_rna",
@@ -282,7 +293,8 @@ def evaluate_hlc_sweet_activity(
         "edge_selection": EDGE_SELECTION_TRAIN_VARIANCE,
         "edge_top_k": edge_top_k,
         "construction": CONSTRUCTION_V1,
-        "direct_cyp_gene": direct_cyp_gene,
+        "n_direct_cyp_expression_features": len(direct_genes),
+        "direct_cyp_expression_features": direct_genes,
         "site_used_as_predictor": False,
         "site_used_only_for_outer_holdout": True,
         "pk_pd_target_used_to_build_network": False,
