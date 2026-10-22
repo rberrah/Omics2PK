@@ -1,5 +1,8 @@
 """Synthetic qualification of the prospective frozen SWEET-inspired artifact."""
+import json
+import tempfile
 import unittest
+from pathlib import Path
 
 try:
     import numpy as np
@@ -7,7 +10,9 @@ try:
         FrozenSweetPipelineError,
         fit_frozen_inductive_sweet_pipeline,
         frozen_pipeline_manifest,
+        load_frozen_inductive_sweet_pipeline,
         predict_frozen_inductive_sweet_pipeline,
+        save_frozen_inductive_sweet_pipeline,
     )
     from omics2pk.inductive_sweet import CONSTRUCTION_V1
     from omics2pk.transcriptome_preprocessing import (
@@ -221,6 +226,76 @@ class FrozenSweetPipelineTests(unittest.TestCase):
             prospective["network_qc"]["weight_clamp_direction"],
             heldout["weight_clamp_direction"],
         )
+
+    def test_persisted_artifact_roundtrip_preserves_prediction_and_fingerprints(self):
+        pipe = self.fit(mode=MODE_TRAIN_ZSCORE)
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp) / "frozen"
+            saved = save_frozen_inductive_sweet_pipeline(pipe, root)
+            manifest = json.loads((root / "manifest.json").read_text())
+            self.assertTrue(manifest["contains_training_derived_molecular_data"])
+            self.assertTrue(manifest["contains_training_identifiers"])
+            self.assertTrue(manifest["redistribution_requires_source_permission"])
+            self.assertFalse(manifest["arrays"]["allow_pickle"])
+            self.assertEqual(saved["pipeline_fingerprint"], pipe.fingerprint)
+            with np.load(root / "arrays.npz", allow_pickle=False) as arrays:
+                self.assertEqual(arrays["reference_weight_expression"].dtype.kind, "f")
+
+            loaded = load_frozen_inductive_sweet_pipeline(root)
+            self.assertEqual(loaded.fingerprint, pipe.fingerprint)
+            self.assertEqual(
+                loaded.preprocessor.fingerprint, pipe.preprocessor.fingerprint
+            )
+            self.assertEqual(
+                loaded.reference.fingerprint, pipe.reference.fingerprint
+            )
+            before = predict_frozen_inductive_sweet_pipeline(
+                pipe, self.query_a, subject_id="NEW", genes=self.genes
+            )
+            after = predict_frozen_inductive_sweet_pipeline(
+                loaded, self.query_a, subject_id="NEW", genes=self.genes
+            )
+            self.assertEqual(before["pipeline_fingerprint"], after["pipeline_fingerprint"])
+            for gene in self.edge_genes:
+                self.assertAlmostEqual(
+                    before["features"][gene], after["features"][gene], places=12
+                )
+            self.assertAlmostEqual(
+                before["network_qc"]["weight"],
+                after["network_qc"]["weight"],
+                places=12,
+            )
+
+    def test_persisted_artifact_rejects_array_tampering(self):
+        pipe = self.fit()
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp) / "frozen"
+            save_frozen_inductive_sweet_pipeline(pipe, root)
+            arrays = root / "arrays.npz"
+            arrays.write_bytes(arrays.read_bytes() + b"tamper")
+            with self.assertRaisesRegex(FrozenSweetPipelineError, "checksum"):
+                load_frozen_inductive_sweet_pipeline(root)
+
+    def test_persisted_artifact_rejects_manifest_fingerprint_tampering(self):
+        pipe = self.fit()
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp) / "frozen"
+            save_frozen_inductive_sweet_pipeline(pipe, root)
+            path = root / "manifest.json"
+            manifest = json.loads(path.read_text())
+            manifest["pipeline"]["pipeline_fingerprint"] = "0" * 64
+            path.write_text(json.dumps(manifest))
+            with self.assertRaisesRegex(FrozenSweetPipelineError, "pipeline fingerprint"):
+                load_frozen_inductive_sweet_pipeline(root)
+
+    def test_persist_refuses_nonempty_destination(self):
+        pipe = self.fit()
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp) / "frozen"
+            root.mkdir()
+            (root / "unrelated.txt").write_text("do not overwrite")
+            with self.assertRaisesRegex(FrozenSweetPipelineError, "must be empty"):
+                save_frozen_inductive_sweet_pipeline(pipe, root)
 
     def test_pipeline_fingerprint_changes_when_frozen_protocol_changes(self):
         a = self.fit()

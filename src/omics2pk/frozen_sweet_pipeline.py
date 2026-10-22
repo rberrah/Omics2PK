@@ -8,7 +8,9 @@ accepts no PK/PD outcome.
 from __future__ import annotations
 
 import hashlib
+import json
 import math
+from pathlib import Path
 from dataclasses import dataclass
 from typing import Any
 
@@ -23,6 +25,7 @@ from omics2pk.inductive_sweet import (
     predict_network,
 )
 from omics2pk.transcriptome_preprocessing import (
+    MODE_PASSTHROUGH,
     FrozenTranscriptomePreprocessor,
     fit_transcriptome_preprocessor,
     transform_transcriptome,
@@ -269,3 +272,292 @@ def frozen_pipeline_manifest(
         "equivalent_to_official_sweet": False,
         "validated_for_pk": False,
     }
+
+
+ARTIFACT_SCHEMA = "omics2pk.frozen-inductive-sweet.artifact.v1"
+ARTIFACT_ARRAYS = "arrays.npz"
+ARTIFACT_MANIFEST = "manifest.json"
+
+
+def _fingerprint_preprocessor_state(
+    *,
+    mode: str,
+    genes: tuple[str, ...],
+    subject_ids: tuple[str, ...],
+    medians: np.ndarray | None,
+    means: np.ndarray | None,
+    scales: np.ndarray | None,
+) -> str:
+    """Recompute the exact training-preprocessor fingerprint from frozen state."""
+    digest = hashlib.sha256()
+    digest.update(mode.encode())
+    digest.update("\n".join(genes).encode())
+    digest.update("\n".join(subject_ids).encode())
+    if medians is not None:
+        if means is None or scales is None:
+            raise FrozenSweetPipelineError("Incomplete frozen preprocessing state")
+        digest.update(medians.tobytes(order="C"))
+        digest.update(means.tobytes(order="C"))
+        digest.update(scales.tobytes(order="C"))
+    return digest.hexdigest()
+
+
+def _sha256_file(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as stream:
+        for block in iter(lambda: stream.read(1024 * 1024), b""):
+            digest.update(block)
+    return digest.hexdigest()
+
+
+def save_frozen_inductive_sweet_pipeline(
+    pipeline: FrozenInductiveSweetPipeline,
+    directory: str | Path,
+) -> dict[str, Any]:
+    """Persist a fitted artifact without pickle or implicit refitting.
+
+    The artifact contains transformed training-reference expression and training
+    identifiers. It therefore inherits the source dataset's access restrictions
+    and must not be published merely because Omics2PK source code is public.
+    """
+    root = Path(directory).expanduser().resolve()
+    if root.exists():
+        if not root.is_dir():
+            raise FrozenSweetPipelineError("Frozen artifact destination is not a directory")
+        if any(root.iterdir()):
+            raise FrozenSweetPipelineError("Frozen artifact destination must be empty")
+    else:
+        root.mkdir(parents=True, exist_ok=False)
+
+    if (
+        pipeline.preprocessor.train_subject_ids != pipeline.reference.subject_ids
+        or pipeline.preprocessor.genes != pipeline.genes
+        or pipeline.reference.weight_genes != pipeline.genes
+        or pipeline.reference.genes != pipeline.edge_genes
+    ):
+        raise FrozenSweetPipelineError("Inconsistent in-memory frozen pipeline state")
+
+    medians = pipeline.preprocessor.medians
+    means = pipeline.preprocessor.means
+    scales = pipeline.preprocessor.scales
+    has_scaling = medians is not None
+    if has_scaling != (means is not None and scales is not None):
+        raise FrozenSweetPipelineError("Incomplete frozen preprocessing state")
+
+    arrays_path = root / ARTIFACT_ARRAYS
+    np.savez_compressed(
+        arrays_path,
+        preprocessor_medians=(
+            np.asarray(medians, dtype=np.float64)
+            if medians is not None else np.empty(0, dtype=np.float64)
+        ),
+        preprocessor_means=(
+            np.asarray(means, dtype=np.float64)
+            if means is not None else np.empty(0, dtype=np.float64)
+        ),
+        preprocessor_scales=(
+            np.asarray(scales, dtype=np.float64)
+            if scales is not None else np.empty(0, dtype=np.float64)
+        ),
+        reference_expression=np.asarray(
+            pipeline.reference.expression, dtype=np.float64
+        ),
+        reference_weight_expression=np.asarray(
+            pipeline.reference.weight_expression, dtype=np.float64
+        ),
+    )
+    arrays_sha256 = _sha256_file(arrays_path)
+    manifest = {
+        "schema": ARTIFACT_SCHEMA,
+        "pipeline": frozen_pipeline_manifest(pipeline),
+        "training_subject_ids": list(pipeline.reference.subject_ids),
+        "has_scaling_state": has_scaling,
+        "arrays": {
+            "file": ARTIFACT_ARRAYS,
+            "sha256": arrays_sha256,
+            "allow_pickle": False,
+        },
+        "contains_training_derived_molecular_data": True,
+        "contains_training_identifiers": True,
+        "redistribution_requires_source_permission": True,
+    }
+    manifest_path = root / ARTIFACT_MANIFEST
+    manifest_path.write_text(
+        json.dumps(manifest, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
+    return {
+        "directory": str(root),
+        "manifest": str(manifest_path),
+        "arrays": str(arrays_path),
+        "arrays_sha256": arrays_sha256,
+        "pipeline_fingerprint": pipeline.fingerprint,
+        "contains_training_derived_molecular_data": True,
+    }
+
+
+def load_frozen_inductive_sweet_pipeline(
+    directory: str | Path,
+) -> FrozenInductiveSweetPipeline:
+    """Load and integrity-check a persisted artifact without pickle."""
+    root = Path(directory).expanduser().resolve()
+    manifest_path = root / ARTIFACT_MANIFEST
+    arrays_path = root / ARTIFACT_ARRAYS
+    try:
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError, TypeError) as exc:
+        raise FrozenSweetPipelineError("Invalid frozen artifact manifest") from exc
+    if manifest.get("schema") != ARTIFACT_SCHEMA:
+        raise FrozenSweetPipelineError("Unknown frozen artifact schema")
+    arrays_meta = manifest.get("arrays")
+    if (
+        not isinstance(arrays_meta, dict)
+        or arrays_meta.get("file") != ARTIFACT_ARRAYS
+        or arrays_meta.get("allow_pickle") is not False
+        or not isinstance(arrays_meta.get("sha256"), str)
+    ):
+        raise FrozenSweetPipelineError("Invalid frozen artifact array metadata")
+    if not arrays_path.is_file():
+        raise FrozenSweetPipelineError("Frozen artifact arrays are missing")
+    if _sha256_file(arrays_path) != arrays_meta["sha256"]:
+        raise FrozenSweetPipelineError("Frozen artifact array checksum mismatch")
+
+    pipeline_meta = manifest.get("pipeline")
+    subject_values = manifest.get("training_subject_ids")
+    if not isinstance(pipeline_meta, dict) or not isinstance(subject_values, list):
+        raise FrozenSweetPipelineError("Invalid frozen artifact metadata")
+    try:
+        genes = tuple(str(x) for x in pipeline_meta["genes"])
+        edge_genes = tuple(str(x) for x in pipeline_meta["edge_genes"])
+        subjects = tuple(str(x) for x in subject_values)
+        tissue = str(pipeline_meta["tissue"])
+        mode = str(pipeline_meta["preprocessing_mode"])
+        construction = str(pipeline_meta["construction"])
+        k = float(pipeline_meta["k"])
+        expected_preprocessor = str(pipeline_meta["preprocessing_fingerprint"])
+        expected_reference = str(pipeline_meta["reference_fingerprint"])
+        expected_pipeline = str(pipeline_meta["pipeline_fingerprint"])
+    except (KeyError, TypeError, ValueError) as exc:
+        raise FrozenSweetPipelineError("Incomplete frozen artifact metadata") from exc
+    if (
+        not genes
+        or len(set(genes)) != len(genes)
+        or len(edge_genes) < 3
+        or len(set(edge_genes)) != len(edge_genes)
+        or not set(edge_genes).issubset(set(genes))
+        or not subjects
+        or len(set(subjects)) != len(subjects)
+        or any(not x.strip() for x in genes + edge_genes + subjects)
+    ):
+        raise FrozenSweetPipelineError("Invalid frozen artifact identities")
+
+    try:
+        with np.load(arrays_path, allow_pickle=False) as arrays:
+            expected_keys = {
+                "preprocessor_medians",
+                "preprocessor_means",
+                "preprocessor_scales",
+                "reference_expression",
+                "reference_weight_expression",
+            }
+            if set(arrays.files) != expected_keys:
+                raise FrozenSweetPipelineError("Unexpected frozen artifact arrays")
+            medians = np.array(arrays["preprocessor_medians"], dtype=np.float64, copy=True)
+            means = np.array(arrays["preprocessor_means"], dtype=np.float64, copy=True)
+            scales = np.array(arrays["preprocessor_scales"], dtype=np.float64, copy=True)
+            reference_expression = np.array(
+                arrays["reference_expression"], dtype=np.float64, copy=True
+            )
+            weight_expression = np.array(
+                arrays["reference_weight_expression"], dtype=np.float64, copy=True
+            )
+    except (OSError, ValueError, KeyError) as exc:
+        if isinstance(exc, FrozenSweetPipelineError):
+            raise
+        raise FrozenSweetPipelineError("Invalid frozen artifact arrays") from exc
+
+    has_scaling = manifest.get("has_scaling_state")
+    if not isinstance(has_scaling, bool):
+        raise FrozenSweetPipelineError("Invalid preprocessing-state flag")
+    if has_scaling:
+        for name, value in (
+            ("medians", medians), ("means", means), ("scales", scales)
+        ):
+            if value.shape != (len(genes),) or not np.isfinite(value).all():
+                raise FrozenSweetPipelineError(
+                    f"Invalid frozen preprocessing {name}"
+                )
+        if np.any(scales <= 1e-12):
+            raise FrozenSweetPipelineError("Invalid frozen preprocessing scales")
+        for value in (medians, means, scales):
+            value.setflags(write=False)
+        pre_medians, pre_means, pre_scales = medians, means, scales
+    else:
+        if mode != MODE_PASSTHROUGH or medians.size or means.size or scales.size:
+            raise FrozenSweetPipelineError("Unexpected preprocessing state")
+        pre_medians = pre_means = pre_scales = None
+
+    preprocessor_fingerprint = _fingerprint_preprocessor_state(
+        mode=mode,
+        genes=genes,
+        subject_ids=subjects,
+        medians=pre_medians,
+        means=pre_means,
+        scales=pre_scales,
+    )
+    if preprocessor_fingerprint != expected_preprocessor:
+        raise FrozenSweetPipelineError("Frozen preprocessor fingerprint mismatch")
+    preprocessor = FrozenTranscriptomePreprocessor(
+        genes=genes,
+        mode=mode,
+        train_subject_ids=subjects,
+        medians=pre_medians,
+        means=pre_means,
+        scales=pre_scales,
+        fingerprint=preprocessor_fingerprint,
+    )
+
+    positions = {gene: i for i, gene in enumerate(genes)}
+    edge_indices = tuple(positions[gene] for gene in edge_genes)
+    try:
+        reference = fit_frozen_reference(
+            reference_expression,
+            genes=edge_genes,
+            subject_ids=subjects,
+            tissue=tissue,
+            k=k,
+            weight_expression=weight_expression,
+            weight_genes=genes,
+        )
+    except (ValueError, TypeError) as exc:
+        raise FrozenSweetPipelineError("Invalid frozen reference state") from exc
+    if reference.fingerprint != expected_reference:
+        raise FrozenSweetPipelineError("Frozen reference fingerprint mismatch")
+
+    pipeline_fingerprint = _fingerprint_pipeline(
+        genes=genes,
+        edge_genes=edge_genes,
+        tissue=tissue,
+        preprocessing_mode=mode,
+        construction=construction,
+        k=k,
+        preprocessor_fingerprint=preprocessor.fingerprint,
+        reference_fingerprint=reference.fingerprint,
+    )
+    if pipeline_fingerprint != expected_pipeline:
+        raise FrozenSweetPipelineError("Frozen pipeline fingerprint mismatch")
+    if construction not in CONSTRUCTIONS:
+        raise FrozenSweetPipelineError("Unknown frozen pipeline construction")
+
+    return FrozenInductiveSweetPipeline(
+        genes=genes,
+        edge_genes=edge_genes,
+        edge_indices=edge_indices,
+        tissue=tissue,
+        preprocessing_mode=mode,
+        construction=construction,
+        k=k,
+        preprocessor=preprocessor,
+        reference=reference,
+        fingerprint=pipeline_fingerprint,
+    )
