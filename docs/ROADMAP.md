@@ -127,19 +127,19 @@ Full source-level audit: [REAL_MULTIOMICS_OUTPUT_AUDIT_AND_PK_ADAPTER_GAPS_20261
 - [x] Original tucatinib 21 single-donor+one pooled HLM paper/PRIDE provenance confirmed. Automated publisher Table 1 access forbidden/reserved; numerical donor records NOT downloaded or modeled.
 - [x] Local-only 21-donor HLM clearance–CYP protein/activity LODO evaluator with frozen 2-variable ridge, baseline and paired bootstrap. **Synthetic tests only**, awaiting rights-qualified source CSV (issue #15).
 - [ ] Run first **real** source-labeled molecular predictor/functional PK endpoint dataset only after exact numeric outcome+feature pairing; distinguish source-format CI PASS from biological model validation.
-- [ ] For HLC GSE9588, confirm exactly matching enzyme activity records in the 398 activity-profiled subset of the 466 molecular subjects; no automatic 427 GEO overlap.
+- [ ] For HLC, execute the **direct original Synapse join** `syn88644 curatedExpressionLiver ↔ syn4629 curatedPhenotype` on explicit source donor keys and confirm the same-donor measured CYP-activity subset. Do **not** require or infer a 427-GEO crosswalk when the original Synapse expression entity is available; keep the historical 466-study / 465-current-Synapse-expression / 427-GEO / 398-activity counts distinct.
 - [ ] Site learning bridge remains withheld until at least a reproducible matched quantitative result. Full audit: [SOURCE_AUDIT_AND_FIRST_VALIDATION_GATES_20261016.md](SOURCE_AUDIT_AND_FIRST_VALIDATION_GATES_20261016.md).
 
 ## 2026-10-16 public evidence inventory
 - [x] Verify accessible article/dataset identity for a **21-donor tucatinib CLint + targeted CYP proteomics table** (original public Table 1, PXD057282). This now precedes Wegler as the first direct numerical CLint validation candidate.
 - [x] Identify **GSE289636 (six donor PHH scRNA with paper-supplement CYP substrate clearance)** as a separate *RNA→measured functional activity* proof, not clinical PK; source numeric assay crosswalk remains to verify.
-- [x] Qualify **GSE9588/HLC** as RNA+enzyme activity study (466 original liver cohort vs 427 GEO expression records), but sample-level activity join not public-confirmed; no unverified merge.
+- [x] Qualify **GSE9588/HLC** as RNA+enzyme activity study and identify the direct HLC Synapse source route (`syn88644` expression + `syn4629` phenotype); sample-level activity join still requires explicit source donor keys, with no row-order merge.
 - [x] Identify **137 transplant recipients / 693 plasma samples** with clinical tacrolimus C0 and metabolomics (paper), but original per-sample combined matrices **not confirmed downloadable**, require author approval.
 - [x] Record 115 liver paired and 251 renal recipient SNP GEO series and DeKAF restricted dbGaP pharmacogenomic+TDM sources as genomic baselines, NOT transcriptomics.
 - [x] Incorporate user-confirmed fact: **BIOMARGIN has no PK**. An ABIS join is only an unconfirmed authorized possibility, not a declared dataset.
 - [ ] Start source-provenance, held-out exploratory tucatinib 21-donor proof; do not count pooled HLM as donor.
 - [ ] Qualify original numeric substrate clearance tables for six donor scRNA PHH, before fitting any RNA activity model.
-- [ ] Independently check access and per-donor enzyme assays for the much larger HLC/GSE9588 RNA cohort.
+- [x] Implement a strict **HLC leave-one-site-out E2 benchmark** comparing age+sex, direct CYP RNA, train-selected RNA, train-only PCA4 and inductive SWEET v1 on identical donors. Software uses outer-train-only gene selection/cross-fitting and reports held-site clamp/OOD QC; real numerical execution remains gated on the authorized direct Synapse source join.
 
 Full links, licenses and scientific restrictions: [public Omics×PK data catalogue](PUBLIC_OMICS_PK_DATASET_CATALOGUE_20261016.md).
 
