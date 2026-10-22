@@ -35,7 +35,7 @@ class CrossfitTests(unittest.TestCase):
             subject_ids=self.ids,
             train_ids=self.train if train is None else train,
             test_ids=self.test if test is None else test,
-            tissue="liver", folds=folds)
+            tissue="liver", folds=folds, construction=CONSTRUCTION_V1)
 
     def test_leave_one_out_excludes_the_actual_subject(self):
         r = self.split()
@@ -58,6 +58,15 @@ class CrossfitTests(unittest.TestCase):
             self.assertAlmostEqual(record["features"][gene], expected[gene], places=12)
         self.assertFalse(r["trained_with_pk_pd_target"])
         self.assertFalse(r["equivalent_to_official_sweet"])
+
+
+    def test_build_outer_default_remains_legacy_v0(self):
+        legacy = build_outer_split_features(
+            self.x, genes=self.genes, subject_ids=self.ids,
+            train_ids=self.train, test_ids=self.test, tissue="liver")
+        self.assertEqual(legacy["construction"],CONSTRUCTION_V0)
+        self.assertTrue(all(r["construction"] == CONSTRUCTION_V0
+                            for r in legacy["training"]+legacy["test"]))
 
     def test_test_patient_and_other_test_patients_do_not_change_reference(self):
         first = self.split()
@@ -95,7 +104,8 @@ class CrossfitTests(unittest.TestCase):
         reordered = build_outer_split_features(
             self.x[:, order], genes=self.genes,
             subject_ids=tuple(self.ids[i] for i in order),
-            train_ids=self.train, test_ids=self.test, tissue="liver", folds=3)
+            train_ids=self.train, test_ids=self.test, tissue="liver", folds=3,
+            construction=CONSTRUCTION_V1)
         a = {r["subject_id"]: r["excluded_fold"] for r in original["training"]}
         b = {r["subject_id"]: r["excluded_fold"] for r in reordered["training"]}
         self.assertEqual(a, b)
@@ -132,7 +142,8 @@ class CrossfitTests(unittest.TestCase):
         r = build_outer_split_features(
             self.x, genes=self.genes, subject_ids=self.ids,
             train_ids=self.train, test_ids=self.test, tissue="liver",
-            weight_expression=all_expr, weight_genes=all_genes)
+            weight_expression=all_expr, weight_genes=all_genes,
+            construction=CONSTRUCTION_V1)
         self.assertEqual(r["n_weight_genes"], 40)
         self.assertEqual(len(r["training"]), 13)
         self.assertEqual(len(r["test"]), 5)
@@ -145,7 +156,8 @@ class CrossfitTests(unittest.TestCase):
         r2 = build_outer_split_features(
             self.x, genes=self.genes, subject_ids=self.ids,
             train_ids=self.train, test_ids=self.test, tissue="liver",
-            weight_expression=changed, weight_genes=all_genes)
+            weight_expression=changed, weight_genes=all_genes,
+            construction=CONSTRUCTION_V1)
         self.assertEqual(r["training"], r2["training"])
         self.assertEqual(r["test"][:-1], r2["test"][:-1])
         self.assertEqual(r["outer_reference_fingerprint"], r2["outer_reference_fingerprint"])
