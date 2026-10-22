@@ -18,6 +18,8 @@ except ModuleNotFoundError as exc:
     if exc.name != "numpy":
         raise
     np = None
+    MODE_PASSTHROUGH = None
+    MODE_TRAIN_ZSCORE = None
 
 
 @unittest.skipIf(np is None, "NumPy optional extra not installed")
