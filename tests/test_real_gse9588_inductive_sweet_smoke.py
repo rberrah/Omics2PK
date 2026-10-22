@@ -43,6 +43,14 @@ class SourceFrozenReferenceTests(unittest.TestCase):
         self.assertEqual(n,1100)
 
 
+    def test_historical_sha_reference_formula_is_unchanged(self):
+        gsm=[f"GSM{700000+i}" for i in range(N)]
+        manual=sorted(
+            range(len(gsm)),
+            key=lambda i:(__import__("hashlib").sha256(gsm[i].encode()).hexdigest(),gsm[i])
+        )[:75]
+        self.assertEqual(reference_indices(gsm,"sha256_gsm75"),sorted(manual))
+
     def test_hash_reference_selection_is_order_independent_and_outcome_free(self):
         gsm=[f"GSM{700000+i}" for i in range(N)]
         selected=reference_indices(gsm,"sha256_gsm75")
