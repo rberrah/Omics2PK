@@ -31,35 +31,100 @@ EXPECTED_HASHES = {
 }
 
 
+DRUG_TERMS=("midazolam","omeprazole","bupropion","diclofenac","bufuralol")
+
+
+def _native_pdf_table_shape(page_texts: list[str]) -> dict:
+    """Aggregate native-text table diagnostics without exporting source values.
+
+    No line text, donor identifier, numeric assay value or table cell is
+    returned.  This is a structural gate used to decide whether a source-exact
+    parser is feasible without OCR/figure digitisation.
+    """
+    term_pages=Counter()
+    possible_tables=set()
+    possible_figures=set()
+    pages_with_clint=[]
+    pages_with_both_systems=[]
+    pages_with_all_five_drugs=[]
+    pages_with_dense_candidate_rows=[]
+    dense_row_counts={}
+    donor_keyword_pages=[]
+    for pageno,content in enumerate(page_texts,start=1):
+        folded=content.casefold()
+        if "donor" in folded:
+            donor_keyword_pages.append(pageno)
+        for term in ("clearance","clint","kinetics","donor","cyp3a4",
+                     *DRUG_TERMS,"hepatocyte","microsome"):
+            if term in folded:
+                term_pages[term]+=1
+        if "clint" in folded or "clearance" in folded:
+            pages_with_clint.append(pageno)
+        # Source may spell compartments as HH/HLM or in full.
+        has_hh=bool(re.search(r"\bHH\b",content,re.I) or "hepatocyte" in folded)
+        has_hlm=bool(re.search(r"\bHLM\b",content,re.I) or "microsome" in folded)
+        if has_hh and has_hlm:
+            pages_with_both_systems.append(pageno)
+        if all(drug in folded for drug in DRUG_TERMS):
+            pages_with_all_five_drugs.append(pageno)
+        for match in re.finditer(r"\b(?:Table|TABLE)\s*S?([1-9]\d?)\b",content):
+            possible_tables.add(match.group(1))
+        for match in re.finditer(r"\b(?:Figure|FIGURE|Fig\.?)\s*S?([1-9]\d?)\b",content):
+            possible_figures.add(match.group(1))
+
+        # Native PDF tables often become one row per extracted text line.
+        # Count only the *shape*: >=4 numeric fields plus a relevant assay term
+        # or a compact row with >=6 numeric fields.  Never retain line content.
+        dense=0
+        for line in content.splitlines():
+            nums=re.findall(
+                r"(?<![A-Za-z])[-+]?(?:\d+(?:\.\d*)?|\.\d+)(?:[Ee][-+]?\d+)?",
+                line)
+            lf=line.casefold()
+            relevant=(
+                "clint" in lf or "clearance" in lf
+                or any(drug in lf for drug in DRUG_TERMS)
+                or bool(re.search(r"\b(?:HH|HLM)\b",line,re.I))
+            )
+            if len(nums)>=6 or (relevant and len(nums)>=4):
+                dense+=1
+        if dense:
+            pages_with_dense_candidate_rows.append(pageno)
+            dense_row_counts[str(pageno)]=dense
+    candidate_pages=sorted(set(pages_with_clint) & set(pages_with_dense_candidate_rows))
+    return {
+        "pages_containing_research_terms":dict(sorted(term_pages.items())),
+        "n_distinct_table_number_mentions":len(possible_tables),
+        "n_distinct_figure_number_mentions":len(possible_figures),
+        "pages_with_clearance_or_clint":pages_with_clint,
+        "pages_with_HH_and_HLM_context":pages_with_both_systems,
+        "pages_with_all_five_probe_drugs":pages_with_all_five_drugs,
+        "pages_with_donor_keyword":donor_keyword_pages,
+        "pages_with_numeric_dense_candidate_rows":pages_with_dense_candidate_rows,
+        "numeric_dense_candidate_row_counts_by_page":dense_row_counts,
+        "candidate_native_clint_table_pages":candidate_pages,
+        "native_table_parser_feasible_candidate":bool(candidate_pages),
+        "raw_source_lines_or_values_exported":False,
+    }
+
+
 def pdf_structure(binary: bytes) -> dict:
     from pypdf import PdfReader  # only needed in the dedicated research CI
-    doc = PdfReader(io.BytesIO(binary))
-    term_counts = Counter()
-    populated_pages = 0
-    possible_tables = set()
-    possible_figures = set()
-    for page in doc.pages:
-        # PDF native text only: NO OCR, NO raw assay values exported.
-        content = page.extract_text() or ""
-        if len(content.strip()) > 40:
-            populated_pages += 1
-        for term in ("clearance", "clint", "kinetics", "donor", "CYP3A4",
-                     "midazolam", "bupropion", "omeprazole"):
-            if term.casefold() in content.casefold():
-                term_counts[term] += 1
-        for match in re.finditer(r"\b(?:Table|TABLE)\s*S?([1-9]\d?)\b", content):
-            possible_tables.add(match.group(1))
-        for match in re.finditer(r"\b(?:Figure|FIGURE|Fig\.?)\s*S?([1-9]\d?)\b", content):
-            possible_figures.add(match.group(1))
+    doc=PdfReader(io.BytesIO(binary))
+    page_texts=[page.extract_text() or "" for page in doc.pages]
+    populated_pages=sum(len(x.strip())>40 for x in page_texts)
+    shape=_native_pdf_table_shape(page_texts)
     return {
-        "source": "supporting PDF native text, without extracting donor values",
-        "pdf_pages": len(doc.pages),
-        "pdf_pages_with_native_text": populated_pages,
-        "pages_containing_research_terms": dict(sorted(term_counts.items())),
-        "n_distinct_table_number_mentions": len(possible_tables),
-        "n_distinct_figure_number_mentions": len(possible_figures),
-        "donor_level_clint_table_verified": False,
-        "verification_note": "Keyword and caption counts cannot establish donor-level numerical endpoint availability.",
+        "source":"supporting PDF native text, without extracting donor values",
+        "pdf_pages":len(doc.pages),
+        "pdf_pages_with_native_text":populated_pages,
+        **shape,
+        "donor_level_clint_table_verified":False,
+        "verification_note":(
+            "Structural diagnostics can identify candidate native-text tables, "
+            "but a source-exact donor/drug/system parser with units and missingness "
+            "must pass before donor-level CLint is considered verified."
+        ),
     }
 
 
