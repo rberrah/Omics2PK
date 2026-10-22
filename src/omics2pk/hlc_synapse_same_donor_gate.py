@@ -17,7 +17,12 @@ from typing import Sequence
 
 EXPRESSION_ENTITY = "syn88644"
 PHENOTYPE_ENTITY = "syn4629"
-CURRENT_EXPRESSION_ENTITY_SAMPLES = 465
+CURRENT_SYNAPSE_EXPRESSION_METADATA_N = 465
+PUBLISHED_HLC_EXPRESSION_PROFILED_N = 466
+ALLOWED_AUTHORIZED_EXPRESSION_COUNTS = frozenset({
+    CURRENT_SYNAPSE_EXPRESSION_METADATA_N,
+    PUBLISHED_HLC_EXPRESSION_PROFILED_N,
+})
 HASH = re.compile(r"^[0-9a-f]{64}$")
 ALLOWED_STATUS = {"observed", "blq", "missing", "not_measured"}
 
@@ -52,6 +57,7 @@ class PrivateHLCActivityJoin:
     activity_unit: str
     expression_sha256: str
     phenotype_sha256: str
+    expression_source_unique_donors: int
 
 
 def _text(value, label):
@@ -84,19 +90,20 @@ def join_original_hlc_synapse(
     if not HASH.fullmatch(str(expression_sha256)) or not HASH.fullmatch(str(phenotype_sha256)):
         raise HLCSynapseJoinError("Original source SHA-256 values are required")
     expression_ids = tuple(_text(x, "expression donor ID") for x in expression_donor_ids)
-    if (
-        len(expression_ids) != CURRENT_EXPRESSION_ENTITY_SAMPLES
-        or len(set(expression_ids)) != len(expression_ids)
-    ):
+    if len(set(expression_ids)) != len(expression_ids):
+        raise HLCSynapseJoinError("Expression donor identifiers must be unique")
+    if len(expression_ids) not in ALLOWED_AUTHORIZED_EXPRESSION_COUNTS:
         raise HLCSynapseJoinError(
-            f"Require exactly {CURRENT_EXPRESSION_ENTITY_SAMPLES} unique donors "
-            f"from current {EXPRESSION_ENTITY} expression entity"
+            "Authorized HLC expression source must contain 465 or 466 unique donors; "
+            "the current Synapse metadata and published study counts disagree by one "
+            "and must not be silently collapsed"
         )
     if not phenotype_rows:
         raise HLCSynapseJoinError("Original phenotype rows are missing")
 
     expression_pos = {donor: i for i, donor in enumerate(expression_ids)}
     selected = {}
+    seen_selected_assay_donors = set()
     units = set()
     for row in phenotype_rows:
         if set(row) != set(PHENOTYPE_FIELDS):
@@ -106,8 +113,9 @@ def join_original_hlc_synapse(
         if _text(row["assay_id"], "assay ID") != assay_id:
             continue
         donor = _text(row["donor_id"], "phenotype donor ID")
-        if donor in selected:
+        if donor in seen_selected_assay_donors:
             raise HLCSynapseJoinError("Duplicate donor for selected HLC CYP assay")
+        seen_selected_assay_donors.add(donor)
         status = _text(row["activity_status"], "activity status").lower()
         if status not in ALLOWED_STATUS:
             raise HLCSynapseJoinError("Invalid HLC activity measurement status")
@@ -159,6 +167,7 @@ def join_original_hlc_synapse(
         activity_unit=next(iter(units)),
         expression_sha256=str(expression_sha256),
         phenotype_sha256=str(phenotype_sha256),
+        expression_source_unique_donors=len(expression_ids),
     )
 
 
@@ -171,7 +180,17 @@ def summarize_private_hlc_join(join: PrivateHLCActivityJoin) -> dict:
         "status": "QUALIFIED_DIRECT_HLC_SYNAPSE_SAME_DONOR_JOIN",
         "expression_entity_id": EXPRESSION_ENTITY,
         "phenotype_entity_id": PHENOTYPE_ENTITY,
-        "expression_entity_expected_unique_donors": CURRENT_EXPRESSION_ENTITY_SAMPLES,
+        "expression_source_unique_donors": join.expression_source_unique_donors,
+        "current_synapse_expression_metadata_n": CURRENT_SYNAPSE_EXPRESSION_METADATA_N,
+        "published_HLC_expression_profiled_n": PUBLISHED_HLC_EXPRESSION_PROFILED_N,
+        "expression_count_matches_current_synapse_metadata":
+            join.expression_source_unique_donors == CURRENT_SYNAPSE_EXPRESSION_METADATA_N,
+        "expression_count_matches_published_study":
+            join.expression_source_unique_donors == PUBLISHED_HLC_EXPRESSION_PROFILED_N,
+        "documented_expression_count_discrepancy_present":
+            CURRENT_SYNAPSE_EXPRESSION_METADATA_N != PUBLISHED_HLC_EXPRESSION_PROFILED_N,
+        "expression_count_is_one_documented_source_count":
+            join.expression_source_unique_donors in ALLOWED_AUTHORIZED_EXPRESSION_COUNTS,
         "selected_assay_id": join.assay_id,
         "activity_unit": join.activity_unit,
         "n_same_donor_complete_observations": len(join.donor_ids),
