@@ -31,9 +31,14 @@ silently relabelled as perfectly isoform-specific CYP3A4 activity.
 
 **Ohtsuki 2012** (DOI https://doi.org/10.1124/dmd.111.042259) is the secondary
 independent acquisition target: 17 human livers with absolute protein,
-corresponding mRNA and functional activities. The publisher explicitly reports
-supplemental material, but the required complete donor-level three-view matrix
-has not yet been qualified.
+corresponding mRNA and functional activities. The paper explicitly places
+individual-donor protein data in Supplemental Tables S5/S6, CYP assay conditions
+in S1, and absolute enzyme activities in the supplemental data; analytical
+under-LOQ protein values are also explicitly defined. A fresh source audit on
+22 October 2026 probed both the exact historical ASPET DOI-supplement route and
+the current DMD article route: **both returned HTTP 403**. Thus the experiment
+is strongly publication-supported, but the original donor-level three-view
+file is still not legitimately acquired.
 
 Jamwal 2018 remains a CYP3A4-focused candidate. Its accessible material has not
 provided an authenticated 74-row individual RNA+protein+activity matrix.
@@ -67,8 +72,8 @@ Two local numerical gates are available without bundling original donor data:
 
 - `multicyp_rna_protein_activity_source_gate.py`: preregistered multi-CYP
   donor-LODO RNA / protein / RNA+protein comparison for Zhang n=100 or
-  Ohtsuki n=17, requiring the complete published donor count for every included
-  CYP endpoint;
+  Ohtsuki n=17, requiring every published source donor to remain represented
+  for every included CYP endpoint while BLQ/missing values remain explicit;
 - `cyp3a4_rna_protein_mdz_source_gate.py`: Jamwal-specific n=74 comparator.
 
 The multi-CYP gate refuses arbitrary donor subsets, mixed assay units, multiple
