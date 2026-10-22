@@ -56,6 +56,7 @@ class FrozenInductiveSweetPipeline:
     preprocessor: FrozenTranscriptomePreprocessor
     reference: FrozenReference
     fingerprint: str
+    fingerprint_version: int
 
 
 def _fingerprint_pipeline(
@@ -213,6 +214,7 @@ def fit_frozen_inductive_sweet_pipeline(
         preprocessor=preprocessor,
         reference=reference,
         fingerprint=fingerprint,
+        fingerprint_version=2,
     )
 
 
@@ -263,6 +265,7 @@ def predict_frozen_inductive_sweet_pipeline(
     return {
         "subject_id": subject_id,
         "pipeline_fingerprint": pipeline.fingerprint,
+        "pipeline_fingerprint_version": pipeline.fingerprint_version,
         "preprocessing_fingerprint": pipeline.preprocessor.fingerprint,
         "reference_fingerprint": pipeline.reference.fingerprint,
         "training_subject_count": len(pipeline.reference.subject_ids),
@@ -303,18 +306,18 @@ def frozen_pipeline_manifest(
     pipeline: FrozenInductiveSweetPipeline,
 ) -> dict[str, Any]:
     """Return non-expression metadata suitable for provenance records."""
-    return {
-        "schema": "omics2pk.frozen-inductive-sweet.v2",
+    base = {
+        "schema": (
+            "omics2pk.frozen-inductive-sweet.v1"
+            if pipeline.fingerprint_version == 1
+            else "omics2pk.frozen-inductive-sweet.v2"
+        ),
         "pipeline_fingerprint": pipeline.fingerprint,
         "preprocessing_fingerprint": pipeline.preprocessor.fingerprint,
         "reference_fingerprint": pipeline.reference.fingerprint,
         "training_subject_count": len(pipeline.reference.subject_ids),
         "genes": list(pipeline.genes),
         "edge_genes": list(pipeline.edge_genes),
-        "edge_selection_mode": pipeline.edge_selection_mode,
-        "edge_selection_top_k": pipeline.edge_selection_top_k,
-        "edge_selection_fingerprint": pipeline.edge_selection_fingerprint,
-        "edge_selection_fitted_on_training_only": True,
         "tissue": pipeline.tissue,
         "preprocessing_mode": pipeline.preprocessing_mode,
         "construction": pipeline.construction,
@@ -324,6 +327,16 @@ def frozen_pipeline_manifest(
         "equivalent_to_official_sweet": False,
         "validated_for_pk": False,
     }
+    if pipeline.fingerprint_version == 2:
+        base.update({
+            "edge_selection_mode": pipeline.edge_selection_mode,
+            "edge_selection_top_k": pipeline.edge_selection_top_k,
+            "edge_selection_fingerprint": pipeline.edge_selection_fingerprint,
+            "edge_selection_fitted_on_training_only": True,
+        })
+    elif pipeline.fingerprint_version != 1:
+        raise FrozenSweetPipelineError("Unknown frozen pipeline fingerprint version")
+    return base
 
 
 ARTIFACT_SCHEMA_V1 = "omics2pk.frozen-inductive-sweet.artifact.v1"
@@ -424,9 +437,14 @@ def save_frozen_inductive_sweet_pipeline(
         ),
     )
     arrays_sha256 = _sha256_file(arrays_path)
+    pipeline_manifest = frozen_pipeline_manifest(pipeline)
     manifest = {
-        "schema": ARTIFACT_SCHEMA,
-        "pipeline": frozen_pipeline_manifest(pipeline),
+        "schema": (
+            ARTIFACT_SCHEMA_V1
+            if pipeline.fingerprint_version == 1
+            else ARTIFACT_SCHEMA
+        ),
+        "pipeline": pipeline_manifest,
         "training_subject_ids": list(pipeline.reference.subject_ids),
         "has_scaling_state": has_scaling,
         "arrays": {
