@@ -38,7 +38,10 @@ DRUG_TERMS=("midazolam","omeprazole","bupropion","diclofenac","bufuralol")
 def _redacted_line_skeleton(line: str) -> str:
     """Preserve table words/layout but remove source numeric values and IDs."""
     # Mixed alpha-numeric assay/donor-like tokens are masked before numbers.
-    out=re.sub(r"\b(?=\w*[A-Za-z])(?=\w*\d)[A-Za-z0-9_.-]+\b","<ID>",line)
+    out=re.sub(
+        r"\b(?:donor|sample|subject|batch)[_-]?[A-Za-z0-9_.-]*\b",
+        "<ID>",line,flags=re.I)
+    out=re.sub(r"\b(?=\w*[A-Za-z])(?=\w*\d)[A-Za-z0-9_.-]+\b","<ID>",out)
     out=re.sub(
         r"(?<![A-Za-z])[-+]?(?:\d+(?:\.\d*)?|\.\d+)(?:[Ee][-+]?\d+)?",
         "<NUM>",out)
@@ -63,6 +66,8 @@ def _native_pdf_table_shape(page_texts: list[str]) -> dict:
     dense_row_counts={}
     dense_row_skeletons={}
     donor_keyword_pages=[]
+    table_caption_skeletons={}
+    clearance_context_skeletons={}
     for pageno,content in enumerate(page_texts,start=1):
         folded=content.casefold()
         if "donor" in folded:
@@ -84,6 +89,20 @@ def _native_pdf_table_shape(page_texts: list[str]) -> dict:
             possible_tables.add(match.group(1))
         for match in re.finditer(r"\b(?:Figure|FIGURE|Fig\.?)\s*S?([1-9]\d?)\b",content):
             possible_figures.add(match.group(1))
+
+        lines=content.splitlines()
+        for idx,line in enumerate(lines):
+            if re.search(r"\bTable\s*S?[1-9]\d?\b",line,re.I):
+                context=" ".join(lines[idx:min(len(lines),idx+2)])
+                table_caption_skeletons.setdefault(str(pageno),[]).append(
+                    _redacted_line_skeleton(context))
+            lf=line.casefold()
+            if "clint" in lf or "clearance" in lf or "kinetics" in lf:
+                context=" ".join(lines[max(0,idx-1):min(len(lines),idx+2)])
+                bucket=clearance_context_skeletons.setdefault(str(pageno),[])
+                skeleton=_redacted_line_skeleton(context)
+                if skeleton and skeleton not in bucket and len(bucket)<8:
+                    bucket.append(skeleton)
 
         # Native PDF tables often become one row per extracted text line.
         # Count only the *shape*: >=4 numeric fields plus a relevant assay term
@@ -121,6 +140,8 @@ def _native_pdf_table_shape(page_texts: list[str]) -> dict:
         "pages_with_numeric_dense_candidate_rows":pages_with_dense_candidate_rows,
         "numeric_dense_candidate_row_counts_by_page":dense_row_counts,
         "redacted_candidate_row_skeletons_by_page":dense_row_skeletons,
+        "redacted_table_caption_context_by_page":table_caption_skeletons,
+        "redacted_clearance_context_by_page":clearance_context_skeletons,
         "candidate_native_clint_table_pages":candidate_pages,
         "native_table_parser_feasible_candidate":bool(candidate_pages),
         "raw_source_lines_or_values_exported":False,
