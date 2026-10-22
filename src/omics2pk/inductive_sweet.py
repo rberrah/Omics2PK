@@ -127,7 +127,7 @@ def predict_network(
     tissue: str,
     weight_query: Any | None = None,
     weight_genes: list[str] | tuple[str, ...] | None = None,
-    construction: str = CONSTRUCTION_V1,
+    construction: str = CONSTRUCTION_V0,
 ) -> tuple[np.ndarray, dict[str, Any]]:
     """Compute ONE unseen individual's network from a training-frozen reference.
 
@@ -245,7 +245,7 @@ def crossfit_training_features(
     k: float = 0.1,
     weight_expression: Any | None = None,
     weight_genes: list[str] | tuple[str, ...] | None = None,
-    construction: str = CONSTRUCTION_V1,
+    construction: str = CONSTRUCTION_V0,
 ) -> list[dict[str, Any]]:
     """Build honest, out-of-reference features for TRAINING subjects only.
 
@@ -323,7 +323,7 @@ def build_outer_split_features(
     k: float = 0.1,
     weight_expression: Any | None = None,
     weight_genes: list[str] | tuple[str, ...] | None = None,
-    construction: str = CONSTRUCTION_V1,
+    construction: str = CONSTRUCTION_V0,
 ) -> dict[str, Any]:
     """Use only the outer TRAINING cohort to fit the held-out reference.
 
