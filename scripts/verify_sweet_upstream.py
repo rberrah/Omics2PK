@@ -123,6 +123,183 @@ def compare_archived_legacy_zscore(raw_path: Path, archived_z_path: Path,
         "maximum_absolute_difference_from_legacy_formula": worst,
     }
 
+
+def _run_capture(cmd: list[str], cwd: Path) -> subprocess.CompletedProcess:
+    return subprocess.run(
+        cmd, cwd=cwd, text=True, capture_output=True,
+        timeout=60, check=False,
+    )
+
+
+def _write_expression(path: Path, samples: list[str], rows_: list[tuple[str, list[object]]]) -> None:
+    with path.open("w", encoding="utf-8", newline="") as stream:
+        writer=csv.writer(stream, delimiter="\t", lineterminator="\n")
+        writer.writerow(["gene",*samples])
+        for gene,values in rows_:
+            writer.writerow([gene,*values])
+
+
+def _write_simple_weight(path: Path, samples: list[str]) -> None:
+    with path.open("w", encoding="utf-8", newline="") as stream:
+        writer=csv.writer(stream, delimiter="\t", lineterminator="\n")
+        writer.writerow(["patient","sample_weight"])
+        for sample in samples:
+            writer.writerow([sample,"1.0"])
+
+
+def audit_upstream_edge_cases(upstream: Path) -> dict:
+    """Execute synthetic edge cases on the unmodified pinned upstream scripts.
+
+    These are characterization tests, not proposed fixes to upstream SWEET.
+    No biological or patient data are used.
+    """
+    py=sys.executable
+    step1=str(upstream/SCRIPTS[0])
+    step2=str(upstream/SCRIPTS[1])
+    step3=str(upstream/SCRIPTS[2])
+    samples=["S1","S2","S3","S4"]
+    with tempfile.TemporaryDirectory(prefix="omics2pk-sweet-edge-cases-") as d:
+        root=Path(d)
+
+        # Step 1 does not run the missing-token coercion used by Step 2.
+        na=root/"na"; na.mkdir()
+        _write_expression(na/"expression.txt",samples,[
+            ("g1",[1,"NA",3,4]),("g2",[2,3,5,8]),("g3",[4,6,7,9]),
+        ])
+        na_run=_run_capture(
+            [py,step1,"-f",str(na/"expression.txt"),"-s",str(na/"weight.txt")],na)
+
+        # The literal token "nan" is accepted by float conversion, after which
+        # NumPy correlations/weights become non-finite without a non-zero exit.
+        nan_case=root/"nan"; nan_case.mkdir()
+        _write_expression(nan_case/"expression.txt",samples,[
+            ("g1",[1,"nan",3,4]),("g2",[2,3,5,8]),("g3",[4,6,7,9]),
+        ])
+        nan_run=_run_capture(
+            [py,step1,"-f",str(nan_case/"expression.txt"),
+             "-s",str(nan_case/"weight.txt")],nan_case)
+        nan_weights=[]
+        if (nan_case/"weight.txt").is_file():
+            for row in rows(nan_case/"weight.txt",["patient","sample_weight"]):
+                nan_weights.append(float(row["sample_weight"]))
+        step1_nan_nonfinite=(
+            nan_run.returncode==0 and bool(nan_weights)
+            and any(not math.isfinite(x) for x in nan_weights)
+        )
+
+        # Shared Step 2 fixtures.
+        def run_step2(case: Path, expression_rows, genes=("g1","g2","g3")):
+            case.mkdir()
+            _write_expression(case/"expression.txt",samples,expression_rows)
+            _write_simple_weight(case/"weight.txt",samples)
+            (case/"patient.txt").write_text("S1\n",encoding="utf-8")
+            (case/"gene.txt").write_text("\n".join(genes)+"\n",encoding="utf-8")
+            edges=case/"edges"; edges.mkdir()
+            proc=_run_capture([
+                py,step2,"-f",str(case/"expression.txt"),
+                "-w",str(case/"weight.txt"),"-p",str(case/"patient.txt"),
+                "-g",str(case/"gene.txt"),"-s",str(edges),
+            ],case)
+            output=(edges/"S1.txt").read_text(encoding="utf-8") if (edges/"S1.txt").is_file() else ""
+            return proc,output
+
+        missing2_run,missing2_edges=run_step2(root/"missing2",[
+            ("g1",["NA",2,3,4]),("g2",[1,3,5,8]),("g3",[2,5,4,9]),
+        ])
+        step2_missing_to_zero=(
+            missing2_run.returncode==0
+            and "assigned to 0" in missing2_run.stdout
+            and bool(missing2_edges)
+        )
+
+        zerosum_run,zerosum_edges=run_step2(root/"zerosum",[
+            ("g1",[-1,0,1,0]),("g2",[1,3,5,8]),("g3",[2,5,4,9]),
+        ])
+        zero_sum_gene_deleted=(
+            zerosum_run.returncode==0
+            and "g1" not in zerosum_edges
+            and "g2" in zerosum_edges and "g3" in zerosum_edges
+        )
+
+        constant_run,constant_edges=run_step2(root/"constant",[
+            ("g1",[5,5,5,5]),("g2",[1,3,5,8]),("g3",[2,5,4,9]),
+        ])
+        constant_gene_nonfinite=(
+            constant_run.returncode==0 and "nan" in constant_edges.casefold()
+        )
+
+        # argparse type=bool treats the non-empty string "False" as True.
+        boolcase=root/"bool"; boolcase.mkdir()
+        (boolcase/"patient.txt").write_text("S1\n",encoding="utf-8")
+        edges=boolcase/"edges"; edges.mkdir()
+        (edges/"S1.txt").write_text(
+            "gene1\tgene2\traw_edge_score\n"
+            "g1\tg2\t0.1\n"
+            "g1\tg3\t0.2\n"
+            "g2\tg3\t0.3\n",encoding="utf-8")
+        bool_run=_run_capture([
+            py,step3,"-p",str(boolcase/"patient.txt"),"-l",str(edges),
+            "-s",str(boolcase/"mean_std.txt"),"-z","False",
+        ],boolcase)
+        false_string_enables_zscore=(
+            bool_run.returncode==0 and (edges/"S1_zscore.txt").is_file()
+        )
+
+        # Global edge SD=0 makes z-scoring undefined/non-finite.
+        zerostd=root/"zerostd"; zerostd.mkdir()
+        (zerostd/"patient.txt").write_text("S1\n",encoding="utf-8")
+        zedges=zerostd/"edges"; zedges.mkdir()
+        (zedges/"S1.txt").write_text(
+            "gene1\tgene2\traw_edge_score\n"
+            "g1\tg2\t0.5\n"
+            "g1\tg3\t0.5\n"
+            "g2\tg3\t0.5\n",encoding="utf-8")
+        zerostd_run=_run_capture([
+            py,step3,"-p",str(zerostd/"patient.txt"),"-l",str(zedges),
+            "-s",str(zerostd/"mean_std.txt"),"-z","True",
+        ],zerostd)
+        stats={}
+        if (zerostd/"mean_std.txt").is_file():
+            for line in (zerostd/"mean_std.txt").read_text().splitlines():
+                if line.strip():
+                    key,value=line.split("\t")
+                    stats[key]=float(value)
+        z_nonfinite=False
+        if (zedges/"S1_zscore.txt").is_file():
+            for row in rows(zedges/"S1_zscore.txt",["gene1","gene2","z_score"]):
+                if not math.isfinite(float(row["z_score"])):
+                    z_nonfinite=True
+                    break
+        zero_std_undefined=(
+            zerostd_run.returncode==0 and stats.get("std")==0.0 and z_nonfinite
+        )
+
+    observed={
+        "step1_NA_token_returns_nonzero":na_run.returncode!=0,
+        "step1_literal_nan_can_emit_nonfinite_weights":step1_nan_nonfinite,
+        "step2_missing_token_is_coerced_to_zero":step2_missing_to_zero,
+        "step2_nonconstant_zero_sum_gene_is_deleted":zero_sum_gene_deleted,
+        "step2_constant_nonzero_gene_can_emit_nan_edges":constant_gene_nonfinite,
+        "step3_dash_z_False_string_still_generates_zscores":false_string_enables_zscore,
+        "step3_zero_global_edge_sd_produces_nonfinite_zscores":zero_std_undefined,
+    }
+    if not all(observed.values()):
+        raise ReproductionError(
+            "Pinned SWEET edge-case behavior changed; review qualification before proceeding: "
+            +json.dumps(observed,sort_keys=True))
+    return {
+        **observed,
+        "synthetic_only":True,
+        "qualification_interpretation":{
+            "missingness":"Step 1 and Step 2 are inconsistent; Omics2PK forbids missing expression before SWEET.",
+            "zero_sum":"Step 2 tests row sum==0, not all-zero/variance; Omics2PK rejects nonconstant zero-sum genes.",
+            "constant_profiles":"Undefined Pearson correlations are possible; Omics2PK rejects constant genes/samples.",
+            "z_flag":"Do not pass '-z False'; argparse bool treats non-empty strings as true.",
+            "zero_edge_sd":"Z-score standardization is undefined; raw edge summaries must fail closed on degenerate networks.",
+        },
+    }
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--upstream", type=Path, required=True)
@@ -241,10 +418,13 @@ def main() -> None:
                 f"Archived SWEET z-scores differ from algorithm output: "
                 f"{zs['mismatched']} / {zs['compared']} mismatches")
 
+    edge_case_audit=audit_upstream_edge_cases(upstream)
+
     report = {
         "upstream_repository": "https://github.com/SysMednet/SWEET",
         "upstream_commit": UPSTREAM_SHA,
         "reference_cohort_sample_count": cohort_sample_count,
+        "synthetic_edge_case_audit":edge_case_audit,
         "requested_network_count": len(patient_ids),
         "sample_weights": weights,
         "first_patient_edge_scores": edges,
