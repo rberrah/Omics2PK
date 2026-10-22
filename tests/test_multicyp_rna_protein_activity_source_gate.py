@@ -123,6 +123,16 @@ class MultiCYPSourceGateTests(unittest.TestCase):
         with self.assertRaisesRegex(MultiCYPSourceNotQualified,"exactly 100"):
             source_contract(rows)
 
+    def test_included_cyps_must_retain_identical_source_donor_cohort(self):
+        rows=rows_for("10.1124/dmd.111.042259",17,("CYP3A4","CYP2C9"))
+        for row in rows:
+            if row["cyp_isoform"]=="CYP2C9" and row["donor_id"]=="SYNTH_016":
+                row["donor_id"]="SYNTH_REPLACEMENT"
+                break
+        with self.assertRaisesRegex(
+                MultiCYPSourceNotQualified,"same source donor cohort"):
+            source_contract(rows)
+
     def test_duplicate_donor_cyp_is_rejected(self):
         rows=rows_for("10.1124/dmd.111.042259",17)
         rows.append(dict(rows[0]))
