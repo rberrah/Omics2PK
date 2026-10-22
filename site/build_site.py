@@ -248,18 +248,6 @@ def learn(base):
     # Legacy route kept for old links; the navigation now points to /guide/.
     return guide(base)
 
-def learn(base):
-    return ('<section class="small-hero"><p class="eyebrow">Learn / Apprendre</p>'
-        +t('Des omiques à la PK : ce que mesure chaque étape','From omics to PK: what each stage measures','h1')
-        +t('La validation biologique ne remplace pas la validation chez des patients exposés au médicament.',
-           'Biological validation does not substitute for validation in treated patients.','p','lede')+'</section>'
-        '<section class="section" id="sources"><div class="cards">'
-        +card('01','Préparer une matrice omique','Prepare an omics matrix','Identifier les donneurs, distinguer qPCR, protéomique et métabolomique, vérifier les unités, l’origine et la chronologie.','Link original donors; identify qPCR, proteomics and metabolomics, units, provenance and timing.',MULTIOMICS,'Découvrir MultiOmics','Explore MultiOmics',base=base)
-        +card('02','Relier omiques et métabolisme','Connect omics and metabolism','Comparer ARN/protéines et activité CYP/NAT ou CLint au même donneur, avec validation donneur exclu.','Match CYP/NAT activity or CLint to molecular features in the same biological donor, using donor-held-out validation.','analyze/','Voir les preuves','View evidence',base=base)
-        +card('03','Passer aux observations PK','Advance to observed PK','Exiger dose, temps, formulation, concentrations et covariables individuelles ; comparer aux modèles NLME/popPK pertinents.','Require observed doses, time, formulation, concentrations and individual covariates, then compare to appropriate NLME/PopPK baselines.','resources/','Lire le protocole','Read the protocol',base=base)
-        +'</div></section><section class="callout">'+t('Important : la formation d’un métabolite in vitro n’est ni une concentration plasmatique, ni une AUC, ni une recommandation de dose.',
-          'Important: in-vitro metabolite formation is neither a plasma concentration, an AUC, nor a dose recommendation.','p')+'</section>')
-
 def analyze(base):
     return ('<section class="small-hero"><p class="eyebrow">Analyze · en cours / in development</p>'
         +t('L’outil d’analyse Omics2PK n’est pas encore publié','The Omics2PK analysis tool is not published yet','h1')
