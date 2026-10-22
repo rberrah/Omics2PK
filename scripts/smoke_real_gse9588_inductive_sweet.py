@@ -133,6 +133,9 @@ def real_gse_frozen_network_smoke(gsm,probe_values,n_probes):
 
     legacy=project(CONSTRUCTION_V0)
     v1=project(CONSTRUCTION_V1)
+    if (v1["n_projected_individual_graph_hash_collisions"]
+            > legacy["n_projected_individual_graph_hash_collisions"]):
+        raise ValueError("Query-anchored v1 unexpectedly increases graph collisions")
     return {
         "status":"REAL_PUBLIC_GSE9588_MICROARRAY_FROZEN_GRAPH_SOFTWARE_SMOKE_ONLY",
         "authentic_source_accession":"GSE9588",
