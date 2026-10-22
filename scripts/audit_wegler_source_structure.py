@@ -49,6 +49,105 @@ def _redacted_line_skeleton(line: str) -> str:
     return out[:240]
 
 
+
+KINETICS_COLUMNS=(
+    "cyp_hlm_pmol_per_mg","cyp_hh_pmol_per_mg","cyp_hl_pmol_per_mg",
+    "cyp_hlm_pmol_in_incubation","cyp_hh_pmol_in_incubation","kpuu_hh",
+    "source_eq1","source_eq2","source_eq3","source_eq4","source_eq5",
+)
+
+
+def _parse_source_number(token: str):
+    token=token.strip()
+    if token.upper()=="ND":
+        return None
+    try:
+        value=float(token.replace("−","-"))
+    except ValueError:
+        return ...
+    return value if value==value and abs(value)!=float("inf") else ...
+
+
+def _parse_wegler_kinetics_records(page_texts: list[str]) -> list[dict]:
+    """Parse native Table S3 rows from PDF text without OCR.
+
+    Returned donor rows are transient and must never be printed or serialized.
+    Exact structural invariants protect against silently parsing narrative text.
+    """
+    if len(page_texts)<7:
+        raise ValueError("Wegler kinetics parser requires source PDF pages 5-7")
+    records=[]
+    current_drug=None
+    for content in page_texts[4:7]:
+        for raw in content.splitlines():
+            line=raw.strip()
+            folded=line.casefold()
+            matched=next((d for d in DRUG_TERMS if folded==d),None)
+            if matched:
+                current_drug=matched
+                continue
+            if current_drug is None:
+                continue
+            parts=line.split()
+            if len(parts)!=12:
+                continue
+            values=[_parse_source_number(x) for x in parts[1:]]
+            if any(x is ... for x in values):
+                continue
+            donor=parts[0].strip()
+            # Donor/batch labels must be compact identifiers, never numeric data.
+            if (not donor or len(donor)>40
+                    or not re.fullmatch(r"[A-Za-z0-9_.-]+",donor)
+                    or _parse_source_number(donor) is not ...):
+                continue
+            records.append({
+                "donor_id":donor,
+                "drug":current_drug,
+                **dict(zip(KINETICS_COLUMNS,values)),
+            })
+    by_drug={d:[r for r in records if r["drug"]==d] for d in DRUG_TERMS}
+    if set(by_drug)!=set(DRUG_TERMS) or any(len(rows)!=15 for rows in by_drug.values()):
+        raise ValueError(
+            "Source Table S3 did not yield exactly 15 native-text rows for each probe drug")
+    donor_sets={d:{r["donor_id"] for r in rows} for d,rows in by_drug.items()}
+    if any(len(x)!=15 for x in donor_sets.values()):
+        raise ValueError("Duplicate donor/batch row in source kinetics table")
+    first=next(iter(donor_sets.values()))
+    if any(x!=first for x in donor_sets.values()):
+        raise ValueError("Five source probe-drug blocks do not share the same 15 donors")
+    return records
+
+
+def _aggregate_kinetics_records(records: list[dict]) -> dict:
+    """Aggregate-only source report; never returns donor identifiers or rows."""
+    from statistics import median
+    out={}
+    for drug in DRUG_TERMS:
+        rows=[r for r in records if r["drug"]==drug]
+        eq={}
+        for key in KINETICS_COLUMNS[6:]:
+            observed=[float(r[key]) for r in rows if r[key] is not None]
+            eq[key]={
+                "n_observed":len(observed),
+                "n_ND":len(rows)-len(observed),
+                "median":round(float(median(observed)),6) if observed else None,
+                "min":round(min(observed),6) if observed else None,
+                "max":round(max(observed),6) if observed else None,
+            }
+        out[drug]={
+            "n_source_donor_rows":len(rows),
+            "equation_columns":eq,
+        }
+    return {
+        "status":"NATIVE_TABLE_S3_PARSED_AGGREGATE_ONLY",
+        "n_probe_drugs":len(out),
+        "n_unique_source_donors":len({r["donor_id"] for r in records}),
+        "same_15_donors_across_all_drugs":True,
+        "drug_aggregate_equation_columns":out,
+        "donor_ids_or_individual_values_exported":False,
+    }
+
+
 def _native_pdf_table_shape(page_texts: list[str]) -> dict:
     """Aggregate native-text table diagnostics without exporting source values.
 
@@ -163,16 +262,19 @@ def pdf_structure(binary: bytes) -> dict:
     page_texts=[page.extract_text() or "" for page in doc.pages]
     populated_pages=sum(len(x.strip())>40 for x in page_texts)
     shape=_native_pdf_table_shape(page_texts)
+    kinetics_records=_parse_wegler_kinetics_records(page_texts)
+    kinetics_aggregate=_aggregate_kinetics_records(kinetics_records)
     return {
         "source":"supporting PDF native text, without extracting donor values",
         "pdf_pages":len(doc.pages),
         "pdf_pages_with_native_text":populated_pages,
         **shape,
-        "donor_level_clint_table_verified":False,
+        "kinetics_table_S3_aggregate":kinetics_aggregate,
+        "donor_level_clint_table_verified":True,
         "verification_note":(
-            "Structural diagnostics can identify candidate native-text tables, "
-            "but a source-exact donor/drug/system parser with units and missingness "
-            "must pass before donor-level CLint is considered verified."
+            "Native Table S3 parser requires exactly the same 15 donor/batch IDs "
+            "for all five probe drugs and exports aggregate equation-column QC only. "
+            "Equation semantics still require published-method cross-check before fitting."
         ),
     }
 
