@@ -92,8 +92,9 @@ Full source-level audit: [REAL_MULTIOMICS_OUTPUT_AUDIT_AND_PK_ADAPTER_GAPS_20261
 ## P1 — reproducibility and SWEET
 - [x] Pin the upstream SWEET SHA (`cf064eb5f5b996c40bba3cce507384f6c0fdecb5`) in documentation; upstream code is **not** redistributed.
 - [x] Implement strict SWEET edge-output reader and tabular **M1bis feature export** with synthetic tests (not network inference).
-- [x] Reproduce official SWEET sample weights (80/80), one full individual raw edge set (4,753/4,753), and global summary. **Archived z-scores differ (4,753/4,753); tracked in issue #4; never claim complete equivalence.**
-- [ ] Audit SWEET handling of zero variance, zeros, missing values, and the -z flag.
+- [x] Reproduce official SWEET sample weights (80/80), raw edges and global summary. **Archived z-score mismatch root cause resolved:** historical upstream code used `raw - mean/std`; current code uses the correct `(raw-mean)/std`. Both archived 4,753-edge patient files match the legacy precedence bug exactly and are rejected as current numeric references.
+- [x] Qualify the SWEET `-z` behavior and archived-output provenance; current parenthesized formula is the only allowed reference in Omics2PK.
+- [ ] Audit remaining SWEET handling of zero variance, zeros and missing values independently of the resolved archive bug.
 - [x] Prototype a clearly labeled **non-equivalent SWEET-inspired** training-frozen reference and query-only network (PR #3).
 - [x] Add subject-disjoint training leave-one-out/cross-fitting and outer train/test feature construction, with negative leakage tests (PR #3, merged).
 - [x] Separate genome-wide sample weights (100 official example genes) from a targeted edge panel (25 fixed-order genes), and compare against the official transductive equation. Public diagnostic: 60 train/20 held-out, one clipped weight, ~27.1% relative Frobenius difference for one test network. No outcomes or clinical validation.

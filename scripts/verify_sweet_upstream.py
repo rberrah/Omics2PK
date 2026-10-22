@@ -89,6 +89,40 @@ def compare_csv(actual: Path, reference: Path, fields: list[str],
             "maximum_absolute_difference": worst, "matches_archive": mismatches == 0}
 
 
+
+
+def compare_archived_legacy_zscore(raw_path: Path, archived_z_path: Path,
+                                   mean_value: float, std_value: float) -> dict:
+    """Identify archived values created by the historical precedence bug.
+
+    Older SWEET source computed raw - mean/std before upstream corrected the
+    line to (raw - mean)/std. This identifies provenance; it never endorses
+    the legacy values as valid z-scores.
+    """
+    raw_rows = rows(raw_path, ["gene1", "gene2", "raw_edge_score"])
+    archived_rows = rows(archived_z_path, ["gene1", "gene2", "z_score"])
+    raw_map = {(r["gene1"], r["gene2"]): float(r["raw_edge_score"]) for r in raw_rows}
+    archived_map = {(r["gene1"], r["gene2"]): float(r["z_score"]) for r in archived_rows}
+    if set(raw_map) != set(archived_map):
+        raise ReproductionError("Archived z-score keys do not match raw edge keys")
+    legacy_offset = mean_value / std_value
+    mismatches = 0
+    worst = 0.0
+    for key, raw_value in raw_map.items():
+        expected = raw_value - legacy_offset
+        observed = archived_map[key]
+        diff = abs(observed - expected)
+        worst = max(worst, diff)
+        if diff > ATOL + RTOL * abs(expected):
+            mismatches += 1
+    return {
+        "compared": len(raw_map),
+        "mismatched_legacy_formula": mismatches,
+        "matches_legacy_raw_minus_mean_over_std": mismatches == 0,
+        "legacy_offset_mean_over_std": legacy_offset,
+        "maximum_absolute_difference_from_legacy_formula": worst,
+    }
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--upstream", type=Path, required=True)
@@ -177,6 +211,15 @@ def main() -> None:
             example / f"{first}_zscore.txt",
             ["gene1", "gene2", "z_score"], "z_score",
             allow_discrepancy=True)
+        legacy_archive_checks = {}
+        for patient in patient_ids:
+            legacy_archive_checks[patient] = compare_archived_legacy_zscore(
+                edge_dir / f"{patient}.txt",
+                example / f"{patient}_zscore.txt",
+                expected_stats["mean"], expected_stats["std"])
+        archived_files_match_legacy_bug = all(
+            item["matches_legacy_raw_minus_mean_over_std"]
+            for item in legacy_archive_checks.values())
         raw_rows = rows(edge_dir / f"{first}.txt", ["gene1", "gene2", "raw_edge_score"])
         computed_rows = rows(edge_dir / f"{first}_zscore.txt",
                              ["gene1", "gene2", "z_score"])
@@ -208,15 +251,29 @@ def main() -> None:
         "first_patient_archived_z_scores": zs,
         "recomputed_zscore_formula_verified_edges": recomputed_z_checks,
         "archived_zscore_discrepancy": zs["mismatched"] > 0,
+        "archived_zscore_legacy_precedence_provenance": legacy_archive_checks,
+        "archived_zscore_files_match_legacy_bug": archived_files_match_legacy_bug,
+        "legacy_bug_formula": "raw_edge_score - mean/std",
+        "correct_current_formula": "(raw_edge_score - mean)/std",
+        "upstream_history_note": (
+            "Archived example z-scores match the historical operator-precedence bug; "
+            "current upstream source has corrected parentheses, but archived z-score files were not regenerated."
+            if archived_files_match_legacy_bug else
+            "Archived z-score provenance not fully explained by the known historical precedence bug."
+        ),
         "published_global_mean": expected_stats["mean"],
         "published_global_std": expected_stats["std"],
         "numerical_absolute_tolerance": ATOL,
         "numerical_relative_tolerance": RTOL,
-        "result": ("CORE_REPRODUCED_BUT_ARCHIVED_ZSCORES_INCONSISTENT" if zs["mismatched"]
-                   else "FULL_OFFICIAL_EXAMPLE_REPRODUCED"),
+        "result": (
+            "CORE_REPRODUCED_ARCHIVED_ZSCORES_IDENTIFIED_AS_LEGACY_PRECEDENCE_BUG"
+            if zs["mismatched"] and archived_files_match_legacy_bug
+            else ("CORE_REPRODUCED_BUT_ARCHIVED_ZSCORES_UNEXPLAINED" if zs["mismatched"]
+                  else "FULL_OFFICIAL_EXAMPLE_REPRODUCED")
+        ),
         "does_not_establish": [
             "out-of-sample network inference", "lack of transductive leakage",
-            "complete archived z-score reproduction when discrepancy flag is true",
+            "validity of the legacy archived z-score values as z-scores",
             "biological significance", "PK or PD prediction", "clinical validation",
         ],
     }

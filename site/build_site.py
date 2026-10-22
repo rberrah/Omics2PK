@@ -118,7 +118,7 @@ def home(base):
 def demo(base):
     metformin=REPO+'/blob/main/docs/E3_REAL_METFORMIN33_PREDOSE_384_OMICS_AUC_CLR_HELDOUT_20261018.md'
     epa=REPO+'/blob/main/docs/EPA_100_LIVER_EIGHT_CYP_BONFERRONI_REAL_RESULTS_20261017.md'
-    jarmusch=REPO+'/blob/main/docs/JARMUSCH14_PUBLIC_REAL_CLINICAL_PK_PGX_20261018.md'
+    jarmusch=REPO+'/blob/main/docs/JARMUSCH14_ORIGINAL_GNPS_BIOM_TO_REAL_MIDAZOLAM_PK_20261019.md'
     return ('<section class="small-hero"><p class="eyebrow">Apprendre · Objectif / Learn · Objective</p>'
         +t('Pourquoi Omics2PK ?', 'Why Omics2PK?','h1')
         +t('La question n’est pas « peut-on entraîner un modèle avec des omiques ? », mais « un état moléculaire mesuré avant l’exposition apporte-t-il une information PK utile au-delà de ce que l’on savait déjà ? »',
@@ -145,9 +145,14 @@ def demo(base):
         +t('Deuxième raison : le potentiel génétique et l’état fonctionnel ne sont pas la même chose','Second reason: genetic potential and functional state are not the same thing','h2')
         +t('Dans 13 volontaires avec PK CYP3A répétée, une mesure fonctionnelle antérieure par sonde midazolam est numériquement meilleure que le génotype CYP disponible pour prédire la PK ultérieure : MAE 3,09465 contre 4,19763 sur l’échelle numérique source. L’intervalle descriptif du contraste est favorable, mais n13 reste très petit.',
            'In 13 volunteers with repeated CYP3A PK, a prior midazolam functional probe is numerically better than available CYP genotype for predicting later PK: MAE 3.09465 versus 4.19763 on the source numerical scale. The descriptive contrast interval is favorable, but n13 remains very small.','p')
+        +t('Le même jeu fournit aussi une vraie métabolomique plasmatique pré-dose GNPS appariée à la PK et au CYP3A4/5. Quand 6 349 features MS1 sont résumées par deux composantes PCA apprises uniquement dans chaque train, elles n’améliorent pas la référence clinique + PGx.',
+           'The same study also provides genuine predose GNPS plasma metabolomics paired with PK and CYP3A4/5. When 6,349 MS1 features are summarized by two PCA components learned only within each training fold, they do not improve the clinical + PGx reference.','p')
+        +'<table><thead><tr><th>Midazolam</th><th>Clinique + PGx MAE</th><th>+ MS1 PCA2 MAE</th><th>ΔMAE omique</th></tr></thead><tbody>'
+        '<tr><td>Jour 1 · n=13</td><td>7.343413</td><td>9.888019</td><td>+2.544607 (worse)</td></tr>'
+        '<tr><td>Jour 9 · n=12</td><td>4.601193</td><td>4.748841</td><td>+0.147648 (worse)</td></tr></tbody></table>'
         +'<div class="takeaway"><strong>'+t('Pourquoi c’est utile','Why this matters')+'</strong>'
-        +t('Cela illustre le concept de phénotype dynamique que les omiques pourraient approcher. Mais une PK de sonde administrée est déjà un test fonctionnel pharmacologique : ce n’est pas une preuve que les omiques battent le génotype.','It illustrates the dynamic phenotype concept that omics may approximate. But an administered probe PK is already a pharmacological functional test; it is not evidence that omics outperform genotype.','span')+'</div>'
-        +a(jarmusch,'Rapport clinique/PGx complet ↗','Full clinical/PGx report ↗',base=base,external=True)
+        +t('Le phénotype fonctionnel et le génotype ne sont pas interchangeables, mais une omique pré-dose authentique n’est pas automatiquement meilleure. Ici, la représentation globale MS1 dégrade la prédiction : Omics2PK conserve ce résultat négatif au lieu de sélectionner une histoire positive.','Functional phenotype and genotype are not interchangeable, but genuine predose omics are not automatically better. Here, the global MS1 representation worsens prediction: Omics2PK retains this negative result rather than selecting a positive story.','span')+'</div>'
+        +a(jarmusch,'Benchmark Jarmusch omiques + PK + PGx ↗','Jarmusch omics + PK + PGx benchmark ↗',base=base,external=True)
         +'</div></section>'
         '<section class="evidence-step" id="metformin"><div class="step-number">3</div><div>'
         +t('Troisième raison : quand on teste enfin Omics→PK chez de vrais patients, le résultat peut être négatif','Third reason: when Omics→PK is finally tested in real patients, the result may be negative','h2')
@@ -164,8 +169,8 @@ def demo(base):
         +'</div></section>'
         '<section class="conclusion-panel" id="conclusion">'
         +t('Alors, pourquoi continuer ?', 'So why continue?','h2')
-        +t('Parce que les trois étages ne donnent pas la même réponse : la plausibilité biologique existe ; un état fonctionnel peut apporter une information distincte du génotype ; mais le premier benchmark clinique omique du dépôt ne démontre pas encore de gain incrémental. La bonne question de recherche reste donc ouverte.',
-           'Because the three evidence levels do not give the same answer: biological plausibility exists; functional state can add information distinct from genotype; but the repository’s first clinical omics benchmark does not yet demonstrate incremental gain. The research question therefore remains open.','p')
+        +t('Parce que les niveaux de preuve ne donnent pas la même réponse : la plausibilité biologique existe ; un état fonctionnel peut apporter une information distincte du génotype ; mais les benchmarks cliniques Jarmusch et metformine ne démontrent pas de gain incrémental de leur représentation omique globale. La bonne question de recherche reste donc ouverte.',
+           'Because the evidence levels do not give the same answer: biological plausibility exists; functional state can add information distinct from genotype; but the Jarmusch and metformin clinical benchmarks do not demonstrate incremental gain from their global omics representations. The research question therefore remains open.','p')
         +'<div class="decision-flow"><span>'+t('Plausible biologiquement','Biologically plausible')+'</span><b>→</b><span>'+t('Testable proprement','Can be tested rigorously')+'</span><b>→</b><span>'+t('Pas encore démontré en général','Not yet generally established')+'</span></div>'
         +'<div class="cta">'+a('guide/','Voir comment construire le test','See how to build the test',base=base)
         +'<a class="btn btn-outline" href="'+base+'analyze/" data-fr="État du futur outil Analyze" data-en="Status of the future Analyze tool">État du futur outil Analyze</a></div>'
@@ -294,7 +299,7 @@ def disciplines(base):
 def resources(base):
     refs=[
         ('Clinical Omics→PK: metformin n32 predose metabolomics + measured AUC/CLr',REPO+'/blob/main/docs/E3_REAL_METFORMIN33_PREDOSE_384_OMICS_AUC_CLR_HELDOUT_20261018.md'),
-        ('Clinical functional phenotype vs PGx: Jarmusch CYP probes',REPO+'/blob/main/docs/JARMUSCH14_PUBLIC_REAL_CLINICAL_PK_PGX_20261018.md'),
+        ('Clinical Omics→PK+PGx: Jarmusch predose GNPS MS1 + measured midazolam PK',REPO+'/blob/main/docs/JARMUSCH14_ORIGINAL_GNPS_BIOM_TO_REAL_MIDAZOLAM_PK_20261019.md'),
         ('100 human livers – original U.S. EPA paired RNA/activity','https://doi.org/10.23719/1519197'),
         ('Original EPA source and multiplicity-corrected numerical results',REPO+'/blob/main/docs/EPA_100_LIVER_EIGHT_CYP_BONFERRONI_REAL_RESULTS_20261017.md'),
         ('Fair single- vs multi-omics → observed PK protocol',REPO+'/blob/main/docs/MULTIMODAL_PK_ABLATION_SOFTWARE_QUALIFICATION_20261019.md'),

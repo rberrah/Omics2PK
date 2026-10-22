@@ -70,10 +70,11 @@ class Omics2PKPagesTests(unittest.TestCase):
         demo=(self.root/"demo/index.html").read_text(encoding="utf-8")
         self.assertIn('data-testid="central-hypothesis"',demo)
         for term in ("−5.589","−11.757","−337.278","3,09465","4,19763",
+                     "7.343413","9.888019","4.601193","4.748841",
                      "2826.0472","2825.0240","115.1113","118.1449"):
             self.assertIn(term,demo)
         self.assertIn("valeur ajoutée moléculaire n’est pas confirmée",demo)
-        self.assertIn("ce n’est pas une preuve que les omiques battent le génotype",demo)
+        self.assertIn("Omics2PK conserve ce résultat négatif",demo)
         self.assertIn("Pourquoi Omics2PK",demo)
         self.assertIn("Apprendre · Objectif",demo)
         self.assertNotIn("lancer l’analyse",demo.lower())
