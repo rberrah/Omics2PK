@@ -106,6 +106,7 @@ def home(base):
         +t('Ce que les données actuelles permettent déjà de dire', 'What current evidence already allows us to say','h2')
         +'<div class="cards">'
         +card('WHY · biological plausibility','ARN hépatique et activité CYP','Liver RNA and CYP activity','Sur 100 foies humains, certains transcrits CYP ajoutent un signal prédictif de l’activité enzymatique au-delà de l’âge et du sexe. Cela justifie la question biologique, pas une conclusion de PK clinique.','In 100 human livers, some CYP transcripts add predictive signal for enzyme activity beyond age and sex. This supports the biological question, not a clinical PK conclusion.','demo/#epa','Comprendre pourquoi','Understand why',base=base)
+        +card('WHY · functional protein','Protéine CYP et CLint mesurée','CYP protein and measured CLint','Chez 15 donneurs hépatiques, la quantité du CYP correspondant améliore la prédiction tenue à l’écart du CLint de certains substrats en hépatocytes, mais pas de façon universelle ni en PK clinique.','In 15 human liver donors, corresponding CYP abundance improves held-donor prediction of CLint for some substrates in hepatocytes, but not universally and not in clinical PK.','demo/#wegler','Voir la preuve fonctionnelle','See the functional evidence',base=base)
         +card('WHY · phenotype vs genotype','État fonctionnel et génotype','Functional state and genotype','Chez 13 volontaires CYP3A, un phénotype fonctionnel antérieur par sonde midazolam prédit mieux la PK ultérieure que le génotype dans ce petit jeu. Ce phénotype n’est toutefois pas une omique.','In 13 CYP3A volunteers, a prior midazolam functional phenotype predicts later PK better than genotype in this small dataset. That phenotype is not an omics measurement.','demo/#jarmusch','Voir la nuance','See the nuance',base=base)
         +card('WHY · clinical reality','Métabolome pré-dose → PK metformine','Predose metabolome → metformin PK','Premier benchmark humain Omics→PK authentique du dépôt : 32 personnes avec métabolomique pré-dose et AUC/CLr mesurées. L’ajout des omiques au modèle clinique n’améliore pas clairement la prédiction.','First authentic human Omics→PK benchmark in the repository: 32 people with predose metabolomics and measured AUC/CLr. Adding omics to the clinical model does not clearly improve prediction.','demo/#metformin','Voir le résultat','See the result',base=base)
         +'</div></section><section class="resource-band">'
@@ -119,6 +120,7 @@ def demo(base):
     metformin=REPO+'/blob/main/docs/E3_REAL_METFORMIN33_PREDOSE_384_OMICS_AUC_CLR_HELDOUT_20261018.md'
     epa=REPO+'/blob/main/docs/EPA_100_LIVER_EIGHT_CYP_BONFERRONI_REAL_RESULTS_20261017.md'
     jarmusch=REPO+'/blob/main/docs/JARMUSCH14_ORIGINAL_GNPS_BIOM_TO_REAL_MIDAZOLAM_PK_20261019.md'
+    wegler=REPO+'/blob/main/docs/WEGLER_SOURCE_STRUCTURE_RESULTS_20261016.md'
     return ('<section class="small-hero"><p class="eyebrow">Apprendre · Objectif / Learn · Objective</p>'
         +t('Pourquoi Omics2PK ?', 'Why Omics2PK?','h1')
         +t('La question n’est pas « peut-on entraîner un modèle avec des omiques ? », mais « un état moléculaire mesuré avant l’exposition apporte-t-il une information PK utile au-delà de ce que l’on savait déjà ? »',
@@ -141,8 +143,24 @@ def demo(base):
         +t('Un état moléculaire peut contenir de l’information fonctionnelle. Cela ne prouve ni une AUC, ni une clairance systémique, ni une meilleure dose chez un patient.','Molecular state can contain functional information. This proves neither AUC, systemic clearance nor a better patient dose.','span')+'</div>'
         +a(epa,'Rapport source et multiplicité ↗','Source and multiplicity report ↗',base=base,external=True)
         +'</div></section>'
-        '<section class="evidence-step" id="jarmusch"><div class="step-number">2</div><div>'
-        +t('Deuxième raison : le potentiel génétique et l’état fonctionnel ne sont pas la même chose','Second reason: genetic potential and functional state are not the same thing','h2')
+        '<section class="evidence-step" id="wegler"><div class="step-number">2</div><div>'
+        +t('Deuxième raison : une couche moléculaire proche de la fonction peut devenir prédictive','Second reason: a molecular layer close to function can become predictive','h2')
+        +t('Dans la source Wegler originale, 15 mêmes donneurs hépatiques ont des quantités de CYP et un CLint mesuré pour cinq substrats, en hépatocytes humains et microsomes. Omics2PK compare, médicament par médicament, une moyenne d’entraînement à un modèle utilisant uniquement la quantité du CYP correspondant, avec un donneur entièrement tenu à l’écart.',
+           'In the original Wegler source, the same 15 human liver donors have CYP abundance and measured CLint for five substrates in human hepatocytes and microsomes. Omics2PK compares, drug by drug, a training mean with a model using only the corresponding CYP abundance while holding one donor fully out.','p')
+        +'<table><thead><tr><th>HH · substrat</th><th>Δ log-MAE protéine − baseline</th><th>Bootstrap descriptif 95%</th></tr></thead><tbody>'
+        '<tr><td>Midazolam</td><td>−0.2724</td><td>[−0.4603, −0.1115]</td></tr>'
+        '<tr><td>Oméprazole</td><td>−0.4721</td><td>[−0.7624, −0.1496]</td></tr>'
+        '<tr><td>Diclofénac</td><td>−0.0905</td><td>[−0.1624, −0.0110]</td></tr>'
+        '<tr><td>Bupropion</td><td>−0.0124</td><td>[−0.0589, 0.0322]</td></tr>'
+        '<tr><td>Bufuralol</td><td>+0.0347</td><td>[−0.0024, 0.0794]</td></tr></tbody></table>'
+        +t('Dans les microsomes, l’amélioration poolée descriptive est presque nulle (Δ log-MAE −0,0084) et les cinq intervalles par médicament traversent zéro. Le signal dépend donc du substrat et du système expérimental.',
+           'In microsomes, the pooled descriptive improvement is nearly null (Δ log-MAE −0.0084), and all five drug-specific intervals cross zero. The signal therefore depends on substrate and experimental system.','p','note')
+        +'<div class="takeaway"><strong>'+t('Ce que cela montre','What this shows')+'</strong>'
+        +t('La quantité protéique d’un CYP peut apporter une information fonctionnelle tenue à l’écart, surtout dans les hépatocytes intacts, mais elle n’est pas un substitut universel de la clairance. Cette preuve est in vitro : elle ne démontre ni clairance systémique ni bénéfice de dose chez le patient.','CYP protein abundance can add held-out functional information, especially in intact hepatocytes, but it is not a universal clearance surrogate. This evidence is in vitro: it demonstrates neither systemic clearance nor patient dosing benefit.','span')+'</div>'
+        +a(wegler,'Benchmark Wegler donneur-protéine→CLint ↗','Wegler donor protein→CLint benchmark ↗',base=base,external=True)
+        +'</div></section>'
+        '<section class="evidence-step" id="jarmusch"><div class="step-number">3</div><div>'
+        +t('Troisième raison : le potentiel génétique et l’état fonctionnel ne sont pas la même chose','Third reason: genetic potential and functional state are not the same thing','h2')
         +t('Dans 13 volontaires avec PK CYP3A répétée, une mesure fonctionnelle antérieure par sonde midazolam est numériquement meilleure que le génotype CYP disponible pour prédire la PK ultérieure : MAE 3,09465 contre 4,19763 sur l’échelle numérique source. L’intervalle descriptif du contraste est favorable, mais n13 reste très petit.',
            'In 13 volunteers with repeated CYP3A PK, a prior midazolam functional probe is numerically better than available CYP genotype for predicting later PK: MAE 3.09465 versus 4.19763 on the source numerical scale. The descriptive contrast interval is favorable, but n13 remains very small.','p')
         +t('Le même jeu fournit aussi une vraie métabolomique plasmatique pré-dose GNPS appariée à la PK et au CYP3A4/5. Quand 6 349 features MS1 sont résumées par deux composantes PCA apprises uniquement dans chaque train, elles n’améliorent pas la référence clinique + PGx.',
@@ -154,8 +172,8 @@ def demo(base):
         +t('Le phénotype fonctionnel et le génotype ne sont pas interchangeables, mais une omique pré-dose authentique n’est pas automatiquement meilleure. Ici, la représentation globale MS1 dégrade la prédiction : Omics2PK conserve ce résultat négatif au lieu de sélectionner une histoire positive.','Functional phenotype and genotype are not interchangeable, but genuine predose omics are not automatically better. Here, the global MS1 representation worsens prediction: Omics2PK retains this negative result rather than selecting a positive story.','span')+'</div>'
         +a(jarmusch,'Benchmark Jarmusch omiques + PK + PGx ↗','Jarmusch omics + PK + PGx benchmark ↗',base=base,external=True)
         +'</div></section>'
-        '<section class="evidence-step" id="metformin"><div class="step-number">3</div><div>'
-        +t('Troisième raison : quand on teste enfin Omics→PK chez de vrais patients, le résultat peut être négatif','Third reason: when Omics→PK is finally tested in real patients, the result may be negative','h2')
+        '<section class="evidence-step" id="metformin"><div class="step-number">4</div><div>'
+        +t('Quatrième raison : quand on teste enfin Omics→PK chez de vrais patients, le résultat peut être négatif','Fourth reason: when Omics→PK is finally tested in real patients, the result may be negative','h2')
         +t('Le benchmark metformine relie 32 personnes à une métabolomique pré-dose authentique de 384 variables et à deux critères PK mesurés. Les PCA, normalisations et modèles sont réappris dans chaque pli laissé de côté. Le test primaire compare clinique + omiques contre clinique seule.',
            'The metformin benchmark links 32 people to authentic 384-feature predose metabolomics and two measured PK endpoints. PCA, normalization and models are refit inside each held-out fold. The primary test compares clinical + omics with clinical alone.','p')
         +'<table><thead><tr><th>PK mesurée</th><th>Clinique MAE</th><th>Clinique + omiques MAE</th><th>ΔMAE</th></tr></thead><tbody>'
@@ -169,8 +187,8 @@ def demo(base):
         +'</div></section>'
         '<section class="conclusion-panel" id="conclusion">'
         +t('Alors, pourquoi continuer ?', 'So why continue?','h2')
-        +t('Parce que les niveaux de preuve ne donnent pas la même réponse : la plausibilité biologique existe ; un état fonctionnel peut apporter une information distincte du génotype ; mais les benchmarks cliniques Jarmusch et metformine ne démontrent pas de gain incrémental de leur représentation omique globale. La bonne question de recherche reste donc ouverte.',
-           'Because the evidence levels do not give the same answer: biological plausibility exists; functional state can add information distinct from genotype; but the Jarmusch and metformin clinical benchmarks do not demonstrate incremental gain from their global omics representations. The research question therefore remains open.','p')
+        +t('Parce que les niveaux de preuve ne donnent pas la même réponse : l’ARN peut informer l’activité enzymatique ; la protéine CYP peut prédire certains CLint in vitro ; un état fonctionnel peut différer du génotype ; mais les benchmarks cliniques Jarmusch et metformine ne démontrent pas de gain incrémental de leurs représentations omiques globales. La question Omics→PK clinique reste donc ouverte.',
+           'Because the evidence levels do not give the same answer: RNA can inform enzyme activity; CYP protein can predict some in-vitro CLint endpoints; functional state can differ from genotype; but the Jarmusch and metformin clinical benchmarks do not demonstrate incremental gain from their global omics representations. The clinical Omics→PK question therefore remains open.','p')
         +'<div class="decision-flow"><span>'+t('Plausible biologiquement','Biologically plausible')+'</span><b>→</b><span>'+t('Testable proprement','Can be tested rigorously')+'</span><b>→</b><span>'+t('Pas encore démontré en général','Not yet generally established')+'</span></div>'
         +'<div class="cta">'+a('guide/','Voir comment construire le test','See how to build the test',base=base)
         +'<a class="btn btn-outline" href="'+base+'analyze/" data-fr="État du futur outil Analyze" data-en="Status of the future Analyze tool">État du futur outil Analyze</a></div>'
@@ -300,6 +318,7 @@ def resources(base):
     refs=[
         ('Clinical Omics→PK: metformin n32 predose metabolomics + measured AUC/CLr',REPO+'/blob/main/docs/E3_REAL_METFORMIN33_PREDOSE_384_OMICS_AUC_CLR_HELDOUT_20261018.md'),
         ('Clinical Omics→PK+PGx: Jarmusch predose GNPS MS1 + measured midazolam PK',REPO+'/blob/main/docs/JARMUSCH14_ORIGINAL_GNPS_BIOM_TO_REAL_MIDAZOLAM_PK_20261019.md'),
+        ('Same-donor functional E2: Wegler CYP protein → measured in-vitro CLint',REPO+'/blob/main/docs/WEGLER_SOURCE_STRUCTURE_RESULTS_20261016.md'),
         ('100 human livers – original U.S. EPA paired RNA/activity','https://doi.org/10.23719/1519197'),
         ('Original EPA source and multiplicity-corrected numerical results',REPO+'/blob/main/docs/EPA_100_LIVER_EIGHT_CYP_BONFERRONI_REAL_RESULTS_20261017.md'),
         ('Fair single- vs multi-omics → observed PK protocol',REPO+'/blob/main/docs/MULTIMODAL_PK_ABLATION_SOFTWARE_QUALIFICATION_20261019.md'),
@@ -322,11 +341,13 @@ def document(page,body,base):
             'learn':'Démo guidée – Omics2PK',
             'analyze':'Analyze – en cours – Omics2PK',
             'ecosystem':'Ecosystem – Omics2PK','disciplines':'Ecosystem – Omics2PK','resources':'Resources – Omics2PK'}
+    canonical_page={'home':'','learn':'guide'}.get(page,page)
+    canonical_url=ROOT+(canonical_page+'/' if canonical_page else '')
     return ('<!doctype html><html lang="fr"><head>'
        '<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">'
        '<meta name="theme-color" content="#fbfaf8"><meta name="referrer" content="strict-origin-when-cross-origin">'
        '<meta name="description" content="Omics2PK : démonstration scientifique et méthodologie guidée pour tester rigoureusement les liens entre omiques et pharmacocinétique.">'
-       '<title>'+titles[page]+'</title><link rel="stylesheet" href="'+base+'assets/styles.css">'
+       '<title>'+titles[page]+'</title><link rel="canonical" href="'+canonical_url+'"><link rel="stylesheet" href="'+base+'assets/styles.css">'
        '<script defer src="'+base+'assets/app.js"></script></head><body>'
        '<a href="#content" class="skip-link" data-fr="Aller au contenu" data-en="Skip to content">Aller au contenu</a>'
        '<div class="app">'+nav(base,page)+'<main id="content" class="page-shell">'+body+'</main>'
