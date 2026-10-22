@@ -120,6 +120,115 @@ def _parse_wegler_kinetics_records(page_texts: list[str]) -> list[dict]:
     return records
 
 
+RAW_CLINT_MAPPING={
+    "HLM":("cyp_hlm_pmol_per_mg","source_eq1"),
+    "HH":("cyp_hh_pmol_per_mg","source_eq4"),
+}
+
+
+def _validate_raw_clint_column_mapping(records: list[dict]) -> dict:
+    """Cross-check Table S3 columns against independently published aggregates."""
+    mid=[r for r in records if r["drug"]=="midazolam"]
+    def summary(key):
+        values=sorted(float(r[key]) for r in mid if r[key] is not None)
+        return min(values),float(median(values)),max(values)
+    mic=summary("source_eq1")
+    hep=summary("source_eq4")
+    published=((203.0,375.0,819.0),(45.0,134.0,414.0))
+    if any(abs(a-b)>1.1 for got,ref in zip((mic,hep),published)
+           for a,b in zip(got,ref)):
+        raise ValueError("Table S3 eq1/eq4 no longer match published midazolam raw CLint")
+    buf=[r for r in records if r["drug"]=="bufuralol"]
+    if sum(r["source_eq1"] is None for r in buf)!=2:
+        raise ValueError("Expected two source-ND bufuralol HLM raw CLint rows")
+    if any(r["source_eq4"] is None for r in buf):
+        raise ValueError("Unexpected missing bufuralol HH raw CLint")
+    return {
+        "source_eq1_semantics":"raw HLM CLint,mic scaled to mL/min/kg bw",
+        "source_eq4_semantics":"raw HH CLint,hep scaled to mL/min/kg bw",
+        "midazolam_eq1_aggregate_matches_published_rounding":True,
+        "midazolam_eq4_aggregate_matches_published_rounding":True,
+        "bufuralol_two_HLM_ND_rows_match_published_description":True,
+    }
+
+
+def _ridge_one_feature_predict(train_x,train_y,query_x,alpha=1.0):
+    mx=mean(train_x)
+    sx=sqrt(sum((x-mx)**2 for x in train_x)/len(train_x))
+    my=mean(train_y)
+    if sx<=1e-12:
+        return my
+    z=[(x-mx)/sx for x in train_x]
+    zq=(query_x-mx)/sx
+    beta=sum(a*(b-my) for a,b in zip(z,train_y))/(sum(a*a for a in z)+alpha)
+    return my+beta*zq
+
+
+def _protein_to_raw_clint_lodo(records: list[dict]) -> dict:
+    """Held-donor protein -> raw CLint benchmark, aggregate output only."""
+    mapping=_validate_raw_clint_column_mapping(records)
+    systems={}
+    for system,(protein_key,outcome_key) in RAW_CLINT_MAPPING.items():
+        drug_results={}
+        all_baseline=[]
+        all_protein=[]
+        for drug in DRUG_TERMS:
+            rows=[
+                r for r in records
+                if r["drug"]==drug
+                and r[protein_key] is not None and r[outcome_key] is not None
+                and float(r[protein_key])>0 and float(r[outcome_key])>0
+            ]
+            if len(rows)<8:
+                drug_results[drug]={
+                    "status":"ABSTAIN_TOO_FEW_COMPLETE_DONORS",
+                    "n_complete_donors":len(rows),
+                }
+                continue
+            baseline_errors=[]
+            protein_errors=[]
+            for i,held in enumerate(rows):
+                train=[x for j,x in enumerate(rows) if j!=i]
+                tx=[log(float(x[protein_key])) for x in train]
+                ty=[log(float(x[outcome_key])) for x in train]
+                qx=log(float(held[protein_key]))
+                target=log(float(held[outcome_key]))
+                baseline=mean(ty)
+                pred=_ridge_one_feature_predict(tx,ty,qx,alpha=1.0)
+                baseline_errors.append(abs(baseline-target))
+                protein_errors.append(abs(pred-target))
+            delta=mean(protein_errors)-mean(baseline_errors)
+            all_baseline.extend(baseline_errors)
+            all_protein.extend(protein_errors)
+            drug_results[drug]={
+                "status":"HELD_DONOR_COMPLETE_CASE",
+                "n_complete_donors":len(rows),
+                "baseline_log_MAE":round(mean(baseline_errors),6),
+                "CYP_protein_log_MAE":round(mean(protein_errors),6),
+                "delta_log_MAE_protein_minus_baseline":round(delta,6),
+                "protein_better_than_baseline":delta<0,
+                "n_donors_lower_abs_log_error_with_protein":sum(
+                    p<b for p,b in zip(protein_errors,baseline_errors)),
+                "geometric_fold_error_baseline":round(exp(mean(baseline_errors)),6),
+                "geometric_fold_error_CYP_protein":round(exp(mean(protein_errors)),6),
+            }
+        systems[system]={
+            "per_drug":drug_results,
+            "pooled_descriptive_log_MAE_baseline":round(mean(all_baseline),6),
+            "pooled_descriptive_log_MAE_CYP_protein":round(mean(all_protein),6),
+            "pooled_descriptive_delta":round(mean(all_protein)-mean(all_baseline),6),
+            "n_held_donor_predictions":len(all_baseline),
+        }
+    return {
+        "status":"REAL_WEGLER_TABLE_S3_HELD_DONOR_PROTEIN_TO_RAW_CLINT",
+        "source_mapping_validation":mapping,
+        "model":"per-drug donor-LODO; log CLint; one log CYP-protein feature; fixed ridge alpha=1",
+        "systems":systems,
+        "no_hyperparameter_search":True,
+        "no_individual_predictions_exported":True,
+        "clinical_PK_claim":False,
+    }
+
 def _aggregate_kinetics_records(records: list[dict]) -> dict:
     """Aggregate-only source report; never returns donor identifiers or rows."""
     from statistics import median
