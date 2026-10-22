@@ -1,6 +1,6 @@
 # Omics2PK research website — PMx Explain / MultiOmics visual parity
 
-**Implementation:** `site/build_site.py` generates five static routes independently of the Python pharmacometric engine. The public UI cannot run SWEET, Pk modeling, personal data uploads or patient dosing.
+**Implementation:** `site/build_site.py` generates a static research portal independently of the Python pharmacometric engine. The public information architecture now separates **scientific demo / why**, **guided methodology course / how**, and **Analyze / in development**. The public UI cannot run SWEET, PK modeling, personal data uploads or patient dosing.
 
 ## Design and links
 
@@ -18,13 +18,13 @@ Run from the root of Omics2PK:
     python site/build_site.py --out site/dist
     python -m unittest discover -s tests -p 'test_omics2pk_pages.py' -v
 
-The pull request CI builds and uploads the artifact `omics2pk-static-pages-preview`, which is a preview artifact, **not proof of live deployment**. Five generated routes include homepage and `learn/`, `analyze/`, `disciplines/`, `resources/`, plus stylesheet, scripts and sitemap.
+The pull request CI builds and uploads the artifact `omics2pk-static-pages-preview`, which is a preview artifact, **not proof of live deployment**. Canonical routes are the homepage plus `demo/`, `guide/`, `analyze/`, `ecosystem/`, `disciplines/` and `resources/`. The former `learn/` route is kept only as a compatibility alias for the guided course and is excluded from the sitemap.
 
 ## First deployment of the standalone repository
 
 1. In GitHub `rberrah/Omics2PK` open **Settings → Pages → Build and deployment → Source: GitHub Actions**.
 2. Open **Actions → Publish Omics2PK website to GitHub Pages (manual)** and select **Run workflow**, branch **main**. The build validates all pages and uses official `actions/configure-pages@v5`, `actions/upload-pages-artifact@v4` and `actions/deploy-pages@v4`.
-3. If Pages is enabled, the expected project path is **https://rberrah.github.io/Omics2PK/**. Verify live HTTP 200 and all five page routes before announcing availability; the presence of a workflow in GitHub is not verification of a deployed website.
+3. If Pages is enabled, the expected project path is **https://rberrah.github.io/Omics2PK/**. Verify live HTTP 200 for the homepage and canonical `demo/`, `guide/`, `analyze/`, `ecosystem/` and `resources/` routes before announcing availability; the presence of a workflow in GitHub is not verification of a deployed website.
 4. On live verification, add its exact URL to **Ecosystem** in PMx Explain and MultiOmics. Do not change the codebases owned by their separate maintainers unintentionally.
 
 ## Scientific status
