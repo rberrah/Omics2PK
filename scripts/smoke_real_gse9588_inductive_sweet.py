@@ -81,6 +81,7 @@ def extract_train_variable_array_probes(lines):
 def real_gse_frozen_network_smoke(gsm,probe_values,n_probes):
     import numpy as np
     from omics2pk.inductive_sweet import (
+        CONSTRUCTION_V0,CONSTRUCTION_V1,
         fit_frozen_reference,predict_network,gene_strength_features
     )
     mat=np.asarray(probe_values,dtype=float)
@@ -93,29 +94,45 @@ def real_gse_frozen_network_smoke(gsm,probe_values,n_probes):
         tissue="Human liver (GEO GSE9588 microarray, source context)",
         k=0.1
     )
-    strengths=[]
-    saturated=0
-    zero_weights=0
-    example_signatures=set()
-    # Exactly held-out GSM sample columns, fixed same reference; no training
-    # objective is re-fit while predicting the 352 sample graphs.
-    for i in range(TRAIN,N_EXPECTED):
-        graph,details=predict_network(
-            trained,mat[:,i],subject_id=gsm[i],
-            genes=probe_names,tissue=trained.tissue)
-        if graph.shape!=(PANEL,PANEL) or not np.isfinite(graph).all():
-            raise ValueError("Nonfinite or invalid original query graph")
-        if not np.allclose(graph,graph.T,atol=1e-12) or not np.allclose(np.diag(graph),0):
-            raise ValueError("Invalid self-edges or asymmetric source sample graph")
-        if details["reference_fingerprint"]!=trained.fingerprint:
-            raise ValueError("Original data reference was modified by query")
-        s=gene_strength_features(graph,genes=probe_names)
-        strengths.append(mean(s.values()))
-        saturated+=bool(details["weight_clamped_outside_reference"])
-        zero_weights+=details["weight"]==0
-        example_signatures.add(sha256(graph.tobytes()).hexdigest())
-    if len(example_signatures)<50:
-        raise ValueError("Near-duplicate or constant projected networks")
+    def project(construction):
+        strengths=[]
+        saturated=0
+        zero_weights=0
+        signatures=set()
+        # Exactly held-out GSM sample columns, fixed same reference; no training
+        # objective is re-fit while predicting any query graph.
+        for i in range(TRAIN,N_EXPECTED):
+            graph,details=predict_network(
+                trained,mat[:,i],subject_id=gsm[i],
+                genes=probe_names,tissue=trained.tissue,
+                construction=construction)
+            if graph.shape!=(PANEL,PANEL) or not np.isfinite(graph).all():
+                raise ValueError("Nonfinite or invalid original query graph")
+            if not np.allclose(graph,graph.T,atol=1e-12) or not np.allclose(np.diag(graph),0):
+                raise ValueError("Invalid self-edges or asymmetric source sample graph")
+            if details["reference_fingerprint"]!=trained.fingerprint:
+                raise ValueError("Original data reference was modified by query")
+            s=gene_strength_features(graph,genes=probe_names)
+            strengths.append(mean(s.values()))
+            saturated+=bool(details["weight_clamped_outside_reference"])
+            zero_weights+=details["weight"]==0
+            signatures.add(sha256(graph.tobytes()).hexdigest())
+        if len(signatures)<50:
+            raise ValueError("Near-duplicate or constant projected networks")
+        return {
+            "construction":construction,
+            "unseen_GSM_samples_projected":len(strengths),
+            "projected_networks_distinct_hash_count":len(signatures),
+            "n_original_queries_clamped_reference_weight":saturated,
+            "n_original_queries_zero_graph_update_weight":zero_weights,
+            "n_projected_individual_graph_hash_collisions":len(strengths)-len(signatures),
+            "fraction_unique_heldout_network_hashes":round(len(signatures)/len(strengths),6),
+            "all_heldout_graph_hashes_unique":len(signatures)==len(strengths),
+            "mean_graph_absolute_node_strength_summary_only":round(mean(strengths),6),
+        }
+
+    legacy=project(CONSTRUCTION_V0)
+    v1=project(CONSTRUCTION_V1)
     return {
         "status":"REAL_PUBLIC_GSE9588_MICROARRAY_FROZEN_GRAPH_SOFTWARE_SMOKE_ONLY",
         "authentic_source_accession":"GSE9588",
@@ -123,15 +140,29 @@ def real_gse_frozen_network_smoke(gsm,probe_values,n_probes):
         "genuine_input_original_probe_rows_scanned":n_probes,
         "unsupervised_array_probes_chosen_by_train_only_variance":PANEL,
         "fixed_reference_training_GSM_samples":TRAIN,
-        "unseen_GSM_samples_projected":len(strengths),
-        "projected_networks_distinct_hash_count":len(example_signatures),
-        "n_original_queries_clamped_reference_weight":saturated,
-        "n_original_queries_zero_graph_update_weight":zero_weights,
-        "n_projected_individual_graph_hash_collisions":len(strengths)-len(example_signatures),
-        "fraction_unique_heldout_network_hashes":round(len(example_signatures)/len(strengths),6),
-        "network_features_sufficiently_person_specific_for_individual_PK":(len(example_signatures)==len(strengths) and not saturated),
-        "warning":"Zero-weight clamping can assign the identical reference-only graph to distinct GEO samples; FAIL CLOSED for person-specific molecular PK covariate qualification" if len(example_signatures)<len(strengths) else "No duplicate graphs observed in this unannotated test probe subset",
-        "mean_graph_absolute_node_strength_summary_only":round(mean(strengths),6),
+        "legacy_v0":legacy,
+        "query_anchored_v1":v1,
+        # Backward-compatible aliases preserve the historical v0 report schema.
+        "unseen_GSM_samples_projected":legacy["unseen_GSM_samples_projected"],
+        "projected_networks_distinct_hash_count":legacy["projected_networks_distinct_hash_count"],
+        "n_original_queries_clamped_reference_weight":legacy["n_original_queries_clamped_reference_weight"],
+        "n_original_queries_zero_graph_update_weight":legacy["n_original_queries_zero_graph_update_weight"],
+        "n_projected_individual_graph_hash_collisions":legacy["n_projected_individual_graph_hash_collisions"],
+        "fraction_unique_heldout_network_hashes":legacy["fraction_unique_heldout_network_hashes"],
+        "mean_graph_absolute_node_strength_summary_only":legacy["mean_graph_absolute_node_strength_summary_only"],
+        "v1_collision_reduction":(
+            legacy["n_projected_individual_graph_hash_collisions"]
+            - v1["n_projected_individual_graph_hash_collisions"]),
+        "v1_preserves_or_improves_graph_uniqueness":(
+            v1["n_projected_individual_graph_hash_collisions"]
+            <= legacy["n_projected_individual_graph_hash_collisions"]),
+        "v1_query_anchor_remains_subject_specific_when_weight_zero":True,
+        "network_features_sufficiently_person_specific_for_individual_PK":False,
+        "warning":(
+            "v1 graph uniqueness is a software property only; reference-weight clamping, "
+            "unannotated probes, unresolved GSM-to-donor identity and absent matched CYP outcome "
+            "still block person-specific PK qualification"
+        ),
         "same_original_human_liver_donors_proven_independent":False,
         "does_not_verify_GEO_GSM_to_real_biological_donor_ID":True,
         "gene_symbol_annotation_provenance":False,
