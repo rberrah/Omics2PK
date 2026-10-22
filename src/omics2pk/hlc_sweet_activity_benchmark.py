@@ -29,6 +29,9 @@ from omics2pk.transcriptome_preprocessing import (
 )
 
 
+TOPOLOGY_CONTROL_SEED = 20261022
+
+
 class HLCSweetBenchmarkError(ValueError):
     pass
 
@@ -167,6 +170,7 @@ def evaluate_hlc_sweet_activity(
         "age_sex_plus_train_selected_rna",
         "age_sex_plus_train_selected_pca4",
         "age_sex_plus_inductive_sweet_v1",
+        "age_sex_plus_sweet_topology_permuted_control",
     )
     all_errors = {arm: [] for arm in arms}
     site_results = {}
@@ -199,6 +203,7 @@ def evaluate_hlc_sweet_activity(
             construction=CONSTRUCTION_V1,
             edge_selection_mode=EDGE_SELECTION_TRAIN_VARIANCE,
             edge_top_k=edge_top_k,
+            topology_control_seed=TOPOLOGY_CONTROL_SEED,
         )
         selected = tuple(network["edge_genes"])
         selected_idx = [gene_pos[g] for g in selected]
@@ -217,6 +222,16 @@ def evaluate_hlc_sweet_activity(
         )
         test_sweet = np.asarray(
             [[test_network_records[s]["features"][g] for g in selected] for s in test_ids],
+            dtype=float,
+        )
+        train_topology_control = np.asarray(
+            [[train_network_records[s]["topology_control_features"][g] for g in selected]
+             for s in train_ids],
+            dtype=float,
+        )
+        test_topology_control = np.asarray(
+            [[test_network_records[s]["topology_control_features"][g] for g in selected]
+             for s in test_ids],
             dtype=float,
         )
 
@@ -249,6 +264,10 @@ def evaluate_hlc_sweet_activity(
                 "age_sex_plus_inductive_sweet_v1": (
                     np.column_stack((base_train, train_sweet)),
                     np.r_[base_test, test_sweet[j]],
+                ),
+                "age_sex_plus_sweet_topology_permuted_control": (
+                    np.column_stack((base_train, train_topology_control)),
+                    np.r_[base_test, test_topology_control[j]],
                 ),
             }
             truth = float(test_activity[j])
@@ -299,6 +318,13 @@ def evaluate_hlc_sweet_activity(
         "site_used_only_for_outer_holdout": True,
         "pk_pd_target_used_to_build_network": False,
         "heldout_expression_used_to_fit_preprocessing_or_gene_selection": False,
+        "omics2pk_fitted_components_outer_train_frozen": True,
+        "source_expression_preprocessed_before_omics2pk_outer_split": True,
+        "end_to_end_raw_expression_train_frozen": False,
+        "topology_negative_control": (
+            "same SWEET edge-value multiset reassigned deterministically to different gene pairs"
+        ),
+        "topology_control_seed": TOPOLOGY_CONTROL_SEED,
         "mae_by_model": overall,
         "delta_MAE_sweet_minus_direct_cyp_rna": round(
             overall["age_sex_plus_inductive_sweet_v1"]
@@ -313,6 +339,11 @@ def evaluate_hlc_sweet_activity(
         "delta_MAE_sweet_minus_pca4": round(
             overall["age_sex_plus_inductive_sweet_v1"]
             - overall["age_sex_plus_train_selected_pca4"],
+            6,
+        ),
+        "delta_MAE_sweet_minus_topology_permuted_control": round(
+            overall["age_sex_plus_inductive_sweet_v1"]
+            - overall["age_sex_plus_sweet_topology_permuted_control"],
             6,
         ),
         "site_results": site_results,
