@@ -48,6 +48,20 @@ class SourceFrozenReferenceTests(unittest.TestCase):
         self.assertLessEqual(
             result["query_anchored_v1"]["n_projected_individual_graph_hash_collisions"],
             result["legacy_v0"]["n_projected_individual_graph_hash_collisions"])
+        for key in ("legacy_v0","query_anchored_v1"):
+            q=result[key]
+            self.assertEqual(
+                q["n_original_queries_low_clamped"]+
+                q["n_original_queries_high_clamped"],
+                q["n_original_queries_clamped_reference_weight"])
+            self.assertLessEqual(
+                q["min_weight_position_unclipped"],
+                q["median_weight_position_unclipped"])
+            self.assertLessEqual(
+                q["median_weight_position_unclipped"],
+                q["max_weight_position_unclipped"])
+            self.assertLessEqual(q["min_similarity_z_vs_reference"],
+                                 q["max_similarity_z_vs_reference"])
         self.assertEqual(
             result["v1_collision_reduction"],
             result["legacy_v0"]["n_projected_individual_graph_hash_collisions"]
