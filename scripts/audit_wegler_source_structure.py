@@ -34,6 +34,18 @@ EXPECTED_HASHES = {
 DRUG_TERMS=("midazolam","omeprazole","bupropion","diclofenac","bufuralol")
 
 
+
+def _redacted_line_skeleton(line: str) -> str:
+    """Preserve table words/layout but remove source numeric values and IDs."""
+    # Mixed alpha-numeric assay/donor-like tokens are masked before numbers.
+    out=re.sub(r"\b(?=\w*[A-Za-z])(?=\w*\d)[A-Za-z0-9_.-]+\b","<ID>",line)
+    out=re.sub(
+        r"(?<![A-Za-z])[-+]?(?:\d+(?:\.\d*)?|\.\d+)(?:[Ee][-+]?\d+)?",
+        "<NUM>",out)
+    out=re.sub(r"\s+"," ",out).strip()
+    return out[:240]
+
+
 def _native_pdf_table_shape(page_texts: list[str]) -> dict:
     """Aggregate native-text table diagnostics without exporting source values.
 
@@ -49,6 +61,7 @@ def _native_pdf_table_shape(page_texts: list[str]) -> dict:
     pages_with_all_five_drugs=[]
     pages_with_dense_candidate_rows=[]
     dense_row_counts={}
+    dense_row_skeletons={}
     donor_keyword_pages=[]
     for pageno,content in enumerate(page_texts,start=1):
         folded=content.casefold()
@@ -88,6 +101,11 @@ def _native_pdf_table_shape(page_texts: list[str]) -> dict:
             )
             if len(nums)>=6 or (relevant and len(nums)>=4):
                 dense+=1
+                skeleton=_redacted_line_skeleton(line)
+                if skeleton:
+                    bucket=dense_row_skeletons.setdefault(str(pageno),[])
+                    if skeleton not in bucket and len(bucket)<8:
+                        bucket.append(skeleton)
         if dense:
             pages_with_dense_candidate_rows.append(pageno)
             dense_row_counts[str(pageno)]=dense
@@ -102,6 +120,7 @@ def _native_pdf_table_shape(page_texts: list[str]) -> dict:
         "pages_with_donor_keyword":donor_keyword_pages,
         "pages_with_numeric_dense_candidate_rows":pages_with_dense_candidate_rows,
         "numeric_dense_candidate_row_counts_by_page":dense_row_counts,
+        "redacted_candidate_row_skeletons_by_page":dense_row_skeletons,
         "candidate_native_clint_table_pages":candidate_pages,
         "native_table_parser_feasible_candidate":bool(candidate_pages),
         "raw_source_lines_or_values_exported":False,
