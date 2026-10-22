@@ -175,7 +175,7 @@ def fit_edge_gene_selector(
         if (len(selected)<3 or len(set(selected))!=len(selected)
                 or not set(selected).issubset(set(genes))):
             raise TranscriptomePreprocessingError(
-                "Prespecified edge genes must be a unique subset with at least three genes")
+                "Edge genes must be a unique prespecified subset with at least three genes")
         k=len(selected)
     else:
         if isinstance(top_k,bool) or not isinstance(top_k,int) or not (3<=top_k<=min(128,len(genes))):
