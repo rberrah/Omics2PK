@@ -50,7 +50,8 @@ def pilot(upstream: Path) -> dict:
     split = build_outer_split_features(
         values, genes=genes, subject_ids=samples,
         train_ids=train, test_ids=test, tissue="TCGA-archived-unspecified", folds=0,
-        weight_expression=all_values, weight_genes=all_genes)
+        weight_expression=all_values, weight_genes=all_genes,
+        construction=CONSTRUCTION_V1)
     ref = fit_frozen_reference(
         values[:, :60], genes=genes, subject_ids=train,
         tissue="TCGA-archived-unspecified",
