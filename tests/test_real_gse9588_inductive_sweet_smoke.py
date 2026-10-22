@@ -5,9 +5,9 @@ import unittest
 from io import BytesIO
 
 from scripts.smoke_real_gse9588_inductive_sweet import (
-    TRAIN,PANEL,WEIGHT_PANEL,extract_train_variable_array_probes,
-    extract_train_variable_array_probe_sets,real_gse_frozen_network_smoke,
-    reference_indices
+    TRAIN,PANEL,WEIGHT_PANEL,N150_REPEAT_STRATEGIES,
+    extract_train_variable_array_probes,extract_train_variable_array_probe_sets,
+    real_gse_frozen_network_smoke,reference_indices,weight_reference_qc_only
 )
 
 N=427
@@ -53,6 +53,19 @@ class SourceFrozenReferenceTests(unittest.TestCase):
         self.assertEqual(selected_ids,{reversed_gsm[i] for i in reversed_idx})
         self.assertNotEqual(selected,list(range(TRAIN)))
 
+
+    def test_repeated_n150_reference_strategies_are_deterministic_distinct_and_order_independent(self):
+        gsm=[f"GSM{700000+i}" for i in range(N)]
+        selected=[]
+        for strategy in N150_REPEAT_STRATEGIES:
+            idx=reference_indices(gsm,strategy)
+            self.assertEqual(len(idx),150)
+            ids={gsm[i] for i in idx}
+            selected.append(ids)
+            reversed_gsm=list(reversed(gsm))
+            ridx=reference_indices(reversed_gsm,strategy)
+            self.assertEqual(ids,{reversed_gsm[i] for i in ridx})
+        self.assertEqual(len({frozenset(x) for x in selected}),len(selected))
 
     def test_hash_reference_sizes_are_nested_and_prespecified(self):
         gsm=[f"GSM{700000+i}" for i in range(N)]
@@ -146,6 +159,26 @@ class SourceFrozenReferenceTests(unittest.TestCase):
         self.assertEqual(result["query_anchored_v1"]["unseen_GSM_samples_projected"],352)
         self.assertFalse(result["predictive_CYP_activity_test_executed"])
 
+
+    @unittest.skipUnless(importlib.util.find_spec("numpy"),"Optional numpy not installed")
+    def test_fast_weight_qc_matches_full_v1_clamp_semantics(self):
+        ids,edges,weights,n=extract_train_variable_array_probe_sets(
+            toy(),reference_strategy="sha256_gsm75")
+        idx=reference_indices(ids,"sha256_gsm75")
+        full=real_gse_frozen_network_smoke(
+            ids,edges,n,weight_probe_values=weights,
+            train_indices=idx,reference_strategy="sha256_gsm75")
+        fast=weight_reference_qc_only(
+            ids,weights,reference_strategy="sha256_gsm75")
+        v1=full["query_anchored_v1"]
+        self.assertEqual(fast["v1_clamps"],v1["n_original_queries_clamped_reference_weight"])
+        self.assertEqual(fast["v1_low_clamps"],v1["n_original_queries_low_clamped"])
+        self.assertEqual(fast["v1_high_clamps"],v1["n_original_queries_high_clamped"])
+        self.assertEqual(fast["v1_zero_weights"],v1["n_original_queries_zero_graph_update_weight"])
+        self.assertEqual(fast["v1_abs_similarity_z_gt3"],v1["n_queries_abs_similarity_z_gt3"])
+        self.assertAlmostEqual(fast["v1_mean_similarity_z"],v1["mean_similarity_z_vs_reference"],places=6)
+        self.assertFalse(fast["reference_selection_uses_expression_values"])
+        self.assertFalse(fast["reference_selection_uses_PK_or_outcomes"])
 
     @unittest.skipUnless(importlib.util.find_spec("numpy"),"Optional numpy not installed")
     def test_hash_reference_50_has_dynamic_query_count(self):
