@@ -1,0 +1,25 @@
+name: HLC site-disjoint SWEET functional benchmark synthetic qualification
+on:
+  pull_request:
+    paths:
+      - "src/omics2pk/hlc_sweet_functional_benchmark.py"
+      - "tests/test_hlc_sweet_functional_benchmark.py"
+      - ".github/workflows/hlc-sweet-functional-benchmark.yml"
+  push:
+    paths:
+      - "src/omics2pk/hlc_sweet_functional_benchmark.py"
+      - "tests/test_hlc_sweet_functional_benchmark.py"
+      - ".github/workflows/hlc-sweet-functional-benchmark.yml"
+permissions:
+  contents: read
+jobs:
+  synthetic-site-disjoint-guardrails:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+      - run: python -m pip install -e '.[sweet-inductive]'
+      - run: python -m unittest discover -s tests -p test_hlc_sweet_functional_benchmark.py -v
