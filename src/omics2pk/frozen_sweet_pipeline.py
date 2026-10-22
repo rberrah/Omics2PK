@@ -25,8 +25,11 @@ from omics2pk.inductive_sweet import (
     predict_network,
 )
 from omics2pk.transcriptome_preprocessing import (
+    EDGE_SELECTION_MODES,
+    EDGE_SELECTION_PRESPECIFIED,
     MODE_PASSTHROUGH,
     FrozenTranscriptomePreprocessor,
+    fit_edge_gene_selector,
     fit_transcriptome_preprocessor,
     transform_transcriptome,
 )
@@ -47,6 +50,9 @@ class FrozenInductiveSweetPipeline:
     preprocessing_mode: str
     construction: str
     k: float
+    edge_selection_mode: str
+    edge_selection_top_k: int
+    edge_selection_fingerprint: str
     preprocessor: FrozenTranscriptomePreprocessor
     reference: FrozenReference
     fingerprint: str
@@ -62,19 +68,42 @@ def _fingerprint_pipeline(
     k: float,
     preprocessor_fingerprint: str,
     reference_fingerprint: str,
+    edge_selection_mode: str | None = None,
+    edge_selection_top_k: int | None = None,
 ) -> str:
+    """Fingerprint prediction state plus the frozen edge-selection protocol.
+
+    Supplying no selection metadata reproduces the historical v1 fingerprint,
+    which keeps old persisted artifacts loadable. New fits always use v2.
+    """
     digest = hashlib.sha256()
-    digest.update(b"omics2pk.frozen-inductive-sweet.v1\n")
-    for value in (
-        "\n".join(genes),
-        "\n".join(edge_genes),
-        tissue,
-        preprocessing_mode,
-        construction,
-        repr(float(k)),
-        preprocessor_fingerprint,
-        reference_fingerprint,
-    ):
+    if edge_selection_mode is None:
+        digest.update(b"omics2pk.frozen-inductive-sweet.v1\n")
+        values = (
+            "\n".join(genes),
+            "\n".join(edge_genes),
+            tissue,
+            preprocessing_mode,
+            construction,
+            repr(float(k)),
+            preprocessor_fingerprint,
+            reference_fingerprint,
+        )
+    else:
+        digest.update(b"omics2pk.frozen-inductive-sweet.v2\n")
+        values = (
+            "\n".join(genes),
+            "\n".join(edge_genes),
+            tissue,
+            preprocessing_mode,
+            construction,
+            repr(float(k)),
+            edge_selection_mode,
+            str(edge_selection_top_k),
+            preprocessor_fingerprint,
+            reference_fingerprint,
+        )
+    for value in values:
         digest.update(value.encode("utf-8"))
         digest.update(b"\0")
     return digest.hexdigest()
@@ -85,23 +114,25 @@ def fit_frozen_inductive_sweet_pipeline(
     *,
     genes: list[str] | tuple[str, ...],
     subject_ids: list[str] | tuple[str, ...],
-    edge_genes: list[str] | tuple[str, ...],
+    edge_genes: list[str] | tuple[str, ...] | None = None,
     tissue: str,
     mode: str,
     k: float = 0.1,
     construction: str = CONSTRUCTION_V1,
+    edge_selection_mode: str = EDGE_SELECTION_PRESPECIFIED,
+    edge_top_k: int | None = None,
 ) -> FrozenInductiveSweetPipeline:
     """Fit one complete RNA-to-network pipeline on training subjects only.
 
-    expression is full-gene expression for TRAINING subjects only
-    (genes x subjects). edge_genes is a prespecified ordered subset.
-    The same frozen transformed full-gene matrix is used for sample-weight
-    calibration and the subset is used for network edges.
+    expression contains TRAINING subjects only. Edge genes are either a
+    prospectively prespecified panel or an outcome-free variance panel learned
+    exclusively from those training molecular measurements. The selected genes,
+    selector fingerprint, preprocessor and SWEET reference are then frozen
+    together before any new subject is transformed.
 
     No endpoint, test cohort or hyperparameter search is accepted here.
     """
     full_genes = tuple(genes)
-    edges = tuple(edge_genes)
     subjects = tuple(subject_ids)
     if construction not in CONSTRUCTIONS:
         raise FrozenSweetPipelineError("Unknown inductive SWEET construction")
@@ -114,16 +145,24 @@ def fit_frozen_inductive_sweet_pipeline(
         raise FrozenSweetPipelineError("k must be finite and in (0, 1]")
     if not isinstance(tissue, str) or not tissue.strip():
         raise FrozenSweetPipelineError("Tissue must be a nonempty prespecified label")
-    if len(edges) < 3 or len(set(edges)) != len(edges):
-        raise FrozenSweetPipelineError("Need at least three unique prespecified edge genes")
+    if edge_selection_mode not in EDGE_SELECTION_MODES:
+        raise FrozenSweetPipelineError("Unknown edge-gene selection mode")
     positions = {gene: i for i, gene in enumerate(full_genes)}
-    if len(positions) != len(full_genes) or any(gene not in positions for gene in edges):
-        raise FrozenSweetPipelineError(
-            "Edge genes must be a unique subset of the full gene universe"
-        )
-    edge_indices = tuple(positions[gene] for gene in edges)
+    if len(positions) != len(full_genes):
+        raise FrozenSweetPipelineError("Full gene universe must be unique")
 
     try:
+        selector = fit_edge_gene_selector(
+            expression,
+            genes=full_genes,
+            subject_ids=subjects,
+            mode=mode,
+            selection_mode=edge_selection_mode,
+            prespecified_genes=edge_genes,
+            top_k=edge_top_k,
+        )
+        edges = selector.selected_genes
+        edge_indices = tuple(positions[gene] for gene in edges)
         preprocessor = fit_transcriptome_preprocessor(
             expression,
             genes=full_genes,
@@ -157,6 +196,8 @@ def fit_frozen_inductive_sweet_pipeline(
         k=float(k),
         preprocessor_fingerprint=preprocessor.fingerprint,
         reference_fingerprint=reference.fingerprint,
+        edge_selection_mode=selector.mode,
+        edge_selection_top_k=selector.top_k,
     )
     return FrozenInductiveSweetPipeline(
         genes=full_genes,
@@ -166,6 +207,9 @@ def fit_frozen_inductive_sweet_pipeline(
         preprocessing_mode=mode,
         construction=construction,
         k=float(k),
+        edge_selection_mode=selector.mode,
+        edge_selection_top_k=selector.top_k,
+        edge_selection_fingerprint=selector.fingerprint,
         preprocessor=preprocessor,
         reference=reference,
         fingerprint=fingerprint,
