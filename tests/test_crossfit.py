@@ -43,6 +43,9 @@ class CrossfitTests(unittest.TestCase):
         self.assertEqual(len(r["test"]), 5)
         self.assertTrue(all(x["reference_n"] == 12 for x in r["training"]))
         self.assertTrue(all(x["reference_n"] == 13 for x in r["test"]))
+        self.assertTrue(all(x["construction"] == CONSTRUCTION_V1 for x in r["training"]+r["test"]))
+        self.assertEqual({x["effective_cohort_n_for_weight"] for x in r["training"]},{13})
+        self.assertEqual({x["effective_cohort_n_for_weight"] for x in r["test"]},{14})
         record = r["training"][0]
         loo = fit_frozen_reference(
             self.x[:, 1:13], genes=self.genes,
