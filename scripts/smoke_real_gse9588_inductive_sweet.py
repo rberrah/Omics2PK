@@ -30,26 +30,38 @@ from scripts.qualify_gse9588_real_human_liver_expression import (
 TRAIN=75
 PANEL=24
 WEIGHT_PANEL=512
-def _reference_size(strategy):
+def _reference_spec(strategy):
     if strategy=="first75":
-        return TRAIN
+        return TRAIN,""
     match=re.fullmatch(r"sha256_gsm(\d+)",strategy)
-    if not match:
-        raise ValueError("Unknown GSE9588 reference strategy")
-    n=int(match.group(1))
+    if match:
+        n=int(match.group(1))
+        salt=""
+    else:
+        match=re.fullmatch(r"sha256_seed(\d+)_gsm(\d+)",strategy)
+        if not match:
+            raise ValueError("Unknown GSE9588 reference strategy")
+        salt=f"seed{int(match.group(1))}"
+        n=int(match.group(2))
     if n<20 or n>N_EXPECTED-20:
         raise ValueError("Reference size outside prespecified sensitivity range")
-    return n
+    return n,salt
+
+
+def _reference_size(strategy):
+    return _reference_spec(strategy)[0]
 
 
 def reference_indices(gsm, strategy="first75"):
     if len(gsm)!=N_EXPECTED or len(set(gsm))!=N_EXPECTED:
         raise ValueError("Reference selection requires unique complete GSM IDs")
-    n=_reference_size(strategy)
+    n,salt=_reference_spec(strategy)
     if strategy=="first75":
         return list(range(n))
-    ranked=sorted(range(len(gsm)),
-                  key=lambda i:(sha256(gsm[i].encode()).hexdigest(),gsm[i]))
+    ranked=sorted(
+        range(len(gsm)),
+        key=lambda i:(
+            sha256((salt+":"+gsm[i]).encode()).hexdigest(),gsm[i]))
     return sorted(ranked[:n])
 
 
@@ -308,6 +320,45 @@ def main():
             "v1_unique_graph_fraction":run["query_anchored_v1"]["fraction_unique_heldout_network_hashes"],
         } for n,run in size_runs.items()
     }
+
+    repeated={}
+    for seed in range(8):
+        strategy=f"sha256_seed{seed}_gsm150"
+        r_ids,r_edges,r_weights,r_n,r_idx=_load_reference_strategy(strategy)
+        run=real_gse_frozen_network_smoke(
+            r_ids,r_edges,r_n,weight_probe_values=r_weights,
+            train_indices=r_idx,reference_strategy=strategy)
+        v1=run["query_anchored_v1"]
+        repeated[str(seed)]={
+            "reference_n":150,
+            "query_n":v1["unseen_GSM_samples_projected"],
+            "v1_clamps":v1["n_original_queries_clamped_reference_weight"],
+            "v1_clamp_fraction":round(
+                v1["n_original_queries_clamped_reference_weight"]
+                /v1["unseen_GSM_samples_projected"],6),
+            "v1_low_clamps":v1["n_original_queries_low_clamped"],
+            "v1_high_clamps":v1["n_original_queries_high_clamped"],
+            "v1_zero_weights":v1["n_original_queries_zero_graph_update_weight"],
+            "v1_abs_similarity_z_gt3":v1["n_queries_abs_similarity_z_gt3"],
+            "v1_mean_similarity_z":v1["mean_similarity_z_vs_reference"],
+            "v1_unique_graph_fraction":v1["fraction_unique_heldout_network_hashes"],
+        }
+    clamp_counts=[x["v1_clamps"] for x in repeated.values()]
+    clamp_fracs=[x["v1_clamp_fraction"] for x in repeated.values()]
+    mean_z=[x["v1_mean_similarity_z"] for x in repeated.values()]
+    repeated_summary={
+        "n_prespecified_salted_splits":len(repeated),
+        "per_split":repeated,
+        "n_zero_clamp_splits":sum(x==0 for x in clamp_counts),
+        "min_clamps":min(clamp_counts),
+        "max_clamps":max(clamp_counts),
+        "mean_clamp_fraction":round(sum(clamp_fracs)/len(clamp_fracs),6),
+        "min_mean_similarity_z":min(mean_z),
+        "max_mean_similarity_z":max(mean_z),
+        "all_v1_graph_fractions_one":all(
+            x["v1_unique_graph_fraction"]==1.0 for x in repeated.values()),
+        "selection_uses_expression_or_outcome":False,
+    }
     return {
         "status":"REAL_PUBLIC_GSE9588_WEIGHT_AND_REFERENCE_SENSITIVITY_ONLY",
         "authentic_source_accession":"GSE9588",
@@ -315,6 +366,7 @@ def main():
         "broader_512_probe_weighting":broad,
         "sha256_reference_75_broader_512_probe_weighting":hashed,
         "sha256_reference_size_sensitivity":size_summary,
+        "sha256_n150_repeated_split_sensitivity":repeated_summary,
         "v1_clamp_reduction_with_broader_weight_universe":(
             narrow_v1["n_original_queries_clamped_reference_weight"]
             - broad_v1["n_original_queries_clamped_reference_weight"]),
