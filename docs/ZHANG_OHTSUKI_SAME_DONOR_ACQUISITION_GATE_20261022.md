@@ -32,6 +32,13 @@ No current public route inspected on 22 October 2026 yielded an authenticated,
 downloadable donor-level supplement containing stable donor IDs plus matched
 RNA + protein + activity values.
 
+A dedicated bounded source probe subsequently tested both the historical ASPET
+JPET supplement route
+`https://jpet.aspetjournals.org/lookup/suppl/doi:10.1124/jpet.116.233635/-/DC1`
+and the current publisher article route. From GitHub Actions, no legitimate
+supplement file or manifest was acquired. This is an **access result**, not
+evidence that the source data do not exist.
+
 Therefore:
 
 `ABSTAIN_SOURCE_ROWS_NOT_ACQUIRED`
@@ -63,8 +70,14 @@ The methods also state that RNA assays were run as technical triplicates.
 
 The live publisher text proves study design and individual-donor protein
 availability, but the complete supplemental asset itself has not been
-materialized in the current workflow. The text alone does not prove that one
-downloadable table contains:
+materialized in the current workflow. A bounded source probe tested the exact
+historical ASPET supplement endpoint
+`https://dmd.aspetjournals.org/lookup/suppl/doi:10.1124/dmd.111.042259/-/DC1`
+and the current DMD article route; **both returned HTTP 403** from GitHub
+Actions. No supplement bytes, donor rows or file manifest were obtained. This
+is an automated-access blocker, not evidence of biological-data absence.
+
+The article text alone does not prove that one downloadable table contains:
 - stable donor keys;
 - individual RNA values;
 - individual protein values;
@@ -128,7 +141,9 @@ that both Zhang and Ohtsuki contain the relevant biological measurements, and
 Ohtsuki explicitly documents individual-donor protein supplements.
 
 What is still missing is **the authenticated donor-level numerical source
-matrix itself**.
+matrix itself**. The next legitimate route is authenticated institutional /
+publisher access or an author-provided original file, followed by hashing and
+the existing strict donor-level source gate.
 
 Until it is obtained legitimately, RNA vs protein vs RNA+protein superiority
 remains **unestablished**.
