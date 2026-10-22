@@ -13,6 +13,7 @@ try:
     from omics2pk.transcriptome_preprocessing import (
         MODE_PASSTHROUGH,
         MODE_TRAIN_ZSCORE,
+        build_preprocessed_inductive_outer_split,
     )
 except ModuleNotFoundError as exc:
     if exc.name != "numpy":
@@ -168,6 +169,57 @@ class FrozenSweetPipelineTests(unittest.TestCase):
         self.assertFalse(prediction["preprocessor_refit_for_query"])
         self.assertTrue(
             all(np.isfinite(v) for v in prediction["features"].values())
+        )
+
+    def test_prospective_prediction_is_identical_to_outer_split_heldout_path(self):
+        ids = self.train_ids + ("TEST_A", "TEST_B")
+        values = np.column_stack((self.x, self.query_a, self.query_b))
+        outer = build_preprocessed_inductive_outer_split(
+            values,
+            genes=self.genes,
+            edge_genes=self.edge_genes,
+            subject_ids=ids,
+            train_ids=self.train_ids,
+            test_ids=("TEST_A", "TEST_B"),
+            tissue="liver",
+            mode=MODE_PASSTHROUGH,
+            construction=CONSTRUCTION_V1,
+        )
+        pipe = self.fit()
+        prospective = predict_frozen_inductive_sweet_pipeline(
+            pipe, self.query_a, subject_id="TEST_A", genes=self.genes
+        )
+        heldout = outer["test"][0]
+        self.assertEqual(
+            pipe.preprocessor.fingerprint, outer["preprocessing_fingerprint"]
+        )
+        self.assertEqual(
+            pipe.reference.fingerprint, outer["outer_reference_fingerprint"]
+        )
+        for gene in self.edge_genes:
+            self.assertAlmostEqual(
+                prospective["features"][gene], heldout["features"][gene], places=12
+            )
+        self.assertAlmostEqual(
+            prospective["network_qc"]["weight"], heldout["weight"], places=12
+        )
+        self.assertAlmostEqual(
+            prospective["network_qc"]["sample_similarity_z_vs_reference"],
+            heldout["sample_similarity_z_vs_reference"],
+            places=12,
+        )
+        self.assertAlmostEqual(
+            prospective["network_qc"]["weight_position_unclipped"],
+            heldout["weight_position_unclipped"],
+            places=12,
+        )
+        self.assertEqual(
+            prospective["network_qc"]["weight_clamped_outside_reference"],
+            heldout["weight_clamped_outside_reference"],
+        )
+        self.assertEqual(
+            prospective["network_qc"]["weight_clamp_direction"],
+            heldout["weight_clamp_direction"],
         )
 
     def test_pipeline_fingerprint_changes_when_frozen_protocol_changes(self):

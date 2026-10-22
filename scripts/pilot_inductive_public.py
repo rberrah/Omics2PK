@@ -18,6 +18,11 @@ from omics2pk.inductive_sweet import (
     CONSTRUCTION_V0, CONSTRUCTION_V1,
     build_outer_split_features, fit_frozen_reference, predict_network,
 )
+from omics2pk.frozen_sweet_pipeline import (
+    fit_frozen_inductive_sweet_pipeline,
+    predict_frozen_inductive_sweet_pipeline,
+)
+from omics2pk.transcriptome_preprocessing import MODE_PASSTHROUGH
 
 
 def pilot(upstream: Path) -> dict:
@@ -52,6 +57,41 @@ def pilot(upstream: Path) -> dict:
         train_ids=train, test_ids=test, tissue="TCGA-archived-unspecified", folds=0,
         weight_expression=all_values, weight_genes=all_genes,
         construction=CONSTRUCTION_V1)
+    frozen_pipeline = fit_frozen_inductive_sweet_pipeline(
+        all_values[:, :60], genes=all_genes, subject_ids=train,
+        edge_genes=genes, tissue="TCGA-archived-unspecified",
+        mode=MODE_PASSTHROUGH, construction=CONSTRUCTION_V1)
+    frozen_predictions = [
+        predict_frozen_inductive_sweet_pipeline(
+            frozen_pipeline, all_values[:, col], subject_id=sid, genes=all_genes)
+        for col, sid in zip(range(60, len(samples)), test)
+    ]
+    if frozen_pipeline.reference.fingerprint != split["outer_reference_fingerprint"]:
+        raise ValueError("Frozen prospective reference differs from outer-split reference")
+    parity_atol = 1e-12
+    max_feature_parity_difference = 0.0
+    max_qc_parity_difference = 0.0
+    for prospective, heldout in zip(frozen_predictions, split["test"]):
+        for gene, value in prospective["features"].items():
+            diff = abs(value - heldout["features"][gene])
+            max_feature_parity_difference = max(max_feature_parity_difference, diff)
+            if diff > parity_atol:
+                raise ValueError("Frozen prospective features differ from outer-split heldout features")
+        qc = prospective["network_qc"]
+        for key in (
+            "weight",
+            "sample_similarity_z_vs_reference",
+            "weight_position_unclipped",
+        ):
+            diff = abs(qc[key] - heldout[key])
+            max_qc_parity_difference = max(max_qc_parity_difference, diff)
+            if diff > parity_atol:
+                raise ValueError("Frozen prospective QC differs from outer-split heldout QC")
+        if (
+            qc["weight_clamped_outside_reference"] != heldout["weight_clamped_outside_reference"]
+            or qc["weight_clamp_direction"] != heldout["weight_clamp_direction"]
+        ):
+            raise ValueError("Frozen prospective categorical QC differs from outer-split heldout QC")
     ref = fit_frozen_reference(
         values[:, :60], genes=genes, subject_ids=train,
         tissue="TCGA-archived-unspecified",
@@ -130,6 +170,12 @@ def pilot(upstream: Path) -> dict:
         "test_network_reference_n": 60,
         "all_heldout_predictions_share_frozen_fingerprint": (
             len({r["reference_fingerprint"] for r in split["test"]}) == 1),
+        "prospective_frozen_pipeline_fingerprint": frozen_pipeline.fingerprint,
+        "prospective_frozen_pipeline_matches_outer_split_all_test_subjects": True,
+        "prospective_frozen_pipeline_parity_absolute_tolerance": parity_atol,
+        "prospective_frozen_pipeline_max_feature_abs_difference": max_feature_parity_difference,
+        "prospective_frozen_pipeline_max_qc_abs_difference": max_qc_parity_difference,
+        "prospective_frozen_pipeline_refits_query": False,
         "heldout_patient_invariant_to_other_heldout_profile": True,
         "clipped_test_weights": clipped,
         "test_abs_strength_min": float(np.min(abs_strength)),
