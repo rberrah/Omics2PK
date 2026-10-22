@@ -34,17 +34,16 @@ The frozen architecture remains **R0 → R1 → R2 → longitudinal individualiz
 - Enforce time zone, technical replicates, consistent units, known concentration-to-dose event and explicit mismatches. No automated alias guessing.
 - Real-world repeated dosing, infusion, metabolites and sparse TDM require a dedicated design-specific dose history and NLME contract before clinical fitting.
 
-### E2. First genuinely measured clearance pilot (Wegler 2021, issue #11)
-- The 15 donor-matched human hepatocyte / liver microsome systems, five probe drugs, protein quantities, **in-vitro CLint**.
-- Complete donor × drug × preparation × method × units outcome/protein crosswalk from *original* supplementary tables. A readable proteome workbook is not sufficient.
-- Donor-disjoint leave-one-donor-out, drug-specific reference and prespecified single-CYP protein predictor. Report fold errors, uncertainty, denominators.
-- If original per-donor CLint is only present as figures, do not silently digitize and declare measurement truth; establish a separate low-fidelity exploratory study or obtain authors' tabular outcomes.
-- The result is a **mechanistic/IVIVE link**, not proof of clinical PK prediction.
+### E2. First genuinely measured clearance pilot — **completed with Wegler 2021**
+- Original SHA-locked Table S3 provides **15 donor-matched human hepatocyte / liver microsome systems × five probe drugs**, targeted CYP protein concentrations and **in-vitro CLint**.
+- The strict native-text parser recovers the same 15 donors across all drug blocks, preserves `ND`, and validates HLM `CLint,mic` / HH `CLint,hep` semantics against independent published aggregates.
+- Prespecified donor-disjoint LODO with a single corresponding CYP-protein predictor is complete. HH shows material improvement for midazolam, omeprazole and diclofenac; bupropion is near-neutral and bufuralol worse. HLM improvement is negligible overall.
+- This is a **mechanistic/IVIVE E2 link**, not proof of clinical PK prediction, RNA superiority or multi-omics benefit.
 
 ### E3. Transcriptomics-alone pilot (separate from protein CLint)
 - Need a cohort with **measured RNA and matched real PK** or a well-supported RNA→protein/enzymatic CLint assay linked by subject. If unavailable, document the gap.
 - Compare (1) clinical/PGx baseline, (2) expression-derived prespecified pathway scores, (3) original SWEET or independently qualified strictly inductive network scores.
-- SWEET must use only TRAIN-derived reference networks and preprocessing during held-out prediction; the original transductive algorithm is not a valid test-time pipeline. Upstream archive z-score discrepancy remains issue #4.
+- SWEET must use only TRAIN-derived reference networks and preprocessing during held-out prediction; the original transductive algorithm is not a valid test-time pipeline. The historical z-score archive mismatch is now resolved/documented, and the experimental query-anchored inductive v1 plus train-only preprocessing gates are qualified as software methodology, not biological superiority.
 
 ### E4. Parallel or integrated multiomics, ONLY if data justify
 - RNA + measured protein and/or metabolite phenotypes; strict sample identity and timeline alignment, no assuming simultaneous collection across public repositories.
@@ -77,13 +76,16 @@ For method ablations, additionally compare reference+direct RNA scores **without
 
 ## Site integration: **after empirical qualification**, not a substitute for it
 
-Source of truth: Omics2PK repository is a research engine/contract; MultiOmics performs exploratory/confirmatory omic QC and pathway analysis; rberrah.github.io is a static entry point, learning interface and approved public demo. Do not insert a clinical predictive service into a static GitHub Pages site or collect clinical omics/PK data on third-party endpoints.
+Source of truth: Omics2PK repository is a research engine/contract; MultiOmics performs exploratory/confirmatory omic QC and pathway analysis; the public Omics2PK site is a **learning/research evidence interface**, not a clinical predictor. Keep the common navigation thread **Apprendre / Analyze / Écosystème / Ressources**; while the analytical product is not ready, Analyze should remain an explicit **en cours** page rather than simulate a usable clinical tool.
 
-### Future section: Ecosystem → Omics and pharmacometrics
-Proposed concise path: **/omics2pk/** (final route to be reconciled with active site navigation, not introduced until gates E2–E4 are demonstrably complete).
-- FR/EN, light/dark, consistent header/logo, margins, Resources and Ecosystem, return link to rberrah.github.io, accessible navigation and research-level warnings.
+### Public section: Ecosystem → Omics and pharmacometrics
+The current public structure should preserve the same navigation as MultiOmics: **Apprendre / Analyze / Écosystème / Ressources**.
+- **Apprendre → Objectif**: explain *why* molecular phenotypes could inform PK, using the qualified evidence ladder and explicit negative results.
+- **Apprendre → Démo guidée**: course-like *how-to* workflow from source identity → preprocessing → phenotype/score → held-out comparison → interpretation/abstention.
+- **Analyze**: remain clearly labelled **en cours** until a genuinely validated analysis workflow is ready; do not expose a pseudo-functional clinical analysis form.
+- FR/EN, light/dark, consistent header/logo, Resources and Ecosystem, return link to rberrah.github.io, accessible navigation and research-level warnings.
 - Courses: (1) DNA vs RNA vs protein vs metabolite; (2) linking phenotype to CYP/transporter/organ activity; (3) CLint vs plasma CL/CL-F and IVIVE; (4) dose–concentration and PopPK; (5) time/provenance and patient identity; (6) baseline PGx vs omics incremental value; (7) SWEET network inductive vs transductive; (8) confidence, confounding, missingness and C-level abstention.
-- Beginner “discover in one click” demos should use reproducible **public or explicitly synthetic** data and report what was and was not measured, uncertainty, provenance and version.
+- Guided demos should use reproducible **public or explicitly synthetic** data and report what was and was not measured, uncertainty, provenance and version.
 - Professional tool: validated input schema → QC report → profile/pathway scores → optional qualified SWEET → exported **PK covariate research package** (not automated dosage advice). Actual PopPK estimation stays in an authorized scientific backend only.
 - No deployment claim, publication claim or clinical predictive benefit until the corresponding evidence gate is passed. For sensitive Thesis A/B/C intellectual property, publish only reviewed public interfaces after institutional IP checkpoint.
 
