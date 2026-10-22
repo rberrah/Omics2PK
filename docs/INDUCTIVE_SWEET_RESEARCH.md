@@ -26,7 +26,7 @@ Two constructions are retained.
 `A = corr_genes(X_train)`, `B = corr_genes([X_train, x])`, then
 `G0(x) = A + w0(x) * (B-A)`.
 
-**v1 (current default, query-anchored):**
+**v1 (recommended candidate for new experiments, query-anchored):**
 `A_x = corr_genes([X_train, x])` and
 `B_x = corr_genes([X_train, x, x])`, then
 `G1(x) = A_x + w1(x) * (B_x-A_x)`.
@@ -38,7 +38,9 @@ held-out subject, PK endpoint or outcome is used. The query's own expression is
 allowed to construct its own network, just as a deployed model may use the new
 patient's measured RNA.
 
-v0 remains selectable only for reproducibility of earlier experiments.
+v0 remains the **API compatibility default** so historical Omics2PK scripts
+do not silently change numerical results. New qualification workflows must
+request v1 explicitly with `construction="query_anchored_duplicate_v1"`.
 
 ### Sample weighting and difference from official SWEET
 
