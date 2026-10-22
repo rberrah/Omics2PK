@@ -60,6 +60,12 @@ class HLCSweetActivityBenchmarkTests(unittest.TestCase):
         self.assertTrue(out["site_used_only_for_outer_holdout"])
         self.assertFalse(out["pk_pd_target_used_to_build_network"])
         self.assertFalse(out["heldout_expression_used_to_fit_preprocessing_or_gene_selection"])
+        self.assertTrue(out["omics2pk_fitted_components_outer_train_frozen"])
+        self.assertTrue(out["source_expression_preprocessed_before_omics2pk_outer_split"])
+        self.assertFalse(out["end_to_end_raw_expression_train_frozen"])
+        self.assertIn("age_sex_plus_sweet_topology_permuted_control", out["mae_by_model"])
+        self.assertIn("delta_MAE_sweet_minus_topology_permuted_control", out)
+        self.assertEqual(out["topology_control_seed"], 20261022)
         self.assertFalse(out["individual_predictions_exported"])
         self.assertTrue(out["not_clinical_PK_or_PopPK"])
         self.assertFalse(out["equivalent_to_official_sweet"])
@@ -121,6 +127,19 @@ class HLCSweetActivityBenchmarkTests(unittest.TestCase):
             a["site_results"]["SITE_A"]["outer_reference_fingerprint"],
             b["site_results"]["SITE_A"]["outer_reference_fingerprint"],
         )
+
+    def test_topology_control_is_outcome_independent_for_heldout_site(self):
+        a = self.run_benchmark()
+        changed = self.activity.copy()
+        changed[:30] *= 100
+        b = self.run_benchmark(activity=changed)
+        # Changing SITE_A outcomes must not alter SITE_A network or control topology.
+        self.assertEqual(
+            a["site_results"]["SITE_A"]["edge_selection_fingerprint"],
+            b["site_results"]["SITE_A"]["edge_selection_fingerprint"],
+        )
+        self.assertEqual(a["topology_control_seed"], b["topology_control_seed"])
+        self.assertIn("age_sex_plus_sweet_topology_permuted_control", a["mae_by_model"])
 
     def test_requires_three_sites_and_source_annotated_direct_gene(self):
         with self.assertRaisesRegex(HLCSweetBenchmarkError, "at least three"):
