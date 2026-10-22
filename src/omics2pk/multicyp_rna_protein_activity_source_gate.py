@@ -255,7 +255,7 @@ def evaluate_original_source(rows):
         "n_included_cyp_endpoints":len(results),
         "included_cyp_isoforms":sorted(results),
         "expected_source_donors_per_included_cyp":profile["expected_donors_per_included_cyp"],
-        "expected_complete_donors_per_included_cyp":profile["expected_donors_per_included_cyp"],
+        "minimum_complete_donors_required_per_included_cyp":MIN_COMPLETE_DONORS,
         "results_by_cyp":results,
         "primary_question":"does RNA+protein improve held-donor activity prediction over RNA alone",
         "model":"complete-case donor-LODO fixed ridge alpha1; log1p measurements; no imputation",
