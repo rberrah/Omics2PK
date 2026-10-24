@@ -1,6 +1,10 @@
-# Omics2PK — working to-do list (16 October 2026)
+# Omics2PK — working to-do list (updated 24 October 2026)
 
 This list follows the earlier MultiOmics → SWEET → Pillar A → Pillar B R2 discussions. **When inspected the Omics2PK repository was empty; there was no pre-existing to-do file to read.** The plan below has therefore been reconstructed and must be reconciled with the owner's priorities.
+
+## Current development boundary — source acquisition first
+
+The remaining open scientific blockers are now consolidated in [the external data acquisition matrix](EXTERNAL_DATA_ACQUISITION_MATRIX_20261024.md). Until one of those gates receives legitimate real source rows, generic SWEET/model complexity is **not** the priority. Software changes should be limited to source ingestion, leakage/identity safety, preregistered execution, or reproducibility of an acquired dataset.
 
 ## Actual supplied Phapale supplementary archives qualified (2026-10-16)
 
