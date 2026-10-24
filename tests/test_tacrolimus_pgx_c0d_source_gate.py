@@ -116,6 +116,13 @@ class TacrolimusPGxC0DGateTests(unittest.TestCase):
         with self.assertRaises(TacrolimusPGxBaselineError):
             qualify_tacrolimus_clinical_pgx_c0d(x)
 
+        x=rows()
+        x[0].pop("rs75125371_effect_allele")
+        x[0].pop("rs75125371_effect_allele_dosage")
+        with self.assertRaisesRegex(
+            TacrolimusPGxBaselineError,"complete for every subject"):
+            qualify_tacrolimus_clinical_pgx_c0d(x)
+
 
 if __name__=="__main__":
     unittest.main()
