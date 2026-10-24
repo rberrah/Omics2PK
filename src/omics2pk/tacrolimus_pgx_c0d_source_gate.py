@@ -104,6 +104,7 @@ def qualify_tacrolimus_clinical_pgx_c0d(
     sex_counts=Counter()
     genotype_counts=Counter()
     candidate_counts=Counter()
+    candidate_rows=0
     outcomes=[]
 
     for row in rows:
@@ -159,6 +160,7 @@ def qualify_tacrolimus_clinical_pgx_c0d(
             rs75125371_alleles.add(allele2)
             candidate_counts[_dosage(
                 second_dosage,"rs75125371_effect_allele_dosage")]+=1
+            candidate_rows+=1
 
         normalized=c0/(daily/weight)
         if not isfinite(normalized) or normalized<=0:
@@ -171,6 +173,9 @@ def qualify_tacrolimus_clinical_pgx_c0d(
     if rs75125371_alleles and len(rs75125371_alleles)!=1:
         raise TacrolimusPGxBaselineError(
             "rs75125371 effect-allele orientation must be constant across cohort")
+    if rs75125371_alleles and candidate_rows!=len(rows):
+        raise TacrolimusPGxBaselineError(
+            "rs75125371 must be complete for every subject in the comparison cohort")
     if len(genotype_counts)<2:
         raise TacrolimusPGxBaselineError(
             "rs776746 cohort has no genotype variation for comparison")
