@@ -119,6 +119,7 @@ Full source-level audit: [REAL_MULTIOMICS_OUTPUT_AUDIT_AND_PK_ADAPTER_GAPS_20261
 - [ ] R/Julia third-party replication beyond sklearn, and multiple-testing-aware inference, sensitivity to CYP outliers, donor age/batch, and original paper processing consistency.
 - [ ] Externally replicate with separate donor cohort and different drugs/assays. E2 outcomes are *in-vitro functional metabolism*, NOT systemic clearance, measured plasma concentration or patient MIPD.
 - [ ] True E3 **clinical** Omics→PopPK remains blocked until compatible public or permissioned PK/TDM molecular data contain actual dose/time/concentration for the same biological individual. Clinical+PGx PopPK required as true comparator.
+- [x] Freeze a **tacrolimus clinical+PGx C0/D comparator source gate** from Yang 2022 / GSE196772: n251 public SNP-array cohort; published age+sex+HCT R2 17.89%, +CYP3A5*3 35.12%, +rs75125371 37.34%. These are in-sample explanatory R2, not held-out prediction. GEO does not expose a verified same-subject 251-row clinical C0/dose/weight/HCT vector, so the new gate refuses reconstruction from cohort summaries and remains a comparator-definition asset rather than a clinical validation dataset.
 - [ ] Only after review/rights qualification, expose FR/EN beginner courses and a clearly labelled **nonclinical** research demonstration at rberrah.github.io. Never use published in-vitro phenotype to suggest patient dosing.
 
 ## Measured-source audit — real source bytes read, no fake model fit
