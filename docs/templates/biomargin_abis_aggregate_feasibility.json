@@ -1,0 +1,21 @@
+{
+  "counts": {
+    "biomargin_molecular_patients": 0,
+    "exact_biomargin_abis_crosswalk_patients": 0,
+    "tacrolimus_tdm_patients": 0,
+    "tacrolimus_timed_dose_concentration_patients": 0,
+    "tacrolimus_preoutcome_omics_patients": 0,
+    "tacrolimus_cyp3a5_patients": 0,
+    "tacrolimus_repeated_omics_patients": 0,
+    "mpa_tdm_patients": 0,
+    "mpa_timed_dose_concentration_patients": 0,
+    "mpa_preoutcome_omics_patients": 0,
+    "independent_site_or_time_holdout_patients": 0
+  },
+  "attestations": {
+    "deterministic_same_person_crosswalk_confirmed": false,
+    "authorized_linkage_and_research_use_confirmed": false,
+    "omics_collection_time_available": false,
+    "no_direct_identifiers_in_aggregate_exchange": true
+  }
+}
