@@ -10,7 +10,7 @@ fits one fixed ridge regression in log(activity) per held-out donor fold.
 from __future__ import annotations
 
 from datetime import datetime
-from math import exp, isfinite, log, sqrt
+from math import ceil, exp, isfinite, log, sqrt
 from random import Random
 from statistics import mean
 from typing import Mapping, Sequence
@@ -129,7 +129,7 @@ def benchmark_cyp3a5_activity(
     activity_assay_at: Sequence[str], activity_unit: str,
     activity_assay_validated: bool, modalities: Mapping[str, Mapping[str, object]],
     source_kind: str, source_sha256: str, n_folds: int = 5,
-    max_lookback_days: int = 30,
+    max_lookback_days: int = 30, interval_alpha: float | None = None,
 ) -> dict[str, object]:
     """Held-donor compare PGx vs independent omic layers and curated subset.
 
@@ -142,6 +142,12 @@ def benchmark_cyp3a5_activity(
 
     The outcome must be specifically measured CYP3A5 enzyme activity, NOT CYP3A
     shared probe activity, protein abundance, or an already fitted PK target.
+
+    Set interval_alpha (e.g. 0.10) to request an **optional** split-conformal
+    descriptive interval audit. Within each outer fold the training donors
+    are split independently into proper-fit/calibration; interval centers
+    use the proper-fit model, never the full-fold point model. Exchangeability
+    is an untested assumption, not clinical calibration evidence.
     """
     ids = tuple(donor_ids)
     n = len(ids)
@@ -165,6 +171,10 @@ def benchmark_cyp3a5_activity(
              "Invalid prespecified pre-activity lookback")
     _require(isinstance(modalities, Mapping) and 1 <= len(modalities) <= 3
              and set(modalities) <= _ALLOWED, "One to three supported omics needed")
+    _require(interval_alpha is None or (isinstance(interval_alpha, (int, float))
+             and not isinstance(interval_alpha, bool) and isfinite(interval_alpha)
+             and 0.01 <= interval_alpha <= 0.25),
+             "interval_alpha must be 0.01 to 0.25 or None")
 
     y = [_positive(v, "measured CYP3A5 activity") for v in measured_activity]
     dates = [_date(v) for v in activity_assay_at]
@@ -193,6 +203,8 @@ def benchmark_cyp3a5_activity(
                  "Validated hepatic CYP3A5 activity requires matched liver tissue")
         _require(spec.get("preprocessing_scope") in {"per_sample", "external_frozen"},
                  "Cross-donor preprocessing must be externally frozen before heldout CV")
+        _require(spec.get("assay_relation_to_outcome") in {"independent_assay", "independent_specimen"},
+                 "Omic predictors must come from an independent assay/specimen, not the activity outcome assay")
         times = spec.get("collected_at", ())
         _require(len(times) == n, "Omic specimen dates must match all donors")
         for t, assay_t in zip(times, dates):
@@ -240,10 +252,28 @@ def benchmark_cyp3a5_activity(
         names.append("genotype_plus_curated_omics")
     error: dict[str, list[float]] = {name: [] for name in names}
     full_predictions: dict[str, dict[int, float]] = {name: {} for name in names}
-    for test in groups:
+    interval_audit: dict[str, dict[str, list[float] | int]] = {
+        name: {"hits": [], "widths": [], "errors": [], "n_calibration": []}
+        for name in names}
+    interval_eligible = interval_alpha is not None
+    # Freeze the same calibration participants for ALL model arms in a fold.
+    # A requested level may be ineligible for a small cohort: return ABSTAIN.
+    for fold_idx, test in enumerate(groups):
         test_set = set(test)
         train = [i for i in order if i not in test_set]
         train_y = [log(y[i]) for i in train]
+        if interval_alpha is not None:
+            # The split is indexed by source donor identities, not observed Y.
+            shuffled_train = list(train)
+            Random(20261103 + 31 * fold_idx).shuffle(shuffled_train)
+            # Need >=ceil(1/alpha)-1 calibration samples for a finite
+            # order-statistic quantile; always preserve >=8 proper-fit donors.
+            minimum_calibration = ceil(1.0 / interval_alpha) - 1
+            n_cal = max(minimum_calibration, ceil(len(train) * .25))
+            if len(train) - n_cal < 8:
+                interval_eligible = False
+            calibration = shuffled_train[:n_cal]
+            proper = shuffled_train[n_cal:]
         for name in names:
             def x(i: int) -> list[float]:
                 row = list(genotype[i])
@@ -257,6 +287,30 @@ def benchmark_cyp3a5_activity(
                                          [x(i) for i in test])
             for i, p in zip(test, predictions):
                 full_predictions[name][i] = p
+            if interval_alpha is not None and len(proper) >= 8:
+                cal_pred = _ridge_predict([x(i) for i in proper],
+                                           [log(y[i]) for i in proper],
+                                           [x(i) for i in calibration])
+                cal_resid = sorted(abs(log(y[i]) - log(pr))
+                                   for i, pr in zip(calibration, cal_pred))
+                # Standard split conformal finite-sample quantile. If rank
+                # exceeds ncal, an unbounded interval is needed: abstain.
+                rank = ceil((len(cal_resid) + 1) * (1 - interval_alpha))
+                if rank > len(cal_resid):
+                    interval_eligible = False
+                    continue
+                radius = cal_resid[rank - 1]
+                predictions_for_interval = _ridge_predict(
+                    [x(i) for i in proper], [log(y[i]) for i in proper],
+                    [x(i) for i in test])
+                block = interval_audit[name]
+                block["n_calibration"].append(len(calibration))
+                for i, center in zip(test, predictions_for_interval):
+                    lower = center * exp(-radius)
+                    upper = center * exp(radius)
+                    block["hits"].append(float(lower <= y[i] <= upper))
+                    block["widths"].append(upper - lower)
+                    block["errors"].append(abs(y[i] - center))
     for name in names:
         _require(len(full_predictions[name]) == n, "Incomplete held-donor predictions")
         error[name] = [abs(y[i] - full_predictions[name][i]) for i in order]
@@ -264,6 +318,33 @@ def benchmark_cyp3a5_activity(
     baseline = out["genotype_only"]
     differences = {name: round(val - baseline, 8)
                    for name, val in out.items() if name != "genotype_only"}
+    if interval_alpha is None:
+        interval_results = {"status": "NOT_REQUESTED"}
+    elif not interval_eligible or any(
+            len(v["hits"]) != n for v in interval_audit.values()):
+        interval_results = {
+            "status": "ABSTAIN_INSUFFICIENT_PROPER_TRAIN_OR_CALIBRATION_DONORS",
+            "requested_alpha": interval_alpha,
+            "requested_nominal_coverage": 1 - interval_alpha,
+            "model_interval_metrics": None,
+        }
+    else:
+        interval_results = {
+            "status": "EXPLORATORY_SPLIT_CONFORMAL_EXCHANGEABILITY_UNVERIFIED",
+            "requested_alpha": interval_alpha,
+            "requested_nominal_coverage": 1 - interval_alpha,
+            "model_interval_metrics": {name: {
+                "empirical_heldout_coverage": round(mean(v["hits"]), 6),
+                "mean_prediction_interval_width_in_endpoint_units": round(mean(v["widths"]), 8),
+                "heldout_MAE_interval_proper_fit_model": round(mean(v["errors"]), 8),
+                "min_calibration_donors_per_fold": min(v["n_calibration"]),
+            } for name, v in interval_audit.items()},
+            "interval_centers_fit_on_proper_training_only": True,
+            "point_MAE_uses_full_outer_training_and_is_not_interval_center": True,
+            "finite_sample_marginal_coverage_requires_exchangeable_independent_donors": True,
+            "independent_external_calibration_tested": False,
+            "conditional_or_genotype_subgroup_coverage_guaranteed": False,
+        }
     # Important: paired MAE deltas are descriptive ONLY: no refitted bootstrap,
     # no hypothesis test, no 90% interval claims from tiny E2 datasets.
     return {
@@ -284,5 +365,7 @@ def benchmark_cyp3a5_activity(
         "feature_provenance_independently_verified": False,
         "no_individual_predictions_or_source_donor_ids_exported": True,
         "uncertainty_calibrated": False,
+        "prediction_interval_audit": interval_results,
+        "omics_independent_from_outcome_assay_declared_not_verified": True,
         "in_vivo_PK_prediction_demonstrated": False,
     }
