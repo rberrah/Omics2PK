@@ -42,7 +42,8 @@ def fixture(n=60, include_metabolome=True):
         ms.append([rng.gauss(0, 2), metab_signal])
         gen.append(exp(-.7 + .5 * g + .68 * functional_noise + rng.gauss(0, .08)))
     source["measured_activity"] = gen
-    base = dict(tissue="liver", preprocessing_scope="per_sample")
+    base = dict(tissue="liver", preprocessing_scope="per_sample",
+                assay_relation_to_outcome="independent_assay")
     source["modalities"]["transcriptomics"] = dict(
         **base, donor_ids=list(ids), collected_at=list(times),
         feature_ids=["rna_total", "rna_canonical"], values=rn,
@@ -166,6 +167,68 @@ class FunctionalActivityBenchmarkTests(unittest.TestCase):
         r = benchmark_cyp3a5_activity(**d)
         self.assertNotIn("SYN-000", str(r))
         self.assertNotIn("predictions_by_donor", r)
+
+    def test_requested_intervals_use_independent_calibration_and_never_export_rows(self):
+        d = fixture()
+        out = benchmark_cyp3a5_activity(**d, interval_alpha=0.1)
+        audit = out["prediction_interval_audit"]
+        self.assertEqual(audit["status"], "EXPLORATORY_SPLIT_CONFORMAL_EXCHANGEABILITY_UNVERIFIED")
+        self.assertEqual(audit["requested_nominal_coverage"], 0.9)
+        self.assertTrue(audit["interval_centers_fit_on_proper_training_only"])
+        self.assertFalse(audit["independent_external_calibration_tested"])
+        self.assertEqual(set(audit["model_interval_metrics"]),
+                         set(out["MAE_by_arm_observed_activity_units"]))
+        for result in audit["model_interval_metrics"].values():
+            self.assertGreaterEqual(result["min_calibration_donors_per_fold"], 9)
+            self.assertGreater(result["mean_prediction_interval_width_in_endpoint_units"], 0)
+            self.assertTrue(0 <= result["empirical_heldout_coverage"] <= 1)
+        self.assertNotIn("SYN-", str(audit))
+
+    def test_intervals_do_not_change_prespecified_full_outer_fit_maes(self):
+        d = fixture()
+        baseline = benchmark_cyp3a5_activity(**d)
+        with_intervals = benchmark_cyp3a5_activity(**d, interval_alpha=.1)
+        self.assertEqual(baseline["MAE_by_arm_observed_activity_units"],
+                         with_intervals["MAE_by_arm_observed_activity_units"])
+        self.assertEqual(baseline["prediction_interval_audit"]["status"], "NOT_REQUESTED")
+
+    def test_intervals_order_invariant_and_fixed_seed(self):
+        d = fixture()
+        r = benchmark_cyp3a5_activity(**d, interval_alpha=.1)["prediction_interval_audit"]
+        reverse = list(reversed(range(len(d["donor_ids"]))))
+        for key in ("donor_ids", "diplotypes", "genotype_call_statuses",
+                    "measured_activity", "activity_assay_at"):
+            d[key] = [d[key][i] for i in reverse]
+        for mod in d["modalities"].values():
+            for key in ("donor_ids", "values", "collected_at"):
+                mod[key] = [mod[key][i] for i in reverse]
+        again = benchmark_cyp3a5_activity(**d, interval_alpha=.1)["prediction_interval_audit"]
+        self.assertEqual(r, again)
+
+    def test_small_n_high_coverage_abstains_without_fake_interval(self):
+        d = fixture(n=30)
+        r = benchmark_cyp3a5_activity(**d, interval_alpha=.01)
+        audit = r["prediction_interval_audit"]
+        self.assertEqual(audit["status"], "ABSTAIN_INSUFFICIENT_PROPER_TRAIN_OR_CALIBRATION_DONORS")
+        self.assertIsNone(audit["model_interval_metrics"])
+        self.assertIn("genotype_only", r["MAE_by_arm_observed_activity_units"])
+
+    def test_invalid_interval_level_rejected(self):
+        for bad in (-1, 0, 1, True, float("nan")):
+            with self.subTest(bad=bad), self.assertRaisesRegex(FunctionalBenchmarkError, "interval_alpha"):
+                benchmark_cyp3a5_activity(**fixture(), interval_alpha=bad)
+
+    def test_activity_derived_metabolite_blocked_even_if_measured_at_landmark(self):
+        d = fixture()
+        d["modalities"]["metabolomics"]["assay_relation_to_outcome"] = "same_activity_assay_derived"
+        with self.assertRaisesRegex(FunctionalBenchmarkError, "independent assay"):
+            benchmark_cyp3a5_activity(**d)
+
+    def test_unknown_assay_independence_blocked(self):
+        d = fixture()
+        d["modalities"]["proteomics"]["assay_relation_to_outcome"] = "unknown"
+        with self.assertRaisesRegex(FunctionalBenchmarkError, "independent assay"):
+            benchmark_cyp3a5_activity(**d)
 
     def test_works_without_metabolome_cannot_claim_metabolite_gain(self):
         d = fixture(include_metabolome=False)
