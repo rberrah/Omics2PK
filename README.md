@@ -16,7 +16,7 @@ The comparison is designed to be falsifiable: an omic signal may be redundant, u
 
 ### Biological knowledge reconciliation (research-only prototype, 2026-11-03)
 
-A [CYP3A5 functional-evidence pilot](docs/CYP3A5_FUNCTIONAL_EVIDENCE_PILOT_20261103.md) now triages potential contradictions between qualified *1/*3/*6/*7 allele calls and transcript/protein/activity/metabolite observations. Total-gene RNA detection is never treated as proof of active protein; ambiguous metabolites and incomplete PGx cause explicit warnings/abstentions. The module assigns **no fixed percent-of-function weights**, does **not** fit a PK model, and has **no demonstrated predictive gain**. MultiOmics V1 producer artifacts remain unchanged. Synthetic rule checks run in the offline Python tests.
+A [CYP3A5 functional-evidence pilot](docs/CYP3A5_FUNCTIONAL_EVIDENCE_PILOT_20261103.md) and [held-donor phenotype-proximity protocol](docs/PHENOTYPE_PROXIMITY_AND_FUNCTIONAL_ACTIVITY_20261103.md) now triage potential contradictions between qualified *1/*3/*6/*7 allele calls and transcript/protein/activity/metabolite observations. Total-gene RNA detection is never treated as proof of active protein; ambiguous metabolites and incomplete PGx cause explicit warnings/abstentions. The module assigns **no fixed percent-of-function weights**, does **not** fit a PK model, and has **no demonstrated predictive gain**. MultiOmics V1 producer artifacts remain unchanged. Synthetic rule checks run in the offline Python tests.
 
 ### Research design
 
