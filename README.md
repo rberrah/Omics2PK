@@ -14,6 +14,10 @@ For the **same people, measured PK outcomes, prediction landmark and held-out fo
 
 The comparison is designed to be falsifiable: an omic signal may be redundant, unstable, tissue-inappropriate, or harmful for predictive performance. Links between RNA, enzyme activity and ex-vivo intrinsic clearance are **not** equivalent to predicting in-vivo tacrolimus disposition.
 
+### Biological knowledge reconciliation (research-only prototype, 2026-11-03)
+
+A [CYP3A5 functional-evidence pilot](docs/CYP3A5_FUNCTIONAL_EVIDENCE_PILOT_20261103.md) now triages potential contradictions between qualified *1/*3/*6/*7 allele calls and transcript/protein/activity/metabolite observations. Total-gene RNA detection is never treated as proof of active protein; ambiguous metabolites and incomplete PGx cause explicit warnings/abstentions. The module assigns **no fixed percent-of-function weights**, does **not** fit a PK model, and has **no demonstrated predictive gain**. MultiOmics V1 producer artifacts remain unchanged. Synthetic rule checks run in the offline Python tests.
+
 ### Research design
 
 | Comparison axis | Candidate arms | Primary control |
