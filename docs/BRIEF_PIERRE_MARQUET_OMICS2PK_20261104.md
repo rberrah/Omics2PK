@@ -20,6 +20,25 @@ La fusion à trois omiques ajoute **+0.023458 de MAE** par rapport à classe + A
 
 **Message oral pour Pierre Marquet :** nous avons maintenant non seulement des preuves ARN→fonction CYP (HLC/EPA), mais aussi un contre-exemple source-vérifié où accumuler ARN+protéines+métabolites dégrade la prédiction pharmacologique. Le verrou devient la qualité, les isoformes, les protocoles et l'identité biologique des mesures, **avant** le choix de l'algorithme.
 
+## Actual result — do we have the right metabolites and biological pathways?
+
+The [source-executed pathway/analytical-grade audit](NCI60_BIOLOGICAL_PATHWAY_QC_20261104.md) is now **successful** in [GitHub Actions #41850397076](https://github.com/rberrah/Omics2PK/actions/runs/41850397076), on the exact same original **47** NCI-60 source-matched cell lines and doxorubicin *in-vitro* GI50.
+
+**Original Metabolon annotations:** of 280 source feature labels, **111 named chemical candidates** (identity-level/standards not independently authenticated from original 2-column metadata), **161 X unknowns**, **7 unresolved isobar signals**, **1 possible artifact**. Thus a naive all-280-metabolites → pathway claim is unjustified.
+
+**Frozen identical-fold, cancer-class-adjusted MAE (smaller better)**:
+- ARN : **0.334666**;
+- full 280 metabolites: **0.355840**;
+- **111 candidate-named** metabolites: **0.345659**;
+- ARN + these 111: **0.344727**;
+- ARN + all 280: **0.351537**;
+- ARN + proteins + all 280: **0.358124**;
+- ARN + proteins + 111 named metabolites: **0.350081**.
+
+Paired ΔMAE (named 111 vs all 280, tumor-adjusted metabolomics-only) **−0.010181**, descriptive 95% bootstrap interval **[−0.018241, −0.001674]**; this does not establish that analytical identification causes the improvement (different feature count, original upstream preparation, exploratory post-benchmark contrast). None of the six explicit **biochemical candidate panels** improves on cancer class + ARN alone; the nucleotide panel is numerically closest (**0.338575** with RNA) and the redox/GSH panel produces **0.351715** with RNA. Numerous candidate pathways are incomplete: **no source GSSG, NADPH, NADP+, no observed doxorubicin/doxorubicinol**. Of direct drug-associated symbols, **TOP2A/TOP2B, ABCB1, ABCC1, ABCG2, CBR1, CBR3 mRNA** is in the measured gene list, but only **TOP2B/ABCB1/CBR1 proteins** are in the SWATH Table S1E source.
+
+**Interpretation to present:** the absence of gain from crude high-dimensional metabolomics **does not invalidate metabolism or multi-omics**. We must show exactly which chemical structures, enzyme proteins, reaction partners, substrates, fluxes and sampling times are available *before* comparing performance, and explicitly mark what cannot be inferred. NCI-60 sources come from different studies, source metabolites are candidate labels, curated full Reactome/KEGG reaction-edge mapping is NOT yet authenticated, and GI50 is **cellular PD, not tacrolimus PK**.
+
 ## Message en une phrase
 L'expression hépatique ciblée contient une information prédictive sur l'activité enzymatique, **mais davantage de variables omiques ne signifie pas nécessairement une meilleure prédiction** ; la preuve pertinente pour les immunosuppresseurs reste de montrer un gain sur une mesure PK indépendante chez les mêmes patients.
 
