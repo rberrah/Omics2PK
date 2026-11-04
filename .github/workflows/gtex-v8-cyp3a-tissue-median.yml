@@ -1,0 +1,37 @@
+name: Official GTEx V8 CYP3A liver vs whole-blood source median screen (not PK)
+on:
+  pull_request:
+    paths:
+      - "scripts/audit_gtex_v8_cyp3a_blood_liver_medians.py"
+      - "tests/test_gtex_v8_cyp3a_blood_liver_medians.py"
+      - ".github/workflows/gtex-v8-cyp3a-tissue-median.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  actual-official-gtex-original-source:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+      - run: python -m unittest discover -s tests -p 'test_gtex_v8_cyp3a_blood_liver_medians.py' -v
+      - run: python scripts/audit_gtex_v8_cyp3a_blood_liver_medians.py > official_gtex_v8_cyp3a_tissue_median_aggregate.json
+      - name: Confirm aggregate-only result, never source patient-level metadata
+        run: |
+          python - <<'PY'
+          import json
+          r=json.load(open('official_gtex_v8_cyp3a_tissue_median_aggregate.json'))
+          assert r['status'].startswith('OFFICIAL_GTEX_V8_')
+          assert len(r['gene_level_original_TPM']) == 5
+          assert not r['same_donor_cross_tissue_correlation_measured']
+          assert not r['observed_human_drug_AUC_or_CL_present']
+          print(json.dumps(r,indent=2))
+          PY
+      - uses: actions/upload-artifact@v6
+        with:
+          name: gtex-v8-cyp3a-original-tissue-median-no-donor-rows
+          path: official_gtex_v8_cyp3a_tissue_median_aggregate.json
+          retention-days: 21
