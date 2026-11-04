@@ -186,7 +186,33 @@ def evaluate_mutation_modality_budget(ids, lineage, response, mutation_labels,
                 arm:round(float(np.abs(v[:,sel]-y[sel][None,:]).mean()-reference),6)
                 for arm,v in fixed.items() if arm!="mutation_only"},
             "subgroup_results_exploratory_not_external_replicates":True}
+    # Additional *prespecified measured mutation* strata, never an
+    # automatically optimized genotype-specific omic selection. A rare
+    # carrier group is a source-qualified abstention rather than a fake
+    # mutation interaction. These are repeated, descriptive errors only.
+    by_mutation={}
+    for j,label in enumerate(labels[:-1]):
+        carriers=int(np.sum(mut[:,j]==1))
+        noncarriers=int(np.sum(mut[:,j]==0))
+        if carriers<8 or noncarriers<8:
+            by_mutation[label]={
+                "status":"ABSTAIN_TOO_FEW_MUTATION_CARRIERS_OR_NONCARRIERS",
+                "n_original_mutated":carriers,"n_original_nonmutated":noncarriers}
+            continue
+        per_group={}
+        for g in (0,1):
+            mask=mut[:,j]==g
+            baseline=float(np.abs(fixed["mutation_only"][:,mask]-y[mask][None,:]).mean())
+            per_group[str(g)]={
+                "n_original_distinct_lines":int(mask.sum()),
+                "mutation_only_MAE":round(baseline,6),
+                "fixed_modality_delta_MAE_negative_better":{
+                    arm:round(float(np.abs(vec[:,mask]-y[mask][None,:]).mean()-baseline),6)
+                    for arm,vec in fixed.items() if arm!="mutation_only"}}
+        by_mutation[label]={"status":"DESCRIPTIVE_SUBGROUP_NOT_MUTATION_EFFECT_TEST",
+                            "conditional_original_test_errors":per_group}
     return {
+        "source_observed_mutation_gene_subgroups":by_mutation,
         "status":"SOURCE_MUTATION_AWARE_THREEOMIC_CELL_LINE_GI50_RESEARCH_NOT_PK",
         "n_unique_biological_cell_lines":n,
         "n_repeated_not_independent_test_predictions":n*repeats,
