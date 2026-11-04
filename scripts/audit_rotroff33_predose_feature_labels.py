@@ -52,7 +52,14 @@ def audit_original_labels(zipdata):
         matched[key]={term:sum(bool(name and name.lower()==term.lower()) for j,name in original_meta)
                       for term in terms}
     second=omics[1]
+    pk=clinical[2]
+    source_columns=[]
+    for j,label in sorted(pk[0].items()):
+        if j>0 and label and len(label)<72 and all(ch.isprintable() for ch in label):
+            source_columns.append({"source_index":j,"header":label,
+                "n_numeric_patient_values":sum(_as_float(row.get(j)) is not None for row in pk[1:])})
     summary={
+      "source_clinical_column_metadata_no_patient_values":source_columns,
       "source":"Rotroff 2016 doi:10.3389/fphar.2016.00135 original supplemental MS workbook",
       "n_original_participants":m["n_original_unique_source_patients"],
       "n_original_predose_qualified_features":m["n_source_predose_molecular_features"],
