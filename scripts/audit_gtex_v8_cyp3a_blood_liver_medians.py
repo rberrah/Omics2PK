@@ -79,5 +79,6 @@ if __name__=="__main__":
     except (OSError,GTExSourceError) as error:
         print(json.dumps({"status":"ABSTAIN_NO_AUTHENTIC_GTEX_SOURCE",
                           "error_type":type(error).__name__,
-                          "http_code":getattr(error,"code",None)},sort_keys=True))
+                          "http_code":getattr(error,"code",None),
+                          "source_contract_reason":str(error)[:140] if isinstance(error,GTExSourceError) else "network_download_failed"},sort_keys=True))
         raise SystemExit(2)
