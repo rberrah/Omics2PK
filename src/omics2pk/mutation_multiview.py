@@ -60,14 +60,18 @@ def _view(train, test, cap):
     return pca.fit_transform(a),pca.transform(b)
 
 
-def _build_fold(y, lineage, mutation, assays, train, test, *, interactions=False):
+def _build_fold(y, lineage, mutation, assays, train, test, *, interactions=False, include_mutation=True):
     enc=OneHotEncoder(handle_unknown="ignore",sparse_output=False)
     cl_tr=enc.fit_transform(np.asarray(lineage)[train,None])
     cl_te=enc.transform(np.asarray(lineage)[test,None])
     # No unseen mutation calls: source 0/1 flags plus mutation burden.
-    s=StandardScaler().fit(mutation[train])
-    base_tr=np.column_stack((cl_tr,s.transform(mutation[train])))
-    base_te=np.column_stack((cl_te,s.transform(mutation[test])))
+    if include_mutation:
+        s=StandardScaler().fit(mutation[train])
+        base_tr=np.column_stack((cl_tr,s.transform(mutation[train])))
+        base_te=np.column_stack((cl_te,s.transform(mutation[test])))
+    else:
+        base_tr=cl_tr
+        base_te=cl_te
     groups=mutation[:,0].astype(int) # original predeclared TP53 column
     views={name:_view(values[train],values[test],CAPS[name])
            for name,values in assays.items()}
@@ -126,6 +130,7 @@ def evaluate_mutation_modality_budget(ids, lineage, response, mutation_labels,
         raise MutationMultiViewError("ABSTAIN TP53 genotype strata too small for comparison")
     views={key:np.asarray(v,dtype=float) for key,v in assays.items()}
     fixed={name:np.full((repeats,n),np.nan) for name in MODES}
+    fixed_without_mutations={name:np.full((repeats,n),np.nan) for name in MODES}
     interacts={name:np.full((repeats,n),np.nan) for name in PAIRED_INTERACTIONS}
     adaptive={q:np.full((repeats,n),np.nan) for q in (0.8,0.9)}
     choices={q:{0:Counter(),1:Counter()} for q in (0.8,0.9)}
@@ -155,16 +160,25 @@ def evaluate_mutation_modality_budget(ids, lineage, response, mutation_labels,
                     choices[q][g][eligible[g]]+=1
                 chosen[q]=eligible
             outer_preds=_build_fold(y,lineage,mut,views,tr,te)
+            no_mutation_preds=_build_fold(y,lineage,mut,views,tr,te,include_mutation=False)
             int_preds=_build_fold(y,lineage,mut,views,tr,te,interactions=True)
-            for arm in MODES:fixed[arm][rep,te]=outer_preds[arm]
+            for arm in MODES:
+                fixed[arm][rep,te]=outer_preds[arm]
+                fixed_without_mutations[arm][rep,te]=no_mutation_preds[arm]
             for arm in PAIRED_INTERACTIONS:interacts[arm][rep,te]=int_preds[arm]
             for q in (0.8,0.9):
                 for ix in te:
                     adaptive[q][rep,ix]=outer_preds[chosen[q][int(mut[ix,0])]][np.flatnonzero(te==ix)[0]]
     if any(not np.isfinite(v).all() for v in
-           list(fixed.values())+list(interacts.values())+list(adaptive.values())):
+           list(fixed.values())+list(fixed_without_mutations.values())+list(interacts.values())+list(adaptive.values())):
         raise MutationMultiViewError("Incomplete original line-disjoint heldout runs")
     obs={"fixed":{arm:_errors(v,y) for arm,v in fixed.items()},
+         "fixed_without_original_somatic_mutation_features":{
+             arm:_errors(v,y) for arm,v in fixed_without_mutations.items()},
+         "observed_mutation_incremental_delta_MAE_negative_is_better":{
+             arm:round(float(np.abs(fixed[arm]-y[None,:]).mean()-
+                             np.abs(fixed_without_mutations[arm]-y[None,:]).mean()),6)
+             for arm in MODES},
          "TP53_interaction":{arm:_errors(v,y) for arm,v in interacts.items()},
          "nested_TP53_guided_80_90":{}}
     for q,v in adaptive.items():
