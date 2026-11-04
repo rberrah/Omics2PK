@@ -11,7 +11,13 @@ source_version <- as.character(utils::packageVersion("rcellminerData"))
 if (source_version != "2.34.0") stop(paste("ABSTAIN: unpinned CellMiner mutation package version",source_version))
 utils::data("molData", package="rcellminerData", envir=environment())
 if (!exists("molData", inherits=FALSE)) stop("ABSTAIN: source object not loaded")
-mut <- Biobase::exprs(molData[["mut"]])
+# rcellminerData stores ExpressionSets in the MolData eSetList S4 slot.
+# Access the documented slot directly: [[ on this MolData class is unavailable
+# in the pinned release, even after loading rcellminer.
+esets <- methods::slot(molData, "eSetList")
+if (!is.list(esets) || !("mut" %in% names(esets)))
+  stop("ABSTAIN: original CellMiner mutation ExpressionSet absent")
+mut <- Biobase::exprs(esets[["mut"]])
 if (!is.matrix(mut) || ncol(mut) != 60L || nrow(mut) < 1000L ||
     is.null(rownames(mut)) || is.null(colnames(mut)) ||
     anyDuplicated(rownames(mut)) || anyDuplicated(colnames(mut)))
