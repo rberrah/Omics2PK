@@ -107,7 +107,7 @@ def scan_msp(path,target_bins,expected_size):
                 header_bytes+=len(s)
     if header:n_records+=1 # truncated separator at EOF: counts only, never invent identity
     if n_records<1000:
-        raise ValueError("Original public MSP not a multi-record spectrum library")
+        raise ValueError("Original MSP record count below 1000: count="+str(n_records)+" metadata_keys="+repr(list(counts.items())[:8])+" source_first_header="+repr(first_metadata[:1]))
     return {"n_reference_MSP_records":n_records,
             "source_original_MSP_SHA256":source.hexdigest(),
             "n_exact_identity_field_bin_matches":len(found),
