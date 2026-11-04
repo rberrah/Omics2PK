@@ -146,7 +146,8 @@ def benchmark_topletz_table2(rows: Sequence[Mapping[str, object]]) -> dict:
         "endpoint_unit":"pmol_vinorelbine_min_mg_microsomal_protein",
         "not_derived_Clint_or_CLh":True,
         "heldout_MAE_by_arm":mae,
-        "genotype_only_worse_than_CYP3A4_protein_heldout":\n            mae["cyp3a5_genotype_only"] > mae["cyp3a4_protein_only"],
+        "genotype_only_worse_than_CYP3A4_protein_heldout":
+            mae["cyp3a5_genotype_only"] > mae["cyp3a4_protein_only"],
         "no_automatic_source_byte_verification":True,
         "no_individual_rows_donor_ids_or_predictions_exported":True,
         "not_clinical_PopPK_or_tacrolimus":True,
