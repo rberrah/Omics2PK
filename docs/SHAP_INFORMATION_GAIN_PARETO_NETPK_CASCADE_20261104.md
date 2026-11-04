@@ -165,3 +165,7 @@ adaptative dans l'échantillon actuel.
 - `scripts/plot_original_information_budget.py` : figures agrégées sans patient.
 - `src/omics2pk/physiopharmaco_cascade.py` et `scripts/audit_nci60_string_shap_mechanistic_network.py` : réseau de preuves et consultation STRING (pas une preuve d'activité).
 - Tests synthétiques `tests/test_information_budget.py`, `tests/test_modalities_information_budget.py`, `tests/test_physiopharmaco_cascade.py`, `tests/test_nci60_string_shap_mechanistic_network.py` ; GitHub Actions source clinique et source NCI, sans fichier individu committé.
+
+## Deux expériences de falsification complémentaires (source originale exécutée)
+
+La [note réseau-nul et panels de gènes avec témoins appariés](NETWORK_NULL_AND_FUNCTION_PRIOR_FALSIFICATION_20261104.md) rassemble les vérifications ajoutées après la sélection SHAP : **2** ponts SHAP–pharmacologie observés contre **3** attendus dans les 10 réaffectations à degré fixé du réseau STRING sélectionné ; et **MAE GI50 0,360858** avec sept gènes mécanistiques préspécifiés contre **0,347203** type tumoral seul et médiane **0,353923** pour 64 procédures ARN témoins. Aucun signal de supériorité du prior biologique dans ces contrôles exploratoires. Les trois pics Rotroff prioritaires demeurent non identifiés ; aucun nouveau mécanisme PK n'est revendiqué.
