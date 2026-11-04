@@ -1,0 +1,65 @@
+"""Synthetic-only mutation-aware per-omic selection and abstention guards."""
+import unittest
+try:
+    import numpy as np
+    from omics2pk.mutation_multiview import (
+        MODES,MutationMultiViewError,evaluate_mutation_modality_budget,_view,
+    )
+except ImportError:
+    np=None
+
+
+@unittest.skipUnless(np is not None,"optional numpy/scikit-learn research extra")
+class MutationViews(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        rng=np.random.default_rng(200)
+        cls.n=35
+        tp53=np.array([0,1]*17+[1],dtype=float)
+        mutation_burden=rng.integers(0,15,35)
+        cls.mutation=np.column_stack((tp53,rng.integers(0,2,35),mutation_burden))
+        cls.labels=("mut_TP53","mut_TOP2A","mutation_burden")
+        cls.ids=tuple("S"+str(i) for i in range(35))
+        cls.lineage=tuple(("A","B","C")[i%3] for i in range(35))
+        cls.assays={
+            "rna":rng.normal(size=(35,40)),
+            "prot":rng.normal(size=(35,35)),
+            "met":rng.normal(size=(35,30)),
+        }
+        cls.y=2+cls.assays["rna"][:,0]*(1-tp53)+cls.assays["met"][:,0]*tp53+rng.normal(0,.1,35)
+
+    def test_full_mutation_and_threeomics_nested_fold_disjoint(self):
+        a=evaluate_mutation_modality_budget(
+            self.ids,self.lineage,self.y,self.labels,self.mutation,self.assays,
+            repeats=1)
+        self.assertEqual(a["n_unique_biological_cell_lines"],35)
+        self.assertEqual(set(a["original_in_vitro_GI50_observed_holdout"]["fixed"]),set(MODES))
+        self.assertEqual(set(a["original_in_vitro_GI50_observed_holdout"]["nested_TP53_guided_80_90"]),{"80","90"})
+        self.assertTrue(a["genotype_subgroup_model_chosen_using_outer_response"] is False)
+        self.assertTrue(a["no_externally_replicated_modality_by_genotype_interaction"])
+        self.assertTrue(a["no_patient_or_original_cell_line_feature_rows_exported"])
+        for p in a["original_in_vitro_GI50_observed_holdout"]["fixed"].values():
+            self.assertGreaterEqual(p["mae"],0)
+
+    def test_fold_transform_does_not_use_outer_test_values(self):
+        train=self.assays["rna"][:25]
+        test=self.assays["rna"][25:].copy()
+        first,_=_view(train,test,20)
+        altered=test.copy();altered[:]=1e10
+        second,_=_view(train,altered,20)
+        np.testing.assert_array_equal(first,second)
+
+    def test_no_pgx_fabrication_and_stratum_sizes(self):
+        with self.assertRaises(MutationMultiViewError):
+            evaluate_mutation_modality_budget(self.ids,self.lineage,self.y,
+                ("mutation_burden",),self.mutation[:,-1:],self.assays,repeats=1)
+        m=self.mutation.copy();m[:,0]=0
+        with self.assertRaises(MutationMultiViewError):
+            evaluate_mutation_modality_budget(
+                self.ids,self.lineage,self.y,self.labels,m,self.assays,repeats=1)
+        m=self.mutation.copy();m[0,0]=np.nan
+        with self.assertRaises(MutationMultiViewError):
+            evaluate_mutation_modality_budget(
+                self.ids,self.lineage,self.y,self.labels,m,self.assays,repeats=1)
+
+if __name__=="__main__":unittest.main()
