@@ -18,8 +18,10 @@ jobs:
       - uses: actions/setup-python@v6
         with:
           python-version: '3.11'
-      - name: Install editable Omics2PK research package
-        run: python -m pip install -e .
+      - name: Install editable Omics2PK and fixed PCA benchmark dependencies
+        run: |
+          python -m pip install -e .
+          python -m pip install numpy==2.3.5 scikit-learn==1.7.2
       - name: Synthetic source identity, disease and heldout leakage contracts
         run: python -m unittest discover -s tests -p 'test_geo_cyp3a_mirna.py' -v
       - name: Replay actual official GEO GSE49012 liver microRNA and measured CYP3A activity
