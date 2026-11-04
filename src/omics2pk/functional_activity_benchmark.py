@@ -16,6 +16,9 @@ from statistics import mean
 from typing import Mapping, Sequence
 
 from omics2pk.functional_knowledge import assess_cyp3a5_evidence
+from omics2pk.cyp3a_activity_phenotype import (
+    classify_cyp3a_assay, CYP3AAssayError,
+)
 
 
 class FunctionalBenchmarkError(ValueError):
@@ -130,6 +133,8 @@ def benchmark_cyp3a5_activity(
     activity_assay_validated: bool, modalities: Mapping[str, Mapping[str, object]],
     source_kind: str, source_sha256: str, n_folds: int = 5,
     max_lookback_days: int = 30, interval_alpha: float | None = None,
+    activity_assay_code: str | None = None,
+    activity_assay_evidence_doi: str | None = None,
 ) -> dict[str, object]:
     """Held-donor compare PGx vs independent omic layers and curated subset.
 
@@ -140,8 +145,10 @@ def benchmark_cyp3a5_activity(
     never matched automatically by row position; caller must establish original
     donor identity for each assay before passing this aligned input.
 
-    The outcome must be specifically measured CYP3A5 enzyme activity, NOT CYP3A
-    shared probe activity, protein abundance, or an already fitted PK target.
+    The outcome must be an independently assayed CYP3A5-selective enzyme
+    activity, not shared CYP3A probe activity or an already fitted PK target.
+    For original-source rows the validated probe identity and primary source
+    evidence DOI are mandatory; generic labels do NOT qualify.
 
     Set interval_alpha (e.g. 0.10) to request an **optional** split-conformal
     descriptive interval audit. Within each outer fold the training donors
@@ -164,6 +171,16 @@ def benchmark_cyp3a5_activity(
     _require(activity_assay_validated is True and isinstance(activity_unit, str)
              and bool(activity_unit.strip()),
              "Measured, validated CYP3A5-specific activity and units required")
+    assay_role = None
+    if source_kind == "original_source_declared" or activity_assay_code is not None:
+        try:
+            assay_role = classify_cyp3a_assay(
+                assay_code=activity_assay_code, assay_validated=activity_assay_validated,
+                source_doi=activity_assay_evidence_doi)
+        except CYP3AAssayError as exc:
+            raise FunctionalBenchmarkError("Original CYP3A5 activity assay evidence invalid") from exc
+        _require(assay_role["CYP3A5_selective_activity_endpoint_eligible"],
+                 "Shared CYP3A probe or drug metabolite cannot be CYP3A5-selective E2 target")
     _require(isinstance(n_folds, int) and not isinstance(n_folds, bool)
              and 3 <= n_folds <= 10 and n - (n + n_folds - 1) // n_folds >= 8,
              "Invalid donor-heldout fold count")
@@ -351,7 +368,9 @@ def benchmark_cyp3a5_activity(
         "status": ("SYNTHETIC_SOFTWARE_QUALIFICATION_NO_BIOLOGICAL_CLAIM"
                    if source_kind == "synthetic" else
                    "ORIGINAL_E2_HELD_DONOR_EXPLORATORY_NOT_CLINICAL_PK"),
-        "endpoint": "observed_CYP3A5_specific_enzyme_activity",
+        "endpoint": "observed_CYP3A5_selective_enzyme_activity",
+        "source_assay_identity": assay_role["assay_code"] if assay_role else "SYNTHETIC_NOT_VERIFIED",
+        "selectivity_not_exclusivity": True,
         "endpoint_unit": activity_unit,
         "n_independent_donors": n,
         "n_outer_donor_heldout_folds": n_folds,
