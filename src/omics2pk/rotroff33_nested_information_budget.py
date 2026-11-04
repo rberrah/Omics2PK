@@ -17,6 +17,7 @@ from sklearn.impute import SimpleImputer
 from omics2pk.information_budget import (
     DEFAULT_BUDGETS,TARGETS,cumulative_shap_coverage,
     pareto_frontier, select_gain_retention_budget,validate_budgets,
+    summarize_train_panel_stability,
 )
 from omics2pk.rotroff33_clinical_e3 import (
     E3SourceError,SEED,actual_original_tables,
@@ -111,19 +112,26 @@ def run_nested_budget(clinical,molecular,y,source_headers,*,candidate_budgets=DE
     rank_frequency=Counter()
     full_shap_acc=np.zeros(p,dtype=float)
     per_k_shap_training={k:[] for k in budgets}
+    selected_source_panels={q:[] for q in TARGETS}
+    inner_top10_rank_overlap=[]
     n_replicates=0
     for outer_index in range(n):
         train_outer=np.array([i for i in range(n) if i!=outer_index],dtype=int)
         inner_pred={k:np.full(len(train_outer),np.nan) for k in budgets}
         inner_splitter=KFold(n_splits=inner_n_splits,shuffle=True,
                              random_state=seed+outer_index)
+        inner_train_rank_panels=[]
         # Within each OUTER TRAINING set, every candidate includes independent
         # ranking + model refit on each INNER train fold.
         for inner_train,inner_valid in inner_splitter.split(train_outer):
             it=train_outer[inner_train];iv=train_outer[inner_valid]
-            pred,_,_=_fold_models(clinical[it],molecular[it],y[it],
+            pred,inner_rank,_=_fold_models(clinical[it],molecular[it],y[it],
                                   clinical[iv],molecular[iv],budgets)
+            inner_train_rank_panels.append([int(j) for j in inner_rank[:min(10,p)]])
             for k in budgets:inner_pred[k][inner_valid]=pred[k]
+        inner_top10_rank_overlap.append(
+            summarize_train_panel_stability(inner_train_rank_panels,p)
+            ["mean_pairwise_Jaccard_conditional_on_both_nonempty"])
         if any(not np.isfinite(vec).all() for vec in inner_pred.values()):
             raise E3SourceError("Leaked or incomplete inner patient predictions")
         inner_losses={k:float(np.mean(np.abs(pred-y[train_outer])))
@@ -149,6 +157,7 @@ def run_nested_budget(clinical,molecular,y,source_headers,*,candidate_budgets=DE
             k=choice["k"]
             by_fraction[fraction][outer_index]=float(outer_preds[k][0])
             retained[fraction][k]+=1
+            selected_source_panels[fraction].append([int(j) for j in rank[:k]])
             if choice["best_positive_inner_gain"]>0:
                 proportions[fraction].append(
                     choice["selected_inner_gain"]/choice["best_positive_inner_gain"])
@@ -171,6 +180,11 @@ def run_nested_budget(clinical,molecular,y,source_headers,*,candidate_budgets=DE
     auto={}
     for fraction,predictions in by_fraction.items():
         info=_heldout_metrics(predictions,y)
+        stability=summarize_train_panel_stability(selected_source_panels[fraction],p)
+        stability["source_feature_selection_frequency"]=[
+            {**rec,"original_source_feature_id":str(source_headers[rec["feature_index"]])}
+            for rec in stability["source_feature_selection_frequency"]
+        ]
         auto[str(int(100*fraction))]={
             "gain_retention_inner_cv_target_percent":int(100*fraction),
             "observed_outer_patient_heldout_performance":info,
@@ -178,6 +192,7 @@ def run_nested_budget(clinical,molecular,y,source_headers,*,candidate_budgets=DE
             "outer_fold_selected_k_frequency":{str(k):retained[fraction][k]
                                                for k in budgets if retained[fraction][k]>0},
             "n_outer_folds_using_zero_omic_features":retained[fraction].get(0,0),
+            "panel_selection_stability_train_only_descriptive":stability,
             "mean_selected_omic_features":round(
                 sum(k*v for k,v in retained[fraction].items())/n,5),
             "mean_inner_gain_fraction_retained_conditionally_on_positive_inner_gain":
@@ -191,6 +206,9 @@ def run_nested_budget(clinical,molecular,y,source_headers,*,candidate_budgets=DE
        "n_source_true_pk_outcomes":n,
        "number_outer_leave_one_person_out_folds":n,
        "number_inner_folds_per_outer":inner_n_splits,
+       "mean_inner_top10_SHAP_rank_Jaccard_train_only_descriptive":
+            round(float(np.mean(inner_top10_rank_overlap)),6),
+       "independent_reproducibility_of_biomarker_identity_demonstrated":False,
        "source_annotation_provenance":source_status,
        "candidate_budgets":list(budgets),
        "inner_selection_target":"smallest k with >=80/90 percent of BEST POSITIVE INNER-CV gain vs clinical-only",
