@@ -152,7 +152,7 @@ def benchmark_latham_phh_table4(rows: Sequence[Mapping[str, object]]) -> dict:
     }
     stratified={}
     for label,index in strata.items():
-        if len(index)<4:
+        if len(index)<5:
             stratified[label]={"n_original_donors":len(index),
                                "status":"ABSTAIN_SMALL_ORIGINAL_GENOTYPE_STRATUM"}
             continue
