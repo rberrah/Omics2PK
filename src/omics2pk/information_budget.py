@@ -8,6 +8,8 @@ This file has no dataset, clinical records, or model fitting dependency.
 """
 from __future__ import annotations
 import math
+from collections import Counter
+from itertools import combinations
 
 DEFAULT_BUDGETS = (0, 1, 2, 3, 5, 8, 12, 20, 40, 80, 160, 384)
 TARGETS = (0.8, 0.9)
@@ -125,3 +127,62 @@ def pareto_frontier(model_points):
     return {"criterion":"minimize (number of measured omic features, heldout prediction loss)",
             "non_dominated_models":frontier,
             "do_not_choose_using_outer_test_losses":True}
+
+
+def summarize_train_panel_stability(panels, n_features, *, max_reported=20):
+    """Descriptive feature-panel overlap across *training-derived* model fits.
+
+    All candidate selection and test performance evaluation MUST be done
+    separately, within nested CV. In LOOCV, training sets overlap heavily:
+    high Jaccard is not independent replication or biological confirmation.
+    Report empty panels separately so they cannot spuriously inflate overlap.
+    """
+    if isinstance(n_features, bool) or not isinstance(n_features, int) or n_features <= 0:
+        raise InformationBudgetError("Need positive original measured feature count")
+    if isinstance(max_reported, bool) or not isinstance(max_reported, int) or max_reported < 1:
+        raise InformationBudgetError("Need positive reporting limit")
+    if not isinstance(panels, (list, tuple)) or len(panels) < 2:
+        raise InformationBudgetError("At least two train-derived panels required")
+    normalized = []
+    for panel in panels:
+        if not isinstance(panel, (list, tuple)):
+            raise InformationBudgetError("Panel must be an ordered source-index collection")
+        indices = list(panel)
+        if (any(isinstance(i, bool) or not isinstance(i, int) or i < 0 or i >= n_features
+                for i in indices) or len(set(indices)) != len(indices)):
+            raise InformationBudgetError("Duplicate or non-source molecular feature")
+        normalized.append(set(indices))
+    nonempty = [panel for panel in normalized if panel]
+    intersections, jaccards, random_intersections = [], [], []
+    for left, right in combinations(nonempty, 2):
+        common = len(left & right)
+        intersections.append(common)
+        jaccards.append(common / len(left | right))
+        # Uniform random sets with these same panel sizes: descriptive
+        # expectation only. Correlated omics / overlapping donor folds are
+        # NOT covered by this null, so do not calculate a p-value.
+        random_intersections.append(len(left) * len(right) / n_features)
+    frequencies = Counter(i for panel in nonempty for i in panel)
+    top = sorted(frequencies.items(), key=lambda item: (-item[1], item[0]))[:max_reported]
+    return {
+        "status": "TRAIN_ONLY_PANEL_STABILITY_DESCRIPTIVE_NOT_EXTERNAL_VALIDATION",
+        "n_model_fits": len(normalized),
+        "n_nonempty_panels": len(nonempty),
+        "n_zero_omic_panels": len(normalized) - len(nonempty),
+        "n_pairs_both_nonempty": len(jaccards),
+        "mean_pairwise_Jaccard_conditional_on_both_nonempty":
+            round(sum(jaccards) / len(jaccards), 6) if jaccards else None,
+        "mean_pairwise_intersection_conditional_on_both_nonempty":
+            round(sum(intersections) / len(intersections), 6) if intersections else None,
+        "uniform_random_sets_expected_intersection_matched_panel_sizes":
+            round(sum(random_intersections) / len(random_intersections), 6)
+            if random_intersections else None,
+        "source_feature_selection_frequency": [
+            {"feature_index": idx, "n_training_panels": count,
+             "fraction_all_training_panels": round(count / len(normalized), 6),
+             "fraction_nonempty_training_panels": round(count / len(nonempty), 6)}
+            for idx, count in top
+        ],
+        "overlapping_train_folds_invalidate_independence_or_significance_claims": True,
+        "used_to_choose_panel_or_evaluate_predictive_gain": False,
+    }
