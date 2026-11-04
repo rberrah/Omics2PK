@@ -40,6 +40,26 @@ Paired descriptive bootstrap 95% intervals on **already heldout** absolute-error
 
 **Clinically meaningful checks:** Original AUC relative accuracy within 20% was 56.25% for clinical-only, 50.0% for full/named, and **46.875% for unknown-only** despite unknown's numerically lowest aggregate MAE. Thus it is **not valid** to assert that unknown metabolites clinically improve AUC. None improves both PK outcomes reproducibly.
 
+### Second real-data analysis with the actual source renal-function clinical covariate
+
+The independently verified **original clinical participant table** has `SrCR (mg/dL)` (source column 8, measured for **33/33** persons), and published screening included serum creatinine; the original worksheet contains no independent timestamp per clinical measurement, so it is treated as a study-screening covariate, not a verified same-day postdose value. Model uses **age, sex, weight and original source serum creatinine**, identical LOOCV and fold-local preprocessing. **Measured metformin AUC, urine output, CLr and any metformin-derived CLsr variables are expressly excluded from predictors**.
+
+**SOURCE EXECUTED SUCCESS** [#41903385811](https://github.com/rberrah/Omics2PK/actions/runs/41903385811) on original matched n32:
+
+| Model with serum creatinine, original table units | Measured metformin AUC MAE | Measured metformin CLr MAE |
+|---|---:|---:|
+| Clinical + original serum creatinine | **2948.824922** | **119.411548** |
+| + all 384 MS signals | 2936.748686 | 122.019884 |
+| + 155 chemically named | 3146.421253 | 129.107833 |
+| + 229 numbered/unknown | **2819.952884** | 121.973096 |
+| + partial urea cycle (3) | 3012.840330 | 124.209550 |
+| + partial purine degradation (2) | 3236.340917 | 122.522407 |
+| + combined partial panels (5) | 3030.281225 | 123.774555 |
+
+Again **none has established clinical added value**. Numeric AUC improvement using unknown features ΔMAE **−128.872** with descriptive 95% bootstrap **[−663.844 ; +368.642]**, but ±20% AUC accuracy is **46.875% vs 53.125% clinical+creatinine**. Kidney clearance is worse for every included molecular subset. The addition of creatinine also has no demonstrated net improvement over the 3-feature baseline, illustrating model instability and n32 limitations. This experiment is an **exploratory source-data sensitivity analysis, not a validated PK clinical covariate effect**.
+
+This strengthens the caution around proposing a circulating molecular predictor without strong original clinical baseline and complete genotype. It does not overturn the requirement to test actual **renal function** and transporters for metformin, since a single creatinine measurement is an imperfect renal GFR proxy.
+
 ### Interpretation in biological cascade terms
 
 The negative result does **not** prove that blood metabolomics is useless or that genotype is sufficient. The source panels were selected as partial biochemical reaction-neighborhood proxies based on original author article mechanisms and are **not complete pathway activity scores**. The original article focused significantly on **post-dose response and glucose PD**, not a prospective PK mechanism. Our test is exploratory reuse of those hypotheses, not independent a priori pathway validation. A plasma metabolite concentration may reflect production, uptake, diet, gut biology, renal clearance or compartment transport, rather than specific target tissue CYP activity or drug clearance. Renal clearance of metformin in this cohort is an important target but the current baseline lacks independently source-verified predose kidney function and individual real pharmacogenetics.
@@ -48,7 +68,7 @@ The negative result does **not** prove that blood metabolomics is useless or tha
 
 ### Next independent steps with no wet-lab budget
 
-1. Audit original predose kidney function + creatinine/eGFR metadata and fit a **stronger genuine source covariate baseline** before any claims (do not use observed metformin CLr to predict its own AUC as baseline).
+1. **Completed source audit and refit:** original serum creatinine measured 33/33 and additional clinical-baseline sensitivity analysis run at #41903385811. Full eGFR/transport function and baseline specimen timing, rather than metformin-derived CLr, still need qualification.
 2. Obtain original rosuvastatin n40 AUC/Cmax and linked predose intensities (MTBLS3128; [source access verdict](ROSUVASTATIN40_GITHUB_VS_EBI_FIVE_PROCESSED_CSV_VERDICT_20261018.md)). No invented matching or raw spectral-to-PK workaround.
 3. Pair with independent tissue-mechanistic human liver CYP activity from HLC/EPA and GTEx liver-vs-whole-blood detection floor, without implying blood enzyme functionality.
 4. For future source, separately qualify measured **actual genotype**, cellular specimen origin, source analytical assay confidence, functional tissue and **real PopPK baseline** before comparing omic modalities.
