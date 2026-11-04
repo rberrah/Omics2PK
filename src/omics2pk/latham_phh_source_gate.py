@@ -137,12 +137,23 @@ def benchmark_latham_phh_table4(rows: Sequence[Mapping[str, object]]) -> dict:
                                    [log(r["outcome"]) for r in train], [vector(held)])[0]
             losses[name].append(abs(guess - held["outcome"]))
     scores = {name: round(mean(values), 6) for name, values in losses.items()}
+    # Positive targeted peptide abundance and *shared* CYP3A probe activity in
+    # CPIC nonexpressers must not be relabelled CYP3A5-specific catalysis.
+    # Both assays can be technically correct without implying functional *3.
+    pm = [r for r in qualified if r["phenotype"] == "PM"]
+    pm_with_protein = [r for r in pm if r["protein"] is not None]
+    n_pm_peptide = sum(r["protein"][2] > 0 for r in pm_with_protein)
+    n_pm_shared_probe = sum(r["activity"][1] > 0 for r in pm)
     return {
         "status": "ORIGINAL_PUBLISHED_TABLE4_EXPLORATORY_IN_VITRO_PILOT_NOT_E3",
         "source_doi": SOURCE_DOI, "source_pmcid": SOURCE_PMCID,
         "source_rows": 14, "n_same_protein_complete_donors_all_arms": 13,
         "excluded_due_to_source_missing_protein": 1,
         "cyp3a5_phenotype_group_counts_original_14": {"NM": 1, "IM": 3, "PM": 10},
+        "cyp3a5_PM_phenotype_protein_complete": len(pm_with_protein),
+        "cyp3a5_PM_with_positive_targeted_peptide_quantitation": n_pm_peptide,
+        "cyp3a5_PM_with_positive_shared_CYP3A_probe_activity": n_pm_shared_probe,
+        "positive_peptide_or_shared_probe_is_not_CYP3A5_specific_function": True,
         "included_cyp3a5_star_6_and_star_7": True,
         "endpoint": "PHH_imatinib_apparent_in_vitro_clearance_not_human_plasma_PK",
         "endpoint_table4_unit": "microlitre_per_million_cells_per_minute",
