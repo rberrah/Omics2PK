@@ -38,7 +38,7 @@ def distinct_map(keys,label):
         if not k or k in out:raise SourceNotQualified("duplicate or empty "+label+" identity")
         out[k]=i
     return out
-def load_official_proteome():
+def load_official_proteome(return_gene_symbols=False):
     req=urllib.request.Request(URL,headers={"User-Agent":"Omics2PK published supplemental source audit"})
     with urllib.request.urlopen(req,timeout=90) as f:
         blob=f.read(45_000_001)
@@ -63,6 +63,7 @@ def load_official_proteome():
             names.append(canon(parts[1]));groups.append(PREFIX_TO_CLASS[parts[0]])
         if len(names)!=60 or len(set(names))!=60:raise SourceNotQualified("Original SWATH individual cell-line labels ambiguous")
         proteins=[]
+        gene_symbols=[]
         values=[]
         accessions=set()
         for row in rows:
@@ -79,13 +80,16 @@ def load_official_proteome():
                     if val<0 or not np.isfinite(val):raise SourceNotQualified("Invalid original protein intensity")
                     vals.append(val)
             if len(vals)!=60:raise SourceNotQualified("Incorrect original SWATH specimen columns")
-            proteins.append(accession);values.append(vals)
+            proteins.append(accession);gene_symbols.append(str(row[1]).strip());values.append(vals)
         if len(proteins)!=3171:raise SourceNotQualified("Original protein count not 3171")
         mat=np.asarray(values,dtype=float).T
         if np.isnan(mat).mean()>0.25:raise SourceNotQualified("Unexpected >25% original protein missingness")
         # Table E is original averaged raw intensity, not already log10.
         mat=np.log10(1+mat)
-        return tuple(names),tuple(groups),mat,sha
+        result=(tuple(names),tuple(groups),mat,sha)
+        if return_gene_symbols:
+            return result+(tuple(gene_symbols),)
+        return result
     finally:book.close()
 def run(ids,classes,y,rna,met,prot_names,prot_classes,prot):
     if len(ids)!=47 or len(set(ids))!=47:raise SourceNotQualified("Original fixed 47-line source gate failed")
