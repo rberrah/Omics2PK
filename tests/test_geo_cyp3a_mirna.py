@@ -59,7 +59,7 @@ def synthetic_soft(*, wrong_series=False, wrong_pmid=False,
         for j in range(405):
             txt.append(f"SYNTHETIC_FEATURE_{j:03d}\t{(10+rng.random()):.6f}")
         for j in range(65):
-            txt.append(f"hsa-miR-SYNTEST_{j:03d}\\t{(10+rng.random()):.6f}")
+            txt.append(f"hsa-miR-SYNTEST_{j:03d}\t{(10+rng.random()):.6f}")
         txt.append("!sample_table_end")
     return "\n".join(txt).encode("utf8")
 
