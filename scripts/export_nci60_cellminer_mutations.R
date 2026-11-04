@@ -24,12 +24,26 @@ if (!identical(names(responses), c("subject_id","cancer_class","y")) ||
     nrow(responses) != 47L || anyDuplicated(responses$subject_id))
   stop("ABSTAIN: original 47 distinct lineage-qualified drug-response lines required")
 canon <- function(x) gsub("[^A-Z0-9]","",toupper(as.character(x)))
-rk <- canon(responses$subject_id); mk <- canon(colnames(mut))
+# Official CellMiner labels are tissue-prefixed (e.g. BR:MCF7, LC:NCI-H23).
+# Tissue is independently cross-checked against IntLIM/Guo cancer_class.
+# Only the official LC:A549/ATCC -> A549 spelling variant is a declared
+# source-specific alias (see NCI CellMiner RNA-seq official cell-line help).
+raw_labels <- colnames(mut)
+prefix <- sub(":.*$","",raw_labels)
+known_prefix <- c(BR="BREAST",CNS="CNS",CO="COLON",LE="LEUKEMIA",
+                  ME="MELANOMA",LC="NSCLC",OV="OVARIAN",PR="PROSTATE",RE="RENAL")
+if (any(!grepl("^[A-Z]+:",raw_labels)) || any(!(prefix %in% names(known_prefix))))
+  stop("ABSTAIN: unknown original CellMiner source tissue prefix")
+cell_name <- sub("^[A-Z]+:","",raw_labels)
+cell_name[cell_name=="A549/ATCC" & prefix=="LC"] <- "A549"
+rk <- canon(responses$subject_id); mk <- canon(cell_name)
 if (any(!nzchar(rk)) || anyDuplicated(rk) || any(!nzchar(mk)) || anyDuplicated(mk))
   stop("ABSTAIN: ambiguous original mutation-to-drug source keys")
 idx <- match(rk,mk)
 if (anyNA(idx) || anyDuplicated(idx))
-  stop(sprintf("ABSTAIN: original CellMiner exact mutation cross-study line match %d/47",sum(!is.na(idx))))
+  stop(sprintf("ABSTAIN: original CellMiner source-name join %d/47, no free aliases allowed",sum(!is.na(idx))))
+if (any(unname(known_prefix[prefix[idx]]) != responses$cancer_class))
+  stop("ABSTAIN: cross-source mutation/cancer-lineage disagreement")
 # Binary gene-level mutation presence is already algorithmically qualified by
 # CellMiner. Original missing assay rows remain NA, NEVER treated as wildtype.
 prespecified <- c("TP53","TOP2A","TOP2B","ABCB1","ABCC1","ABCG2","CBR1","CBR3")
