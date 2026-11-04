@@ -14,5 +14,6 @@ jobs:
       - uses: actions/checkout@v5
       - uses: actions/setup-python@v6
         with: {python-version: "3.11"}
+      - run: python -m pip install -e .
       - name: Original published n33 source original chemical label versus 384 predose feature audit
         run: python -m scripts.audit_rotroff33_predose_feature_labels
