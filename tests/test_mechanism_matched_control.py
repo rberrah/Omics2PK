@@ -1,12 +1,17 @@
 """Synthetic fold-safe mechanistic source-panel / random RNA contracts."""
 import unittest
-import numpy as np
-from omics2pk.mechanism_matched_control import (
-    DRUG_GENES, FunctionalControlError,
-    benchmark_prior_against_controls, matched_source_control_panels
-)
+try:
+    import numpy as np
+    from omics2pk.mechanism_matched_control import (
+        DRUG_GENES, FunctionalControlError,
+        benchmark_prior_against_controls, matched_source_control_panels,
+    )
+except ImportError:  # lightweight mandatory offline suite: numerical dependencies optional
+    np = None
 
 
+
+@unittest.skipUnless(np is not None, "NumPy/scikit-learn optional scientific extra not installed")
 class MatchedSourceGeneNull(unittest.TestCase):
     def setUp(self):
         rng=np.random.default_rng(146)
