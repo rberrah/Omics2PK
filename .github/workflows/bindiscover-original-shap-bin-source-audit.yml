@@ -1,0 +1,39 @@
+name: Original SHAP-ranked Rotroff bins BinDiscover public spectral-ID probe
+on:
+  pull_request:
+    paths:
+      - "scripts/probe_bindiscover_rotroff_shap_bins.py"
+      - "tests/test_bindiscover_original_bin_probe.py"
+      - ".github/workflows/bindiscover-original-shap-bin-source-audit.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  published-binbase-namespace-source-check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+      - name: Synthetic source parsing tests, no fake chemistry
+        run: python -m unittest discover -s tests -p 'test_bindiscover_original_bin_probe.py' -v
+      - name: Three actual high SHAP original feature IDs against documented historical BinDiscover API
+        run: python -m scripts.probe_bindiscover_rotroff_shap_bins > binbase_top3_probe_aggregate.json
+      - name: Verify no spectral values published or cross-study bin identity assumed
+        run: |
+          python - <<'PY'
+          import json
+          r=json.load(open('binbase_top3_probe_aggregate.json'))
+          assert r['n_original_SHAP_ranked_bins_queried']==3
+          assert r['no_deconvoluted_spectra_copied']
+          assert r['no_original_study_to_spectrum_crosswalk_proved']
+          assert r['no_new_molecule_or_transporter_assigned']
+          print(json.dumps(r,indent=2))
+          PY
+      - uses: actions/upload-artifact@v6
+        with:
+          name: rotroff3-binbase-public-api-metadata-only-status
+          path: binbase_top3_probe_aggregate.json
+          retention-days: 21
