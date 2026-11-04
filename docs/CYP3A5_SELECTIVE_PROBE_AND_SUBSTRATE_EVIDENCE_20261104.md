@@ -36,6 +36,24 @@ Original Table 2 reports CYP3A5*1/*3 donor **IUL-57** among the *low measured ex
 
 Published interpretation remains that vinorelbine CL is mainly associated with CYP3A4 phenotype. This is not proof for other CYP3A substrates.
 
+## Exploratory vinorelbine negative-control computation (20 original article rows, MANUALLY TRANSCRIBED)
+
+The 20 original Topletz Table-2 rows were **manually transcribed in an ephemeral local analysis** from the publicly printed article. Same 20 source donor identities and exactly one held-out donor for every arm. Each fitted model uses fixed Ridge(alpha=1) on log observed `v_[1 µM vinorelbine]` with strictly train-only z-score standardization. The unfitted comparator is the mean observed donor rate in the other 19 donors. The table is original human liver research, but transcription was **NOT independently machine-replayed from the DOI-pinned article**; metrics are therefore preliminary and should not be claimed as an independently reproduced public dataset benchmark.
+
+| Predeclared exploratory arm | LODO MAE (pmol/min/mg measured rate) |
+|---|---:|
+| Other donors' mean | 16.412632 |
+| CYP3A5*1 copy count only | 16.647751 |
+| CYP3A5 protein only | 16.475507 |
+| CYP3A4 protein only | **8.767444** |
+| CYP3A4 protein + CYP3A5*1 copy count | 9.199472 |
+| CYP3A4 + CYP3A5 protein | 9.038718 |
+| CYP3A4 + CYP3A5 proteins + CYP3A5*1 copy count | 9.254531 |
+
+These results are an **exploratory negative control on the source study**: adding CYP3A5-related variables did not improve the heldout MAE beyond CYP3A4 protein alone in these 20 microsomal donors. This is entirely consistent with the original authors' conclusion that CYP3A4 dominated vinorelbine metabolism, but cannot establish causality, extrapolate to clinical vinorelbine exposure or infer anything about tacrolimus clearance. No CYP3A5-specific activity was independently measured in this table, and the reported derived CLint/CLh must not be treated as additional outcomes.
+
+A reusable source-qualification and donor-heldout model `src/omics2pk/topletz_vinorelbine_source_gate.py` was added, with **synthetic** contract tests. It requires the caller to supply the authentic original 20 source rows with DOI and exact unique donor keys; raw source table and donor records are not committed. This function does **not** independently authenticate the original source HTML, which remains inaccessible to the current automated acquisition route.
+
 ## Source acquisition status (automated audit)
 
 The DOI-locked audit `scripts/audit_public_cyp3a5_followup_sources.py` retrieves the original articles from Europe PMC JATS first and PMC HTML second, and reports only table structure/supplement attachment metadata and SHA256. On 2026-11-04 original JATS for **Grangeon succeeded** (tables 1–3). At that time the public Bissada and Topletz endpoints were unreachable/structure-blocked by the current runner: **ABSTAIN_OFFICIAL_ARTICLE_UNAVAILABLE** is an *access state*, not proof article data do not exist. The inventory does NOT verify Grangeon supplementary donor values and does NOT perform numerical CYP3A5-vs-PK prediction. Explicitly keep the abstention rather than using web-rendered article rows or figures as if the original table had been independently parsed.
