@@ -1,0 +1,28 @@
+name: Public PHH genotype proteome enzyme-activity imatinib source replay
+on:
+  pull_request:
+    paths:
+      - 'src/omics2pk/latham_phh_source_gate.py'
+      - 'scripts/benchmark_latham_phh_original.py'
+      - 'tests/test_latham_phh_source_gate.py'
+      - '.github/workflows/latham-phh-source-replay.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  original-phh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+      - name: Install source-only dependencies
+        run: |
+          python -m pip install -e .
+          python -m pip install 'beautifulsoup4==4.12.3'
+      - name: Test synthetic DOI and source-join fail-closed gates
+        run: python -m unittest discover -s tests -p 'test_latham_phh_source_gate.py' -v
+      - name: Replay actual original Latham PHH Table 4, 14 published donors 13 protein complete
+        run: python -m scripts.benchmark_latham_phh_original
