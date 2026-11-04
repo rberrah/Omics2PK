@@ -35,7 +35,7 @@ jobs:
         with:
           python-version: "3.11"
       - name: Install pinned scientific XGB and original SWATH source parser
-        run: python -m pip install -e . 'numpy==2.2.6' 'scikit-learn==1.7.2' 'xgboost==3.0.5' 'openpyxl==3.1.5'
+        run: python -m pip install -e . 'numpy==2.2.6' 'scikit-learn==1.7.2' 'xgboost==3.0.5' 'openpyxl==3.1.5' 'matplotlib==3.10.7'
       - name: Verify cost-selective 80/90 percent methods offline without clinical/source rows
         run: python -m unittest discover -s tests -p 'test_modalities_information_budget.py' -v
       - name: Source-original public NCI60 RNA / metabolome and doxorubicin GI50 matched identity export
@@ -70,6 +70,11 @@ jobs:
           python -m unittest discover -s tests -p 'test_nci60_string_shap_mechanistic_network.py' -v
           python -m unittest discover -s tests -p 'test_physiopharmaco_cascade.py' -v
           python -m scripts.audit_nci60_string_shap_mechanistic_network | tee nci60_source_shap_STRING12_5_aggregate.json
+      - name: Source-verified STRING 17-gene functional-only graphical cascade
+        run: |
+          python -m scripts.plot_nci60_string_shap_cascade \
+            --input nci60_source_shap_STRING12_5_aggregate.json \
+            --output nci60_source_shap_STRING12_5_functional_network.png
       - name: Network source uncertainty gate
         run: |
           python - <<'PY'
@@ -85,4 +90,5 @@ jobs:
           path: |
             nci60_threeomics_nested_modalities_aggregate.json
             nci60_source_shap_STRING12_5_aggregate.json
+            nci60_source_shap_STRING12_5_functional_network.png
           retention-days: 21
