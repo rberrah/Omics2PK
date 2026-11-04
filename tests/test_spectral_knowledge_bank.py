@@ -2,6 +2,7 @@
 import sqlite3
 import unittest
 
+from omics2pk.proteoform_reference import register_protein_evidence
 from omics2pk.spectral_biochemical_seed import seed_bibliography
 from omics2pk.spectral_knowledge_bank import (
     REFERENCE_CATALOGUE, SpectralKnowledgeError, add_mechanism_link,
@@ -35,6 +36,25 @@ class SpectrumBankTests(unittest.TestCase):
         return search_spectral_candidates(
             self.db,q,mass_tolerance_da=.03,retention_tolerance=40,**opts
         )
+    def test_protein_ptm_not_a_metabolite_and_not_drug_binding_function(self):
+        kwargs={"source_accession":"PXD000001", "protein_uniprot":"P02768",
+                "gene":"ALB","assay_type":"TOP_DOWN_INTACT_PROTEOFORM",
+                "specimen":"human_plasma","modification":"oxidation",
+                "modification_site":"unlocalized",
+                "source_url":"https://www.ebi.ac.uk/pride/",
+                "evidence_level":"source_reported_unvalidated"}
+        result=register_protein_evidence(self.db,**kwargs)
+        self.assertFalse(result["albumin_drug_binding_or_in_vivo_PK_change_established"])
+        self.assertFalse(result["proteoform_site_confirmed"])
+        self.assertEqual(self.db.execute("SELECT COUNT(*) FROM spectral_reference").fetchone()[0],0)
+        with self.assertRaises(SpectralKnowledgeError):
+            register_protein_evidence(self.db,**{**kwargs,
+                "evidence_level":"standard_confirmed"})
+        with self.assertRaises(SpectralKnowledgeError):
+            register_protein_evidence(self.db,**{**kwargs,
+                "assay_type":"GC_EI"})
+        self.assertEqual(self.db.execute("SELECT COUNT(*) FROM protein_proteoform_reference").fetchone()[0],1)
+
     def test_unresolved_original_study_features_can_be_indexed_without_mass(self):
         study="synthetic_study"
         status=register_original_omic_feature(self.db,study=study,feature_id="629905",
