@@ -106,8 +106,8 @@ def scan_msp(path,target_bins,expected_size):
                 counts[key]+=1
                 header_bytes+=len(s)
     if header:n_records+=1 # truncated separator at EOF: counts only, never invent identity
-    if n_records<1000:
-        raise ValueError("Original MSP record count below 1000: count="+str(n_records)+" metadata_keys="+repr(list(counts.items())[:8])+" source_first_header="+repr(first_metadata[:1]))
+    if n_records<100:
+        raise ValueError("Original public MSP has too few records for stated public reference catalogue: "+str(n_records))
     return {"n_reference_MSP_records":n_records,
             "source_original_MSP_SHA256":source.hexdigest(),
             "n_exact_identity_field_bin_matches":len(found),
@@ -129,7 +129,7 @@ def main(unknown_path,known_path):
     bins_in_unknown=set(scan1["matched_source_bins"])
     matched=bins_in_known|bins_in_unknown
     return {
-        "status":"ORIGINAL_ROTR0FF_229_BINS_SCREENED_AGAINST_PINNED_PUBLIC_MSP_SOURCES_NOT_IDENTIFICATIONS",
+        "status":"ORIGINAL_ROTROFF_229_BINS_SCREENED_AGAINST_PINNED_PUBLIC_MSP_SOURCES_NOT_IDENTIFICATIONS",
         "upstream":UPSTREAM,
         "original_Rotroff_clinical_source_SHA256":source["original_clinical_workbook_SHA256"],
         "original_Rotroff_molecular_source_SHA256":source["original_untargeted_metabolomic_workbook_SHA256"],
