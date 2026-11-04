@@ -9,7 +9,7 @@ MODES={"tumor_only":(),"rna":("rna",),"protein":("prot",),
        "all":("rna","prot","met")}
 class MultimodalCosts(unittest.TestCase):
     def test_cheapest_single_source_80_vs_full90(self):
-        losses={"tumor_only":.35,"rna":.34,"protein":.34,"met":.3275,
+        losses={"tumor_only":.35,"rna":.34,"protein":.34,"met":.328,
                 "rna_protein":.330,"rna_met":.329,
                 "prot_met":.328,"all":.325}
         eighty=choose_minimum_modalities(losses,MODES,fraction=.8)
