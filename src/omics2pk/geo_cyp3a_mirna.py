@@ -16,7 +16,7 @@ from collections import Counter
 from hashlib import sha256
 from math import exp, isfinite, log, log1p
 from random import Random
-from statistics import mean
+from statistics import mean, median
 import gzip
 import re
 from typing import Mapping, Sequence
@@ -296,7 +296,50 @@ def compare_geo_mirna_vs_cyp3a_activity(
     _require(all(v==34 for v in n_pred.values()),
              "Fold split lost original biological samples")
     maes={arm:round(mean(loss),8) for arm,loss in errors.items()}
+    medae={arm:round(median(loss),8) for arm,loss in errors.items()}
     base=maes["disease_status_only"]
+    def quantile(vals, frac):
+        vals=sorted(vals)
+        pos=(len(vals)-1)*frac
+        j=int(pos)
+        return vals[j]+(vals[min(j+1,len(vals)-1)]-vals[j])*(pos-j)
+    # The heldout loss per disease group is aligned across all arms because
+    # the same sample partitions are used. This stratified paired bootstrap
+    # resamples precomputed heldout losses only; it is NOT a refitted bootstrap
+    # nor a calibrated inference interval for external population performance.
+    intervals={}
+    for idx,arm in enumerate(errors):
+        if arm=="disease_status_only":
+            continue
+        group_deltas={
+            group:[loss-ref for loss,ref in zip(
+                by_group[arm][group],by_group["disease_status_only"][group])]
+            for group in ("NORMAL","DISEASE")
+        }
+        rng=Random(20261104+idx)
+        boot=[]
+        for _ in range(1999):
+            sampled=[
+                group_deltas[g][rng.randrange(len(group_deltas[g]))]
+                for g in ("NORMAL","DISEASE")
+                for i in range(len(group_deltas[g]))
+            ]
+            boot.append(mean(sampled))
+        intervals[arm]=[
+            round(quantile(boot,.025),8),round(quantile(boot,.975),8)]
+    source_distribution={
+        group:{
+            "n":len([r for r in rec if r["status"]==group]),
+            "mean":round(mean(r["activity"] for r in rec
+                              if r["status"]==group),6),
+            "median":round(median(r["activity"] for r in rec
+                                  if r["status"]==group),6),
+            "min":round(min(r["activity"] for r in rec
+                                if r["status"]==group),6),
+            "max":round(max(r["activity"] for r in rec
+                                if r["status"]==group),6),
+        } for group in ("NORMAL","DISEASE")
+    }
     return {
         "status":"PUBLIC_ORIGINAL_GEO_LIVER_MIRNA_SHARED_CYP3A_ACTIVITY_E2",
         "source_geo":SERIES,"source_doi":DOI,"source_pubmed":SOURCE_PUBMED,
@@ -318,6 +361,11 @@ def compare_geo_mirna_vs_cyp3a_activity(
         "miRNA_feature_sets_used":{k:list(v) for k,v in available.items()},
         "miRNA_feature_arms_abstained":omitted,
         "heldout_MAE_by_arm_source_activity_units":maes,
+        "heldout_median_absolute_error_by_arm_source_activity_units":medae,
+        "observed_source_activity_aggregate_by_disease":source_distribution,
+        "exploratory_stratified_paired_delta_MAE_bootstrap_95pct_vs_disease":intervals,
+        "paired_bootstrap_resamples_heldout_losses_not_refitted_models":1999,
+        "external_population_uncertainty_calibrated":False,
         "heldout_MAE_by_arm_and_disease_status":{
             arm:{group:round(mean(loss),8) for group,loss in samples.items()}
             for arm,samples in by_group.items()},
