@@ -7,6 +7,7 @@ from __future__ import annotations
 import io, os, urllib.request, hashlib, zipfile
 from openpyxl import load_workbook
 URLS=(
+    "https://ars.els-cdn.com/content/image/1-s2.0-S2589004219304407-mmc2.xlsx",
     "https://pmc.ncbi.nlm.nih.gov/articles/PMC6889472/bin/mmc2.xlsx",
     "https://pmc.ncbi.nlm.nih.gov/articles/instance/6889472/bin/mmc2.xlsx",
     "https://europepmc.org/articles/PMC6889472/bin/mmc2.xlsx",
@@ -21,6 +22,8 @@ def get_source():
                 final=h.geturl()
             print("FETCH",url,"resolved",final,"bytes",len(b),"sha256",hashlib.sha256(b).hexdigest())
             if len(b)>4_000_000 and zipfile.is_zipfile(io.BytesIO(b)):
+                if b[:2]==b"PK" and final.lower().endswith(".xlsx"):
+                    return b,final
                 with zipfile.ZipFile(io.BytesIO(b)) as archive:
                     names=archive.namelist()
                     print("ARCHIVE_ENTRIES", [(name,archive.getinfo(name).file_size) for name in names[:22]])
