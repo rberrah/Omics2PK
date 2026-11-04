@@ -1,6 +1,10 @@
 """Scientific schema guards, synthetic only. No source patient data printed."""
 import unittest
-import numpy as np
+try:
+    import numpy
+    import sklearn
+except ImportError:
+    raise unittest.SkipTest('Optional original clinical PK numerical dependencies are tested in their dedicated pinned workflow')
 from omics2pk.rotroff33_pathway_e3 import (
    HYPOTHESES,PLANS,benchmark_one_target,qualify_original_feature_labels,E3SourceError
 )
