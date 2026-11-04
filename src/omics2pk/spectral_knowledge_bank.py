@@ -147,6 +147,13 @@ def make_db(path):
           payload TEXT NOT NULL, chemical_id TEXT NOT NULL,
           PRIMARY KEY(source,accession));
         CREATE INDEX IF NOT EXISTS spectrum_chemical ON spectral_reference(chemical_id);
+        CREATE TABLE IF NOT EXISTS protein_proteoform_reference (
+          source_accession TEXT NOT NULL, protein_uniprot TEXT NOT NULL,
+          gene TEXT NOT NULL, assay_type TEXT NOT NULL,
+          specimen TEXT NOT NULL, modification TEXT NOT NULL,
+          site TEXT NOT NULL, source_url TEXT NOT NULL,
+          source_evidence_level TEXT NOT NULL,
+          PRIMARY KEY(source_accession,protein_uniprot,modification,site));
         CREATE TABLE IF NOT EXISTS omic_feature (
           study TEXT NOT NULL, source_feature_id TEXT NOT NULL,
           assay TEXT NOT NULL, specimen TEXT NOT NULL,
@@ -298,7 +305,6 @@ def triage_unassigned_feature_id(feature_id):
 def register_original_omic_feature(db, *, study, feature_id, label, assay, specimen,
                                    provenance_url, known_source_chemical_name=False):
     """Original study feature namespace; NO patient intensities or invented mass."""
-    import re as _re
     for name,value in (("study",study),("feature_id",feature_id),("label",label),
                        ("assay",assay),("specimen",specimen),("provenance_url",provenance_url)):
         if not isinstance(value,str) or not value.strip() or len(value)>250:
