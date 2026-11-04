@@ -1,0 +1,57 @@
+name: Original Rotroff 229 bins vs pinned public BinDiscover MSP 40MB source crosswalk
+on:
+  pull_request:
+    paths:
+      - "scripts/audit_rotroff_vs_bindiscover_public_msp.py"
+      - "tests/test_rotroff_bindiscover_public_msp.py"
+      - ".github/workflows/rotroff-bindiscover-public-msp-crosswalk.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  original-bin-msp-crosswalk:
+    runs-on: ubuntu-latest
+    timeout-minutes: 16
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/checkout@v5
+        with:
+          repository: metabolomics-us/bindiscover
+          ref: 045e7af0861ca04b97be902f4f557e8abb2d4940
+          path: upstream/bindiscover
+          sparse-checkout: |
+            api/newer_datasets/GCBinbase_unknowns.msp
+            api/newer_datasets/GCBinbase_knowns_curated.msp
+          sparse-checkout-cone-mode: false
+          persist-credentials: false
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+      - name: Install original clinical source parser (stdlib only)
+        run: python -m pip install -e .
+      - name: Synthetic-only MSP source bin-name/retention-index disambiguation
+        run: python -m unittest discover -s tests -p 'test_rotroff_bindiscover_public_msp.py' -v
+      - name: Real original Rotroff 229 Bin IDs against exact upstream BinDiscover MSP references (names only)
+        run: |
+          set -o pipefail
+          python -m scripts.audit_rotroff_vs_bindiscover_public_msp \
+            --unknown-msp upstream/bindiscover/api/newer_datasets/GCBinbase_unknowns.msp \
+            --known-msp upstream/bindiscover/api/newer_datasets/GCBinbase_knowns_curated.msp \
+            | tee original_rotroff229_public_bindiscover_msp_bin_crosswalk_aggregate.json
+      - name: Check original-source full list and zero fabricated metabolite identifications
+        run: |
+          python - <<'PY'
+          import json
+          v=json.load(open('original_rotroff229_public_bindiscover_msp_bin_crosswalk_aggregate.json'))
+          assert v['n_qualified_original_predose_unknown_bins']==229
+          assert v['n_assigned_verified_structural_identities']==0
+          assert v['n_assigned_verified_enzyme_transporters']==0
+          assert v['no_source_spectral_ion_pair_data_exported']
+          assert v['binbase_ID_namespace_and_instrument_compatibility_not_automatically_proved']
+          print('PASS: source-locked unknown bin crosswalk, zero molecular ID overclaims')
+          PY
+      - uses: actions/upload-artifact@v6
+        with:
+          name: original-Rotroff-229-unknown-BinDiscover-MSP-crosswalk-metadata-only
+          path: original_rotroff229_public_bindiscover_msp_bin_crosswalk_aggregate.json
+          retention-days: 21
