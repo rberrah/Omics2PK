@@ -67,6 +67,10 @@ class LathamSourceGateTests(unittest.TestCase):
         r = benchmark_latham_phh_table4(fixture())
         self.assertEqual(r["source_rows"], 14)
         self.assertEqual(r["n_same_protein_complete_donors_all_arms"], 13)
+        self.assertEqual(r["cyp3a5_PM_phenotype_protein_complete"], 9)
+        self.assertEqual(r["cyp3a5_PM_with_positive_targeted_peptide_quantitation"], 9)
+        self.assertEqual(r["cyp3a5_PM_with_positive_shared_CYP3A_probe_activity"], 10)
+        self.assertTrue(r["positive_peptide_or_shared_probe_is_not_CYP3A5_specific_function"])
         self.assertEqual(r["cyp3a5_phenotype_group_counts_original_14"],
                          {"NM": 1, "IM": 3, "PM": 10})
         self.assertEqual(len(r["heldout_MAE_by_predeclared_arm_source_table_scale"]), 4)
