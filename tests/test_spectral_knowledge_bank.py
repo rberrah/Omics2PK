@@ -2,6 +2,7 @@
 import sqlite3
 import unittest
 
+from omics2pk.spectral_biochemical_seed import seed_bibliography
 from omics2pk.spectral_knowledge_bank import (
     REFERENCE_CATALOGUE, SpectralKnowledgeError, add_mechanism_link,
     add_reference, make_db, search_spectral_candidates, triage_unassigned_feature_id
@@ -92,6 +93,22 @@ class SpectrumBankTests(unittest.TestCase):
         add_reference(self.db,gc())
         with self.assertRaises(SpectralKnowledgeError):
             add_reference(self.db,gc())
+    def test_curated_real_references_are_not_fabricated_spectra(self):
+        outcome=seed_bibliography(self.db)
+        self.assertEqual(outcome["n_bibliographic_links_seeded"],9)
+        self.assertEqual(outcome["spectral_references_imported"],0)
+        self.assertEqual(self.db.execute("SELECT COUNT(*) FROM mechanism_link").fetchone()[0],9)
+        self.assertEqual(self.db.execute("SELECT COUNT(*) FROM spectral_reference").fetchone()[0],0)
+        self.assertEqual(self.find(query())["candidates"],[])
+        # Verifiable ChEBI links, but no automatic assignment of 229 Rotroff IDs.
+        self.assertFalse(outcome["identifies_Rotroff_unknown_ids"])
+        add_reference(self.db,gc())
+        matched=self.find(query())
+        links=matched["candidates"][0]["mechanistic_associations_if_chemical_ID_is_confirmed"]
+        self.assertEqual({x["gene"] for x in links},
+                         {"SLC22A2","SLC47A1","SLC47A2"})
+        self.assertTrue(all(x["relation"]=="reported_biomarker_association" for x in links))
+
     def test_absent_mass_resolution_or_ri_tolerance_fails(self):
         add_reference(self.db,gc())
         with self.assertRaises(SpectralKnowledgeError):
