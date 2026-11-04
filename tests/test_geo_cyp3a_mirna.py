@@ -12,7 +12,7 @@ from omics2pk.geo_cyp3a_mirna import (
 
 
 def synthetic_soft(*, wrong_series=False, wrong_pmid=False,
-                   remove_206=False, reverse=False):
+                   remove_206=False, reverse=False, paper_consistent=False):
     rng=Random(19)
     rows=list(range(34))
     if reverse:
@@ -25,6 +25,8 @@ def synthetic_soft(*, wrong_series=False, wrong_pmid=False,
         group="DISEASE" if i < 22 else "NORMAL"
         independent_state=rng.random() + i*.005
         y=(.16 if group=="DISEASE" else .42) + independent_state*.1
+        if paper_consistent:
+            y=.25 if group=="DISEASE" else .47
         mir27=100*(1+independent_state)
         txt.extend([
             f"^SAMPLE = GSM{1192100+i}",
@@ -130,9 +132,34 @@ class ActualGeoContractTests(unittest.TestCase):
 
     def test_no_synthetic_source_can_claim_specific_or_in_vivo_pk(self):
         r=compare_geo_mirna_vs_cyp3a_activity(self.original)
-        self.assertEqual(r["status"],"PUBLIC_ORIGINAL_GEO_LIVER_MIRNA_SHARED_CYP3A_ACTIVITY_E2")
+        self.assertEqual(r["status"],"ABSTAIN_GEO_ACTIVITY_PUBLICATION_GROUP_PARITY_FAILURE")
+        self.assertFalse(r["source_publication_parity_audit"]["source_endpoint_paper_parity_qualified"])
+        self.assertFalse(r["source_publication_parity_audit"]["biological_superiority_inference_permitted"])
         self.assertEqual(r["n_original_individual_rows_or_predictions_exported"],0)
         self.assertTrue(r["source_upstream_normalization_not_train_frozen"])
+
+    def test_possible_publication_aggregate_parity_is_not_validation(self):
+        records=parse_original_geo_soft(synthetic_soft(paper_consistent=True))
+        r=compare_geo_mirna_vs_cyp3a_activity(records)
+        self.assertEqual(r["status"],"RESEARCH_E2_SUPPLIED_GEO_SOURCE_PARITY_POSSIBLE")
+        audit=r["source_publication_parity_audit"]
+        self.assertTrue(audit["source_endpoint_paper_parity_qualified"])
+        self.assertFalse(audit["biological_superiority_inference_permitted"])
+        self.assertTrue(audit["same_endpoint_and_original_donor_subset_assumed_for_parity_check"])
+        self.assertEqual(r["n_original_individual_rows_or_predictions_exported"],0)
+
+    def test_impossible_positive_disease_subset_forces_abstention(self):
+        records=parse_original_geo_soft(synthetic_soft(paper_consistent=True))
+        for sample in records:
+            if sample["status"]=="DISEASE":
+                sample["activity"]=0.6
+        r=compare_geo_mirna_vs_cyp3a_activity(records)
+        audit=r["source_publication_parity_audit"]
+        self.assertEqual(r["status"],"ABSTAIN_GEO_ACTIVITY_PUBLICATION_GROUP_PARITY_FAILURE")
+        self.assertFalse(audit["disease_subset_of_paper_nonnegative_activity_possible"])
+        self.assertTrue(audit["paper_control_mean_consistent"])
+        self.assertGreater(audit["GEO_cirrhosis_activity_sum"],
+                           audit["maximum_compatible_source_total_with_mean_rounding"])
 
     def test_mature_and_star_strands_are_never_aliased(self):
         r=compare_geo_mirna_vs_cyp3a_activity(self.original)
