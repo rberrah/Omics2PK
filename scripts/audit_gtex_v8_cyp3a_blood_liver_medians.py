@@ -10,7 +10,7 @@ from __future__ import annotations
 import csv,gzip,hashlib,io,json,math,urllib.request
 
 SOURCE="https://storage.googleapis.com/adult-gtex/bulk-gex/v8/rna-seq/GTEx_Analysis_2017-06-05_v8_RNASeQCv1.1.9_gene_median_tpm.gct.gz"
-TISSUES=("Liver","Whole_Blood","Small_Intestine_Terminal_Ileum")
+TISSUES=("Liver","Whole Blood","Small Intestine - Terminal Ileum")
 GENES=("CYP3A4","CYP3A5","FMO3","ALB","PTPRC")
 
 class GTExSourceError(ValueError):pass
@@ -27,8 +27,6 @@ def extract_original_gct(stream, source_file_sha256):
         raise GTExSourceError("Not an original GTEx median expression GCT source")
     if any(tissue not in header for tissue in TISSUES):
         raise GTExSourceError("Required official GTEx v8 original tissue column labels absent: "+",".join(t for t in TISSUES if t not in header)+"; first_headers="+repr(header[:6]))
-    if "Whole_Blood"=="Cells_EBV-transformed_lymphocytes":
-        raise GTExSourceError("Impossible internal ontology declaration")
     out={}
     nrows=0
     for line in lines:
@@ -47,7 +45,7 @@ def extract_original_gct(stream, source_file_sha256):
             vals[tissue]=round(val,7)
         out[gene]={"source_gencode_gene_id":row[0],
                    "median_TPM_by_original_GTEx_tissue":vals,
-                   "blood_over_liver_median_TPM_ratio":round(vals["Whole_Blood"]/vals["Liver"],7) if vals["Liver"]>0 else None,
+                   "blood_over_liver_median_TPM_ratio":round(vals["Whole Blood"]/vals["Liver"],7) if vals["Liver"]>0 else None,
                    "blood_is_a_qualified_proxy_of_individual_hepatic_expression":False}
     if nrows<30000:raise GTExSourceError("Unqualified GTEx source gene count")
     if set(out)!=set(GENES):
