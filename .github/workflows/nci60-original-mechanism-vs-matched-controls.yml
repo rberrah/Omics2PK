@@ -1,0 +1,73 @@
+name: Original NCI60 RNA doxorubicin prior vs train-matched feature controls
+on:
+  pull_request:
+    paths:
+      - "src/omics2pk/mechanism_matched_control.py"
+      - "scripts/benchmark_original_nci60_mechanism_vs_controls.py"
+      - "tests/test_mechanism_matched_control.py"
+      - ".github/workflows/nci60-original-mechanism-vs-matched-controls.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  original-rna-gi50-matched-controls-not-clinical-pk:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/checkout@v5
+        with:
+          repository: mixOmics-org/mixOmics
+          ref: 9f9fd66b69105fdb618b54588b638b567e85c0d6
+          path: upstream/mixomics
+          persist-credentials: false
+      - uses: actions/checkout@v5
+        with:
+          repository: Mathelab/NCI60_GeneMetabolite_Data
+          ref: 4c140708c18c41910458414a626b1a51d3dd2a85
+          path: upstream/nci60-multiomics
+          persist-credentials: false
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          r-version: "release"
+          use-public-rspm: true
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+      - name: Install fixed original-source research predictor dependencies
+        run: python -m pip install -e . 'numpy==2.2.6' 'scikit-learn==1.7.2'
+      - name: Verify offline source/assay and train-only negative-control contracts
+        run: python -m unittest discover -s tests -p 'test_mechanism_matched_control.py' -v
+      - name: Export 47 original source-verified line-concordant RNA and measured GI50 records
+        run: Rscript scripts/export_public_nci60_twoomics.R upstream/mixomics upstream/nci60-multiomics private_temp_original_source
+      - name: Original n47 3x5 lineage+seven drug genes vs 64 RNA-matched controls
+        run: |
+          set -o pipefail
+          python -m scripts.benchmark_original_nci60_mechanism_vs_controls \
+            --data private_temp_original_source \
+            --out nci60_mechanism_vs_matched_controls_aggregate.json \
+            --controls 64 | tee aggregate_only_stdout.json
+      - name: Delete all donor-line level source matrices whether success or failure
+        if: always()
+        run: rm -rf private_temp_original_source
+      - name: Refuse any PK or function overclaim and verify real line coverage
+        run: |
+          python - <<'PY'
+          import json
+          result=json.load(open('nci60_mechanism_vs_matched_controls_aggregate.json'))
+          assert result['status'].startswith('SOURCE_MATCHED_')
+          assert result['n_source_cell_lines']==47
+          assert result['n_predeclared_genes_measured']==7
+          assert result['n_control_pipelines']==64
+          assert result['omic_features_and_preprocessing_selected_training_folds_only']
+          assert result['original_cell_line_GI50_is_not_human_PK']
+          assert result['mechanism_function_confirmed'] is False
+          assert result['external_biological_replication'] is False
+          assert result['no_original_cell_line_omics_or_predictions_returned']
+          print('PASS source-original hypothesis falsification, not human PK')
+          PY
+      - uses: actions/upload-artifact@v6
+        with:
+          name: original-NCI60-genuine-RNA-doxorubicin-prior-vs-random-controls-aggregate-only
+          path: nci60_mechanism_vs_matched_controls_aggregate.json
+          retention-days: 28
