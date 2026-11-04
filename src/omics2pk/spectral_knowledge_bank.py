@@ -65,7 +65,7 @@ REFERENCE_CATALOGUE = {
 ACQUISITIONS = {"GC_EI", "LC_MSMS"}
 RELATIONS = {"experimentally_transport_substrate", "experimentally_enzyme_substrate",
              "reported_biomarker_association", "curated_reaction_participant"}
-CHEMICAL_ID = re.compile(r"^(?:CHEBI:\\d+|HMDB\\d{5,}|INCHIKEY:[A-Z]{14}-[A-Z]{10}-[A-Z])$")
+CHEMICAL_ID = re.compile(r"^(?:CHEBI:\d+|HMDB\d{5,}|INCHIKEY:[A-Z]{14}-[A-Z]{10}-[A-Z])$")
 GENE = re.compile(r"^[A-Z][A-Z0-9-]{1,24}$")
 
 class SpectralKnowledgeError(ValueError):
