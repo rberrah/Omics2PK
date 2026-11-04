@@ -89,6 +89,8 @@ def qualify_topletz_table2(
         raise TopletzSourceError("Original *1/*6 and *1/*7 genotype controls absent")
     if not any(x["diplotype"]=="*1/*3" and x["group"]=="low" for x in out):
         raise TopletzSourceError("Original low measured CYP3A5 in *1/*3 donor missing")
+    if not any(x["cyp3a5_protein"] == 0 for x in out):
+        raise TopletzSourceError("Original zero measured CYP3A5 protein source control absent")
     return sorted(out,key=lambda x:x["donor_id"])
 
 
@@ -144,7 +146,7 @@ def benchmark_topletz_table2(rows: Sequence[Mapping[str, object]]) -> dict:
         "endpoint_unit":"pmol_vinorelbine_min_mg_microsomal_protein",
         "not_derived_Clint_or_CLh":True,
         "heldout_MAE_by_arm":mae,
-        "genotype_only_may_be_worse_than_cyp3a4_protein":True,
+        "genotype_only_worse_than_CYP3A4_protein_heldout":\n            mae["cyp3a5_genotype_only"] > mae["cyp3a4_protein_only"],
         "no_automatic_source_byte_verification":True,
         "no_individual_rows_donor_ids_or_predictions_exported":True,
         "not_clinical_PopPK_or_tacrolimus":True,
