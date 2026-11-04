@@ -46,7 +46,13 @@ def run_original():
 
 if __name__=="__main__":
     try:
-        print(json.dumps(run_original(),sort_keys=True,indent=2))
+        result=run_original()
+        print(json.dumps(result,sort_keys=True,indent=2))
+        if result["status"]=="ABSTAIN_GEO_ACTIVITY_PUBLICATION_GROUP_PARITY_FAILURE":
+            # Source was successfully downloaded and computed, but the
+            # original outcome cannot be biologically qualified against the
+            # published activity means. A live validation must fail closed.
+            raise SystemExit(2)
     except (HTTPError,URLError,OSError,TimeoutError,GEO49012Error) as exc:
         print(json.dumps({
             "status":"ABSTAIN_GSE49012_ORIGINAL_SOURCE_UNAVAILABLE_OR_UNQUALIFIED",
