@@ -57,7 +57,7 @@ def register_verified_rotroff_features(db,raw):
             "n_original_predose_study_subjects":33,
             "original_spectra_or_retention_indices_extracted":False,
             "no_clinical_or_person_level_source_data_exported":True,
-            "status":"ORIGINAL_ROTR0FF_384_FEATURE_LABELS_REGISTERED_SPECTRAL_IDENTITIES_STILL_UNRESOLVED"}
+            "status":"ORIGINAL_ROTROFF_384_FEATURE_LABELS_REGISTERED_SPECTRAL_IDENTITIES_STILL_UNRESOLVED"}
 
 def main(argv=None):
     p=argparse.ArgumentParser()
@@ -72,6 +72,6 @@ def main(argv=None):
 if __name__=="__main__":
     try:print(json.dumps(main(),sort_keys=True,indent=2))
     except (OSError,ValueError) as err:
-        print(json.dumps({"status":"ABSTAIN_ORIGINAL_ROTR0FF_SOURCE_NOT_QUALIFIED",
+        print(json.dumps({"status":"ABSTAIN_ORIGINAL_ROTROFF_SOURCE_NOT_QUALIFIED",
                           "error_type":type(err).__name__,"unknown_bins_identified":0}))
         raise SystemExit(2)
