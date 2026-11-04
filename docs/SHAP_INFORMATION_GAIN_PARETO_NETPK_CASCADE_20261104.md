@@ -128,9 +128,30 @@ provenir de ce recouvrement mécanique ; elle n'est **ni une réplication
 indépendante, ni une preuve mécanistique, ni un test statistique contre un vrai
 bruit de fond omique corrélé**. Les panneaux vides ne participent jamais au
 calcul Jaccard (sinon deux absences seraient artificiellement notées comme
-une signature stable). Les chiffres de stabilité du benchmark original ne
-doivent être cités qu'après replay réussi de la CI, sans les inventer à
-partir des cas synthétiques.
+une signature stable). Les chiffres suivants ont ensuite été **exécutés sur l'original Rotroff**
+dans la [CI réussie #41924543172](https://github.com/rberrah/Omics2PK/actions/runs/41924543172).
+Le replay est strictement descriptif et les MAE préexistantes sont inchangées.
+
+### Résultats réels du diagnostic de stabilité
+
+| Critère de validation entraînement seul | AUC metformine | CLr rénale |
+|---|---:|---:|
+| Jaccard moyen des **top-10 SHAP des 4 entraînements internes**, agrégé sur 32 plis externes | **0,0481** | **0,0595** |
+| Plis externes sans aucune omique retenue, politique 80 % / 90 % | **15/32** | **14/32** |
+| Jaccard moyen entre panels externes **tous deux non vides**, 80 % | **0,2871** | **0,5065** |
+| Jaccard moyen entre panels externes **tous deux non vides**, 90 % | **0,2474** | **0,4804** |
+| Signal premier commun aux seuls panels non vides, 80 % / 90 % | bin `222169`: **17/17** | bin `218765`: **18/18** |
+| MAE clinical-only, inchangée | **2686,7836** | **114,4733** |
+| MAE sélection imbriquée 80 % / 90 %, inchangée | **2851,5120 / 2839,8915** | **118,9348 / 119,4687** |
+
+**Lecture :** la présence systématique d'un bin principal *conditionnellement*
+aux plis qui retiennent une omique ne contredit pas la très faible similarité
+des rangs top-10 entraînés à l'intérieur des plis. Les classements construits
+sur 23 sujets sont beaucoup moins reproductibles que les modèles extérieurs
+largement recouvrants entraînés sur 31 sujets. Les bins `222169` et
+`218765` restent **anonymes du point de vue chimique** et ne sont pas des
+transporteurs identifiés. Aucun résultat ne démontre un avantage PK généralisable.
+
 
 Les sorties sont **diagnostiques** : elles ne servent pas à choisir `k`,
 ne remplacent pas la validation externe, ne démontrent pas un gain clinical
