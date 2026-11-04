@@ -38,6 +38,13 @@ FEATURES = {
     "mir103_107_external_literature_negative_control": ("hsa-miR-103", "hsa-miR-107"),
     "mir21_130a_142_external_literature": ("hsa-miR-21", "hsa-miR-130a", "hsa-miR-142"),
     "mir27b_only": ("hsa-miR-27b",),
+    # GEO 2013 platform makes the correct strand identity critical:
+    # these are NOT synonyms for Liu's miR-27b-3p / miR-21-5p.
+    "mir142_5p_external_literature": ("hsa-miR-142-5p",),
+    "mir142_3p_distinct_strand_control": ("hsa-miR-142-3p",),
+    "mir27b_star_distinct_strand_control": ("hsa-miR-27b*",),
+    "mir21_star_distinct_strand_control": ("hsa-miR-21*",),
+    "mir130a_star_distinct_strand_control": ("hsa-miR-130a*",),
 }
 FULL_PANEL = (
     "hsa-miR-27b", "hsa-miR-206", "hsa-miR-21", "hsa-miR-130a", "hsa-miR-142",
@@ -201,6 +208,47 @@ def compare_geo_mirna_vs_cyp3a_activity(
         else:
             omitted[arm]="PRESPECIFIED_MIRNA_FEATURE_ABSENT"
     _require("disease_status_only" in available, "Disease status baseline unavailable")
+    # A whole biological-miRNA exploratory arm is predeclared independently
+    # of activity, requiring exactly source-native mature/probe feature IDs.
+    # Exclude S_Control* and any IDs without a human miRNA prefix.
+    biological_ids=tuple(sorted(
+        f for f in rec[0]["intensity"]
+        if re.fullmatch(r"hsa-(?:miR|let)-[A-Za-z0-9*_.-]+", f)))
+    X_mirna=None
+    optional_pca=None
+    pca_arms=("disease_plus_all_miRNA_PCA2","disease_plus_all_miRNA_PCA4")
+    if len(biological_ids) < 50:
+        for name in pca_arms:
+            omitted[name]="ABSTAIN_TOO_FEW_SOURCE_BIOLOGICAL_MIRNA_PROBES"
+    else:
+        try:
+            import numpy as np
+            from sklearn.impute import SimpleImputer
+            from sklearn.preprocessing import StandardScaler
+            from sklearn.decomposition import PCA
+        except ImportError:
+            for name in pca_arms:
+                omitted[name]="OPTIONAL_NUMPY_SKLEARN_DEPENDENCIES_UNAVAILABLE"
+        else:
+            # No center/outcome-driven feature filtering. Median imputation,
+            # standardization and PCA are fit inside each outer TRAIN split.
+            def source_value(raw):
+                try:
+                    val=float(raw)
+                    return log1p(val) if isfinite(val) and val >= 0 else float("nan")
+                except (ValueError,TypeError,OverflowError):
+                    return float("nan")
+            X_mirna=np.asarray([
+                [source_value(r["intensity"].get(f)) for f in biological_ids]
+                for r in rec
+            ],dtype=float)
+            if np.isfinite(X_mirna).sum() < .6 * X_mirna.size:
+                for name in pca_arms:
+                    omitted[name]="INSUFFICIENT_SOURCE_MIRNA_VALUE_COVERAGE"
+            else:
+                for name in pca_arms:
+                    available[name]=()
+                optional_pca=(np,SimpleImputer,StandardScaler,PCA)
     folds=_folds(rec)
     errors={arm:[] for arm in ("log_geometric_train_mean", *available)}
     by_group={arm:{"NORMAL":[],"DISEASE":[]} for arm in errors}
@@ -213,6 +261,23 @@ def compare_geo_mirna_vs_cyp3a_activity(
         for arm in errors:
             if arm=="log_geometric_train_mean":
                 guess=[exp(mean(ytrain))]*len(test)
+            elif arm in pca_arms:
+                np,SimpleImputer,StandardScaler,PCA=optional_pca
+                rank=2 if arm.endswith("PCA2") else 4
+                imputer=SimpleImputer(strategy="median")
+                t_train=imputer.fit_transform(X_mirna[train])
+                t_test=imputer.transform(X_mirna[test])
+                scaler=StandardScaler()
+                z_train=scaler.fit_transform(t_train)
+                z_test=scaler.transform(t_test)
+                pca=PCA(n_components=rank,svd_solver="full")
+                p_train=pca.fit_transform(z_train)
+                p_test=pca.transform(z_test)
+                x_train=[[float(rec[i]["status"]=="DISEASE"), *v]
+                         for i,v in zip(train,p_train)]
+                x_test=[[float(rec[i]["status"]=="DISEASE"), *v]
+                        for i,v in zip(test,p_test)]
+                guess=_ridge_predict(x_train,ytrain,x_test)
             else:
                 features=available[arm]
                 def vector(i):
@@ -244,7 +309,12 @@ def compare_geo_mirna_vs_cyp3a_activity(
         "not_CYP3A5_specific":True,"no_CYP3A5_genotype":True,
         "no_proteomics_per_sample":True,"no_human_drug_PK":True,
         "experiment_not_prospective_causal":True,
-        "omic_features_selected_a_priori_from_independent_Liu2016_study":True,
+        "specific_miRNA_features_declared_without_source_outcome_selection":True,
+        "mature_and_star_strands_not_interchangeable":True,
+        "CYP3A5_isoform_specific_function_not_measured":True,
+        "source_n_biological_miRNA_feature_IDs":len(biological_ids),
+        "source_control_probes_excluded_from_unsupervised_PCA":True,
+        "PCA_imputation_scaling_and_components_fit_within_outer_training_only":True,
         "miRNA_feature_sets_used":{k:list(v) for k,v in available.items()},
         "miRNA_feature_arms_abstained":omitted,
         "heldout_MAE_by_arm_source_activity_units":maes,
