@@ -147,6 +147,13 @@ def make_db(path):
           payload TEXT NOT NULL, chemical_id TEXT NOT NULL,
           PRIMARY KEY(source,accession));
         CREATE INDEX IF NOT EXISTS spectrum_chemical ON spectral_reference(chemical_id);
+        CREATE TABLE IF NOT EXISTS omic_feature (
+          study TEXT NOT NULL, source_feature_id TEXT NOT NULL,
+          assay TEXT NOT NULL, specimen TEXT NOT NULL,
+          source_label TEXT NOT NULL, annotation_stage TEXT NOT NULL,
+          provenance_url TEXT NOT NULL,
+          PRIMARY KEY(study,source_feature_id));
+        CREATE INDEX IF NOT EXISTS omic_feature_stage ON omic_feature(annotation_stage);
         CREATE TABLE IF NOT EXISTS mechanism_link (
           chemical_id TEXT NOT NULL, gene TEXT NOT NULL, relation TEXT NOT NULL,
           organ TEXT NOT NULL, evidence_url TEXT NOT NULL, source_verified INTEGER NOT NULL,
@@ -286,3 +293,43 @@ def triage_unassigned_feature_id(feature_id):
             "candidate_ptm":None,"candidate_transporter":None,
             "candidate_enzyme":None,"mechanism_validated":False,
             "next_input":"source chromatographic deconvoluted EI peak list, experimental RI system, derivatization, original BinBase reference"}
+
+
+def register_original_omic_feature(db, *, study, feature_id, label, assay, specimen,
+                                   provenance_url, known_source_chemical_name=False):
+    """Original study feature namespace; NO patient intensities or invented mass."""
+    import re as _re
+    for name,value in (("study",study),("feature_id",feature_id),("label",label),
+                       ("assay",assay),("specimen",specimen),("provenance_url",provenance_url)):
+        if not isinstance(value,str) or not value.strip() or len(value)>250:
+            raise SpectralKnowledgeError("Missing or invalid original feature metadata: "+name)
+    if not provenance_url.startswith("https://"):
+        raise SpectralKnowledgeError("Source original feature list must have an HTTPS provenance URL")
+    if assay not in ("GC_EI","LC_MSMS","TRANSCRIPTOME","PROTEOME","PROTEOFORM"):
+        raise SpectralKnowledgeError("Unsupported original omic feature assay")
+    if not isinstance(known_source_chemical_name,bool):
+        raise SpectralKnowledgeError("Source chemical name classification must be explicitly true/false")
+    stage=("SOURCE_CHEMICAL_NAME_NOT_STANDARD_CONFIRMED" if known_source_chemical_name
+           else "UNRESOLVED_BIN_ID_ONLY_NO_SPECTRUM")
+    try:
+        with db:
+            db.execute("INSERT INTO omic_feature VALUES(?,?,?,?,?,?,?)",
+                       (study,feature_id,assay,specimen,label,stage,provenance_url))
+    except sqlite3.IntegrityError:
+        raise SpectralKnowledgeError("Original study assay feature key duplicated") from None
+    return stage
+
+
+def summarize_registered_features(db, study):
+    """Emit only aggregate safe counts, no individual rows or sample labels."""
+    counts=dict(db.execute(
+        "SELECT annotation_stage,COUNT(*) FROM omic_feature WHERE study=? GROUP BY annotation_stage",
+        (study,)).fetchall())
+    return {
+      "study":study,
+      "n_registered_source_features":sum(counts.values()),
+      "annotation_stages":counts,
+      "n_assigned_mass_spectra_in_this_source_feature_registry":0,
+      "n_original_PK_measurements_in_registry":0,
+      "n_transporter_or_enzyme_function_inferred":0,
+    }
