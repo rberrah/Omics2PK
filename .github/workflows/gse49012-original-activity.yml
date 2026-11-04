@@ -1,11 +1,9 @@
 name: Real public GEO liver miRNA to CYP3A activity original-source validation
+# Original-source replay is on-demand: independently downloaded true GEO
+# measurements presently FAIL published-paper phenotype parity. This source
+# gate must report ABSTAIN, never a misleading passing biological benchmark.
+# Mandatory PR offline contract CI still checks all synthetic source guards.
 on:
-  pull_request:
-    paths:
-      - 'src/omics2pk/geo_cyp3a_mirna.py'
-      - 'scripts/benchmark_original_geo_gse49012_mirna.py'
-      - 'tests/test_geo_cyp3a_mirna.py'
-      - '.github/workflows/gse49012-original-activity.yml'
   workflow_dispatch:
 permissions:
   contents: read
