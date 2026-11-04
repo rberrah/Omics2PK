@@ -1,10 +1,8 @@
 name: Original CYP3A5 article-data structure and genotype-specific probe audit
+# Network-dependent public source availability is audited on demand.
+# Mandatory PR offline CI still runs the synthetic DOI/metadata contracts.
+# Dataset NOT fetched remains explicitly ABSTAIN in the audit JSON.
 on:
-  pull_request:
-    paths:
-      - 'scripts/audit_public_cyp3a5_followup_sources.py'
-      - 'tests/test_public_cyp3a5_followup_sources.py'
-      - '.github/workflows/cyp3a5-followup-source-audit.yml'
   workflow_dispatch:
 permissions:
   contents: read
