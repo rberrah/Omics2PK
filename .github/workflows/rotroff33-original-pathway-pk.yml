@@ -1,0 +1,27 @@
+name: Rotroff real n32 blood-derived named/metabolite-pathway to human PK proof
+on:
+  pull_request:
+    paths:
+      - "src/omics2pk/rotroff33_pathway_e3.py"
+      - "scripts/validate_rotroff33_pathway_e3.py"
+      - "tests/test_rotroff33_pathway_e3.py"
+      - ".github/workflows/rotroff33-original-pathway-pk.yml"
+  workflow_dispatch:
+permissions: {contents: read}
+jobs:
+  real-human-pk-pathways:
+    runs-on: ubuntu-latest
+    timeout-minutes: 22
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+      - name: Install frozen scientific dependencies
+        run: |
+          python -m pip install -e .
+          python -m pip install 'numpy==2.2.6' 'scikit-learn==1.7.2'
+      - name: Synthetic-only numerical/source methodology tests
+        run: python -m unittest discover -s tests -p 'test_rotroff33_pathway_e3.py' -v
+      - name: Original clinical/omics exact subject join, named and source-unknown path ablations
+        run: python -m scripts.validate_rotroff33_pathway_e3
