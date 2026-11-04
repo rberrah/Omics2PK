@@ -106,6 +106,37 @@ Il s'agit **d'associations STRING fonctionnelles**, lesquelles peuvent être ind
 2. Non réalisé/non démontré : gain clinique PK externe, molécules inconnues Rotroff identifiées, activité des protéines inférée de SHAP, coût réel de chaque plateforme, protéomique & transcriptomique et métabolomique contemporaines mesurées chez même sujet PK, génotype complet et PopPK comparateur.
 3. Prochaine étape pour la recherche : **prioriser les signaux stables et peu redondants, non le seul maximum SHAP** ; établir leur identité par spectre/RI; relier les identités réellement vérifiées aux modules OCT2/MATE/OAT ou CYP3A/P-gp, puis comparer la précision avec et sans prior physio sur une cohorte humaine distincte.
 
+## Audit additionnel : stabilité des panels sélectionnés
+
+Une courbe de Pareto et le gain à 80–90 % ne suffisent pas à montrer que les
+*identités* moléculaires sélectionnées sont reproductibles. L'audit ajouté au
+code du benchmark Rotroff (sans modifier les prédictions ou la sélection)
+calcule maintenant :
+
+- la similarité **Jaccard des top-10 SHAP entraînés dans les quatre plis internes**
+  de chaque pli externe, puis sa moyenne descriptive ;
+- pour chaque politique 80 % et 90 %, la fréquence des **panels vides**
+  (`k=0`), la similarité Jaccard **conditionnelle aux deux panels non vides**,
+  le nombre de signaux partagés et la fréquence de chaque identifiant source
+  sélectionné, en agrégeant seulement les modèles entraînés hors sujet test ;
+- l'intersection attendue de deux panels de même taille sous des ensembles
+  uniformément aléatoires, comme **repère descriptif uniquement**.
+
+**Interprétation obligatoire :** dans la LOOCV à n=32, deux entraînements
+externes partagent 30 sujets sur 31. Une forte similarité de panels peut donc
+provenir de ce recouvrement mécanique ; elle n'est **ni une réplication
+indépendante, ni une preuve mécanistique, ni un test statistique contre un vrai
+bruit de fond omique corrélé**. Les panneaux vides ne participent jamais au
+calcul Jaccard (sinon deux absences seraient artificiellement notées comme
+une signature stable). Les chiffres de stabilité du benchmark original ne
+doivent être cités qu'après replay réussi de la CI, sans les inventer à
+partir des cas synthétiques.
+
+Les sorties sont **diagnostiques** : elles ne servent pas à choisir `k`,
+ne remplacent pas la validation externe, ne démontrent pas un gain clinical
+sur la métformine et ne changent pas la conclusion négative de la sélection
+adaptative dans l'échantillon actuel.
+
 ## Code et QA
 - `src/omics2pk/information_budget.py` et `modalities_information_budget.py` : gain 80/90% et solutions k=0 / omic=0.
 - `src/omics2pk/rotroff33_nested_information_budget.py` et `scripts/validate_rotroff33_nested_information_budget.py` : vrai PK humain source.
