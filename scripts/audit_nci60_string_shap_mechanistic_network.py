@@ -14,6 +14,7 @@ import csv,io,json
 from urllib.parse import urlencode
 from urllib.request import urlopen,Request
 from urllib.error import HTTPError,URLError
+from omics2pk.network_degree_null import degree_conditioned_bridge_null
 
 URL="https://version-12-5.string-db.org/api/tsv/network"
 TOP_SHAP_SOURCE_RNA=("TMEM139","TNFRSF21","GOLT1A","ATP8B1","CLEC2B")
@@ -100,8 +101,10 @@ def main():
                 "error_class":type(exc).__name__,"n_edges":None,
                 "biological_network_function_confirmed":False,
                 "molecular_fusion_gain_confirmed":False}
+    conditional_null=degree_conditioned_bridge_null(ALL,SUBSET,PRIOR,network["edges"])
     return {
        **network,
+       "degree_conditioned_selected_network_null":conditional_null,
        "database":"STRING 12.5 functional network",
        "reference_api":URL,"species":9606,
        "n_actual_SHAP_source_gene_symbols":len(SUBSET),
