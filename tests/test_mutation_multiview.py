@@ -34,6 +34,8 @@ class MutationViews(unittest.TestCase):
             repeats=1)
         self.assertEqual(a["n_unique_biological_cell_lines"],35)
         self.assertEqual(set(a["original_in_vitro_GI50_observed_holdout"]["fixed"]),set(MODES))
+        self.assertEqual(set(a["original_in_vitro_GI50_observed_holdout"]["fixed_without_original_somatic_mutation_features"]),set(MODES))
+        self.assertEqual(set(a["original_in_vitro_GI50_observed_holdout"]["observed_mutation_incremental_delta_MAE_negative_is_better"]),set(MODES))
         self.assertEqual(set(a["original_in_vitro_GI50_observed_holdout"]["nested_TP53_guided_80_90"]),{"80","90"})
         self.assertTrue(a["genotype_subgroup_model_chosen_using_outer_response"] is False)
         self.assertTrue(a["no_externally_replicated_modality_by_genotype_interaction"])
