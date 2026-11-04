@@ -56,7 +56,10 @@ def scan_msp(path,target_bins,expected_size):
         for line in handle:
             source.update(line)
             s=line.decode("utf-8",errors="replace").strip()
-            if not s:
+            # Some real MSP exports have no blank lines between NAME entries.
+            # A new NAME header is therefore a mandatory record boundary,
+            # even if the previous record was inside its ion-list section.
+            if not s or (s.upper().startswith("NAME:") and header):
                 if header:
                     n_records+=1
                     if len(first_metadata)<2:
@@ -88,7 +91,7 @@ def scan_msp(path,target_bins,expected_size):
                 header={}
                 header_bytes=0
                 in_spectrum=False
-                continue
+                if not s:continue
             if in_spectrum:continue
             if ":" not in s:continue
             key,value=s.split(":",1)
