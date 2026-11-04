@@ -2,9 +2,11 @@
 **État : implémenté et testé en mode local, annotation exploratoire, pas d'identification nouvelle des 229 inconnus Rotroff. 2026-11-04.**
 
 ## Principe : ne pas inventer une bibliothèque de spectres
-Le prototype `src/omics2pk/spectral_knowledge_bank.py` crée une petite base SQLite locale avec deux tables **distinctes** :
+Le prototype `src/omics2pk/spectral_knowledge_bank.py` crée une petite base SQLite locale avec quatre tables **distinctes** :
 1. `spectral_reference` — référence expérimentale à un ionogramme `(m/z, intensité)` et métadonnées instrumentales, structure candidate déjà attribuée par la source, accession originale et droits de réutilisation;
 2. `mechanism_link` — assertion sourcée `CHEBI/InChIKey/HMDB → enzyme/transporteur, type de relation, organe, référence`. Une identité structurale candidate et une littérature sur un transporteur ne prouvent **jamais** une activité dans le patient.
+3. `omic_feature` — identifiants originaux de signaux non identifiés et métadonnées de prélèvement, **sans inventer de masse, de composé ni de fonction**.
+4. `protein_proteoform_reference` — référence originale de protéines/peptides/protéformes (accession PXD, UniProt, site PTM, niveau de preuve), **séparée des spectra GC/LC de petites molécules**. Le moteur spectral protéomique complet n'est pas encore implémenté.
 
 Le catalogue fédéré décrit **où chercher** et les types de données compatibles. Il **n'aspire pas** automatiquement de grandes bases tierces, ne redistribue pas les spectres soumis à licence et ne présente pas un résultat de recherche comme vérifié sans l'avoir exécuté.
 
@@ -48,6 +50,12 @@ python -m scripts.query_local_spectral_bank \
 La référence `licensed_ei_reference.json` doit comporter `library_source`, `source_record_accession`, `source_url`, `reuse_permission=explicitly_permitted`, `chemical_id` (vrai ChEBI/HMDB/InChIKey), `acquisition=GC_EI`, `ionization=EI`, `derivatization`, `retention_index`, `retention_index_system`, `instrument_method`, et `peaks=[[m/z,intensité],...]`. La requête contient `acquisition`, `ionization`, `derivatization`, `retention_index`, `retention_index_system` et les `peaks`. Les tolérances se **justifient à partir de la méthode et de la résolution**, pas de la PK observée.
 
 L'interface simple reste un protocole de recherche et ne remplace pas les algorithmes expérimentaux de déconv./alignement, annotation MSI, séparation d'isomères, ou validation par standard.
+
+## Qualification réelle déjà exécutée
+
+La [CI sur les suppléments originaux Rotroff](https://github.com/rberrah/Omics2PK/actions/runs/41909996908) est **verte** : le script `scripts/register_rotroff33_unresolved_spectral_features.py` a lu les deux originaux XLSX liés par SHA-256 et enregistré **384 headers d'analyses individuelles, 155 noms chimiques et 229 bins inconnus** en SQLite éphémère **sans aucune valeur participant** ni correspondance spectrale fictive. Statut des 229 = `UNRESOLVED_BIN_ID_ONLY_NO_SPECTRUM`. Pour construire localement la base persistante : `python -m scripts.register_rotroff33_unresolved_spectral_features --db /private/rotroff_spectral_catalogue.sqlite`.
+
+Le module `src/omics2pk/proteoform_reference.py` permet d'enregistrer des métadonnées **protéiques** PXD/UniProt, peptide ou protéforme, et PTM uniquement avec niveau de preuve explicitement déclaré. Les modifs non localisées sont autorisées comme observations `unlocalized`, mais jamais comme sites confirmés ni comme preuve de liaison albumine–médicament.
 
 ## Rotroff — ce qui est réellement disponible
 
