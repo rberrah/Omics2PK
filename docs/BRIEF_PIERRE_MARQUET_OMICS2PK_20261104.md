@@ -2,6 +2,24 @@
 **Note de réunion scientifique — 4 novembre 2026**  
 **Statut :** résultats exploratoires *in vitro* vérifiés sur des données humaines ; **aucune supériorité clinique de la multi-omique sur le génotype n'est établie**.
 
+## New experimentally executed result — NCI-60 RNA/proteome/metabolome vs measured doxorubicin GI50 (2026-11-04)
+
+**Original-source replayed success:** [CI #41847348137](https://github.com/rberrah/Omics2PK/actions/runs/41847348137), [scientific results report](NCI60_THREEOMICS_ORIGINAL_GI50_RESULTS_20261104.md). Same **47 source cell-line identities** (not necessarily same experimental aliquot), original **17,987 ARN / 3,171 SWATH proteins / 280 metabolites**. Fixed identical 3×5 train-only PCA/Ridge folds.
+
+| GI50 MAE (lower is better) | Model |
+|---:|---|
+| **0.308916** | ARN seul (sans classe tumorale) |
+| 0.364261 | Protéome seul |
+| 0.382598 | Métabolome seul |
+| **0.334666** | Classe tumorale + ARN |
+| 0.341053 | Classe + ARN + protéines |
+| 0.351537 | Classe + ARN + métabolites |
+| **0.358124** | Classe + trois omiques |
+
+La fusion à trois omiques ajoute **+0.023458 de MAE** par rapport à classe + ARN, IC descriptif 95 % **[+0.009865 ; +0.037185]** pour l'écart apparié de pertes CV (1999 resamples de lignées). **Résultat négatif scientifiquement informatif** : cette association de sources originales, obtenues dans des études et conditions de culture différentes, ne montre pas de valeur ajoutée de la multi-omique dans ce protocole. **PD cellulaire**, pas PK clinique. Ce résultat exclut toute affirmation de supériorité universelle de l'ARN ou d'inutilité générale des omiques multiples.
+
+**Message oral pour Pierre Marquet :** nous avons maintenant non seulement des preuves ARN→fonction CYP (HLC/EPA), mais aussi un contre-exemple source-vérifié où accumuler ARN+protéines+métabolites dégrade la prédiction pharmacologique. Le verrou devient la qualité, les isoformes, les protocoles et l'identité biologique des mesures, **avant** le choix de l'algorithme.
+
 ## Message en une phrase
 L'expression hépatique ciblée contient une information prédictive sur l'activité enzymatique, **mais davantage de variables omiques ne signifie pas nécessairement une meilleure prédiction** ; la preuve pertinente pour les immunosuppresseurs reste de montrer un gain sur une mesure PK indépendante chez les mêmes patients.
 
