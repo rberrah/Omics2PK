@@ -18,7 +18,10 @@ jobs:
         with:
           python-version: "3.11"
       - run: python -m unittest discover -s tests -p 'test_gtex_v8_cyp3a_blood_liver_medians.py' -v
-      - run: python scripts/audit_gtex_v8_cyp3a_blood_liver_medians.py > official_gtex_v8_cyp3a_tissue_median_aggregate.json
+      - name: Verify live official GTEx source and preserve fail-closed reason
+        run: |
+          set -o pipefail
+          python scripts/audit_gtex_v8_cyp3a_blood_liver_medians.py | tee official_gtex_v8_cyp3a_tissue_median_aggregate.json
       - name: Confirm aggregate-only result, never source patient-level metadata
         run: |
           python - <<'PY'
