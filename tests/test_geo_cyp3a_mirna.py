@@ -46,6 +46,11 @@ def synthetic_soft(*, wrong_series=False, wrong_pmid=False,
             "hsa-miR-142":110+i*.6,
             "hsa-miR-103":125+2*rng.random(),
             "hsa-miR-107":105+2*rng.random(),
+            "hsa-miR-142-5p":105+i*.6,
+            "hsa-miR-142-3p":160+i*.5,
+            "hsa-miR-27b*":60+i*.6,
+            "hsa-miR-21*":70+i*.7,
+            "hsa-miR-130a*":50+i*.8,
         }
         if remove_206:
             del signals["hsa-miR-206"]
@@ -53,6 +58,8 @@ def synthetic_soft(*, wrong_series=False, wrong_pmid=False,
             txt.append(f"{k}\t{v:.9f}")
         for j in range(405):
             txt.append(f"SYNTHETIC_FEATURE_{j:03d}\t{(10+rng.random()):.6f}")
+        for j in range(65):
+            txt.append(f"hsa-miR-SYNTEST_{j:03d}\\t{(10+rng.random()):.6f}")
         txt.append("!sample_table_end")
     return "\n".join(txt).encode("utf8")
 
@@ -126,6 +133,27 @@ class ActualGeoContractTests(unittest.TestCase):
         self.assertEqual(r["status"],"PUBLIC_ORIGINAL_GEO_LIVER_MIRNA_SHARED_CYP3A_ACTIVITY_E2")
         self.assertEqual(r["n_original_individual_rows_or_predictions_exported"],0)
         self.assertTrue(r["source_upstream_normalization_not_train_frozen"])
+
+    def test_mature_and_star_strands_are_never_aliased(self):
+        r=compare_geo_mirna_vs_cyp3a_activity(self.original)
+        self.assertEqual(r["miRNA_feature_sets_used"]["mir142_5p_external_literature"],
+                         ["hsa-miR-142-5p"])
+        self.assertEqual(r["miRNA_feature_sets_used"]["mir27b_star_distinct_strand_control"],
+                         ["hsa-miR-27b*"])
+        self.assertNotEqual(r["miRNA_feature_sets_used"]["mir27b_only"],
+                            r["miRNA_feature_sets_used"]["mir27b_star_distinct_strand_control"])
+        self.assertTrue(r["mature_and_star_strands_not_interchangeable"])
+
+    def test_biological_mirna_PCA_is_train_frozen_or_explicitly_abstains(self):
+        r=compare_geo_mirna_vs_cyp3a_activity(self.original)
+        self.assertGreaterEqual(r["source_n_biological_miRNA_feature_IDs"],50)
+        if "disease_plus_all_miRNA_PCA2" in r["miRNA_feature_sets_used"]:
+            self.assertIn("disease_plus_all_miRNA_PCA4",
+                          r["heldout_MAE_by_arm_source_activity_units"])
+            self.assertTrue(r["PCA_imputation_scaling_and_components_fit_within_outer_training_only"])
+        else:
+            self.assertEqual(r["miRNA_feature_arms_abstained"]["disease_plus_all_miRNA_PCA2"],
+                             "OPTIONAL_NUMPY_SKLEARN_DEPENDENCIES_UNAVAILABLE")
 
     def test_wrong_tissue_or_source_platform_refused(self):
         with self.assertRaisesRegex(GEO49012Error,"tissue"):
