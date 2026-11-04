@@ -22,8 +22,21 @@ if (!is.matrix(mut) || ncol(mut) != 60L || nrow(mut) < 1000L ||
     is.null(rownames(mut)) || is.null(colnames(mut)) ||
     anyDuplicated(rownames(mut)) || anyDuplicated(colnames(mut)))
   stop("ABSTAIN: unexpected original CellMiner mutation source matrix shape")
+# Source v2.34.0 can expose nonbinary positive gene-level mutation
+# intensities despite the released "binary" prose. Independent upstream
+# rcellminer::getBinaryMutationData() defines presence by >0 at its final
+# step (source R/getBinaryMutationData.R, exact public implementation).
+# Here we only represent a *nonzero mutation signal*, never allele dosage.
+observed <- mut[!is.na(mut)]
+if (!length(observed) || any(!is.finite(observed)) || any(observed<0))
+  stop("ABSTAIN: original source mutation values nonfinite or negative")
+input_was_strictly_binary <- all(observed %in% c(0,1))
+if (!input_was_strictly_binary)
+  cat(sprintf("SOURCE_MUTATION_ENCODING nonbinary_positive_values=%d original_max=%s; apply published >0 presence rule; NO_ALLELE_DOSAGE_INFERENCE\n",
+              sum(!(observed %in% c(0,1))),format(max(observed),digits=7)))
+mut[!is.na(mut)] <- as.numeric(mut[!is.na(mut)] > 0)
 if (any(!is.na(mut) & !(mut %in% c(0,1))))
-  stop("ABSTAIN: source mutation flags not binary")
+  stop("ABSTAIN: source mutation presence conversion invalid")
 # Reuse *exact* source-concordant 47 cell-line keys from existing audit.
 responses <- utils::read.csv(args[[1]], check.names=FALSE, stringsAsFactors=FALSE)
 if (!identical(names(responses), c("subject_id","cancer_class","y")) ||
