@@ -2,8 +2,14 @@
 import sys,unittest
 from pathlib import Path
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/"scripts"))
-import numpy as np
-from benchmark_original_nci60_threeomics_swath import canon,distinct_map,run,SourceNotQualified
+try:
+    import numpy as np
+    from benchmark_original_nci60_threeomics_swath import canon,distinct_map,run,SourceNotQualified
+    _BENCHMARK_AVAILABLE=True
+except ImportError:
+    np=None
+    _BENCHMARK_AVAILABLE=False
+@unittest.skipUnless(_BENCHMARK_AVAILABLE,"NCI-60 benchmark NumPy/scikit-learn optional extra not installed in offline-only CI")
 class TestOriginalThreeOmicsGuards(unittest.TestCase):
     def test_case_punctuation_identity(self):
         self.assertEqual(canon("MDA-MB-231"),"MDAMB231")
