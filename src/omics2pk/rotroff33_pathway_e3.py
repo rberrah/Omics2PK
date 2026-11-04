@@ -46,7 +46,20 @@ EXPECTED_CLR_ALL=118.1449
 
 def qualify_original_feature_labels(raw):
     observed,original_source=measured_original_data(raw)
-    _,omics=actual_original_tables(raw)
+    clinical_sheets,omics=actual_original_tables(raw)
+    clinical_source=clinical_sheets[2]
+    # Screened baseline serum creatinine is an original clinical covariate.
+    # Postdose urine excretion and derived metformin clearances are NOT
+    # pre-exposure predictors, so only original column 8 is eligible here.
+    if clinical_source[0].get(8)!="SrCR (mg/dL)":
+        raise E3SourceError("Unexpected original predose screening creatinine column")
+    original_screatinine={}
+    for item in clinical_source[1:]:
+        pid=item.get(0,"").strip()
+        sr=_as_float(item.get(8))
+        if pid in original_screatinine or sr is None or not 0.2<=sr<=5.0:
+            raise E3SourceError("Ambiguous or invalid original serum creatinine")
+        original_screatinine[pid]=sr
     matrix=omics[0]
     predose={}
     for row in matrix[1:]:
@@ -73,7 +86,10 @@ def qualify_original_feature_labels(raw):
         if any(x.lower() not in idx_by_name for x in names):
             raise E3SourceError("Biochemical hypothesis is not fully present in source")
         paths[pathway]=[idx_by_name[x.lower()] for x in names]
+    if len(original_screatinine)!=33 or set(original_screatinine)!={r["internal_patient_id"] for r in observed}:
+        raise E3SourceError("Source patient-creatinine matching unverified")
     for row in observed:
+        row["clinical_plus_original_serum_creatinine"]=row["clinical"]+[float(original_screatinine[row["internal_patient_id"]])]
         original=predose[row["internal_patient_id"]]
         if len(row["predose_omics"])!=384:
             raise E3SourceError("Original predose molecular profile size mismatches labels")
@@ -91,13 +107,13 @@ def qualify_original_feature_labels(raw):
         "named":named,"unknown":unknown,"paths":paths,
     }
 
-def benchmark_one_target(records,target_key,annotation):
+def benchmark_one_target(records,target_key,annotation,*,clinical_key="clinical"):
     selected=[row for row in records if row["targets"][target_key] is not None]
     if len(selected)!=32:raise E3SourceError("32 actual PK-linked original donors required")
     y=np.asarray([row["targets"][target_key] for row in selected],dtype=float)
     if np.any(~np.isfinite(y)) or np.min(y)<=0:raise E3SourceError("Invalid measured patient PK endpoint")
     logy=np.log1p(y)
-    clinic=np.asarray([row["clinical"] for row in selected],dtype=float)
+    clinic=np.asarray([row[clinical_key] for row in selected],dtype=float)
     molecular=np.asarray([[np.nan if x is None else x for x in row["predose_omics"]] for row in selected],dtype=float)
     if molecular.shape!=(32,384):raise E3SourceError("Original numerical predose matrix shape drift")
     names=annotation["named"];unknown=annotation["unknown"];paths=annotation["paths"]
@@ -144,7 +160,7 @@ def benchmark_one_target(records,target_key,annotation):
         }
     original_a=EXPECTED_AUC_CLINICAL if "AUClast" in target_key else EXPECTED_CLR_CLINICAL
     original_all=EXPECTED_AUC_ALL if "AUClast" in target_key else EXPECTED_CLR_ALL
-    if abs(result["clinical_only"]["MAE_original_table_numeric_units"]-original_a)>0.02 or abs(result["clinical_plus_all_384"]["MAE_original_table_numeric_units"]-original_all)>0.02:
+    if clinical_key=="clinical" and (abs(result["clinical_only"]["MAE_original_table_numeric_units"]-original_a)>0.02 or abs(result["clinical_plus_all_384"]["MAE_original_table_numeric_units"]-original_all)>0.02):
         raise E3SourceError("Reference original human Rotroff validation failed replay parity")
     rng=Random(SEED)
     deltas={}
@@ -171,6 +187,11 @@ def run_source_real_experiment(raw):
       "source_original_omics_SHA256":source["original_untargeted_metabolomic_workbook_SHA256"],
       "source_annotation_counts":{key:value for key,value in annotation.items() if key not in ("named","unknown","paths")},
       "endpoints":{k:benchmark_one_target(rows,k,annotation) for k in sorted(rows[0]["targets"])},
+      "endpoints_renal_function_augmented_reference":{
+           k:benchmark_one_target(rows,k,annotation,clinical_key="clinical_plus_original_serum_creatinine")
+           for k in sorted(rows[0]["targets"])
+      },
+      "added_original_clinical_covariate":"published screening serum creatinine SrCR (mg/dL), original exact patient crosswalk; not metformin-derived renal clearance",
       "original_PK_numeric_units_unresolved":True,
       "prior_selected_pathway_hypotheses_not_independent":"urea/purine candidate neighborhoods were explored in published Rotroff metformin PD/exposure article; not a discovery-free clinical validation",
       "full_reaction_pathway_coverage_or_MSI_level1_confirmed":False,
