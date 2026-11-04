@@ -17,7 +17,7 @@ The full same-donor `CYP3A5*3/*6/*7 PGx + isoform-resolved RNA + specific CYP3A5
 | P2 regulated molecular | EGA EGAS00001003426 | 150 matched liver samples, targeted 340 ADME genes DNA variants and 303 expression genes | **Access controlled**, no direct CYP function or original clinical drug PK proved from the indexed data |
 | P2 regulated in-vivo biomarker | Izat et al. 2026, DOI 10.1002/cpt.70369, COCKTAIL | n54 4β-hydroxycholesterol/cholesterol, liver CYP3A4 protein, measured midazolam IV/oral PK (n30 longitudinal follow-up) | Strong potential real PK link but patient matrices require study governance approval. 4β-OHC is NOT CYP3A5-specific |
 
-## Public PHH imatinib Table 4: preliminary source-reading computation
+## Public PHH imatinib Table 4: now independently reproduced from official source
 
 Using the **13 exact complete protein rows** in Latham Table 4 (not mixing with the 21 HLM donors), a private one-off script transcribed the published values with CYP3A5 diplotype classes (two *1 / one *1 / zero *1) and CYP2C8 carrier flag. No individual data or donor identifiers are committed. For each arm, a **same-donor LODO** standardize-on-train → fixed Ridge(alpha=1) on log(original source imatinib-clearance value) → exp transform. No hyperparameter search.
 
@@ -36,7 +36,7 @@ Original source: https://pmc.ncbi.nlm.nih.gov/articles/PMC12990092/ (Table 4); P
 
 ## Next predeclared steps
 
-1. **Reproduce the PHH n13 exercise** by a source-pinned table HTML parser with tests for expected 14 original IDs, 13 complete proteins, units, *3/*6/*7, no row-order mismatch. Keep it separate from the main n≥30 functional benchmark, with `PILOT_ONLY_NOT_GENERALIZABLE`.
+1. **COMPLETED 2026-11-04:** PHH n13 independent official-source replay via DOI-pinned PMC HTML with strict 14→13 source gates, original *3/*6/*7 groups and same-donor fixed Ridge arms. GitHub Actions [run 41805204594](https://github.com/rberrah/Omics2PK/actions/runs/41805204594) PASS; aggregate results and new biological nonexpresser peptide/probe findings in [source replay report](LATHAM_PHH_SOURCE_REPLAY_REAL_20261104.md). This remains **exploratory in-vitro n13**, not E3.
 2. **Use already-held HLC originals** for exact genotype+RNA vs activity assays, but explicitly call outcomes CYP3A4/CYP3A-shared and genotype a partial rs776746 call, not CYP3A5-specific (do not apply the complete-diplotype model).
 3. **Inspect Grangeon v2025 n16** supplements for an independent individual phenotype, and full Genotype/protein/enzymatic 16× table. No fabricated values or mixed donors.
 4. **Test EATRIS v4** with verified subject-level multiomic overlap and a held-donor identity/assay-provenance gate. This validates fusion, **not pharmacologic efficacy**.
