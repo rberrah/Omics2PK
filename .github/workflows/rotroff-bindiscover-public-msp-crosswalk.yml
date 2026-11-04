@@ -66,6 +66,11 @@ jobs:
           assert v['n_qualified_original_predose_unknown_bins']==229
           assert v['n_assigned_verified_structural_identities']==0
           assert v['n_assigned_verified_enzyme_transporters']==0
+          assert len(v['top_SHAP_bin_mechanism_falsification'])==3
+          assert v['n_priority_SHAP_bins_with_confirmed_chemical_identity']==0
+          assert v['n_priority_SHAP_bins_with_measured_transport_function']==0
+          assert all(x['status'].startswith('ABSTAIN_')
+                     for x in v['top_SHAP_bin_mechanism_falsification'].values())
           assert v['no_source_spectral_ion_pair_data_exported']
           assert v['binbase_ID_namespace_and_instrument_compatibility_not_automatically_proved']
           print('PASS: source-locked unknown bin crosswalk, zero molecular ID overclaims')
