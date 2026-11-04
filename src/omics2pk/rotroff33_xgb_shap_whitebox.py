@@ -66,6 +66,7 @@ def _loocv(records,annotation,headers,target,clinical_key):
     heldout_shap=np.zeros((32,384),dtype=float)
     fold_rank=Counter()
     fold_selected=Counter()
+    unstable_shap_whitebox=0
     for i in range(32):
         tr=np.arange(32)!=i
         c_train=clinical[tr];c_test=clinical[i:i+1]
@@ -106,7 +107,12 @@ def _loocv(records,annotation,headers,target,clinical_key):
         # Low-dimensional fixed alpha penalized regression, no optimization
         # of coefficient stability on heldout patients.
         white=Ridge(alpha=10.0).fit(a,np.log1p(y[tr]))
-        result["train_SHAP_top5_Ridge_whitebox"][i]=max(0.0,float(np.expm1(np.clip(white.predict(b)[0],-100,25))))
+        raw_white=max(0.0,float(np.expm1(np.clip(white.predict(b)[0],-100,25))))
+        # Post-hoc SAFETY diagnostic only, not model tuning or clipping.
+        # A single explosive Ridge extrapolation would dominate n32 MAE.
+        if raw_white>2.0*float(np.max(y[tr])):
+            unstable_shap_whitebox+=1
+        result["train_SHAP_top5_Ridge_whitebox"][i]=raw_white
         selected_fixed=groups["clinical_urea_purines_5"]
         scalar=StandardScaler().fit(np.column_stack([c_train,train[:,selected_fixed]]))
         white_fixed=Ridge(alpha=10.0).fit(
@@ -118,6 +124,14 @@ def _loocv(records,annotation,headers,target,clinical_key):
     for arm,yp in result.items():
         if not np.all(np.isfinite(yp)):raise E3SourceError("Incomplete heldout prediction")
         err=np.abs(yp-y)
+        if arm=="train_SHAP_top5_Ridge_whitebox" and unstable_shap_whitebox>0:
+            scores[arm]={"status":"ABSTAIN_UNSTABLE_POSTHOC_TRAIN_RANGE_EXTRAPOLATION",
+                         "n_heldout_folds_prediction_above_2x_train_endpoint_max":unstable_shap_whitebox,
+                         "mae_original_PK_numeric_units":None,
+                         "rmse_original_PK_numeric_units":None,
+                         "not_outcome_guided_model_fix":True,
+                         "warning":"Unbounded low-n SHAP-selected Ridge explodes; no clipping or rescoring"}
+            continue
         scores[arm]={"mae_original_PK_numeric_units":round(float(err.mean()),5),
                      "rmse_original_PK_numeric_units":round(float(np.sqrt(np.mean((yp-y)**2))),5),
                      "p20_percent":round(float(np.mean(err/y<=.2)*100),2),
@@ -127,6 +141,11 @@ def _loocv(records,annotation,headers,target,clinical_key):
     differences={}
     for arm,err in errors.items():
         if arm=="clinical":continue
+        if arm=="train_SHAP_top5_Ridge_whitebox" and unstable_shap_whitebox>0:
+            differences[arm]={"status":"ABSTAIN_UNSTABLE_POSTHOC_TRAIN_RANGE_EXTRAPOLATION",
+                              "n_folds":unstable_shap_whitebox,
+                              "clinical_superiority_demonstrated":False}
+            continue
         d=err-control
         rng=Random(SEED)
         boot=sorted(float(np.mean([d[rng.randrange(32)] for _ in range(32)])) for _ in range(1999))
