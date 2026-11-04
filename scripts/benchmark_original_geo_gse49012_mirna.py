@@ -9,6 +9,7 @@ from __future__ import annotations
 
 from hashlib import sha256
 import json
+import re
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 
@@ -26,7 +27,16 @@ def run_original():
     with urlopen(req,timeout=50) as response:
         raw=response.read(MAX_SOFT_BYTES+1)
     samples=parse_original_geo_soft(raw)
+    # Probe-identity-only metadata is safe to report. It contains no donor or
+    # measured expression/phenotype values and helps verify assay aliases.
+    feature_ids=sorted({k for r in samples for k in r["intensity"]})
+    relevant=[k for k in feature_ids if re.search(
+        r"(?:miR|mir)[-_ ]?(?:27b|206|103|107|21|130a|142)(?:\\b|[-_*])",
+        k, re.IGNORECASE)]
     result=compare_geo_mirna_vs_cyp3a_activity(samples)
+    result["source_n_unique_molecular_feature_IDs"]=len(feature_ids)
+    result["source_molecular_feature_ID_examples"]=feature_ids[:15]
+    result["source_candidate_miRNA_feature_IDs_only"]=relevant[:100]
     result["original_GEO_family_SOFT_SHA256"]=sha256(raw).hexdigest()
     result["original_GEO_public_source_url"]=ORIGINAL
     result["raw_GEO_allele_or_activity_or_miRNA_rows_exported"]=False
