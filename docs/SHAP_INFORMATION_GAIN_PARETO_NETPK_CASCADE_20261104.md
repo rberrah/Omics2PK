@@ -90,9 +90,19 @@ Le prototype `src/omics2pk/physiopharmaco_cascade.py` représente les **axes OCT
 
 L'expression d'un gène ne présume ni protéine pleine longueur/active ni PTM, ni transport fonctionnel. Protéomique/PTM d'albumine doit être traitée séparément pour liaison du médicament et fraction libre; une mesure de HSA totale n'est pas un proxy de fu. Les modules sélectionnés **a priori** par pharmacologie seront comparés à des **graphes témoins permutés** (même taille/nombre d'arêtes) pour vérifier si les priors physiques apportent réellement du gain.
 
+## Association réseau vérifiée sur les vrais signaux de haut rang SHAP NCI-60
+
+[STRING v12.5 original source execution SUCCESS #41920541070](https://github.com/rberrah/Omics2PK/actions/runs/41920541070), humain (taxon 9606), `required_score=400`, `network_type=functional`, `add_nodes=0`, 10 gènes RNA/protéines rangés SHAP à partir du vrai résultat n47 + 7 gènes *a priori* du mécanisme doxorubicine.
+
+**10 associations fonctionnelles source vérifiées** : 7 entre gènes connus de pharmacologie, **2 reliant gènes SHAP et gènes pharmacologiques**, et 1 entre deux gènes SHAP. Les deux « ponts » retenus sont `LGALS3 ↔ ABCB1` (score 0.794) et `ATP8B1 ↔ ABCG2` (score 0.490). Association RNA/protéine SHAP `IL18 ↔ LGALS3` (0.452). Autres liens attendus: `TOP2A ↔ TOP2B` (0.999), `CBR1 ↔ CBR3` (0.999), `ABCC1 ↔ ABCG2` (0.944).
+
+Il s'agit **d'associations STRING fonctionnelles**, lesquelles peuvent être indirectes, dépendantes de co-expression, de données textuelles ou d'annotations de bases externes. Elles **ne prouvent pas** liaison protéique directe, transport doxorubicine, inhibition des transporteurs, sensibilité causale, ni gain PK. Ce réseau n'est pas dérivé de mesures contemporaines chez un même donneur. Le fait d'avoir comparé les meilleurs signaux SHAP aux gènes pharmacologiques après résultats est exploratoire et expose à un biais de sélection.
+
+`scripts/audit_nci60_string_shap_mechanistic_network.py` source versionnée, `src/omics2pk/physiopharmaco_cascade.py` graphe typé NetPK, `scripts/plot_nci60_string_shap_cascade.py` figure statique 17 gènes par catégorie (arêtes uniquement officielles, gènes isolés conservés). **Aucun « petit métabolite inconnu » n'est attaché à STRING** avant annotation structurelle et réactionnelle. L'enrichissement de voies futur doit utiliser un arrière-plan des **gènes réellement mesurés**, et une qualification indépendante de l'absence d'enrichissement artificiel par liste pré-sélectionnée.
+
 ## Statut de validation et prochaines preuves
 
-1. Produit aujourd'hui : réelle sélection source n32 à 80/90 % au niveau **feature**, réelle sélection source n47 à 80/90 % au niveau **omics**, figures de Pareto et heatmap, source graph evidence contract et tentative STRING source.
+1. Produit aujourd'hui : réelle sélection source n32 à 80/90 % au niveau **feature**, réelle sélection source n47 à 80/90 % au niveau **omics**, figures de Pareto et heatmap, source graph evidence contract et interrogation STRING v12.5 source exécutée (10 associations fonctionnelles, zéro preuve de causalité).
 2. Non réalisé/non démontré : gain clinique PK externe, molécules inconnues Rotroff identifiées, activité des protéines inférée de SHAP, coût réel de chaque plateforme, protéomique & transcriptomique et métabolomique contemporaines mesurées chez même sujet PK, génotype complet et PopPK comparateur.
 3. Prochaine étape pour la recherche : **prioriser les signaux stables et peu redondants, non le seul maximum SHAP** ; établir leur identité par spectre/RI; relier les identités réellement vérifiées aux modules OCT2/MATE/OAT ou CYP3A/P-gp, puis comparer la précision avec et sans prior physio sur une cohorte humaine distincte.
 
