@@ -55,12 +55,12 @@ jobs:
       - name: Original SWATH protein matched, fixed 8 modalities, TP53 interactions, nested mutation-conditional 80/90pct
         run: |
           set -o pipefail
-          python -m scripts.benchmark_original_nci60_mutation_multiview \
+          python scripts/benchmark_original_nci60_mutation_multiview.py \
             --data original_private_temp --out nci60_mutation_threeomics_aggregate.json | tee nci60_mutation_threeomics_stdout.json
       - name: Real original mutation-conditioned mechanistic panels (RNA seven genes, SWATH three proteins, six named redox metabolites) versus matched random panels
         run: |
           set -o pipefail
-          python -m scripts.benchmark_original_nci60_mutation_mechanism \
+          python scripts/benchmark_original_nci60_mutation_mechanism.py \
             --data original_private_temp --out nci60_mutation_mechanism_aggregate.json | tee nci60_mutation_mechanism_stdout.json
       - name: Delete all source original line measurements regardless of success or failure
         if: always()
