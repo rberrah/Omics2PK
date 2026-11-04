@@ -3,6 +3,8 @@ on:
   pull_request:
     paths:
       - "scripts/audit_nci60_string_shap_mechanistic_network.py"
+      - "src/omics2pk/network_degree_null.py"
+      - "tests/test_network_degree_null.py"
       - "tests/test_nci60_string_shap_mechanistic_network.py"
       - "src/omics2pk/physiopharmaco_cascade.py"
       - "tests/test_physiopharmaco_cascade.py"
@@ -24,6 +26,7 @@ jobs:
           python -m pip install -e .
           python -m unittest discover -s tests -p 'test_nci60_string_shap_mechanistic_network.py' -v
           python -m unittest discover -s tests -p 'test_physiopharmaco_cascade.py' -v
+          python -m unittest discover -s tests -p 'test_network_degree_null.py' -v
       - name: Public official STRING v12.5 human fixed original NCI60 high-SHAP genes and doxorubicin priors
         run: python -m scripts.audit_nci60_string_shap_mechanistic_network | tee nci60_original_gene_STRING12_5_aggregate.json
       - name: Authenticate STRING response status and no spurious pathway/Pk links
@@ -37,6 +40,13 @@ jobs:
               assert r['output_is_functional_association_not_a_direct_physical_interaction']
               assert r['no_unknown_metabolite_bin_assigned_to_a_gene']
               assert r['patient_PK_or_drug_transport_rate_measured'] is False
+              null=r['degree_conditioned_selected_network_null']
+              assert null['n_observed_nodes']==17
+              assert null['n_observed_string_functional_edges']==r['n_edges']
+              assert null['observed_shap_to_prior_edges']==r['edge_class_counts'].get('SHAP_to_DRUG_PRIOR',0)
+              assert null['null_preserves_exact_node_degree_histogram_by_role']
+              assert null['preselected_shap_and_drug_priors_invalidate_confirmatory_p_value']
+              assert null['direct_transport_or_pk_causality_demonstrated'] is False
           print(r['status'])
           PY
       - uses: actions/upload-artifact@v6
