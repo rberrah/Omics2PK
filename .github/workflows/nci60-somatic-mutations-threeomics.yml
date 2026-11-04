@@ -1,0 +1,77 @@
+name: Research NCI60 real somatic mutations plus RNA protein metabolomics GI50
+on:
+  pull_request:
+    paths:
+      - "src/omics2pk/mutation_multiview.py"
+      - "scripts/export_nci60_cellminer_mutations.R"
+      - "scripts/benchmark_original_nci60_mutation_multiview.py"
+      - "tests/test_mutation_multiview.py"
+      - ".github/workflows/nci60-somatic-mutations-threeomics.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source-real-cancer-cell-mutations-not-clinical-pgx:
+    runs-on: ubuntu-latest
+    timeout-minutes: 50
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/checkout@v5
+        with:
+          repository: mixOmics-org/mixOmics
+          ref: 9f9fd66b69105fdb618b54588b638b567e85c0d6
+          path: upstream/mixomics
+          persist-credentials: false
+      - uses: actions/checkout@v5
+        with:
+          repository: Mathelab/NCI60_GeneMetabolite_Data
+          ref: 4c140708c18c41910458414a626b1a51d3dd2a85
+          path: upstream/nci60-multiomics
+          persist-credentials: false
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          r-version: "4.6.1"
+          use-public-rspm: true
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+      - name: Install pinned numerical tools and original NCI60 source reader
+        run: python -m pip install -e . 'numpy==2.2.6' 'scikit-learn==1.7.2' 'xgboost==3.0.5' 'openpyxl==3.1.5'
+      - name: Offline synthetic mutation/non-leakage and panel selection tests
+        run: python -m unittest discover -s tests -p 'test_mutation_multiview.py' -v
+      - name: Install official Bioconductor CellMiner measured mutation source
+        run: |
+          Rscript -e 'install.packages("BiocManager",repos="https://cloud.r-project.org"); BiocManager::install(c("Biobase","rcellminerData"),ask=FALSE,update=FALSE,quiet=TRUE)'
+          Rscript -e 'stopifnot(as.character(packageVersion("rcellminerData"))=="2.34.0"); cat("QUALIFIED CellMiner source version",as.character(packageVersion("rcellminerData")),"\n")'
+      - name: Export original source 47-line RNA/metabolite/true doxorubicin GI50
+        run: Rscript scripts/export_public_nci60_twoomics.R upstream/mixomics upstream/nci60-multiomics original_private_temp
+      - name: Source-only somatic mutation crosswalk (CellMiner NCI60 60 -> original 47 exact)
+        run: Rscript scripts/export_nci60_cellminer_mutations.R original_private_temp/response.csv original_private_temp/mutation.csv
+      - name: Original SWATH protein matched, fixed 8 modalities, TP53 interactions, nested mutation-conditional 80/90pct
+        run: |
+          set -o pipefail
+          python -m scripts.benchmark_original_nci60_mutation_multiview \
+            --data original_private_temp --out nci60_mutation_threeomics_aggregate.json | tee nci60_mutation_threeomics_stdout.json
+      - name: Delete all source original line measurements regardless of success or failure
+        if: always()
+        run: rm -rf original_private_temp
+      - name: Assert same original biological units and no invented functional genotype
+        run: |
+          python - <<'PY'
+          import json
+          result=json.load(open('nci60_mutation_threeomics_aggregate.json'))
+          assert result['n_unique_biological_cell_lines']==47
+          assert result['n_repeated_not_independent_test_predictions']==141
+          assert result['genotype_subgroup_model_chosen_using_outer_response'] is False
+          assert result['no_externally_replicated_modality_by_genotype_interaction']
+          assert result['no_patient_or_original_cell_line_feature_rows_exported']
+          assert result['clinical_human_PK_or_CYP3A5_genotype_outcome_demonstrated'] is False
+          assert result['original_in_vitro_GI50_observed_holdout']['fixed']['mutation_only']
+          assert set(result['original_in_vitro_GI50_observed_holdout']['nested_TP53_guided_80_90'])=={'80','90'}
+          print('PASS: original CellMiner mutations + source original threeomics GI50, research only')
+          PY
+      - uses: actions/upload-artifact@v6
+        with:
+          name: original-NCI60-somatic-mutations-RNA-protein-metabolite-GI50-aggregate-only
+          path: nci60_mutation_threeomics_aggregate.json
+          retention-days: 28
