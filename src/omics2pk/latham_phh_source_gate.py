@@ -189,7 +189,7 @@ def benchmark_latham_phh_table4(rows: Sequence[Mapping[str, object]]) -> dict:
         "heldout_MAE_by_predeclared_arm_source_table_scale": scores,
         "genotype_stratified_MAE_exploratory":stratified,
         "allele_star6_or_star7_separate_effect_estimable":False,
-        "no_RNA_or_endogenous_metabolomics_in_original_PH H_table4":True,
+        "no_RNA_or_endogenous_metabolomics_in_original_PHH_table4":True,
         "MAE_delta_vs_PGx_only": {k: round(v - scores["pgx_only"], 6)
                                  for k, v in scores.items() if k != "pgx_only"},
         "shared_CYP3A4_5_probe_not_CYP3A5_specific": True,
