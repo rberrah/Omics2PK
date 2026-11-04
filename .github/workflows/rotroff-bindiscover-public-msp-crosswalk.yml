@@ -31,6 +31,26 @@ jobs:
         run: python -m pip install -e .
       - name: Synthetic-only MSP source bin-name/retention-index disambiguation
         run: python -m unittest discover -s tests -p 'test_rotroff_bindiscover_public_msp.py' -v
+      - name: Original public MSP header schema reconnaissance, no spectral ion data output
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          for stem in ("unknowns","knowns_curated"):
+              p=Path("upstream/bindiscover/api/newer_datasets/GCBinbase_"+stem+".msp")
+              print("MSP source",stem,"bytes",p.stat().st_size)
+              with p.open(encoding="utf8",errors="replace") as f:
+                  for i in range(25):
+                      text=f.readline().strip()
+                      if not text:
+                          print("line",i,"blank")
+                      elif ":" in text and len(text.split(":",1)[0])<40:
+                          key,value=text.split(":",1)
+                          key=key.strip()
+                          print("line",i,"header",repr(key),
+                                "source_name_or_id",repr(value.strip()[:70]) if key.casefold() in ("name","id","db#","bin") else "")
+                      else:
+                          print("line",i,"non-metadata-peak-or-other-redacted")
+          PY
       - name: Real original Rotroff 229 Bin IDs against exact upstream BinDiscover MSP references (names only)
         run: |
           set -o pipefail
