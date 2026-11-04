@@ -5,7 +5,8 @@ import unittest
 from omics2pk.spectral_biochemical_seed import seed_bibliography
 from omics2pk.spectral_knowledge_bank import (
     REFERENCE_CATALOGUE, SpectralKnowledgeError, add_mechanism_link,
-    add_reference, make_db, search_spectral_candidates, triage_unassigned_feature_id
+    add_reference, make_db, search_spectral_candidates, triage_unassigned_feature_id,
+    register_original_omic_feature,summarize_registered_features
 )
 
 PEAKS=[[50.0,4.0],[57.0,9.0],[68.0,3.0],[73.0,10.0],
@@ -34,6 +35,27 @@ class SpectrumBankTests(unittest.TestCase):
         return search_spectral_candidates(
             self.db,q,mass_tolerance_da=.03,retention_tolerance=40,**opts
         )
+    def test_unresolved_original_study_features_can_be_indexed_without_mass(self):
+        study="synthetic_study"
+        status=register_original_omic_feature(self.db,study=study,feature_id="629905",
+           label="629905",assay="GC_EI",specimen="human_plasma_predose",
+           provenance_url="https://example.org/synthetic-source",
+           known_source_chemical_name=False)
+        self.assertEqual(status,"UNRESOLVED_BIN_ID_ONLY_NO_SPECTRUM")
+        register_original_omic_feature(self.db,study=study,feature_id="citrulline",
+           label="citrulline",assay="GC_EI",specimen="human_plasma_predose",
+           provenance_url="https://example.org/synthetic-source",
+           known_source_chemical_name=True)
+        out=summarize_registered_features(self.db,study)
+        self.assertEqual(out["n_registered_source_features"],2)
+        self.assertEqual(out["annotation_stages"]["UNRESOLVED_BIN_ID_ONLY_NO_SPECTRUM"],1)
+        self.assertEqual(out["n_transporter_or_enzyme_function_inferred"],0)
+        with self.assertRaises(SpectralKnowledgeError):
+            register_original_omic_feature(self.db,study=study,feature_id="629905",
+               label="629905",assay="GC_EI",specimen="human_plasma_predose",
+               provenance_url="https://example.org/synthetic-source",
+               known_source_chemical_name=False)
+
     def test_real_chemical_id_is_not_spectral_identity_without_evidence(self):
         add_reference(self.db,gc())
         r=self.find(query())
