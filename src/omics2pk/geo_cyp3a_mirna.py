@@ -340,11 +340,43 @@ def compare_geo_mirna_vs_cyp3a_activity(
                                 if r["status"]==group),6),
         } for group in ("NORMAL","DISEASE")
     }
+    # Mandatory numerical cross-check: the source paper says n=28 cirrhotic
+    # livers had mean CYP3A CLint 0.28 (rounded to 2 decimals). GEO provides
+    # n=22 cirrhotic miRNA profiles, reported to be a SUBSET of that cohort.
+    # Since activity is nonnegative, 22 observed activities cannot sum to
+    # more than the upper bound 28*(0.28+0.005)=7.98 if the measure is identical.
+    # Failure is a genuine source-provenance discrepancy. NEVER "correct"
+    # individual source values or convert units speculatively.
+    source_disease_sum=sum(r["activity"] for r in rec if r["status"]=="DISEASE")
+    maximum_published_disease_total=28 * (.28 + .005)
+    disease_group_source_parity=(source_disease_sum <= maximum_published_disease_total)
+    control_source_mean=mean(r["activity"] for r in rec if r["status"]=="NORMAL")
+    control_group_source_parity=(abs(control_source_mean-.47) <= .005)
+    source_parity_qualified=disease_group_source_parity and control_group_source_parity
     return {
-        "status":"PUBLIC_ORIGINAL_GEO_LIVER_MIRNA_SHARED_CYP3A_ACTIVITY_E2",
+        "status":("RESEARCH_E2_SUPPLIED_GEO_SOURCE_PARITY_POSSIBLE"
+                  if source_parity_qualified else
+                  "ABSTAIN_GEO_ACTIVITY_PUBLICATION_GROUP_PARITY_FAILURE"),
         "source_geo":SERIES,"source_doi":DOI,"source_pubmed":SOURCE_PUBMED,
         "n_original_unique_liver_biological_samples":34,
         "condition_counts":EXPECTED_GROUPS,
+        "source_publication_parity_audit":{
+            "paper_cirrhosis_n":28,
+            "paper_cirrhosis_mean_rounded":0.28,
+            "GEO_cirrhosis_n":22,
+            "GEO_cirrhosis_activity_sum":round(source_disease_sum,6),
+            "maximum_compatible_source_total_with_mean_rounding":round(maximum_published_disease_total,6),
+            "disease_subset_of_paper_nonnegative_activity_possible":disease_group_source_parity,
+            "paper_control_n":12,
+            "paper_control_mean_rounded":0.47,
+            "GEO_control_n":12,
+            "GEO_control_mean":round(control_source_mean,6),
+            "paper_control_mean_consistent":control_group_source_parity,
+            "source_endpoint_paper_parity_qualified":source_parity_qualified,
+            "same_endpoint_and_original_donor_subset_assumed_for_parity_check":True,
+            "biological_superiority_inference_permitted":False,
+            "unverified_outcome_units_or_original_sample_crosswalk_not_silently_repaired":True,
+        },
         "n_outer_sample_heldout_folds":len(folds),
         "source_molecular_platform":EXPECTED_PLATFORM,
         "target":"original_sample_metadata_midazolam_shared_CYP3A_in_vitro_activity",
