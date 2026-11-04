@@ -93,7 +93,7 @@ CYP3A5 *1/*3/*6/*7, measured CYP proteins, independent CYP2C8 and
 clearance. Four existing original donor-LOO arms: PGx; PGx+protein;
 PGx+probe activities; PGx+both. New descriptive breakdown by CYP3A5
 nonexpressers versus other genotypes and CYP2C8 reference versus variant
-diplotype. Groups with fewer than **four** donors **abstain** from
+diplotype. Groups with fewer than **five** donors **abstain** from
 stratum-specific performance estimates; allele *6/*7 individual effects
 are not estimated. No separate RNA or endogenous untargeted metabolomics
 exists in this original table; adding a surrogate would fabricate a view.
