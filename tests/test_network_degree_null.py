@@ -37,8 +37,9 @@ class DegreeMatchedNetworkControls(unittest.TestCase):
             degree_conditioned_bridge_null(GENES,SHAP,PRIOR,[{**EDGES[0],"confidence_functional_association":1.5}])
         with self.assertRaises(NetworkNullError):
             degree_conditioned_bridge_null(GENES,("A","D"),PRIOR,EDGES)
-        with self.assertRaises(NetworkNullError):
-            degree_conditioned_bridge_null(GENES,SHAP,PRIOR,EDGES,max_exact_assignments=2)
+        self.assertEqual(
+            degree_conditioned_bridge_null(GENES,SHAP,PRIOR,EDGES,max_exact_assignments=2)["status"],
+            "ABSTAIN_EXACT_ROLE_ENUMERATION_TOO_LARGE")
 
 
 if __name__=="__main__":
