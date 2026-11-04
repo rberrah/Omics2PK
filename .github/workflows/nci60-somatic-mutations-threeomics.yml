@@ -46,7 +46,7 @@ jobs:
           python -m unittest discover -s tests -p 'test_mutation_mechanism_controls.py' -v
       - name: Install official Bioconductor CellMiner measured mutation source
         run: |
-          Rscript -e 'install.packages("BiocManager",repos="https://cloud.r-project.org"); BiocManager::install(c("Biobase","rcellminerData"),ask=FALSE,update=FALSE,quiet=TRUE)'
+          Rscript -e 'install.packages("BiocManager",repos="https://cloud.r-project.org"); BiocManager::install(c("Biobase","rcellminerData","rcellminer"),ask=FALSE,update=FALSE,quiet=TRUE)'
           Rscript -e 'stopifnot(as.character(packageVersion("rcellminerData"))=="2.34.0"); cat("QUALIFIED CellMiner source version",as.character(packageVersion("rcellminerData")),"\n")'
       - name: Export original source 47-line RNA/metabolite/true doxorubicin GI50
         run: Rscript scripts/export_public_nci60_twoomics.R upstream/mixomics upstream/nci60-multiomics original_private_temp
