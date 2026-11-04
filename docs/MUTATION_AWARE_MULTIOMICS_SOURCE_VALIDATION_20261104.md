@@ -124,3 +124,44 @@ Existing reproducible human-source pilot:
 test passing is *software qualification only*, not evidence of a real
 mutation-modality superiority. Record original numerical results here
 only after the actual CellMiner + 47-line + all assay joins succeed.
+
+## Real-source replay: completed results (2026-11-04)
+
+**Original-source qualified execution:** [47-line mutation × threeomics workflow #41931305444](https://github.com/rberrah/Omics2PK/actions/runs/41931305444), successful. All 17 workflows green on the previously code-tested commit.
+
+CellMiner v2.34.0 original source: 9,307 mutation-score genes, 47/47 original line names and tumor histologies matched exactly, **23 TP53-positive** / **24 TP53-nonpositive**. The source mutation values can be nonbinary positive (maximum 100); the declared upstream **greater-than-zero** gene-event presence convention is applied, without alleging variant allele dosage or loss-of-function protein. Source mutation gene flags present: TP53, ABCB1, ABCC1, ABCG2, CBR3. The originally requested TOP2A, TOP2B and CBR1 are **not measured** in the source mutation matrix, and never imputed as wildtype.
+
+### Same original biological lines: all eight fixed view comparisons
+
+Three repeated five-fold line-disjoint heldout evaluations; same target doxorubicin GI50 (in-vitro PD, **not human plasma PK**) and fixed Ridge alpha10; assay filtering, imputation, scaling and PCA3 fitted **on each training set only**. Lower MAE is better.
+
+| Original fixed omics | Lineage without mutations | Lineage + mutation signals | Mutation increment (positive worse) |
+|---|---:|---:|---:|
+| None | 0.347203 | 0.381177 | +0.033975 |
+| RNA only | **0.308078** | **0.313205** | +0.005127 |
+| Protein only | 0.353608 | 0.373163 | +0.019555 |
+| Metabolites only | 0.353413 | 0.374245 | +0.020832 |
+| RNA + protein | 0.323345 | 0.328572 | +0.005227 |
+| RNA + metabolites | 0.332678 | 0.337799 | +0.005121 |
+| Protein + metabolites | 0.357841 | 0.368969 | +0.011128 |
+| All three | 0.345021 | 0.349732 | +0.004710 |
+
+**Interpretation:** This genuine 47-line dataset supports neither a universal benefit from unselected multiomics nor an extra predictive gain from these particular *somatic gene-level mutation signals* in this small-sample Ridge setting. Adding mutation features worsens every fixed arm; this is a model/data limitation, **not** evidence of biologically harmful mutations. Here the best-performing view is transcriptomics **with no observed mutation features**. The selected layer is not universal across drug, tissue, experiment or variant class.
+
+Inner training TP53-stratified 80/90%-gain-preserving minimum-omic selection yields outer heldout MAE **0.329416 / 0.330000**, not better than fixed mutation+RNA **0.313205**; explicit TP53×RNA interaction MAE **0.314256**, also not superior. On heldout descriptive TP53 subgroups, fixed RNA decreases MAE relative to lineage+mutation by **−0.062157** among 24 TP53-nonpositive and **−0.074041** among 23 TP53-positive lines. Other observed gene flags have too few mutated carriers for subgroup validation and correctly **ABSTAIN**. These repeated partitions are 47 independent biological lines, not 141 independent experiments.
+
+### Mutation-adjusted source-measured biological hypothesis panels versus matched random panels
+
+| Prespecified source panel | Original GI50 MAE | Source assay-matched random feature panels with lower MAE |
+|---|---:|---:|
+| Seven original drug-related RNA genes | **0.368306** | **1/32** |
+| Three actually measured drug-related SWATH proteins | 0.399152 | **26/32** |
+| Six candidate redox/glutathione metabolites | 0.411493 | **32/32** |
+
+Matching uses training-only source detection frequency and variance. Original selected drug RNA genes perform well relative to the random *small RNA panels*, yet worse than full-view RNA PCA3. The three protein targets and redox metabolite panel are incomplete mechanism assays; protein abundance does not establish activity and metabolite source names do not establish independent confirmed chemical identity. None of these comparisons identifies causal transport, metabolic flux or clinical PK.
+
+### Applicability to CYP3A5 and tacrolimus
+
+This CellMiner experiment is a real **cell-line PD** result with mostly somatic variants, from **noncontemporaneous** different-study omics assays. It must **not** be interpreted as CYP3A5 germline star-allele penetrance or human immunosuppressant PK. The human PHH Latham original genotype (CYP2C8/CYP3A5) + protein + shared CYP3A probe assay and human liver HLC original one CYP3A5 SNP + RNA + enzyme probe activity are **separate partial examples** with different measured endpoints.
+
+A definitive human PK test requires same-donor complete CYP3A4/5 PGx, functional splice/PTV annotation, matched RNA/protein/metabolite or selectively measured activity, and actual PK AUC/CL/C0, with patient-level nested CV and external replication; abstain when allele category or omic layer is missing.
