@@ -20,6 +20,7 @@ from sklearn.preprocessing import OneHotEncoder, StandardScaler
 from xgboost import XGBRegressor, DMatrix
 
 from benchmark_public_nci60_twoomics import SEED,load_dataset,fit_view
+from omics2pk.nci60_biochemical_coverage import status_of_original_label
 from benchmark_original_nci60_threeomics_swath import (
     load_official_proteome,distinct_map,PREFIX_TO_CLASS,CAPS,PIN,DOI,
 )
@@ -166,6 +167,19 @@ def evaluate_original(ids,classes,drugresponse,rna_names,met_names,
         low,high=np.quantile(d[boot].mean(axis=1),[.025,.975])
         contrasts[name]={"delta_MAE_negative_is_better":round(float(d.mean()),6),
                          "descriptive_paired_cell_line_95pct_interval_no_refit":[round(float(low),6),round(float(high),6)]}
+    # Pre-registered comparison against RNA, the motivated single layer;
+    # others are shown descriptively, not chosen as a post-hoc winning arm.
+    pairwise={}
+    for reference in ("tumor_rna","tumor_protein","tumor_metabolome",
+                      "tumor_rna_protein","tumor_rna_metabolome","tumor_protein_metabolome"):
+        d=loss["tumor_threeomics"]-loss[reference]
+        lo,hi=np.quantile(d[boot].mean(axis=1),[.025,.975])
+        pairwise["threeomics_minus_"+reference]={
+          "delta_MAE_negative_is_better":round(float(d.mean()),6),
+          "descriptive_paired_95pct_cell_line_bootstrap_no_refit":[round(float(lo),6),round(float(hi),6)],
+          "n_lines_threeomics_has_lower_mean_heldout_error":int(np.sum(d<0)),
+          "n_independent_biological_cell_lines":47,
+        }
     importance={}
     totals={key:float(abs_contrib[key].sum()) for key in MODALITIES}
     common_total=sum(totals.values())
@@ -181,7 +195,7 @@ def evaluate_original(ids,classes,drugresponse,rna_names,met_names,
                            "n_outer_folds_with_nonzero_test_SHAP":int(freq[key].get(int(j),0)),
                            "mean_abs_heldout_SHAP_GI50_score":round(float(abs_contrib[key][int(j)]/n_explained),7),
                            "identity_grade":("source_gene_symbol_not_isoform_specific" if key in ("rna","prot")
-                                             else "source_metabolite_name_MSI_unverified"),
+                                             else status_of_original_label(columns[key][int(j)])),
                            "biological_function_inferred":False})
         importance[key]={"top15_model_attributions":result,
                           "fraction_of_absolute_test_SHAP_across_all_three_omic_layers":round(float(totals[key]/common_total),5) if common_total>0 else None,
@@ -201,6 +215,7 @@ def evaluate_original(ids,classes,drugresponse,rna_names,met_names,
         "actual_endpoint":"original measured in-vitro doxorubicin GI50 score, NOT human drug PK",
         "models_on_identical_original_cell_lines":summaries,
         "comparisons_vs_tumor_baseline":contrasts,
+        "paired_threeomics_vs_each_single_or_pairwise_model":pairwise,
         "heldout_tree_SHAP_model_attribution":importance,
         "predeclared_white_box_gene_coverage":{
             key:[columns[key][i] for i in indices] for key,indices in target_idx.items()},
