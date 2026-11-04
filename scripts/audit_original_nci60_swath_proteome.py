@@ -16,12 +16,22 @@ def get_source():
     for url in URLS:
         try:
             req=urllib.request.Request(url,headers={"User-Agent":"Omics2PK research source audit (citation: PMC6889472; contact via GitHub)"})
-            with urllib.request.urlopen(req,timeout=55) as h:
-                b=h.read(50_000_001)
+            with urllib.request.urlopen(req,timeout=150) as h:
+                b=h.read(180_000_001)
                 final=h.geturl()
             print("FETCH",url,"resolved",final,"bytes",len(b),"sha256",hashlib.sha256(b).hexdigest())
             if len(b)>4_000_000 and zipfile.is_zipfile(io.BytesIO(b)):
-                return b,final
+                with zipfile.ZipFile(io.BytesIO(b)) as archive:
+                    names=archive.namelist()
+                    print("ARCHIVE_ENTRIES", [(name,archive.getinfo(name).file_size) for name in names[:22]])
+                    if len(names)==1 and names[0].lower().endswith(".xlsx"):
+                        return archive.read(names[0]),final
+                    target=[name for name in names if name.lower().endswith(("mmc2.xlsx","mmc2.xls"))]
+                    if len(target)==1:
+                        return archive.read(target[0]),final+"#"+target[0]
+                    if len(b)<40_000_000 and b[:2]==b"PK":
+                        return b,final
+                print("NO_SINGLE_OFFICIAL_MMC2_XLSX_IN_ARCHIVE")
         except Exception as exc:
             print("ABSTAIN_CANDIDATE_UNAVAILABLE",url,type(exc).__name__,str(exc)[:120])
     raise SystemExit("ABSTAIN_NO_OFFICIAL_PUBLISHED_PROTEOME_XLSX_AVAILABLE")
