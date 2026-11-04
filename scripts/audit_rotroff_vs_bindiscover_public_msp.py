@@ -151,5 +151,7 @@ if __name__=="__main__":
         print(json.dumps(main(args.unknown_msp,args.known_msp),indent=2,sort_keys=True))
     except (OSError,ValueError) as e:
         print(json.dumps({"status":"ABSTAIN_ORIGINAL_BIN_ID_CROSSWALK_UNQUALIFIED",
-                          "error_class":type(e).__name__,"chemical_identifications":0}))
+                          "error_class":type(e).__name__,
+                          "public_source_contract_reason":str(e)[:150] if isinstance(e,ValueError) else "I/O failure",
+                          "chemical_identifications":0}))
         raise SystemExit(2)
