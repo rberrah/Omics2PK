@@ -4,6 +4,8 @@ on:
     paths:
       - "src/omics2pk/spectral_knowledge_bank.py"
       - "src/omics2pk/spectral_biochemical_seed.py"
+      - "src/omics2pk/proteoform_reference.py"
+      - "scripts/register_rotroff33_unresolved_spectral_features.py"
       - "scripts/query_local_spectral_bank.py"
       - "tests/test_spectral_knowledge_bank.py"
       - "docs/SPECTRAL_REFERENCE_TRANSPORTER_ENZYME_PROTEOFORM_BANK_20261104.md"
