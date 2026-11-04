@@ -1,0 +1,59 @@
+#!/usr/bin/env Rscript
+# Independently sourced, published NCI-60 predicted-deleterious *somatic* gene
+# flags (rcellminerData), joined EXACTLY to the already source-qualified n47
+# original cell-line keys. These are not CYP3A5 star alleles/germline PGx.
+args <- commandArgs(trailingOnly=TRUE)
+if (length(args) != 2L) stop("Usage: export_nci60_cellminer_mutations.R <source_response.csv> <out_mutation.csv>")
+if (!requireNamespace("rcellminerData", quietly=TRUE) ||
+    !requireNamespace("Biobase", quietly=TRUE))
+  stop("ABSTAIN: original Bioconductor mutation source missing")
+source_version <- as.character(utils::packageVersion("rcellminerData"))
+if (source_version != "2.34.0") stop(paste("ABSTAIN: unpinned CellMiner mutation package version",source_version))
+utils::data("molData", package="rcellminerData", envir=environment())
+if (!exists("molData", inherits=FALSE)) stop("ABSTAIN: source object not loaded")
+mut <- Biobase::exprs(molData[["mut"]])
+if (!is.matrix(mut) || ncol(mut) != 60L || nrow(mut) < 1000L ||
+    is.null(rownames(mut)) || is.null(colnames(mut)) ||
+    anyDuplicated(rownames(mut)) || anyDuplicated(colnames(mut)))
+  stop("ABSTAIN: unexpected original CellMiner mutation source matrix shape")
+if (any(!is.na(mut) & !(mut %in% c(0,1))))
+  stop("ABSTAIN: source mutation flags not binary")
+# Reuse *exact* source-concordant 47 cell-line keys from existing audit.
+responses <- utils::read.csv(args[[1]], check.names=FALSE, stringsAsFactors=FALSE)
+if (!identical(names(responses), c("subject_id","cancer_class","y")) ||
+    nrow(responses) != 47L || anyDuplicated(responses$subject_id))
+  stop("ABSTAIN: original 47 distinct lineage-qualified drug-response lines required")
+canon <- function(x) gsub("[^A-Z0-9]","",toupper(as.character(x)))
+rk <- canon(responses$subject_id); mk <- canon(colnames(mut))
+if (any(!nzchar(rk)) || anyDuplicated(rk) || any(!nzchar(mk)) || anyDuplicated(mk))
+  stop("ABSTAIN: ambiguous original mutation-to-drug source keys")
+idx <- match(rk,mk)
+if (anyNA(idx) || anyDuplicated(idx))
+  stop(sprintf("ABSTAIN: original CellMiner exact mutation cross-study line match %d/47",sum(!is.na(idx))))
+# Binary gene-level mutation presence is already algorithmically qualified by
+# CellMiner. Original missing assay rows remain NA, NEVER treated as wildtype.
+prespecified <- c("TP53","TOP2A","TOP2B","ABCB1","ABCC1","ABCG2","CBR1","CBR3")
+genes <- ifelse(startsWith(rownames(mut),"mut"),substring(rownames(mut),4L),rownames(mut))
+if (anyDuplicated(genes)) stop("ABSTAIN: ambiguous duplicate CellMiner mutation gene symbols")
+available <- prespecified %in% genes
+if (!("TP53" %in% genes)) stop("ABSTAIN: original TP53 mutation assay unavailable")
+# Absence of a gene in mutation source is not evidence of wild type;
+# omit absent genes, report missing canonical gene labels as metadata.
+present <- prespecified[available]
+flags <- t(mut[match(present,genes),idx,drop=FALSE])
+if (nrow(flags) != 47L || ncol(flags) != length(present))
+  stop("ABSTAIN: source-transposed mutation subset drift")
+colnames(flags) <- paste0("mut_",present)
+# No missing values in selected flags; we prefer abstaining to imputation.
+if (anyNA(flags)) stop("ABSTAIN: original selected mutation flags contain missing calls")
+# Mutation burden is informative but NOT a clinical germline genotype;
+# refuse if mutation platform has incomplete calls, to avoid NA as wildtype.
+all_calls <- mut[,idx,drop=FALSE]
+if (anyNA(all_calls)) stop("ABSTAIN: missing genome-wide mutation calls; cannot compute trustworthy burden")
+burden <- colSums(all_calls == 1)
+out <- data.frame(subject_id=responses$subject_id, flags, mutation_burden=burden,
+                  check.names=FALSE)
+utils::write.csv(out,args[[2]],row.names=FALSE,quote=TRUE)
+cat(sprintf("CELL_MINER_MUTATIONS source_version=%s original_n60=%d matched_n47=%d measured_mutation_genes=%d prior_gene_flags_available=%d TP53_mutated=%d missed_prior_gene_symbols=%s; SOMATIC_NOT_GERMLINE_PGX\n",
+            source_version,ncol(mut),length(idx),nrow(mut),length(present),
+            sum(flags[,"mut_TP53"]==1),paste(setdiff(prespecified,present),collapse=";")))
