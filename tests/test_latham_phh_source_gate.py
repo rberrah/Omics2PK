@@ -74,6 +74,15 @@ class LathamSourceGateTests(unittest.TestCase):
         self.assertEqual(r["cyp3a5_phenotype_group_counts_original_14"],
                          {"NM": 1, "IM": 3, "PM": 10})
         self.assertEqual(len(r["heldout_MAE_by_predeclared_arm_source_table_scale"]), 4)
+        self.assertEqual(set(r["genotype_stratified_MAE_exploratory"]),
+                         {"CYP3A5_nonexpresser_PM","CYP3A5_IM_or_NM",
+                          "CYP2C8_reference_star1_star1","CYP2C8_variant_diplotype"})
+        self.assertEqual(r["genotype_stratified_MAE_exploratory"]
+                         ["CYP3A5_IM_or_NM"]["status"],
+                         "ABSTAIN_SMALL_ORIGINAL_GENOTYPE_STRATUM")
+        self.assertEqual(r["genotype_stratified_MAE_exploratory"]
+                         ["CYP3A5_nonexpresser_PM"]["n_original_donors"],9)
+        self.assertTrue(r["no_RNA_or_endogenous_metabolomics_in_original_PHH_table4"])
         self.assertTrue(r["n_desmethyl_formation_is_outcome_not_predose_predictor"])
         self.assertFalse(r["in_vivo_PopPK_or_tacrolimus_prediction_demonstrated"])
         self.assertNotIn("XAA", str(r))
