@@ -132,7 +132,23 @@ def main(unknown_path,known_path):
     bins_in_known=set(scan2["matched_source_bins"])
     bins_in_unknown=set(scan1["matched_source_bins"])
     matched=bins_in_known|bins_in_unknown
+    # These source features ranked highly by *training-only* XGB/TreeSHAP.
+    # Name/accession overlap does not establish EI spectrum + RI, MSI-1
+    # structure, patient-specific function, transport activity, or PK benefit.
+    top_bin_status={
+        original_bin:{
+            "public_MSP_accession_overlap_candidate":original_bin in matched,
+            "original_study_deconvoluted_EI_spectrum_and_RI_available":False,
+            "original_study_to_public_MSP_instrument_method_and_namespace_verified":False,
+            "identity":None,
+            "measured_enzyme_or_transporter_activity":False,
+            "status":"ABSTAIN_ORIGINAL_STUDY_EI_RI_CROSSWALK_REQUIRED",
+        } for original_bin in TOP
+    }
     return {
+        "top_SHAP_bin_mechanism_falsification":top_bin_status,
+        "n_priority_SHAP_bins_with_confirmed_chemical_identity":0,
+        "n_priority_SHAP_bins_with_measured_transport_function":0,
         "status":"ORIGINAL_ROTROFF_229_BINS_SCREENED_AGAINST_PINNED_PUBLIC_MSP_SOURCES_NOT_IDENTIFICATIONS",
         "upstream":UPSTREAM,
         "original_Rotroff_clinical_source_SHA256":source["original_clinical_workbook_SHA256"],
