@@ -48,6 +48,14 @@ jobs:
               assert set(value['adaptive_gain_retention_budgets'])=={'80','90'}
               for selection in value['adaptive_gain_retention_budgets'].values():
                   assert sum(selection['outer_fold_selected_k_frequency'].values())==32
+              panel=selection['panel_selection_stability_train_only_descriptive']
+              assert panel['n_model_fits']==32
+              assert panel['n_zero_omic_panels']==selection['n_outer_folds_using_zero_omic_features']
+              assert panel['n_nonempty_panels']+panel['n_zero_omic_panels']==32
+              assert panel['used_to_choose_panel_or_evaluate_predictive_gain'] is False
+              assert panel['overlapping_train_folds_invalidate_independence_or_significance_claims']
+          assert 0<=value['mean_inner_top10_SHAP_rank_Jaccard_train_only_descriptive']<=1
+          assert value['independent_reproducibility_of_biomarker_identity_demonstrated'] is False
           print('PASS: source-original 80/90% inner gain is distinct from test gain')
           PY
       - name: Plot aggregate-heldout information Pareto and public model SHAP heatmap (no individual profiles)
