@@ -1,0 +1,22 @@
+name: Original Rotroff 384 GC-TOF source bin registry and 229 abstention
+on:
+  pull_request:
+    paths:
+      - "scripts/register_rotroff33_unresolved_spectral_features.py"
+      - "src/omics2pk/spectral_knowledge_bank.py"
+      - ".github/workflows/rotroff33-source-spectral-feature-registry.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  original-source-feature-only:
+    runs-on: ubuntu-latest
+    timeout-minutes: 13
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+      - run: python -m pip install -e .
+      - name: Register original Rotroff 384 source features without patient spectra or outcome
+        run: python -m scripts.register_rotroff33_unresolved_spectral_features
