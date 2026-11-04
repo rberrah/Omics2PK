@@ -9,7 +9,7 @@ a same-person blood-liver correlation needs the sample-level data and ID join.
 from __future__ import annotations
 import csv,gzip,hashlib,io,json,math,urllib.request
 
-SOURCE="https://storage.googleapis.com/gtex_analysis_v8/rna_seq_data/GTEx_Analysis_2017-06-05_v8_RNASeQCv1.1.9_gene_median_tpm.gct.gz"
+SOURCE="https://storage.googleapis.com/adult-gtex/bulk-gex/v8/rna-seq/GTEx_Analysis_2017-06-05_v8_RNASeQCv1.1.9_gene_median_tpm.gct.gz"
 TISSUES=("Liver","Whole_Blood","Small_Intestine_Terminal_Ileum")
 GENES=("CYP3A4","CYP3A5","FMO3","ALB","PTPRC")
 
@@ -78,5 +78,6 @@ if __name__=="__main__":
     try:print(json.dumps(main(),indent=2,sort_keys=True))
     except (OSError,GTExSourceError) as error:
         print(json.dumps({"status":"ABSTAIN_NO_AUTHENTIC_GTEX_SOURCE",
-                          "error_type":type(error).__name__},sort_keys=True))
+                          "error_type":type(error).__name__,
+                          "http_code":getattr(error,"code",None)},sort_keys=True))
         raise SystemExit(2)
