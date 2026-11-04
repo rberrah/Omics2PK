@@ -65,8 +65,24 @@ jobs:
               assert sum(b['selected_arm_by_outer_fold'].values())==15
           print('PASS original source 47 three-layer doxorubicin GI50 nested model selection, not human PK')
           PY
+      - name: Test and audit original ranked human source genes with STRING v12.5 (functional only, no drug causality)
+        run: |
+          python -m unittest discover -s tests -p 'test_nci60_string_shap_mechanistic_network.py' -v
+          python -m unittest discover -s tests -p 'test_physiopharmaco_cascade.py' -v
+          python -m scripts.audit_nci60_string_shap_mechanistic_network | tee nci60_source_shap_STRING12_5_aggregate.json
+      - name: Network source uncertainty gate
+        run: |
+          python - <<'PY'
+          import json
+          r=json.load(open('nci60_source_shap_STRING12_5_aggregate.json'))
+          assert r['status'].startswith('ABSTAIN') or r['patient_PK_or_drug_transport_rate_measured'] is False
+          assert r['n_edges'] is None or r['n_edges']>=0
+          print('SOURCE STRING RESULT:',r['status'])
+          PY
       - uses: actions/upload-artifact@v6
         with:
           name: original-NCI60-threeomics-nested-80-90-percent-assay-cost-aggregate-only
-          path: nci60_threeomics_nested_modalities_aggregate.json
+          path: |
+            nci60_threeomics_nested_modalities_aggregate.json
+            nci60_source_shap_STRING12_5_aggregate.json
           retention-days: 21
