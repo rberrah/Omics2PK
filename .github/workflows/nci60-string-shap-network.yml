@@ -1,0 +1,46 @@
+name: Original NCI60 top RNA-protein SHAP functional STRING12.5 evidence
+on:
+  pull_request:
+    paths:
+      - "scripts/audit_nci60_string_shap_mechanistic_network.py"
+      - "tests/test_nci60_string_shap_mechanistic_network.py"
+      - "src/omics2pk/physiopharmaco_cascade.py"
+      - "tests/test_physiopharmaco_cascade.py"
+      - ".github/workflows/nci60-string-shap-network.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  real-source-string-function-hypotheses:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+      - name: Offline source-evidence guards: protein network not drug PK
+        run: |
+          python -m pip install -e .
+          python -m unittest discover -s tests -p 'test_nci60_string_shap_mechanistic_network.py' -v
+          python -m unittest discover -s tests -p 'test_physiopharmaco_cascade.py' -v
+      - name: Public official STRING v12.5 human fixed original NCI60 high-SHAP genes and doxorubicin priors
+        run: python -m scripts.audit_nci60_string_shap_mechanistic_network | tee nci60_original_gene_STRING12_5_aggregate.json
+      - name: Authenticate STRING response status and no spurious pathway/Pk links
+        run: |
+          python - <<'PY'
+          import json
+          r=json.load(open('nci60_original_gene_STRING12_5_aggregate.json'))
+          assert r.get('n_edges') is None or r.get('n_edges')>=0
+          if not r['status'].startswith('ABSTAIN'):
+              assert r['n_source_genes_queried']==17
+              assert r['output_is_functional_association_not_a_direct_physical_interaction']
+              assert r['no_unknown_metabolite_bin_assigned_to_a_gene']
+              assert r['patient_PK_or_drug_transport_rate_measured'] is False
+          print(r['status'])
+          PY
+      - uses: actions/upload-artifact@v6
+        with:
+          name: original-NCI60-source-ranked-genes-STRING12_5-functional-only-no-PK-claims
+          path: nci60_original_gene_STRING12_5_aggregate.json
+          retention-days: 21
