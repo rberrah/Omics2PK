@@ -26,7 +26,7 @@ def extract_original_gct(stream, source_file_sha256):
     if not version.startswith("#1.2") or len(shape)!=2 or len(header)<53 or header[:2]!=["Name","Description"]:
         raise GTExSourceError("Not an original GTEx median expression GCT source")
     if any(tissue not in header for tissue in TISSUES):
-        raise GTExSourceError("Required liver/blood/intestine original tissue labels absent")
+        raise GTExSourceError("Required official GTEx v8 original tissue column labels absent: "+",".join(t for t in TISSUES if t not in header)+"; first_headers="+repr(header[:6]))
     if "Whole_Blood"=="Cells_EBV-transformed_lymphocytes":
         raise GTExSourceError("Impossible internal ontology declaration")
     out={}
