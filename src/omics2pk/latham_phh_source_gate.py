@@ -137,6 +137,34 @@ def benchmark_latham_phh_table4(rows: Sequence[Mapping[str, object]]) -> dict:
                                    [log(r["outcome"]) for r in train], [vector(held)])[0]
             losses[name].append(abs(guess - held["outcome"]))
     scores = {name: round(mean(values), 6) for name, values in losses.items()}
+    # Group-specific contrasts are DESCRIPTIVE fold-disjoint measurements,
+    # not a discovered mutation-specific predictor: n=13 and PM dominates.
+    # Original donor IDs stay private; never export per-person errors.
+    strata = {
+        "CYP3A5_nonexpresser_PM": [i for i,r in enumerate(complete)
+                                  if r["phenotype"]=="PM"],
+        "CYP3A5_IM_or_NM": [i for i,r in enumerate(complete)
+                            if r["phenotype"]!="PM"],
+        "CYP2C8_reference_star1_star1": [i for i,r in enumerate(complete)
+                                        if r["cyp2c8_diplotype"]=="*1/*1"],
+        "CYP2C8_variant_diplotype": [i for i,r in enumerate(complete)
+                                    if r["cyp2c8_diplotype"]!="*1/*1"],
+    }
+    stratified={}
+    for label,index in strata.items():
+        if len(index)<4:
+            stratified[label]={"n_original_donors":len(index),
+                               "status":"ABSTAIN_SMALL_ORIGINAL_GENOTYPE_STRATUM"}
+            continue
+        stratified[label]={
+            "n_original_donors":len(index),
+            "status":"DESCRIPTIVE_LODO_ERROR_NOT_GENOTYPE_SPECIFIC_VALIDATION",
+            "heldout_MAE_original_printed_scale":{
+                arm:round(mean(losses[arm][i] for i in index),6)
+                for arm in arms
+            },
+            "subgroup_no_model_or_feature_selected_using_holdout":True,
+        }
     # Positive targeted peptide abundance and *shared* CYP3A probe activity in
     # CPIC nonexpressers must not be relabelled CYP3A5-specific catalysis.
     # Both assays can be technically correct without implying functional *3.
@@ -159,6 +187,9 @@ def benchmark_latham_phh_table4(rows: Sequence[Mapping[str, object]]) -> dict:
         "endpoint_table4_unit": "microlitre_per_million_cells_per_minute",
         "source_prose_unit_discrepancy_not_resolved": True,
         "heldout_MAE_by_predeclared_arm_source_table_scale": scores,
+        "genotype_stratified_MAE_exploratory":stratified,
+        "allele_star6_or_star7_separate_effect_estimable":False,
+        "no_RNA_or_endogenous_metabolomics_in_original_PH H_table4":True,
         "MAE_delta_vs_PGx_only": {k: round(v - scores["pgx_only"], 6)
                                  for k, v in scores.items() if k != "pgx_only"},
         "shared_CYP3A4_5_probe_not_CYP3A5_specific": True,
