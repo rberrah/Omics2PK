@@ -479,7 +479,8 @@ def plan_physio_omic_acquisition(*, drug, endpoint, variants=(), assays=(),
     # PGx haplotypes. Intronic variants do not have a translated codon.
     from .genetic_code_variant_effect import (
         _background, annotate_genomic_snv, omic_implications,
-        reconcile_curated_cyp3a5_allele, GeneticCodeEffectError)
+        reconcile_curated_cyp3a5_allele, crosscheck_source_vep_terms,
+        GeneticCodeEffectError)
     if genome_assay_background is None:
         background={
             "original_genetic_assay_status":"not_assessed",
@@ -526,6 +527,15 @@ def plan_physio_omic_acquisition(*, drug, endpoint, variants=(), assays=(),
             implication=omic_implications(effect)
         except GeneticCodeEffectError as exc:
             raise OmicTriageError("Source genome-to-transcript/reference conflict: "+str(exc)) from exc
+        vep_result=None
+        if entry.get("vep_transcript_annotation") is not None:
+            try:
+                vep_result=crosscheck_source_vep_terms(
+                    predicted=effect, vep=entry["vep_transcript_annotation"])
+            except GeneticCodeEffectError as exc:
+                raise OmicTriageError("Original VEP transcript source metadata conflict: "+str(exc)) from exc
+            if vep_result["status"]=="ABSTAIN_VEP_VS_LOCAL_TRANSCRIPT_CONSEQUENCE_CONFLICT":
+                raise OmicTriageError("ABSTAIN: source VEP and local transcript code effects disagree; resolve before physio priors")
         raw=entry["variant"]
         uid=(effect["assembly"],effect["chromosome"],raw["genomic_position_1based"],
              raw["genomic_ref_allele"],raw["genomic_alt_allele"],effect["transcript_id"])
@@ -577,6 +587,7 @@ def plan_physio_omic_acquisition(*, drug, endpoint, variants=(), assays=(),
             "consequence_derived_from_supplied_reference_code":effect,
             "predicted_omic_interpretability_from_sequence_not_activity":implication,
             "published_independently_curated_mechanism_if_any":curated,
+            "original_source_VEP_annotation_crosscheck_if_supplied":vep_result,
         })
     if reports:
         if genome_assay_background is None:
