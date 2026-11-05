@@ -457,8 +457,14 @@ def qualify_pharmacogenetic_sampling_origin(*,organ_transplant_status,
             raise PhysiopharmacoSpecimenError("A transplant graft sample requires actual organ transplantation")
         # A graft tissue identity alone does not say which graft was
         # sampled; it must be independently mapped to target organ.
-        possible=donor_recipient_identity_verified
-        inferred="ORGAN_GRAFT_ORIGIN_POTENTIALLY_TARGET_IF_ORGAN_IS_VERIFIED"
+        graft_organ={
+            "liver_transplant":"liver",
+            "kidney_transplant":"kidney",
+        }.get(organ_transplant_status)
+        possible=(target_function_organ==graft_organ and
+                  donor_recipient_identity_verified)
+        inferred=("GENOMIC_GRAFT_MATCHES_TARGET_ORGAN"
+                  if possible else "GRAFT_GENOME_NOT_FROM_REQUESTED_TARGET_ORGAN")
     elif origin=="current_hematopoietic":
         if organ_transplant_status=="allogeneic_hsct":
             possible=False
