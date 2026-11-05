@@ -15,6 +15,9 @@ Il y a une différence fondamentale entre :
 
 La seconde affirmation **ne peut jamais** être déduite du seul mécanisme, d'un score SHAP, d'un réseau STRING, d'une mutation ou d'une modalité avancée.
 
+
+**Séparation obligatoire :** un signal **non identifié** n'est **pas** un mécanisme, mais peut rester un **candidat prédictif black-box** si son assay est original, prédose et correctement apparié. L'exemple de la métabolomique Rotroff comporte des pics GC-TOF inconnus : ils doivent conserver leur identifiant source et peuvent participer à une expérience XGBoost/ablation en CV, **sans être artificiellement transformés en enzyme, transporteur, composé identifié ou voie**. Le logiciel sépare donc `eligible_for_physio_mechanism` de `eligible_for_outcome_ablation`. Un lien physio-pharmaco manquant conduit à l'abstention **sur l'interprétation**, pas à la suppression automatique du signal statistique. Les poids d'attribution et le gain prédictif restent à estimer hors échantillon.
+
 ## 2. La chaîne physio-pharmaco contrôlée
 
 **Médicament et endpoint → mécanisme pharmacologique → organe → variant authentique → conséquence sur le transcrit → méthode omique → signal observable → comparateur PK indépendant.**
