@@ -194,6 +194,14 @@ and splice-specific assays **NOT YET REPRODUCED**; (4) real same-patient
 tacrolimus/rosuvastatin PK with complete pharmacogenetic panel **NOT YET VALIDATED**. Do not manufacture a combined
 genotype–RNA–protein–PK dataset by matching on a gene/variant only.
 
+## E1 CYP3A5 exon-omics source pairing achieved, independent exon-level model remains untested
+
+[Original NCBI GEO hepatocyte RNA/genotype source audit](CYP3A5_GEO_HEPATOCYTE_RNA_GENOTYPE_SOURCE_CROSSWALK_20261105.md) **SUCCESS** on [Actions #41998586213](https://github.com/rberrah/Omics2PK/actions/runs/41998586213): 60 original RNAseq sample records in **GSE124074**, 96 genotype sample records in **GSE147628**, **60 exact overlapping original sample titles** before SNP/call/technical QC. When GEO series matrices returned HTTP 404, the audit used real NCBI **family SOFT** primary source archives, not a hypothetical table.
+
+The published Zhong et al. 2020 CYP3A5 rs776746 eExon-QTL despite not significant as gene-level eQTL provides a strong **assay-resolution hypothesis**. However, **exact individual SNP genotypes, exon/junction counts, CYP3A5-selective activity and real drug PK have NOT yet been obtained and reproduced jointly**. Therefore no numerical 'exon RNA improves over gene RNA' or 'omic beats PGx for tacrolimus CL' claim is valid yet.
+
+**MultiOmics producer PR [#121](https://github.com/rberrah/MultiOmics/pull/121)** now has a separate optional synthetic-tested mechanism-hypothesis sidecar, preserving frozen `DOWNSTREAM_EXCHANGE_V1`; **Omics2PK consumer in [#137](https://github.com/rberrah/Omics2PK/pull/137)** accepts its qualified labels as *hypotheses only*. Real patient-level transfer and clinical PK evaluation remain gated by actual same-person matrices.
+
 ## Experimental design for a joint MultiOmics → Omics2PK scientific pathway
 
 ### Lane 1: MultiOmics (variant → molecular readout, and observed omics → functional phenotype)
