@@ -40,6 +40,15 @@ class MutationViews(unittest.TestCase):
         self.assertTrue(a["genotype_subgroup_model_chosen_using_outer_response"] is False)
         self.assertTrue(a["no_externally_replicated_modality_by_genotype_interaction"])
         self.assertTrue(a["no_patient_or_original_cell_line_feature_rows_exported"])
+        metrics=a["multi_metric_exploratory_heldout"]["mutation_adjusted_fixed"]
+        self.assertEqual(set(metrics),set(MODES))
+        self.assertAlmostEqual(
+            metrics["mutation_rna"]["MAE_original_source_scale"],
+            a["original_in_vitro_GI50_observed_holdout"]["fixed"]["mutation_rna"]["mae"])
+        self.assertEqual(a["prespecified_paired_heldout_MAE_contrasts"]
+                         ["mutations_added_to_RNA"]["n_independent_line_units_resampled"],35)
+        self.assertTrue(a["metric_criterion_sensitivity_descriptive_not_model_selection"]
+                        ["no_outer_test_metric_used_for_training_or_selection"])
         for p in a["original_in_vitro_GI50_observed_holdout"]["fixed"].values():
             self.assertGreaterEqual(p["mae"],0)
 
