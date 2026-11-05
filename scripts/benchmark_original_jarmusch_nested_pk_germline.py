@@ -149,7 +149,7 @@ def _nested_cv(original_x,clinical,genotypes,observed,
     xx=np.log1p(x/np.maximum(x.sum(axis=1,keepdims=True),1.)*1_000_000)
     logy=np.log(y)
     models={
-        "age_sex_weight_PGx_only":np.array([],dtype=int),
+        "weight_sex_PGx_only":np.array([],dtype=int),
         "PGx_plus_putative_CYP3A_steroid_bile":np.asarray(
             candidates["putative_steroid_bile_feature_indices"],dtype=int),
         "PGx_plus_all_GNPS_MS2_annotated":np.asarray(
@@ -158,7 +158,7 @@ def _nested_cv(original_x,clinical,genotypes,observed,
     }
     results={}
     for name,allowed in models.items():
-        if name!="age_sex_weight_PGx_only" and len(allowed)<1:
+        if name!="weight_sex_PGx_only" and len(allowed)<1:
             results[name]={"status":"ABSTAIN_NO_SOURCE_GROUNDED_FEATURES",
                            "n_candidate_molecular_features":0}
             continue
@@ -170,7 +170,7 @@ def _nested_cv(original_x,clinical,genotypes,observed,
             params=[]
             # No molecular candidate extraction, ranking, imputation or
             # regularization selection outside this outer TRAIN.
-            k_set=(0,) if name=="age_sex_weight_PGx_only" else tuple(
+            k_set=(0,) if name=="weight_sex_PGx_only" else tuple(
                 k for k in OMIC_K if k<=len(allowed))
             for k in k_set:
                 for alpha in ALPHAS:
@@ -218,13 +218,13 @@ def _nested_cv(original_x,clinical,genotypes,observed,
         }
         # Internal only, used for paired model comparisons, never logged.
         results[name]["_losses_private"]=losses
-    ref=results["age_sex_weight_PGx_only"]
+    ref=results["weight_sex_PGx_only"]
     if ref["status"]!="MEASURED_ORIGINAL_PATIENT_HELDOUT_NESTED":
         raise NestedPKValidationError("Invalid baseline genomic prediction")
     r=ref.pop("_losses_private")
     rng=np.random.default_rng(SEED+len(y))
     for name,entry in results.items():
-        if entry.get("status")!="MEASURED_ORIGINAL_PATIENT_HELDOUT_NESTED" or name=="age_sex_weight_PGx_only":
+        if entry.get("status")!="MEASURED_ORIGINAL_PATIENT_HELDOUT_NESTED" or name=="weight_sex_PGx_only":
             continue
         d=entry.pop("_losses_private")-r
         bs=np.mean(d[rng.integers(0,len(y),size=(1999,len(y)))],axis=1)

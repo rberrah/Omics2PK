@@ -50,7 +50,7 @@ class JarmuschNestedResearchContract(unittest.TestCase):
         r=_nested_cv(x,c,g,y,candidates=a,source_label="artificial")
         self.assertEqual(r["models"]["PGx_plus_putative_CYP3A_steroid_bile"]["status"],
                          "ABSTAIN_NO_SOURCE_GROUNDED_FEATURES")
-        self.assertEqual(r["models"]["age_sex_weight_PGx_only"]["status"],
+        self.assertEqual(r["models"]["weight_sex_PGx_only"]["status"],
                          "MEASURED_ORIGINAL_PATIENT_HELDOUT_NESTED")
 
     def test_folds_and_invalid_values_rejected(self):

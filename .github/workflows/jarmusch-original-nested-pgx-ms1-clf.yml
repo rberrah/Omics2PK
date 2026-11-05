@@ -49,7 +49,7 @@ jobs:
           assert obj["results"]["day1"]["n_source_people"]==13
           assert obj["results"]["day9"]["n_source_people"]==12
           for day in ("day1","day9"):
-            assert obj["results"][day]["models"]["age_sex_weight_PGx_only"]["status"]=="MEASURED_ORIGINAL_PATIENT_HELDOUT_NESTED"
+            assert obj["results"][day]["models"]["weight_sex_PGx_only"]["status"]=="MEASURED_ORIGINAL_PATIENT_HELDOUT_NESTED"
           print(json.dumps(obj,indent=2,sort_keys=True))
           PY
       - if: always()
