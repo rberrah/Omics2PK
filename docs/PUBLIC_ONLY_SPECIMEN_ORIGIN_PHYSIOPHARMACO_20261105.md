@@ -81,6 +81,28 @@ function. Isolated intestinal mucosa, tissue biopsies and liver
 microsomes are biologically informative but not routine predose
 patient blood samples; do not assume they exist in a public study.
 
+## Two independent axes: mechanistic value and clinical feasibility
+
+A direct hepatic CYP3A5 exon-junction or specific active-protein assay
+may be biologically **more specific** than circulating plasma, but a
+liver biopsy is not a clinically trivial routine dosing measurement.
+Conversely **blood/plasma/urine** can be obtained noninvasively or
+with comparatively low invasiveness but may only carry **indirect
+host-wide physiology**. Accordingly `qualify_public_specimen_for_PK()`
+reports **mechanistic source-to-organ proximity** separately from
+`potential_clinical_collection_feasibility`. Neither criterion
+automatically chooses the omic, estimates sample costs, measures
+assay accuracy, or proves clinical dosing utility.
+
+| Biological source | Physiopharmacological proximity | Clinical practicality |
+|---|---|---|
+| Hepatocyte CYP3A5 splicing / independently selective CYP enzyme activity | High for **hepatic CYP3A-specific** mechanism if assay original and specific | Direct original liver specimen or ex-vivo hepatocytes; **not** assumed routinely available in PK care |
+| Whole-blood / PBMC gene expression | Directly reflects assayed blood-cell biology, **not** hepatocyte CYP3A function | Potentially collectable peripheral blood; cell mix and assay analytical validity must be established |
+| Predose plasma metabolite | Systemic functional proxy, can reflect multiple tissues and exposure contexts | Clinically accessible in principle; metabolite structure, source timing and metabolic specificity still needed |
+| Urine metabolite | Excretion/renal/host-wide proxy, not OCT2/MATE2 activity itself | Noninvasive collection in principle; collection interval and urinary dilution/creatinine interpretation essential |
+| GTEx postmortem/reference-tissue median | A tissue atlas context, **not a patient measured biomarker** | Not an individual predose clinical assay |
+| NCI-60 / engineered DMS constructs | Experimental cell-culture mechanism | Not the original patient's biospecimen |
+
 ## Implementation: fail-closed public-only source gate
 
 `src/omics2pk/specimen_physiopharmaco_gate.py` contains
