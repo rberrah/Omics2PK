@@ -39,6 +39,40 @@ reconstruct/fingerprint the model training splits. It refuses:
   known-function variant strata must be externally established
   **before** analyzing the response.
 
+### Original specimen site and method must be qualified independently
+
+**New sampling-site-aware integration (2026-11-05):** the
+[public-source collection compartment catalogue](PUBLIC_ONLY_SPECIMEN_ORIGIN_PHYSIOPHARMACO_20261105.md)
+labels the original liver/plasma/whole-blood/cultured-cell
+assay matrix, anatomical process, technology and pre/post-dose
+landmark. `qualify_public_omic_model_arms(...)` requires all
+omic view inputs to come from **one original compatible source
+study**, not from different donors in unrelated datasets.
+The generic
+`audit_omic_incremental_PK_prediction(...)` now accepts the
+independently generated
+`qualified_original_specimen_site_evidence`:
+if omitted, it explicitly returns
+`original_sampling_site_missing_requires_ABSTAIN_mechanistic_claim=True`.
+When present, its arm identities and endpoint type must exactly match
+the evaluated heldout predictions, and a source's ex-vivo function
+cannot be relabelled actual clinical PK. This **does not
+independently prove that the original per-person sampling clocks or
+patient–genotype joins are correct**; that remains the upstream
+source-level responsibility.
+
+Source-real Latham original Table 4 has been successfully
+reproduced before this specimen-aware adapter (Actions
+#42015617333 and #42017839096 rerun). The **new
+source-annotated code's synthetic source-contract tests pass**;
+two attempted fresh live PMC fulltext downloads in Actions
+#42030943499 failed with
+`OFFICIAL_PHH_SOURCE_UNAVAILABLE_ABSTAIN` (external source
+unavailable), not a new biological model discrepancy. It is
+incorrect to report that most recent original-source replay as
+successful. The official on-demand replay remains available
+for independent qualification when the upstream endpoint responds.
+
 ## 2. Predetermined pharmacological outcome and evaluation
 
 ### Clinical PK concentrations/exposure
