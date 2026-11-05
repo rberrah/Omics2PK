@@ -256,6 +256,8 @@ def annotate_genomic_snv(*, reference_transcript, variant, genome_assay):
     """
     r=_reference(reference_transcript)
     background=_background(genome_assay)
+    if background["original_genetic_assay_status"]=="not_assessed":
+        raise GeneticCodeEffectError("A genomic variant cannot be called from a not-assessed DNA assay")
     if not isinstance(variant,Mapping):
         raise GeneticCodeEffectError("Original genomic variation record required")
     if variant.get("assembly")!=r["assembly"] or variant.get("chromosome")!=r["chromosome"]:
