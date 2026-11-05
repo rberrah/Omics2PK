@@ -276,6 +276,39 @@ class PhysiopharmMethodTriageTests(unittest.TestCase):
                       byname(r,"microsomes")["limitations"])
         self.assertTrue(byname(r,"blood")["methodology_is_not_evidence_of_patient_specific_PK_gain"])
 
+    def test_unknown_original_metabolite_remains_predictive_candidate_not_fake_transport(self):
+        # Real public Rotroff metformin source has this unknown original
+        # GC-TOF feature; no identity or enzyme association was confirmed.
+        r=plan([{"assay_id":"original_222169","method":"METABOLITE_MS1_UNTARGETED",
+                 "tissue":"plasma","candidate_genes":[],
+                 "chemical_identity_grade":"unassigned",
+                 "status":"original_measured","collection_phase":"predose",
+                 "source_url":"https://doi.org/10.3389/fphar.2016.00135",
+                 "original_feature_id":"222169"}],
+               drug="metformin",endpoint="AUClast_0_24")
+        f=byname(r,"original_222169")
+        self.assertEqual(f["status"],"CANDIDATE_PREDICTIVE_ONLY_NO_CURATED_MECHANISM")
+        self.assertTrue(f["eligible_for_outcome_ablation"])
+        self.assertFalse(f["eligible_for_physio_mechanism"])
+        self.assertFalse(f["mechanism_confirmed_for_subject"])
+        self.assertTrue(f["blackbox_statistical_validation_does_not_assign_gene_or_enzyme"])
+        self.assertIn("metabolomics",
+                      r["prospective_fold_safe_evaluation_plan"]
+                      ["candidate_arms_not_fitted_models"][1]["modalities"])
+        self.assertEqual(r["genes_with_any_relevant_assay_by_source"],{})
+
+    def test_wrong_pk_process_can_still_be_exploratory_blackbox_not_mechanism(self):
+        r=plan([a("oct1_real","RNA_GENE_BULK",gene="SLC22A1",tissue="liver",
+                  status="original_measured",collection_phase="predose",
+                  source_url="https://pmc.ncbi.nlm.nih.gov/articles/PMC5709222/",
+                  original_feature_id="SLC22A1")],
+               drug="metformin",endpoint="CLr")
+        info=byname(r,"oct1_real")
+        self.assertEqual(info["status"],"ABSTAIN_WRONG_DRUG_PROCESS_FOR_ENDPOINT")
+        self.assertTrue(info["eligible_for_outcome_ablation"])
+        self.assertFalse(info["eligible_for_physio_mechanism"])
+        self.assertNotIn("SLC22A1",r["genes_with_any_relevant_assay_by_source"])
+
     def test_assay_transcript_mismatch_is_explicit_not_splice_evidence(self):
         r=plan([a("rna","RNA_LONG_READ_ISOFORM",transcript_id="NM_000777.2")],
                [variant("splice_disrupting",star_allele="*3")])
