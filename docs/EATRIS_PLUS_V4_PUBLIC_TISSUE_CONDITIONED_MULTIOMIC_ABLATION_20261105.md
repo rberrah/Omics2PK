@@ -196,11 +196,52 @@ missingness and analyte-identity audit; (iii) independent
 clinical PK and PGx observations if the proposed conclusion
 mentions improvement over pharmacogenetics, AUC or clearance.
 
-The new replay can establish stability or instability of
-an *interomic reconstruction objective* when the measured
-proteomic target panel changes. It cannot establish that a
-new omic layer improves individual drug PK or that either
-panel measures hepatocyte CYP3A4/5 activity. The novel
-comparison is explicitly exploratory and its numerical
-findings are pending a verified source replay; synthetic
-test output must not be cited as an original result.
+The **original public-source replay has now succeeded**:
+[MultiOmics original EATRIS two-panel CI #42077407584](https://github.com/rberrah/MultiOmics/actions/runs/42077407584),
+88 matched donors, exact original source checksum verified.
+This establishes stability or instability of a particular
+*interomic reconstruction objective*, not that a new omic
+layer improves individual drug PK or that either measured
+panel measures hepatocyte CYP3A4/5 activity. The two-target
+comparison remains explicitly exploratory.
+
+
+### Original matched-source results: protein target choice changes the size of the negative result
+
+Same 88 original persons, same predictors and person-disjoint
+3 x 5 folds; exactly 80 panel-specific protein targets per
+outer training fold. Fixed Ridge alpha10, 3 total PCs unless
+otherwise specified. Values below are heldout **standardized
+plasma-protein profile MAE**, not drug PK.
+
+| Source target | No omics MAE | WBC RNA MAE | Plasma metabolites MAE | WBC + plasma MAE | WBC + plasma 9-PC MAE |
+|---|---:|---:|---:|---:|---:|
+| \`proteins\` | **0.753535** | 0.776767 | 0.766483 | 0.772035 | 0.805722 |
+| \`proteomics-ipp\` | **0.331838** | 0.367851 | 0.361322 | 0.367762 | 0.421688 |
+
+Relative excess error of 3-PC joint omics versus **the
+matching target's own no-omics reference** is
+**+2.455%** for \`proteins\` and **+10.826%**
+for \`proteomics-ipp\`. At 9 PCs these excess
+errors rise to **+6.926%** and **+27.076%**.
+Ridge alpha=1e6 restores prediction to each
+panel's no-omics mean. The original subject-paired
+difference in **relative skill** (IPP minus proteins)
+for joint 3-PC alpha10 is **−8.3706 percentage
+points** [descriptive bootstrap 95%:
+**−11.2219, −5.8733**]. The inferential
+bootstrap holds fitted CV predictions fixed;
+it does not adjust for repeated analysis choices
+or multiple comparisons.
+
+**Critical:** The two protein panels quantify
+*different targets*, and no exact original
+analyte / assay / aliquot crosswalk has been
+verified. Thus these observations mean that
+**the negative finding depends on which
+original measured protein matrix is predicted**,
+not that one proteomic technology is inferior.
+Nor do they demonstrate that transcriptomics
+or metabolomics cannot improve an enzyme
+activity outcome, a patient-specific AUC/CL
+or genuine clinical+genetic PGx prediction.
