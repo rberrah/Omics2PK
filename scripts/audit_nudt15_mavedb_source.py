@@ -9,6 +9,8 @@ import csv
 import io
 import json
 import hashlib
+import re
+from collections import Counter
 from urllib.request import Request,urlopen
 
 URN="urn:mavedb:00000055-0-1"
@@ -32,7 +34,21 @@ def source_audit():
     rows=list(reader)
     if not 2800<=len(rows)<=3400:
         raise RuntimeError("Unexpected MaveDB paired dataset row count")
+    from omics2pk.public_nudt15_variant_pd_benchmark import _variant
+    def sig(hgvs):
+        # Aggregate only: remove all residue names and amino-acid
+        # positions, no original variant identity leaves the job.
+        if hgvs is None:return "absent"
+        v=re.sub(r"[0-9]+","N",hgvs)
+        v=re.sub(r"(Ala|Arg|Asn|Asp|Cys|Gln|Glu|Gly|His|Ile|Leu|Lys|Met|Phe|Pro|Ser|Thr|Trp|Tyr|Val)","AAA",v)
+        v=re.sub(r"[ACDEFGHIKLMNPQRSTVWY]","X",v)
+        return v[:80]
+    missed=Counter(sig(z["hgvs_pro"]) for z in rows
+                   if z["abundance_score"] not in ("","NA") and
+                      z["sensitivity_score"] not in ("","NA") and
+                      _variant(z["hgvs_pro"]) is None)
     return {
+        "nonparsed_paired_protein_variant_HGVS_SHAPES_NO_IDS":dict(missed),
         "status":"ORIGINAL_MAVEDB_URN_SCHEME_QUALIFIED_NO_NUMERICAL_BENCHMARK_YET",
         "accession":URN,
         "original_source":"Suiter et al 2020 PNAS 10.1073/pnas.1915680117",
