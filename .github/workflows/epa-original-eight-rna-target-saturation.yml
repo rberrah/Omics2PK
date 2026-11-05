@@ -1,0 +1,56 @@
+name: Original EPA 100 liver eight CYP transcripts vs target RNA functional activity (not PK)
+on:
+  pull_request:
+    paths:
+      - "scripts/benchmark_original_epa_cyp_8rna_saturation.py"
+      - "tests/test_epa_cyp_8rna_saturation.py"
+      - "src/omics2pk/epa_liver_cyp_validation.py"
+      - "scripts/inspect_epa_liver_crosswalk.py"
+      - ".github/workflows/epa-original-eight-rna-target-saturation.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  real-original-source-activity:
+    runs-on: ubuntu-latest
+    timeout-minutes: 17
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+      - name: Dependencies
+        run: python -m pip install "numpy>=1.26,<3" "scipy>=1.11,<2" "scikit-learn>=1.5,<2"
+      - name: Original donor pairing and source synthetic regressions
+        env:
+          PYTHONPATH: "src:."
+        run: python -m unittest discover -s tests -p 'test_epa_cyp_8rna_saturation.py' -v
+      - name: SHA256 verified original US EPA 100 human liver actual enzyme activity source replay
+        env:
+          PYTHONPATH: "src:."
+        run: |
+          python -m scripts.benchmark_original_epa_cyp_8rna_saturation > /tmp/original_epa_target_vs_eight_rnas.json || {
+            cat /tmp/original_epa_target_vs_eight_rnas.json
+            exit 2
+          }
+          python - <<'PY'
+          import json
+          p="/tmp/original_epa_target_vs_eight_rnas.json"
+          d=json.load(open(p))
+          assert d["status"]=="REAL_EPA_ORIGINAL_LIVER_TARGET_VS_EIGHT_RNAs_SATURATION_EXPLORATORY_NOT_PK"
+          assert d["n_original_donors_in_source"]==100
+          assert d["n_original_cyp_probe_endpoints"]==8
+          assert d["source_individual_measurements_never_written"]
+          assert d["not_human_AUC_CL_or_genotype_proof"]
+          assert set(d["results"])=={
+            "CYP1A2","CYP2B6","CYP2C9","CYP2C19",
+            "CYP2D6","CYP2E1","CYP3A4","CYP4A11",
+          }
+          for k,v in d["results"].items():
+            assert v["n_original_independent_donors"]>=60
+            assert len(v["MAE_in_original_activity_units"])==8
+            assert v["per_donor_values_and_IDs_emitted"] is False
+          print(json.dumps(d,indent=2,sort_keys=True))
+          PY
+      - if: always()
+        run: rm -f /tmp/original_epa_target_vs_eight_rnas.json
