@@ -246,6 +246,12 @@ def actual_public_source_benchmark(archive):
         "n_qc_MS2_library_annotated_features":len(
             candidates["spectrally_annotated_qc_feature_indices"]),
         "n_putative_CYP3A_steroid_bile_MS2_features":candidates["n_putative_steroid_or_bile_features"],
+        "n_putative_steroid_bile_features_detected_in_predose_plasma":int(
+            np.any(x[:,candidates["putative_steroid_bile_feature_indices"]]>0,axis=0).sum()),
+        "n_putative_steroid_bile_features_present_in_at_least_half_predose_plasma":int(
+            (np.mean(x[:,candidates["putative_steroid_bile_feature_indices"]]>0,axis=0)>=.5).sum()),
+        "n_library_annotated_features_present_in_at_least_half_predose_plasma":int(
+            (np.mean(x[:,candidates["spectrally_annotated_qc_feature_indices"]]>0,axis=0)>=.5).sum()),
         "library_annotation_quality_assumption":candidates["annotation_quality_gate"],
         "qualifier":"CYP3A4/5 source PGx limited categorical calls; not comprehensive CYP star allele sequencing",
         "results":{},
