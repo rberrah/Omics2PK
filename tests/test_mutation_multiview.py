@@ -49,6 +49,9 @@ class MutationViews(unittest.TestCase):
                          ["mutations_added_to_RNA"]["n_independent_line_units_resampled"],35)
         self.assertTrue(a["metric_criterion_sensitivity_descriptive_not_model_selection"]
                         ["no_outer_test_metric_used_for_training_or_selection"])
+        self.assertEqual(set(a["prespecified_paired_heldout_rank_Spearman_contrasts"]),
+                         {"mutations_added_to_RNA","all_three_vs_mutation_plus_RNA",
+                          "mutation_plus_RNA_vs_mutation_only"})
         for p in a["original_in_vitro_GI50_observed_holdout"]["fixed"].values():
             self.assertGreaterEqual(p["mae"],0)
 
