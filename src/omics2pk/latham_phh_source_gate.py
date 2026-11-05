@@ -226,6 +226,23 @@ def benchmark_latham_phh_table4(rows: Sequence[Mapping[str, object]]) -> dict:
     pm_with_protein = [r for r in pm if r["protein"] is not None]
     n_pm_peptide = sum(r["protein"][2] > 0 for r in pm_with_protein)
     n_pm_shared_probe = sum(r["activity"][1] > 0 for r in pm)
+    # Actual specimen provenance: original *primary human hepatocytes*,
+    # rather than a liver biopsy, blood RNA, plasma metabolite or
+    # in-vivo donor drug exposure. All omic views are prespecified
+    # and measured in the same published Table-4 donor cohort.
+    from .specimen_physiopharmaco_gate import qualify_public_omic_model_arms
+    original_sampling_site_evidence=qualify_public_omic_model_arms(
+        arm_to_original_sources={
+            "clinical_plus_genotype":[],
+            "add_proteomics":["LATHAM_PHH_CYP_PROTEIN"],
+            "add_probe_activity":["LATHAM_PHH_SHARED_PROBE"],
+            "add_protein_and_probe":[
+                "LATHAM_PHH_CYP_PROTEIN","LATHAM_PHH_SHARED_PROBE"],
+        },
+        drug="imatinib",
+        process="hepatic_CYP_metabolism",
+        endpoint_class="IN_VITRO_DRUG_METABOLISM_NOT_CLINICAL_PK",
+    )
     # Apply the reusable clinical+true-PGx versus omic added-value
     # assessment directly to original independent source PHH donors.
     # Here the outcome is in-vitro apparent clearance, not clinical PK.
@@ -295,6 +312,7 @@ def benchmark_latham_phh_table4(rows: Sequence[Mapping[str, object]]) -> dict:
         "heldout_MAE_by_predeclared_arm_source_table_scale": scores,
         "heldout_multiple_endpoint_appropriate_errors_same_donors":heldout_donor_metrics,
         "reusable_genotype_vs_omic_prediction_qualification":generic_PK_result,
+        "public_original_omic_sampling_site_qualification":original_sampling_site_evidence,
         "exploratory_paired_13_original_donor_residual_bootstraps":contrasts,
         "bootstrap_refits_models_or_corrects_selection":False,
         "outer_fold_omic_panel_selection_not_nested":True,
