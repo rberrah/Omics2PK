@@ -26,7 +26,10 @@ jobs:
         env:
           PYTHONPATH: "src:."
         run: |
-          python -m scripts.benchmark_jarmusch_temporal_plasma_nested /tmp/original_jarmusch_gnps.zip > /tmp/original_day9_two_plasma_clocks.json
+          python -m scripts.benchmark_jarmusch_temporal_plasma_nested /tmp/original_jarmusch_gnps.zip > /tmp/original_day9_two_plasma_clocks.json || {
+            cat /tmp/original_day9_two_plasma_clocks.json
+            exit 2
+          }
           python - <<'PY'
           import json
           d=json.load(open("/tmp/original_day9_two_plasma_clocks.json"))
