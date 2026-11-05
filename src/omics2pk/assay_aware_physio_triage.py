@@ -127,6 +127,9 @@ def _variants(entries):
         if call != "missing":
             _source_url(item.get("source_url"), "variant source")
             _nonblank(item.get("source_variant_id"), "original variant identifier")
+        if item.get("allele_state", "unresolved") not in {
+                "heterozygous", "biallelic", "hemizygous", "unresolved"}:
+            raise OmicTriageError("Variant haplotype and allele dosage not established by gene mutation flag")
         transcript = item.get("transcript_id")
         if transcript is not None and (not isinstance(transcript, str)
                 or not (transcript.startswith("NM_") or transcript.startswith("ENST"))):
@@ -270,6 +273,8 @@ def _rule_assay(drug, endpoint, a, variants):
         roles.append("total_rna_proxy")
         if assoc and any(v["consequence"] in {"splice_disrupting","premature_stop","frameshift"} for v in assoc):
             issues.append("TOTAL_RNA_CANNOT_DISTINGUISH_FUNCTIONAL_FROM_ABERRANT_TRANSCRIPT")
+        if any(v.get("allele_state", "unresolved")=="heterozygous" for v in assoc):
+            issues.append("WILDTYPE_ALLELE_MAY_STILL_PRODUCE_FUNCTIONAL_TRANSCRIPT")
         if method == "RNA_3PRIME_TAG":
             issues.append("3PRIME_TAG_MAY_PERSIST_DESPITE_UPSTREAM_STOP")
         if method == "RNA_EXON_SHORT_READ":
@@ -412,7 +417,43 @@ def plan_physio_omic_acquisition(*, drug, endpoint, variants=(), assays=()):
         if item["status"].startswith(("CANDIDATE","PROSPECTIVE")):
             for gene in item["source_gene_or_pathway_hypothesis"]:
                 grouped.setdefault(gene,[]).append(item["assay_id"])
+    available_modalities=sorted({
+        a["modality"] for a in outputs
+        if a.get("eligible_for_outcome_ablation") is True
+        and a["modality"] in {"transcriptomics","proteomics","metabolomics"}
+    })
+    # A source-method declaration alone DOES NOT certify a same-donor
+    # multiomic matrix. These are prospective arms only: individual
+    # intersections must be source-verified and benchmarked independently.
+    from itertools import combinations
+    proposed_arms=[
+        {"name":"clinical_plus_genotype_when_complete","modalities":[]}
+    ] + [
+        {"name":"+".join(layers), "modalities":list(layers)}
+        for k in range(1,len(available_modalities)+1)
+        for layers in combinations(available_modalities,k)
+    ]
+    required_clinical_covariates=(
+        ["dose","dose_time","sampling_time","formulation","hematocrit",
+         "interaction_exposure","original_CYP3A4_CYP3A5_genotype"]
+        if drug=="tacrolimus"
+        else ["dose","dose_time","sampling_time","original_renal_function",
+              "measured_original_renal_transport_genotype_when_available"]
+    )
     return {
+        "prospective_fold_safe_evaluation_plan":{
+            "candidate_arms_not_fitted_models":proposed_arms,
+            "actual_same_subject_modalities_intersection_verified":False,
+            "required_clinical_covariates":required_clinical_covariates,
+            "baseline":"clinical_PopPK_plus_authentic_PGx_when_source_eligible",
+            "requires_source_timed_dose_concentration_and_PGx":True,
+            "selection":"TRAIN_ONLY_nested_CV_allow_zero_omics_and_control_correlated_SHAP",
+            "test":"patient_disjoint_heldout_PK_MAE_RMSE_log_error_bias_and_coverage",
+            "requires_predefined_prediction_endpoint_and_metric":True,
+            "requires_transport_substrate_and_assay_specificity":True,
+            "source_sampling_timing_and_outcome_leakage_independent_gate":True,
+            "external_validation_required":True,
+        },
         "status":"RESEARCH_PRE_OUTCOME_ASSAY_AWARE_PHYSIOPHARMACO_DESIGN_NOT_PK_VALIDATION",
         "drug":drug,
         "index_PK_endpoint":endpoint,
@@ -422,6 +463,7 @@ def plan_physio_omic_acquisition(*, drug, endpoint, variants=(), assays=()):
             "star_allele":v.get("star_allele"),
             "call_status":v["call_status"],
             "consequence":v["consequence"],"transcript_id":v.get("transcript_id"),
+            "allele_state":v.get("allele_state","unresolved"),
             "canonical_NMD_rule_not_function_proof":v["nmd_rule"],
         } for v in variants],
         "assay_candidates_by_interpretability_not_expected_model_performance":outputs,
