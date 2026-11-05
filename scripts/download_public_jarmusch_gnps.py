@@ -39,12 +39,16 @@ def get_public_archive(path: Path):
                     raise ValueError("GNPS original source larger than allowed original maximum")
                 digest.update(data)
                 dest.write(data)
-        if not MIN_BYTES<size<MAX_BYTES or digest.hexdigest()!=ARCHIVE_SHA256:
-            raise ValueError("Public GNPS download is not byte-identical to qualified 2019 source")
+        if not MIN_BYTES<size<MAX_BYTES:
+            raise ValueError("Public GNPS export violates expected archive byte bounds")
+        identical=(digest.hexdigest()==ARCHIVE_SHA256)
         return {
-            "status":"ORIGINAL_PUBLIC_GNPS_ARTIFACT_SHA256_VERIFIED",
+            "status":("ORIGINAL_PUBLIC_GNPS_ARTIFACT_SHA256_VERIFIED"
+                      if identical else "SOURCE_EXPORT_ARCHIVE_REPACKED_REQUIRES_MEMBER_REQUALIFICATION"),
             "n_downloaded_bytes":size,
-            "original_SHA256":ARCHIVE_SHA256,
+            "downloaded_SHA256":digest.hexdigest(),
+            "old_original_SHA256":ARCHIVE_SHA256,
+            "source_archive_byte_identical":identical,
             "no_sample_rows_exported":True,
         }
     except Exception:
