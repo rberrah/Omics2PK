@@ -304,6 +304,98 @@ def annotate_genomic_snv(*, reference_transcript, variant, genome_assay):
             "genomic_reference_base_checked_against_original_genome":False,
             **seq}
 
+def annotate_variant_across_transcripts(*, reference_transcripts, variant, genome_assay):
+    """Never collapse exon/intron differences across original transcript models.
+
+    A single genomic SNV can be coding in one splice isoform and intronic in
+    another. MANE selection/biological transcript relevance is independent
+    evidence and is never guessed from which effect looks most damaging.
+    """
+    if not isinstance(reference_transcripts,(list,tuple)) or not 1<=len(reference_transcripts)<=100:
+        raise GeneticCodeEffectError("One or more source-attested versioned transcript references required")
+    report=[]
+    transcript_names=set()
+    gene=None
+    for t in reference_transcripts:
+        e=annotate_genomic_snv(reference_transcript=t,variant=variant,
+                               genome_assay=genome_assay)
+        if e["transcript_id"] in transcript_names:
+            raise GeneticCodeEffectError("Same transcript annotated twice for one genomic allele")
+        transcript_names.add(e["transcript_id"])
+        if gene is None:gene=e["gene"]
+        elif gene!=e["gene"]:
+            raise GeneticCodeEffectError("Transcript gene mismatch, not one same-gene variant")
+        report.append({
+            "transcript_id":e["transcript_id"],
+            "sequence_consequence":e["sequence_consequence"],
+            "genomic_region":e["genomic_region"],
+            "reference_checked_variant_effect":e,
+        })
+    distinct={x["sequence_consequence"] for x in report}
+    return {
+        "gene":gene,
+        "n_unique_transcript_models":len(report),
+        "per_transcript_source_asserted_consequence":report,
+        "transcript_consequences_differ":len(distinct)>1,
+        "cannot_select_which_transcript_is_biologically_relevant_without_evidence":True,
+        "mane_select_or_expressed_isoform_not_auto_assigned":True,
+        "one_genomic_variant_is_one_locus_not_multiple_independent_PGx_mutations":True,
+        "protein_function_and_RNA_NMD_not_verified_from_annotation":True,
+    }
+
+
+def crosscheck_source_vep_terms(*, predicted, vep):
+    """Quality gate for independently supplied Ensembl VEP transcript effects.
+
+    Validates source-declared version and expected target transcript with a
+    controlled SO term set. This routine DOES NOT contact Ensembl; source
+    authenticity and REF allele still require independent VCF/reference
+    checks. Disagreement means REVIEW, not silent reclassification.
+    """
+    if not isinstance(predicted,Mapping) or not isinstance(vep,Mapping):
+        raise GeneticCodeEffectError("Calculated and original VEP annotation mappings needed")
+    transcript=_reqstr(vep.get("transcript_id"),"VEP versioned transcript_id")
+    if (transcript!=predicted.get("transcript_id") or
+            vep.get("assembly")!=predicted.get("assembly") or
+            vep.get("gene")!=predicted.get("gene")):
+        raise GeneticCodeEffectError("VEP transcript/assembly/gene must exactly match source consequence")
+    release=vep.get("vep_release")
+    if not isinstance(release,int) or isinstance(release,bool) or release<100 or release>1000:
+        raise GeneticCodeEffectError("Pinned source VEP software/database release required")
+    source=_reqstr(vep.get("source_url"),"VEP original source")
+    if urlparse(source).scheme!="https":
+        raise GeneticCodeEffectError("VEP original source must be HTTPS")
+    so=vep.get("sequence_ontology_terms")
+    if (not isinstance(so,(list,tuple)) or not so or
+            any(not isinstance(term,str) or not term or term.strip()!=term for term in so)):
+        raise GeneticCodeEffectError("VEP consequence terms must be explicit Sequence Ontology values")
+    accepted={
+        "missense_variant","synonymous_variant","stop_gained","stop_lost",
+        "start_lost","frameshift_variant","splice_donor_variant",
+        "splice_acceptor_variant","splice_region_variant","intron_variant",
+        "5_prime_UTR_variant","3_prime_UTR_variant",
+        "inframe_insertion","inframe_deletion","coding_sequence_variant",
+    }
+    if any(term not in accepted for term in so):
+        raise GeneticCodeEffectError("Unsupported VEP SO term: no arbitrary functional pathogenicity accepted")
+    expected=predicted.get("sequence_consequence")
+    if expected=="inframe_insertion_or_deletion":
+        agreeing=bool({"inframe_insertion","inframe_deletion"}&set(so))
+    else:
+        agreeing=expected in so
+    return {
+        "status":("SOURCE_DECLARED_VEP_SO_TERM_CONCORDANCE_NOT_FUNCTIONAL_PROOF"
+                  if agreeing else "ABSTAIN_VEP_VS_LOCAL_TRANSCRIPT_CONSEQUENCE_CONFLICT"),
+        "source_versioned_transcript":transcript,
+        "source_genomic_assembly":predicted["assembly"],
+        "local_code_consequence":expected,
+        "published_VEP_SO_terms":list(so),
+        "assay_function_or_pathogenicity_established":False,
+        "source_VEP_attestation_not_independently_retrieved":True,
+        "transcript_specific_reference_recheck_required":not agreeing,
+    }
+
+
 def reconcile_curated_cyp3a5_allele(*, sequence_effect, source_variant_id,
                                    hgvs_c, star_allele, source_url,
                                    variant_call_complete=False):
