@@ -110,7 +110,14 @@ def paired_heldout_contrast(y, candidate, reference, *, n_draws=1999, seed=20261
     sampled=np.random.default_rng(seed).integers(0,len(yy),size=(n_draws,len(yy)))
     estimates=delta[sampled].mean(axis=1)
     lo,hi=np.quantile(estimates,[.025,.975])
+    a_sq=np.mean((a-yy[None,:])**2,axis=0)
+    b_sq=np.mean((b-yy[None,:])**2,axis=0)
+    delta_rmse=np.sqrt(a_sq.mean())-np.sqrt(b_sq.mean())
+    simulated_rmse=np.sqrt(a_sq[sampled].mean(axis=1))-np.sqrt(b_sq[sampled].mean(axis=1))
+    rlo,rhi=np.quantile(simulated_rmse,[.025,.975])
     return {
+        "delta_RMSE_candidate_minus_reference_negative_is_better":_round(delta_rmse),
+        "descriptive_paired_cell_line_RMSE_bootstrap_95pct":[_round(rlo),_round(rhi)],
         "delta_MAE_candidate_minus_reference_negative_is_better":_round(delta.mean()),
         "descriptive_paired_cell_line_bootstrap_95pct":[_round(lo),_round(hi)],
         "n_independent_line_units_resampled":len(yy),
@@ -118,6 +125,54 @@ def paired_heldout_contrast(y, candidate, reference, *, n_draws=1999, seed=20261
         "repeat_errors_averaged_within_cell_line_before_resampling":True,
         "not_refitted_in_bootstrap_or_multiplicity_adjusted":True,
         "not_an_external_significance_test":True,
+    }
+
+
+def paired_rank_spearman_contrast(y, candidate, reference, *,
+                                   n_draws=999, seed=20261105):
+    """Exploratory paired *ranking* contrast with biology-level resampling.
+
+    Repeat predictions are averaged per ORIGINAL cell line before ranking,
+    so a patient never appears three times as an independent replicate.
+    A CI crossing zero cannot establish different ranking performance.
+    The rank-based contrast does not certify original GI50 units.
+    """
+    yy,a=_check(y,candidate)
+    _,b=_check(y,reference)
+    if a.shape!=b.shape or not isinstance(n_draws,int) or not 199<=n_draws<=4999:
+        raise DiagnosticsError("Same repeated source subjects and prespecified bootstrap required")
+    a=a.mean(axis=0);b=b.mean(axis=0)
+    def rho(x,z):
+        return _corr(_average_tie_ranks(x),_average_tie_ranks(z))
+    observed_a=rho(yy,a);observed_b=rho(yy,b)
+    if observed_a is None or observed_b is None:
+        return {
+            "status":"ABSTAIN_CONSTANT_PREDICTIONS_NO_SPEARMAN",
+            "n_unique_original_subjects":len(yy),
+            "ranking_metric_interpretable":False,
+        }
+    rng=np.random.default_rng(seed)
+    deltas=[]
+    for _ in range(n_draws):
+        idx=rng.integers(0,len(yy),size=len(yy))
+        ra=rho(yy[idx],a[idx]);rb=rho(yy[idx],b[idx])
+        if ra is not None and rb is not None:
+            deltas.append(ra-rb)
+    if len(deltas)<int(.9*n_draws):
+        return {
+            "status":"ABSTAIN_TOO_MANY_CONSTANT_BOOTSTRAP_SAMPLES",
+            "n_unique_original_subjects":len(yy),
+            "ranking_metric_interpretable":False,
+        }
+    lo,hi=np.quantile(deltas,[.025,.975])
+    return {
+        "status":"EXPLORATORY_PAIRED_SPEARMAN_NOT_EXTERNAL",
+        "delta_Spearman_candidate_minus_reference_positive_is_better":_round(observed_a-observed_b),
+        "descriptive_paired_subject_Spearman_bootstrap_95pct":[_round(lo),_round(hi)],
+        "n_independent_subjects_resampled":len(yy),
+        "n_successful_resamples":len(deltas),
+        "repeats_averaged_per_subject_before_ranking":True,
+        "not_external_or_model_selection_adjusted":True,
     }
 
 
