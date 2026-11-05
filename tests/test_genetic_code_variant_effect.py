@@ -217,6 +217,8 @@ class GeneticCodeConsequencesTest(unittest.TestCase):
                                        genome_assay=ASSAY)
         vep={"transcript_id":"NM_000777.5","assembly":"GRCh38",
              "gene":"CYP3A5","vep_release":115,
+             "chromosome":"7","genomic_position_1based":104,
+             "genomic_ref_allele":"A","genomic_alt_allele":"C",
              "source_url":"https://www.ensembl.org/info/docs/tools/vep/index.html",
              "sequence_ontology_terms":["missense_variant"]}
         good=crosscheck_source_vep_terms(predicted=predicted,vep=vep)
