@@ -3,6 +3,10 @@ on:
   pull_request:
     paths:
       - "src/omics2pk/mutation_multiview.py"
+      - "src/omics2pk/predictive_diagnostics.py"
+      - "src/omics2pk/biological_cascade_audit.py"
+      - "tests/test_predictive_diagnostics.py"
+      - "tests/test_biological_cascade_audit.py"
       - "scripts/export_nci60_cellminer_mutations.R"
       - "scripts/benchmark_original_nci60_mutation_multiview.py"
       - "tests/test_mutation_multiview.py"
@@ -44,6 +48,8 @@ jobs:
         run: |
           python -m unittest discover -s tests -p 'test_mutation_multiview.py' -v
           python -m unittest discover -s tests -p 'test_mutation_mechanism_controls.py' -v
+          python -m unittest discover -s tests -p 'test_predictive_diagnostics.py' -v
+          python -m unittest discover -s tests -p 'test_biological_cascade_audit.py' -v
       - name: Install official Bioconductor CellMiner measured mutation source
         run: |
           Rscript -e 'install.packages("BiocManager",repos="https://cloud.r-project.org"); BiocManager::install(c("Biobase","rcellminerData","rcellminer"),ask=FALSE,update=FALSE,quiet=TRUE)'
@@ -77,12 +83,27 @@ jobs:
           assert result['no_patient_or_original_cell_line_feature_rows_exported']
           assert result['clinical_human_PK_or_CYP3A5_genotype_outcome_demonstrated'] is False
           assert result['original_in_vitro_GI50_observed_holdout']['fixed']['mutation_only']
+          score=result['multi_metric_exploratory_heldout']['mutation_adjusted_fixed']['mutation_rna']
+          original=result['original_in_vitro_GI50_observed_holdout']['fixed']['mutation_rna']
+          assert abs(score['MAE_original_source_scale']-original['mae'])<1e-6
+          assert score['n_independent_source_cell_lines']==47
+          assert 'RMSE_original_source_scale' in score
+          assert 'Spearman_per_unique_cell_line_repeat_mean_prediction' in score
+          assert score['source_has_not_proven_physical_GI50_unit_or_log_transform']
+          assert result['prespecified_paired_heldout_MAE_contrasts']['mutations_added_to_RNA']['n_independent_line_units_resampled']==47
+          assert result['metric_criterion_sensitivity_descriptive_not_model_selection']['no_outer_test_metric_used_for_training_or_selection']
           assert set(result['original_in_vitro_GI50_observed_holdout']['nested_TP53_guided_80_90'])=={'80','90'}
           s=json.load(open('nci60_mutation_mechanism_aggregate.json'))
           assert s['n_original_biologically_distinct_cell_lines']==47
           assert set(s['matched_random_control_comparison_by_layer'])=={'rna','prot','met'}
           assert s['somatic_gene_flag_not_complete_germline_PGx_or_function_assay']
           assert s['original_human_drug_pharmacokinetics_assayed'] is False
+          assert s['predeclared_mechanistic_cascade_evidence']['n_biologically_distinct_cell_lines']==47
+          assert s['predeclared_mechanistic_cascade_evidence']['original_drug_transporter_flux_or_active_protein_assayed'] is False
+          assert len(s['predeclared_mechanistic_cascade_evidence']['biological_interpretation_nodes'])==7
+          assert s['predeclared_mechanistic_cascade_evidence']['source_metabolites_MSI_level1_structure_verified'] is False
+          assert all('prior_RMSE_original_processed_GI50' in s['matched_random_control_comparison_by_layer'][key]
+                     for key in ('rna','prot','met'))
           assert s['source_original_measurements_or_cell_line_predictions_exported'] is False
           print('PASS: mutation-aware original 47 line threeomics and layer-specific biological nulls, NOT clinical PK')
           PY
