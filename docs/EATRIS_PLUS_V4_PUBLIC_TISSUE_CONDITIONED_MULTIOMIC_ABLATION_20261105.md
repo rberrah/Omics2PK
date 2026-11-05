@@ -167,3 +167,40 @@ MultiOmics→Omics2PK pipeline:
 
 **No new datasets need to be requested to reproduce
 these public-only E1 research steps.**
+
+
+## Addendum — sensitivity to the measured plasma protein panel (2026-11-05)
+
+MultiOmics [research PR #121](https://github.com/rberrah/MultiOmics/pull/121)
+now contains a reproducible experimental extension comparing
+the two independent source matrices \`proteins\` (1,393 original
+features, 125 people) and \`proteomics-ipp\` (6,831 features,
+123 people) on their **five-assay common subject intersection**.
+The same WBC-RNA + targeted-plasma-metabolite predictors,
+person-disjoint 3 × 5 folds, 3/9 total-PC budgets, and fixed
+Ridge penalties 10 and 1e6 are used against both targets.
+
+For Omics2PK, this is a **measurement-panel sensitivity
+benchmark**: only improvement relative to each panel's
+own train-mean no-omics predictor is compared. An absolute
+standardized error for the 1,393-feature panel is not
+commensurate with one from the 6,831-feature panel.
+Furthermore, the source ISA has **not yet established
+equivalence of the panel-specific collection times,
+aliquots, analytes and platforms**.
+
+**Qualification required before any positive claim:**
+(i) successful original-source checksum-verified benchmark
+and paired-person checks; (ii) separate material, method,
+missingness and analyte-identity audit; (iii) independent
+clinical PK and PGx observations if the proposed conclusion
+mentions improvement over pharmacogenetics, AUC or clearance.
+
+The new replay can establish stability or instability of
+an *interomic reconstruction objective* when the measured
+proteomic target panel changes. It cannot establish that a
+new omic layer improves individual drug PK or that either
+panel measures hepatocyte CYP3A4/5 activity. The novel
+comparison is explicitly exploratory and its numerical
+findings are pending a verified source replay; synthetic
+test output must not be cited as an original result.
