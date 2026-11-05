@@ -401,6 +401,32 @@ class PhysiopharmMethodTriageTests(unittest.TestCase):
                          ["canonical_NMD_rule_not_function_proof"],
                          "CLASSICAL_EJC_NMD_PLAUSIBLE_NOT_CONFIRMED")
 
+    def test_two_SNVs_in_same_codon_cannot_be_interpreted_independently(self):
+        # Synthetic original CDS with the same GAA codon changed twice:
+        # joint result requires observed phasing and recalculated codon.
+        sequence="ATG"+"GAA"+"GCT"*28+"TAA"
+        ref={"gene":"CYP3A5","transcript_id":"NM_999999.1",
+             "assembly":"GRCh38","chromosome":"7","strand":"+",
+             "reference_source_url":"https://www.ncbi.nlm.nih.gov/refseq/",
+             "exons":[[100,184],[400,407]],"spliced_cdna":sequence,
+             "cds_start_offset":0,"cds_end_offset":len(sequence)}
+        call={"status":"partial_assay"}
+        def g(pos,base,alt):
+            return {"gene":"CYP3A5","assembly":"GRCh38",
+                    "chromosome":"7","genomic_position_1based":pos,
+                    "genomic_ref_allele":base,"genomic_alt_allele":alt,
+                    "variant_source_url":"https://www.ncbi.nlm.nih.gov/refseq/"}
+        with self.assertRaisesRegex(OmicTriageError,"phased haplotype"):
+            plan_physio_omic_acquisition(
+                drug="tacrolimus",endpoint="AUC",
+                assays=[a("gene","RNA_GENE_BULK")],
+                sequence_variants=[
+                    {"reference_transcript":ref,"genome_assay":call,
+                     "variant":g(103,"G","T")},
+                    {"reference_transcript":ref,"genome_assay":call,
+                     "variant":g(104,"A","C")},
+                ])
+
     def test_no_variant_call_cannot_be_recoded_as_normal_function(self):
         r=plan_physio_omic_acquisition(
             drug="tacrolimus",endpoint="AUC",
