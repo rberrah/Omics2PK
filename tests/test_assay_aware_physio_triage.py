@@ -363,6 +363,8 @@ class PhysiopharmMethodTriageTests(unittest.TestCase):
                          "site_variant_calls_with_unknown_gene_wide_coverage")
         vep={"transcript_id":"NM_999999.1","assembly":"GRCh38","gene":"CYP3A5",
              "vep_release":115,
+             "chromosome":"7","genomic_position_1based":104,
+             "genomic_ref_allele":"A","genomic_alt_allele":"C",
              "source_url":"https://www.ensembl.org/info/docs/tools/vep/index.html",
              "sequence_ontology_terms":["missense_variant"]}
         source_qualified=plan_physio_omic_acquisition(
