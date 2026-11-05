@@ -327,7 +327,7 @@ def _rule_assay(drug, endpoint, a, variants):
         if not a["intact_identity_verified"]:
             issues.append("INTACT_PROTEOFORM_ID_NOT_ORIGINALLY_VERIFIED")
         else:
-            evidence.append("ORIGINAL_INTACT_PROTEOFORM_EVIDENCE")
+            evidence.append("SOURCE_ATTESTED_INTACT_PROTEOFORM_ID_REQUIRES_ORIGINAL_SCAN_AUDIT")
         issues.append("INTACT_PROTEOFORM_ABUNDANCE_NOT_ENZYME_FUNCTION")
     elif method.startswith("METABOLITE_"):
         if len(relevant) > 1:
@@ -422,6 +422,7 @@ def _rule_assay(drug, endpoint, a, variants):
         "evidence_observations":sorted(set(evidence)),
         "limitations":sorted(set(issues)),
         "methodology_is_not_evidence_of_patient_specific_PK_gain":True,
+        "caller_asserted_source_identifiers_not_independently_authenticated_here":True,
         "mechanism_confirmed_for_subject":False,
     }
 
