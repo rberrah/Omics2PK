@@ -65,7 +65,7 @@ class NUDT15OriginalSourceTests(unittest.TestCase):
         fragment=data.strip().splitlines()[-1]
         with self.assertRaisesRegex(NUDT15PublicSourceError,"duplicated"):
             parse_original_mavedb(data+fragment+b"\n",strict_original=False)
-        with self.assertRaisesRegex(NUDT15PublicSourceError,"headers"):
+        with self.assertRaisesRegex(NUDT15PublicSourceError,"columns"):
             parse_original_mavedb(data.replace(b"abundance_score",b"bad_column_name"),
                                   strict_original=False)
         with self.assertRaises(NUDT15PublicSourceError):
@@ -73,10 +73,10 @@ class NUDT15OriginalSourceTests(unittest.TestCase):
                                   strict_original=False)
 
     def test_source_stability_and_function_are_distinct_phenotypes(self):
-        data=synthetic_rows().replace(b"0.85",b"0.15")
+        data=synthetic_rows().replace(b",0.9,0.85",b",0.9,0.15",20)
         a,m=parse_original_mavedb(data,strict_original=False)
         r=benchmark_nudt15_original(a)
-        self.assertEqual(r["n_stable_but_thiopurine_sensitive_research_thresholds_0_8_0_3"],40)
+        self.assertEqual(r["n_stable_but_thiopurine_sensitive_research_thresholds_0_8_0_3"],20)
         self.assertTrue(r["not_direct_NUDT15_enzymatic_substrate_metabolite_measure"])
 
 
