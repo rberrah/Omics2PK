@@ -14,7 +14,7 @@ from urllib.request import Request,urlopen
 
 from omics2pk.public_cyp2c9_variant_function_benchmark import (
     SOURCE_BLOB_SHA,SOURCE_REPOSITORY,PublicVariantDMSUnavailable,
-    parse_public_original,benchmark_public_original,
+    parse_public_original,benchmark_public_original,describe_known_class_controls,
 )
 
 URL=f"https://api.github.com/repos/{SOURCE_REPOSITORY}/git/blobs/{SOURCE_BLOB_SHA}"
@@ -54,6 +54,7 @@ def run_original():
     source=qualify_original_public_blob(raw_response)
     rows=parse_public_original(source,strict_original=True)
     result=benchmark_public_original(rows)
+    result.update(describe_known_class_controls(source,strict_original=True))
     result["source_fetched_via_immutable_GitHub_git_blob_API"]=True
     result["source_bytes_and_individual_scores_not_committed_or_exported"]=True
     return result
