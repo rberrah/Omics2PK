@@ -28,8 +28,8 @@ jobs:
           import json
           o=json.load(open("/tmp/nudt15_source_aggregate.json"))
           assert o["status"]=="PUBLIC_NUDT15_VARIANT_MATCHED_CELL_LINE_PD_NOT_HUMAN_PATIENT_TOXICITY"
-          assert o["n_paired_missense_variants"]==2844
-          assert o["n_source_MaveDB_paired_score_set_rows"]==3015
+          assert o["n_paired_missense_variants"]==2825
+          assert o["n_source_MaveDB_paired_score_set_rows"]==3015\n          assert o["n_original_nonmissense_or_unparsed_variants"]==20\n          assert o["n_rows_with_missing_any_scores"]==170
           assert o["functional_measure_not_same_as_protein_stability"]
           assert o["not_original_human_PK_or_clinical_toxicity"]
           assert len(o["held_position_out_methods"])==4
