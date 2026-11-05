@@ -33,6 +33,7 @@ class NUDT15OriginalSourceTests(unittest.TestCase):
         self.assertEqual(_variant("p.Arg139Cys"),("R",139,"C"))
         self.assertEqual(_variant("p.R139C"),("R",139,"C"))
         self.assertEqual(_variant("p.(Gln6Glu)"),("Q",6,"E"))
+        self.assertEqual(_variant("p.(Ala164Cys)"),("A",164,"C"))
         for invalid in ("p.Arg139Ter","p.Arg139Arg","p.Arg139fs","p.?",
                         "p.(Arg169Cys)","c.42G>A"):
             self.assertIsNone(_variant(invalid))
