@@ -23,7 +23,7 @@ jobs:
         run: python -m unittest discover -s tests -p 'test_public_nudt15_variant_pd_benchmark.py' -v
       - name: Live source-pinned MaveDB NUDT15 known-variant protein versus cell PD benchmark
         run: |
-          python scripts/benchmark_public_nudt15_cell_PD.py > /tmp/nudt15_source_aggregate.json
+          python scripts/benchmark_public_nudt15_cell_PD.py > /tmp/nudt15_source_aggregate.json || { cat /tmp/nudt15_source_aggregate.json; exit 2; }
           python - <<'PY'
           import json
           o=json.load(open("/tmp/nudt15_source_aggregate.json"))
