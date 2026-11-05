@@ -327,6 +327,71 @@ class PhysiopharmMethodTriageTests(unittest.TestCase):
         self.assertFalse(info["eligible_for_physio_mechanism"])
         self.assertNotIn("SLC22A1",r["genes_with_any_relevant_assay_by_source"])
 
+    def test_source_sequence_missense_changes_omic_interpretation(self):
+        synthetic_cds="ATG"+"GAA"+"GCT"*28+"TAA"
+        t={"gene":"CYP3A5","transcript_id":"NM_999999.1",
+           "assembly":"GRCh38","chromosome":"7","strand":"+",
+           "reference_source_url":"https://www.ncbi.nlm.nih.gov/refseq/",
+           "exons":[[100,184],[400,407]],"spliced_cdna":synthetic_cds,
+           "cds_start_offset":0,"cds_end_offset":93}
+        bg={"status":"partial_assay"}
+        gen={"gene":"CYP3A5","assembly":"GRCh38","chromosome":"7",
+             "genomic_position_1based":104,"genomic_ref_allele":"A",
+             "genomic_alt_allele":"C",
+             "variant_source_url":"https://www.ncbi.nlm.nih.gov/refseq/"}
+        choices=[a("bulk","RNA_GENE_BULK"),
+                 a("peptide","PROTEIN_TARGETED_PEPTIDE",peptide_region="unknown"),
+                 a("activity","ACTIVITY_CYP3A5_SELECTIVE_PROBE",
+                   assay_validated=True,
+                   selectivity_evidence_url="https://doi.org/10.1124/dmd.113.054726",
+                   probe_assay_code="T5_N_OXIDATION")]
+        r=plan_physio_omic_acquisition(
+            drug="tacrolimus",endpoint="AUC",assays=choices,
+            sequence_variants=[{"reference_transcript":t,
+                                "variant":gen,"genome_assay":bg}])
+        annotated=r["reference_checked_DNA_transcript_codon_consequences"][0]
+        self.assertEqual(annotated["consequence_derived_from_supplied_reference_code"]
+                         ["sequence_consequence"],"missense_variant")
+        self.assertEqual(annotated["consequence_derived_from_supplied_reference_code"]
+                         ["predicted_protein_amino_acid_change"],"E2A")
+        self.assertIn("MISSENSE_CAN_IMPAIR_PROTEIN_FUNCTION_WITH_UNCHANGED_RNA_ABUNDANCE",
+                      byname(r,"bulk")["limitations"])
+        self.assertFalse(annotated["predicted_omic_interpretability_from_sequence_not_activity"]
+                         ["mutation_causes_loss_of_function_proven"])
+        self.assertTrue(r["no_reported_variants_not_equivalent_to_functional_wildtype"])
+        # Same synthetic region, a changed codon can produce a STOP instead.
+        gen["genomic_position_1based"]=103
+        gen["genomic_ref_allele"]="G"
+        gen["genomic_alt_allele"]="T"
+        stop=plan_physio_omic_acquisition(
+            drug="tacrolimus",endpoint="AUC",assays=choices,
+            sequence_variants=[{"reference_transcript":t,
+                                "variant":gen,"genome_assay":bg}])
+        self.assertEqual(stop["reference_checked_DNA_transcript_codon_consequences"][0]
+                         ["consequence_derived_from_supplied_reference_code"]["sequence_consequence"],
+                         "stop_gained")
+        self.assertIn("TOTAL_RNA_CANNOT_DISTINGUISH_FUNCTIONAL_FROM_ABERRANT_TRANSCRIPT",
+                      byname(stop,"bulk")["limitations"])
+        self.assertEqual(stop["variant_source_consequence_interpretations"][0]
+                         ["canonical_NMD_rule_not_function_proof"],
+                         "CLASSICAL_EJC_NMD_PLAUSIBLE_NOT_CONFIRMED")
+
+    def test_no_variant_call_cannot_be_recoded_as_normal_function(self):
+        r=plan_physio_omic_acquisition(
+            drug="tacrolimus",endpoint="AUC",
+            assays=[a("RNA","RNA_GENE_BULK")],
+            genome_assay_background={
+                "status":"complete_target_assay",
+                "covered_transcript_ids":["NM_000777.5"],
+                "assay_provenance_url":"https://www.ncbi.nlm.nih.gov/refseq/"})
+        self.assertEqual(r["genomic_assay_background_without_or_with_called_variants"]
+                         ["original_genetic_assay_status"],"complete_target_assay")
+        self.assertTrue(r["no_reported_variants_not_equivalent_to_functional_wildtype"])
+        self.assertFalse(r["genomic_assay_background_without_or_with_called_variants"]
+                          ["star_allele_diplotype_verified"])
+        self.assertEqual(r["variant_source_consequence_interpretations"],[])
+        self.assertEqual(byname(r,"RNA")["candidate_explanatory_role"],"total_rna_proxy")
+
     def test_assay_transcript_mismatch_is_explicit_not_splice_evidence(self):
         r=plan([a("rna","RNA_LONG_READ_ISOFORM",transcript_id="NM_000777.2")],
                [variant("splice_disrupting",star_allele="*3")])
