@@ -137,6 +137,62 @@ def parse_public_original(csv_bytes, *, strict_original=True):
     return out
 
 
+def describe_known_class_controls(csv_bytes, *, strict_original=True):
+    """Measured syn/missense/stop class controls on same original assay scales.
+
+    This is *not* inferred human mRNA NMD: nonsense variants were assayed
+    in engineered expression systems (yeast click-seq and human-cell VAMP-seq).
+    No individual variant or original measurement row is released.
+    """
+    if not isinstance(csv_bytes,(bytes,bytearray)) or len(csv_bytes)>5_000_000:
+        raise PublicVariantDMSUnavailable("Original variant class controls require source-qualified CSV bytes")
+    try:
+        stream=io.StringIO(bytes(csv_bytes).decode("utf-8-sig"))
+    except UnicodeDecodeError as exc:
+        raise PublicVariantDMSUnavailable("Source controls must be UTF-8") from exc
+    reader=csv.DictReader(stream)
+    if reader.fieldnames is None or not REQUIRED.issubset(reader.fieldnames):
+        raise PublicVariantDMSUnavailable("Original genetic-code category source headers missing")
+    classified=defaultdict(list)
+    total=0
+    for row in reader:
+        total+=1
+        kind=row["class"]
+        if kind not in {"missense","synonymous","nonsense","wt"}:
+            raise PublicVariantDMSUnavailable("Unexpected original variant genetic code class")
+        activity=_finite(row["activity_score"])
+        abundance=_finite(row["abundance_score"])
+        if (activity is not None and abundance is not None and
+                row["activity_class"]!="NA" and row["abundance_class"]!="NA"):
+            classified[kind].append((activity,abundance))
+    expected={"missense":4421,"synonymous":164,"nonsense":57,"wt":1}
+    if strict_original and (total!=EXPECTED_ORIGINAL_ALL_VARIANTS or
+           {key:len(classified[key]) for key in expected}!=expected):
+        raise PublicVariantDMSUnavailable("Original source genetic-code control counts changed")
+    def med(values):
+        ordered=sorted(values)
+        n=len(ordered)
+        return ((ordered[(n-1)//2]+ordered[n//2])/2 if n else None)
+    results={}
+    for kind in ("missense","synonymous","nonsense","wt"):
+        measurements=classified[kind]
+        if not measurements:
+            results[kind]={"status":"ABSTAIN_NO_QUALIFIED_ORIGINAL_CLASS_CONTROLS"}
+        else:
+            results[kind]={
+                "n_source_variant_substitutions":len(measurements),
+                "source_assay_median_activity_score":round(med([a for a,b in measurements]),6),
+                "source_assay_median_abundance_score":round(med([b for a,b in measurements]),6),
+                "clinical_or_native_tissue_variant_effect_proven":False,
+            }
+    return {
+        "source_genetic_code_class_controls_not_human_mRNA_NMD":results,
+        "stop_codon_construct_abundance_not_extrapolated_to_real_patient_NMD":True,
+        "source_only_aggregate_no_original_variant_rows":True,
+        "distinct_physical_assay_systems_yeast_activity_vs_human_cells_abundance":True,
+    }
+
+
 def _solve(a,b):
     n=len(b)
     a=[r[:] for r in a]
