@@ -569,7 +569,7 @@ def plan_physio_omic_acquisition(*, drug, endpoint, variants=(), assays=(),
                                  ":"+uid[3]+">"+uid[4]),
             "source_url":raw["variant_source_url"],
             "transcript_id":effect["transcript_id"],
-            "allele_state":"unresolved",
+            "allele_state":effect["original_attested_allele_state_or_unresolved"],
             "genetic_code_consequence":effect["sequence_consequence"],
             "sequence_prediction_not_donor_function":True,
         }
