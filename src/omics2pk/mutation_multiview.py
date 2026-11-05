@@ -136,7 +136,9 @@ def evaluate_mutation_modality_budget(ids, lineage, response, mutation_labels,
     fixed_without_mutations={name:np.full((repeats,n),np.nan) for name in MODES}
     interacts={name:np.full((repeats,n),np.nan) for name in PAIRED_INTERACTIONS}
     adaptive={q:np.full((repeats,n),np.nan) for q in (0.8,0.9)}
+    adaptive_rmse={q:np.full((repeats,n),np.nan) for q in (0.8,0.9)}
     choices={q:{0:Counter(),1:Counter()} for q in (0.8,0.9)}
+    rmse_choices={q:{0:Counter(),1:Counter()} for q in (0.8,0.9)}
     fallback_counts=Counter()
     for rep in range(repeats):
         outer=KFold(n_splits=5,shuffle=True,random_state=SEED+rep)
@@ -149,8 +151,10 @@ def evaluate_mutation_modality_budget(ids, lineage, response, mutation_labels,
             if any(not np.isfinite(v).all() for v in inner_pred.values()):
                 raise MutationMultiViewError("Incomplete mutation-aware inner CV")
             chosen={}
+            chosen_rmse={}
             for q in (0.8,0.9):
                 eligible={}
+                eligible_rmse={}
                 for g in (0,1):
                     mask=(mut[tr,0]==g)
                     if np.sum(mask)<8:
@@ -158,10 +162,17 @@ def evaluate_mutation_modality_budget(ids, lineage, response, mutation_labels,
                         mask=np.full(len(tr),True)
                     losses={arm:float(np.mean(np.abs(vec[mask]-y[tr][mask])))
                             for arm,vec in inner_pred.items()}
+                    rmse_losses={
+                        arm:float(np.sqrt(np.mean((vec[mask]-y[tr][mask])**2)))
+                        for arm,vec in inner_pred.items()}
                     eligible[g]=choose_minimum_modalities(
                         losses,MODES,fraction=q,reference="mutation_only")["arm"]
+                    eligible_rmse[g]=choose_minimum_modalities(
+                        rmse_losses,MODES,fraction=q,reference="mutation_only")["arm"]
                     choices[q][g][eligible[g]]+=1
+                    rmse_choices[q][g][eligible_rmse[g]]+=1
                 chosen[q]=eligible
+                chosen_rmse[q]=eligible_rmse
             outer_preds=_build_fold(y,lineage,mut,views,tr,te)
             no_mutation_preds=_build_fold(y,lineage,mut,views,tr,te,include_mutation=False)
             int_preds=_build_fold(y,lineage,mut,views,tr,te,interactions=True)
@@ -171,9 +182,13 @@ def evaluate_mutation_modality_budget(ids, lineage, response, mutation_labels,
             for arm in PAIRED_INTERACTIONS:interacts[arm][rep,te]=int_preds[arm]
             for q in (0.8,0.9):
                 for ix in te:
-                    adaptive[q][rep,ix]=outer_preds[chosen[q][int(mut[ix,0])]][np.flatnonzero(te==ix)[0]]
+                    test_pos=int(np.flatnonzero(te==ix)[0])
+                    tp53=int(mut[ix,0])
+                    adaptive[q][rep,ix]=outer_preds[chosen[q][tp53]][test_pos]
+                    adaptive_rmse[q][rep,ix]=outer_preds[chosen_rmse[q][tp53]][test_pos]
     if any(not np.isfinite(v).all() for v in
-           list(fixed.values())+list(fixed_without_mutations.values())+list(interacts.values())+list(adaptive.values())):
+           list(fixed.values())+list(fixed_without_mutations.values())+
+           list(interacts.values())+list(adaptive.values())+list(adaptive_rmse.values())):
         raise MutationMultiViewError("Incomplete original line-disjoint heldout runs")
     obs={"fixed":{arm:_errors(v,y) for arm,v in fixed.items()},
          "fixed_without_original_somatic_mutation_features":{
@@ -191,6 +206,16 @@ def evaluate_mutation_modality_budget(ids, lineage, response, mutation_labels,
                 str(g):dict(choices[q][g]) for g in (0,1)},
             "low_train_stratum_global_fallback_outer_folds":{
                 str(g):fallback_counts[(q,g)] for g in (0,1)}}
+    obs["nested_TP53_guided_80_90_using_RMSE_inner"]={}
+    for q,v in adaptive_rmse.items():
+        obs["nested_TP53_guided_80_90_using_RMSE_inner"][str(int(q*100))]={
+            **_errors(v,y),
+            "selected_by_train_RMSE_TP53_stratum":{
+                str(g):dict(rmse_choices[q][g]) for g in (0,1)},
+            "low_train_stratum_global_fallback_outer_folds":{
+                str(g):fallback_counts[(q,g)] for g in (0,1)},
+            "criterion_chosen_using_only_inner_train_validation":"RMSE",
+            "never_selected_from_outer_MAE_or_RMSE":True}
     strata={}
     for group in (0,1):
         sel=mut[:,0]==group
@@ -241,6 +266,9 @@ def evaluate_mutation_modality_budget(ids, lineage, response, mutation_labels,
         "nested_TP53_modality_selection":{
             str(int(q*100)):summarize_heldout(y,vec)
             for q,vec in adaptive.items()},
+        "nested_TP53_RMSE_inner_modality_selection":{
+            str(int(q*100)):summarize_heldout(y,vec)
+            for q,vec in adaptive_rmse.items()},
     }
     contrasts={}
     prescribed={
@@ -266,6 +294,12 @@ def evaluate_mutation_modality_budget(ids, lineage, response, mutation_labels,
             (adaptive[0.8],fixed["mutation_rna"]),
         "nested90_vs_mutation_plus_RNA":
             (adaptive[0.9],fixed["mutation_rna"]),
+        "RMSE_selected_nested80_vs_MAE_selected_nested80":
+            (adaptive_rmse[0.8],adaptive[0.8]),
+        "RMSE_selected_nested90_vs_MAE_selected_nested90":
+            (adaptive_rmse[0.9],adaptive[0.9]),
+        "RMSE_selected_nested80_vs_fixed_mutation_plus_RNA":
+            (adaptive_rmse[0.8],fixed["mutation_rna"]),
     }
     for name,(candidate,reference) in prescribed.items():
         contrasts[name]=paired_heldout_contrast(y,candidate,reference)
