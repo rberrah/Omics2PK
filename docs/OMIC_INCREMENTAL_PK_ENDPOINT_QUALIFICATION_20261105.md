@@ -125,9 +125,21 @@ rows were not committed.
 All previously qualified original 95% donor-bootstrap differences
 versus source PGx include zero. **Linear MAE chooses activity;
 log-MAE chooses protein; P20 ties. The output does not support
-a superior modality**. The reusable evaluator is now also
-tested on the same original donor-heldout predictions and
-refuses all CYP3A5 genotype-stratum winners (n<20).
+a superior modality**. The reusable evaluator was **successfully rerun against official
+original Latham Table 4** in
+[GitHub Actions #42017839096 (retry SUCCESS)](https://github.com/rberrah/Omics2PK/actions/runs/42017839096),
+after one transient external PMC source-unavailable abstention.
+It reproduces the same 13 source donor-level heldouts and
+refuses all CYP3A5 genotype-stratum winners:
+**n=9** known no-function, **n=3** reduced-function and
+**n=1** function-allele carrier among the 13 protein-complete
+donors; each is below the minimum n20 per stratum.
+The primary log-error paired 499-donor bootstrap for
+**probe activity** minus PGx baseline is **−0.016787**
+[−0.131239,+0.106452] and for **proteomics** is
+**−0.023673** [−0.144389,+0.145689], both including zero.
+These are descriptive heldout error contrasts and do not
+justify an assay-choice decision or clinical dose effect.
 The original PGx panel is only partial and the CYP3A
 midazolam probe is CYP3A4/5-shared, not CYP3A5-specific.
 Neither the outcome nor this 13-donor comparison is clinical PK.
