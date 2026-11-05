@@ -127,6 +127,18 @@ MAE/log-MAE/P20 comparison and explicit insufficient genotype
 strata. Source-level model-arm qualification is **not itself**
 a verified sample-level join or a validation of clinical benefit.
 
+**Read-only cross-project handoff now implemented:**
+`qualify_multiomics_specimen_handoff(...)` accepts the optional
+MultiOmics `omics_specimen_context_v1` (or the integrated
+`reconcile_variant_with_original_specimens` report). It independently
+checks allowed original organ/fraction combinations, source assay
+methods, pre/postdose timing, and whether material is a
+human specimen, cancer cell line or genetically engineered construct.
+Output labels direct local tissue **context**, indirect systemic
+proxy, or ineligible experimental/post-treatment measurements; it
+never creates numerical human omic values, clinical genotype,
+measured tacrolimus PK or patient-level model validation.
+
 The matching MultiOmics component in
 [MultiOmics PR #121](https://github.com/rberrah/MultiOmics/pull/121)
 requires original assay fraction (e.g. white cells vs plasma,
