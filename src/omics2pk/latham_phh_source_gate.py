@@ -226,6 +226,58 @@ def benchmark_latham_phh_table4(rows: Sequence[Mapping[str, object]]) -> dict:
     pm_with_protein = [r for r in pm if r["protein"] is not None]
     n_pm_peptide = sum(r["protein"][2] > 0 for r in pm_with_protein)
     n_pm_shared_probe = sum(r["activity"][1] > 0 for r in pm)
+    # Apply the reusable clinical+true-PGx versus omic added-value
+    # assessment directly to original independent source PHH donors.
+    # Here the outcome is in-vitro apparent clearance, not clinical PK.
+    # Original proteins and independent enzyme probes were donor-matched;
+    # the probe is shared CYP3A4/5, NOT CYP3A5-specific.
+    from .omic_incremental_endpoint_audit import (
+        audit_omic_incremental_PK_prediction,
+    )
+    source_heldout=[]
+    for i,r in enumerate(complete):
+        source_heldout.append({
+            "subject_id":r["donor_id"],  # private in-memory original key
+            "fold_id":r["donor_id"],     # exactly leave-one-biological-donor-out
+            "observed":r["outcome"],
+            "genotype_stratum":{
+                "PM":"known_no_function_variant",
+                "IM":"known_reduced_function_variant",
+                "NM":"known_function_variant",
+            }[r["phenotype"]],
+            "predictions":{
+                "clinical_plus_genotype":predictions["pgx_only"][i],
+                "add_proteomics":predictions["pgx_plus_proteins"][i],
+                "add_probe_activity":predictions["pgx_plus_probe_activities"][i],
+                "add_protein_and_probe":predictions[
+                    "pgx_plus_proteins_and_probe_activities"][i],
+            },
+        })
+    generic_PK_result=audit_omic_incremental_PK_prediction(
+        records=source_heldout,
+        endpoint="PHH_imatinib_invitro_clearance",
+        original_units="microlitre/million cells/minute — original Table 4",
+        genotype_qualifier="verified_partial_PGx",
+        evaluation_regime="true_out_of_fold_per_biological_subject",
+        predeclared_primary_metric="mean_absolute_log_error",
+        source_omic_sample_prelandmark_verified=True,
+        source_prediction_training_is_subject_disjoint=True,
+        original_source_omics_and_PK_same_subject_verified=True,
+    )
+    source_arm_map={
+        "clinical_plus_genotype":"pgx_only",
+        "add_proteomics":"pgx_plus_proteins",
+        "add_probe_activity":"pgx_plus_probe_activities",
+        "add_protein_and_probe":"pgx_plus_proteins_and_probe_activities",
+    }
+    for generic_name,source_name in source_arm_map.items():
+        if (generic_PK_result["heldout_descriptives_by_predeclared_model_arm"]
+                [generic_name]["MAE"]!=scores[source_name]):
+            raise LathamPHHError("Reusable PK endpoint evaluator does not reproduce source heldout MAE")
+    if any(record["status"]!="ABSTAIN_TOO_FEW_INDEPENDENT_VARIANT_STRATUM_SUBJECTS"
+           for record in generic_PK_result["within_variant_function_groups"].values()):
+        raise LathamPHHError("Small source CYP3A5 mutation strata must abstain")
+
     return {
         "status": "ORIGINAL_PUBLISHED_TABLE4_EXPLORATORY_IN_VITRO_PILOT_NOT_E3",
         "source_doi": SOURCE_DOI, "source_pmcid": SOURCE_PMCID,
@@ -242,6 +294,7 @@ def benchmark_latham_phh_table4(rows: Sequence[Mapping[str, object]]) -> dict:
         "source_prose_unit_discrepancy_not_resolved": True,
         "heldout_MAE_by_predeclared_arm_source_table_scale": scores,
         "heldout_multiple_endpoint_appropriate_errors_same_donors":heldout_donor_metrics,
+        "reusable_genotype_vs_omic_prediction_qualification":generic_PK_result,
         "exploratory_paired_13_original_donor_residual_bootstraps":contrasts,
         "bootstrap_refits_models_or_corrects_selection":False,
         "outer_fold_omic_panel_selection_not_nested":True,
