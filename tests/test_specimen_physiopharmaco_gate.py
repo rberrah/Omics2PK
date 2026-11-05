@@ -1,7 +1,8 @@
 """Synthetic contracts for provenance; source sample sites are curated facts."""
 import unittest
 from omics2pk.specimen_physiopharmaco_gate import (
-    SOURCES,qualify_public_specimen_for_PK,PhysiopharmacoSpecimenError,
+    SOURCES,qualify_public_specimen_for_PK,qualify_public_omic_model_arms,
+    PhysiopharmacoSpecimenError,
 )
 
 def q(s,drug,process,**kw):
@@ -99,6 +100,58 @@ class SourceTissuePhysioGate(unittest.TestCase):
                              "ENGINEERED_VARIANT_CONSTRUCT_NOT_REAL_PATIENT_ORGAN")
             self.assertFalse(x["original_paired_human_drug_PK_source_present"])
             self.assertFalse(x["patient_PK_improvement_vs_complete_genotype_proven"])
+
+    def test_same_original_human_phh_protein_probe_arms_and_no_cross_cohort_join(self):
+        model={
+            "clinical_plus_genotype":[],
+            "add_proteomics":["LATHAM_PHH_CYP_PROTEIN"],
+            "add_probe_activity":["LATHAM_PHH_SHARED_PROBE"],
+            "add_both":["LATHAM_PHH_CYP_PROTEIN","LATHAM_PHH_SHARED_PROBE"],
+        }
+        evidence=qualify_public_omic_model_arms(
+            arm_to_original_sources=model,drug="imatinib",
+            process="hepatic_CYP_metabolism",
+            endpoint_class="IN_VITRO_DRUG_METABOLISM_NOT_CLINICAL_PK")
+        self.assertEqual(evidence["n_distinct_original_measured_assays"],2)
+        self.assertEqual(evidence["source_public_original_reference"],
+                         "Latham_2025_PMC12990092_Table4")
+        self.assertEqual(
+            evidence["arm_original_collection_sites"]["add_both"][0]["actual_collected_fraction"],
+            "primary_hepatocytes")
+        bad={**model,"add_both":["LATHAM_PHH_CYP_PROTEIN","HLC_LIVER_RNA"]}
+        with self.assertRaisesRegex(PhysiopharmacoSpecimenError,"different studies"):
+            qualify_public_omic_model_arms(
+                arm_to_original_sources=bad,drug="imatinib",
+                process="hepatic_CYP_metabolism",
+                endpoint_class="IN_VITRO_DRUG_METABOLISM_NOT_CLINICAL_PK")
+
+    def test_metformin_predose_plasma_clinical_PK_allowed_only_as_proxy_no_PGx_claim(self):
+        result=qualify_public_omic_model_arms(
+            arm_to_original_sources={
+                "clinical_plus_genotype":[],
+                "add_metabolomics":["ROTROFF_PLASMA_GCTOF_A"],
+            },drug="metformin",process="renal_transporter_secretion",
+            endpoint_class="CLINICAL_PK")
+        self.assertFalse(result["no_clinical_superiority_over_complete_genotype_claim"] is False)
+        # The source does not have original genuine complete PGx: this
+        # is specimen-method eligibility only, NOT benchmark readiness.
+        self.assertFalse(
+            result["arm_original_collection_sites"]["add_metabolomics"][0]
+                  ["full_PGx_only_model_benchmark_possible_now"])
+        for post in ("ROTROFF_PLASMA_GCTOF_B","ROTROFF_PLASMA_GCTOF_C"):
+            with self.assertRaisesRegex(PhysiopharmacoSpecimenError,"post-dose"):
+                qualify_public_omic_model_arms(
+                    arm_to_original_sources={
+                        "clinical_plus_genotype":[],"add_metabolomics":[post],
+                    },drug="metformin",process="renal_transporter_secretion",
+                    endpoint_class="CLINICAL_PK")
+        with self.assertRaisesRegex(PhysiopharmacoSpecimenError,"no real same-original"):
+            qualify_public_omic_model_arms(
+                arm_to_original_sources={
+                    "clinical_plus_genotype":[],
+                    "add_RNA":["HLC_LIVER_RNA"],
+                },drug="tacrolimus",process="hepatic_CYP3A_metabolism",
+                endpoint_class="CLINICAL_PK")
 
     def test_stop_unknown_noncatalogue_and_mismatched_process(self):
         with self.assertRaises(PhysiopharmacoSpecimenError):
