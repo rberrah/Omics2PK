@@ -52,6 +52,17 @@ Ces quatre niveaux ne sont **jamais automatiquement équivalents**.
   stop après la dernière jonction, une isoforme alternative, une
   réinitiation de traduction ou une structure particulière peuvent
   différer de la règle canonique.
+- `annotate_variant_across_transcripts()` : conserve les annotations de
+  **plusieurs isoformes du même gène**. La même substitution génomique
+  peut être **faux-sens dans un transcrit** et **introniquement proche
+  d'un site donneur dans un autre**. C'est **un seul variant**, pas
+  deux variants indépendants. Le code ne choisit pas automatiquement
+  l'isoforme la plus inquiétante.
+- `crosscheck_source_vep_terms()` : compare l'effet local aux termes
+  Sequence Ontology d'une annotation **VEP versionnée déclarée**.
+  En cas de désaccord de conséquence ou de transcrit, le pipeline
+  **s'abstient**. Ce contrôle ne télécharge pas VEP et n'authentifie
+  pas automatiquement un VCF original.
 - `reconcile_curated_cyp3a5_allele()` : corrige les limites de la
   seule traduction via une **preuve externe d'allèle définissant**
   *3 (intron / accepteur cryptique), *6 (substitution **synonyme**
