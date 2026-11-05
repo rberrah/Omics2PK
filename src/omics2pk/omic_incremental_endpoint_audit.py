@@ -130,6 +130,9 @@ def audit_omic_incremental_PK_prediction(
         raise OmicIncrementalEvidenceError("Actual original endpoint units required")
     if genotype_qualifier not in GENO or evaluation_regime not in REGIMENS:
         raise OmicIncrementalEvidenceError("Original genotype and evaluation scope must be explicit")
+    if genotype_qualifier=="not_assessed":
+        raise OmicIncrementalEvidenceError(
+            "Cannot compare additional omics against genetic baseline if no original genotype was measured")
     if predeclared_primary_metric not in ERRORS:
         raise OmicIncrementalEvidenceError("Outcome-appropriate primary metric must be prespecified")
     flags=(
@@ -204,7 +207,7 @@ def audit_omic_incremental_PK_prediction(
         per_mutation[group]={
             "n_observed_source_subjects":len(ids),
             "status":"DESCRIPTIVE_WITHIN_KNOWN_VARIANT_STRATUM_NOT_CAUSAL",
-            "n_genotype_groups_not_phased_or_function_verified_by_this_module":len(ids),
+            "source_genotype_phasing_and_function_not_verified_by_this_module":True,
             "compared_prespecified_arm_errors":{
                 arm:{key:round(_metrics(sy,sp[arm])[key],6)
                      for key in ("MAE","mean_absolute_log_error","P20")}
