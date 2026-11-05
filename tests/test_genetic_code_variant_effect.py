@@ -8,6 +8,7 @@ import unittest
 from omics2pk.genetic_code_variant_effect import (
     CODON_TO_AA, GeneticCodeEffectError, annotate_coding_edit,
     annotate_genomic_snv, omic_implications, reconcile_curated_cyp3a5_allele,
+    annotate_variant_across_transcripts, crosscheck_source_vep_terms,
 )
 
 SOURCE="https://www.ncbi.nlm.nih.gov/refseq/"
@@ -179,6 +180,48 @@ class GeneticCodeConsequencesTest(unittest.TestCase):
         with self.assertRaises(GeneticCodeEffectError):
             annotate_genomic_snv(reference_transcript=bad_ref,
                                 variant=variant(104,"A","C"),genome_assay=ASSAY)
+
+    def test_one_genomic_variant_can_be_exonic_or_intronic_by_transcript(self):
+        a=transcript()
+        b=transcript(exons=[[100,102],[200,289]])
+        b["transcript_id"]="NM_999998.1"
+        # Same synthetic genomic 104 A>C: coding missense on isoform A,
+        # first intronic splice donor +2 on isoform B.
+        outcome=annotate_variant_across_transcripts(
+            reference_transcripts=[a,b],variant=variant(104,"A","C"),
+            genome_assay=ASSAY)
+        effects=[x["sequence_consequence"]
+                 for x in outcome["per_transcript_source_asserted_consequence"]]
+        self.assertEqual(effects,["missense_variant","splice_donor_variant"])
+        self.assertTrue(outcome["transcript_consequences_differ"])
+        self.assertTrue(outcome["one_genomic_variant_is_one_locus_not_multiple_independent_PGx_mutations"])
+        self.assertTrue(outcome["cannot_select_which_transcript_is_biologically_relevant_without_evidence"])
+
+    def test_source_declared_VEP_so_terms_can_agree_or_abstain_not_estimate_function(self):
+        predicted=annotate_genomic_snv(reference_transcript=transcript(),
+                                       variant=variant(104,"A","C"),
+                                       genome_assay=ASSAY)
+        vep={"transcript_id":"NM_000777.5","assembly":"GRCh38",
+             "gene":"CYP3A5","vep_release":115,
+             "source_url":"https://www.ensembl.org/info/docs/tools/vep/index.html",
+             "sequence_ontology_terms":["missense_variant"]}
+        good=crosscheck_source_vep_terms(predicted=predicted,vep=vep)
+        self.assertEqual(good["status"],
+                         "SOURCE_DECLARED_VEP_SO_TERM_CONCORDANCE_NOT_FUNCTIONAL_PROOF")
+        self.assertFalse(good["assay_function_or_pathogenicity_established"])
+        mismatched=crosscheck_source_vep_terms(
+            predicted=predicted,
+            vep={**vep,"sequence_ontology_terms":["synonymous_variant"]})
+        self.assertEqual(mismatched["status"],
+                         "ABSTAIN_VEP_VS_LOCAL_TRANSCRIPT_CONSEQUENCE_CONFLICT")
+        with self.assertRaises(GeneticCodeEffectError):
+            crosscheck_source_vep_terms(predicted=predicted,vep={**vep,"assembly":"GRCh37"})
+        with self.assertRaises(GeneticCodeEffectError):
+            crosscheck_source_vep_terms(predicted=predicted,vep={
+                **vep,"sequence_ontology_terms":["pathogenic_variant"]})
+        with self.assertRaises(GeneticCodeEffectError):
+            crosscheck_source_vep_terms(predicted=predicted,vep={
+                **vep,"vep_release":None})
 
     def test_synonymous_cyp3a5_star6_curated_splice_function_overrides_codon_only(self):
         effect={"gene":"CYP3A5","transcript_id":"NM_000777.5",
