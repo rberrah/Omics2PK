@@ -69,6 +69,7 @@ could predict hepatic CYP function or drug PK in a paired patient study.
 | Tacrolimus whole-blood distribution | Hematocrit, erythrocyte binding, measured plasma and whole-blood tacrolimus with documented matrix | Blood C0 and Hct | Plasma and whole-blood C0 are not numerically interchangeable; a whole-blood drug concentration is an outcome, not a new omic. |
 | Metformin renal active secretion | Renal tubule OCT2/MATE1/MATE2-K transport, qualified kidney-derived assay | Predose plasma metabolome, measured metformin AUC/CLr and renal function | A plasma signal represents mixed production, distribution, diet, microbiome and excretion. It is not renal transporter activity without validation. |
 | Drug response in NCI-60 | Cell-type-specific cancer biology | Cultured cell-line RNA/protein/metabolome and GI50 | Predictive signal in culture cannot be renamed patient enzyme CL or clinical efficacy. |
+| Tacrolimus immune pharmacodynamics (distinct from PK) | Activated recipient/donor immune-cell subsets, e.g. T cells; appropriately phenotyped intracellular signaling | Qualified blood immune-cell RNA/protein and clinical immune endpoints **if** truly available | White-blood-cell aggregate mRNA is a mixed-population proxy, not purified T-cell calcineurin activity, rejection diagnosis or measured drug clearance. Public EATRIS has no tacrolimus response endpoint. |
 
 Other measurements: **urine metabolites** can reflect excretion,
 renal physiology and normalized analyte recovery but do not localize
