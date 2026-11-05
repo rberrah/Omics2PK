@@ -506,3 +506,134 @@ def qualify_pharmacogenetic_sampling_origin(*,organ_transplant_status,
         "never_infer_CYP3A5_function_from_GTx_or_blood_RNA":True,
         "clinical_drug_PK_gene_effect_estimated":False,
     }
+
+
+# Public optional exchange sidecar, independently validated by
+# MultiOmics. The v1 base matrix exchange remains untouched.
+MULTIOMICS_SAMPLING_SCHEMA="omics_specimen_context_v1"
+CROSS_PROJECT_FRACTION_ORIGIN={
+    "bulk_liver_tissue":"liver",
+    "liver_microsomes":"liver",
+    "primary_hepatocytes":"liver",
+    "small_intestinal_tissue":"small_intestine",
+    "kidney_tissue":"kidney",
+    "whole_blood":"blood",
+    "PBMC":"blood",
+    "white_blood_cells":"blood",
+    "plasma":"blood",
+    "serum":"blood",
+    "urine":"urinary_tract",
+    "cultured_human_cell_line":"laboratory_culture",
+    "engineered_yeast":"laboratory_culture",
+    "engineered_human_cells":"laboratory_culture",
+    "cell_culture_medium":"laboratory_culture",
+}
+
+
+def qualify_multiomics_specimen_handoff(*,sidecar,drug,process,
+                                        intended_prediction="baseline_predose"):
+    """Read-only physical-origin check on an optional MultiOmics site report.
+
+    Never upgrade an engineered construct, postdrug cell readout,
+    blood RNA or another dataset to real patient PK through
+    unchanged DOWNSTREAM_EXCHANGE_V1.
+    """
+    if drug not in PROCESS or process not in PROCESS[drug]:
+        raise PhysiopharmacoSpecimenError("Uncurated original physiology target")
+    if intended_prediction not in {"baseline_predose","ex_vivo_function"}:
+        raise PhysiopharmacoSpecimenError("Undefined prediction context")
+    if not isinstance(sidecar,Mapping):
+        raise PhysiopharmacoSpecimenError("Optional original specimen evidence absent")
+    if sidecar.get("schema_version")==MULTIOMICS_SAMPLING_SCHEMA:
+        if sidecar.get("status")!="QUALIFIED_MEASURED_SITE_AND_ASSAY_PROVENANCE_NOT_TARGET_ORGAN_FUNCTION":
+            raise PhysiopharmacoSpecimenError("Original source specimen description not qualified")
+        original=sidecar.get("contexts")
+    elif sidecar.get("separate_specimen_sidecar_schema")==MULTIOMICS_SAMPLING_SCHEMA:
+        if (sidecar.get("status")!="QUALIFIED_ORIGINAL_ASSAY_DESCRIPTIVE_HYPOTHESES_NOT_CAUSAL_PROOF"
+                or sidecar.get("specimen_provenance_qualified_without_inferring_function") is not True):
+            raise PhysiopharmacoSpecimenError("Original mutation/omic source evidence abstained")
+        original=sidecar.get("actual_original_assay_specimens")
+    else:
+        raise PhysiopharmacoSpecimenError("Unknown versioned MultiOmics specimen sidecar")
+    if not isinstance(original,(list,tuple)) or not original or len(original)>50:
+        raise PhysiopharmacoSpecimenError("Original collection site list absent")
+    seen=set();sources=[];proxy=0;direct=0;blocked=0
+    for r in original:
+        if not isinstance(r,Mapping):
+            raise PhysiopharmacoSpecimenError("Original individual source metadata not present")
+        name=r.get("assay_id")
+        fraction=r.get("collected_fraction")
+        origin=r.get("anatomical_origin")
+        source_scope=r.get("original_source_sample_key_scope")
+        if (not isinstance(name,str) or not name or name in seen or
+                fraction not in CROSS_PROJECT_FRACTION_ORIGIN or
+                origin!=CROSS_PROJECT_FRACTION_ORIGIN[fraction]):
+            raise PhysiopharmacoSpecimenError("Source assay ID, material or organ mismatch")
+        seen.add(name)
+        if source_scope not in {
+                "same_original_specimen",
+                "same_donor_different_fraction",
+                "same_engineered_variant_different_screens",
+            }:
+            raise PhysiopharmacoSpecimenError("No original biological donor/variant identity scope")
+        provenance=r.get("biological_provenance")
+        if provenance not in {
+                "native_human_specimen","human_donor_derived_preparation",
+                "engineered_variant_construct","cancer_cell_line",
+                "aggregated_reference_tissue"}:
+            raise PhysiopharmacoSpecimenError("Sample provenance not independently described")
+        landmark=r.get("collection_landmark")
+        if not isinstance(landmark,str) or not landmark:
+            raise PhysiopharmacoSpecimenError("Sample collection time unknown")
+        original_omic=r.get("omic")
+        if original_omic not in {"genomics","transcriptomics","proteomics",
+                                "metabolomics","functional_activity",
+                                "cellular_PD","drug_concentration"}:
+            raise PhysiopharmacoSpecimenError("Original omic assay type unqualified")
+        if not isinstance(r.get("assay_method"),str) or not r["assay_method"]:
+            raise PhysiopharmacoSpecimenError("Original assay technology absent")
+        disallowed=(provenance in {"engineered_variant_construct",
+                                 "cancer_cell_line","aggregated_reference_tissue"}
+                    or source_scope=="same_engineered_variant_different_screens"
+                    or landmark in {"post_first_dose","post_second_dose",
+                                    "postdrug_response","ex_vivo_drug_incubation",
+                                    "unknown"})
+        tissue_match=origin in PROCESS[drug][process]
+        if disallowed:
+            role="NOT_AN_ORIGINAL_PATIENT_BASELINE_PK_COVARIATE"
+            blocked+=1
+        elif tissue_match and fraction in TISSUE_LEVEL:
+            role="ORGAN_CONTEXT_SPECIFIC_MEASUREMENT_NOT_CLINICAL_FUNCTION_PROOF"
+            direct+=1
+        elif process=="immune_T_cell_PD" and fraction in {"PBMC","white_blood_cells"}:
+            role="MIXED_IMMUNE_CELL_PD_PROXY_NOT_CLINICAL_RESPONSE"
+            proxy+=1
+        else:
+            role="INDIRECT_CIRCULATING_OR_NONMATCHING_TISSUE_PROXY"
+            proxy+=1
+        if intended_prediction=="baseline_predose" and landmark not in {
+                "untreated_predose","previous_dose_trough"}:
+            role="NOT_QUALIFIED_AS_ACTUAL_PATIENT_PREDOSE_PK_COVARIATE"
+            blocked+=int(not disallowed)
+        sources.append({
+            "source_assay_id":name,
+            "sampled_anatomical_origin":origin,
+            "physically_collected_fraction":fraction,
+            "original_method":r["assay_method"],
+            "original_source_omic":original_omic,
+            "assay_relative_drug_landmark":landmark,
+            "physical_compartment_interpretation":role,
+        })
+    return {
+        "status":"MULTIOMICS_ORIGINAL_SAMPLING_SITE_READ_ONLY_INTERPRETATION",
+        "drug":drug,"process":process,
+        "n_assay_contexts":len(sources),
+        "n_different_source_assays":len(seen),
+        "n_direct_organ_measured_contexts_not_function_proof":direct,
+        "n_indirect_omic_proxy_contexts":proxy,
+        "n_source_contexts_disqualified_from_patient_baseline":blocked,
+        "original_assay_sites":sources,
+        "source_omics_prediction_vs_complete_PGx_estimated":False,
+        "no_numeric_patient_genetic_omic_PK_rows_received":True,
+        "DOWNSTREAM_EXCHANGE_V1_unchanged":True,
+    }
