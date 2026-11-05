@@ -245,3 +245,36 @@ Nor do they demonstrate that transcriptomics
 or metabolomics cannot improve an enzyme
 activity outcome, a patient-specific AUC/CL
 or genuine clinical+genetic PGx prediction.
+
+
+### Original-source feature identity diagnostic: no direct shared assay feature keys
+
+[Original revised source replay #42078275344 **SUCCESS**](https://github.com/rberrah/MultiOmics/actions/runs/42078275344)
+independently verified the published H5MU checksum, passed
+source-ID/target-isolation synthetic tests and audited the
+source \`var\` feature keys in both plasma-related proteomic panels.
+**Exact original feature-key overlap: 0.**
+**Case-folded, whitespace-trimmed feature-key overlap: 0**
+(with no resulting case-fold collisions).
+
+This is an **identifier-namespace finding, not proof that the
+two assays quantify zero shared biological proteins**. The
+source-key strings are not a reliable cross-platform protein
+crosswalk; an original analyte ontology/UniProt/gene/proteoform
+and assay-method mapping is required before any matched-analyte
+or measurement-technology causal comparison. No protein names
+or individual donor rows were emitted.
+
+Both replayed panels had complete heldout observations for
+the 80 fold-selected evaluation targets in each fold (80
+times the heldout fold size), so the very different
+baseline standardized MAEs are not explained simply by
+unmeasured heldout outcomes *among these selected targets*.
+Target distribution, scaling, assay chemistry and analyte
+identity remain possible explanations, not established causes.
+
+**Disposition:** keep the negative result as a robust
+observed *target-panel sensitivity* (n=88 original persons);
+mark any claim that one protein platform is superior to
+the other as **NOT ESTABLISHED**. Exact feature identity
+alone cannot qualify a common target set.
