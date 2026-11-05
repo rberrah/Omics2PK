@@ -16,7 +16,7 @@ Il y a une différence fondamentale entre :
 La seconde affirmation **ne peut jamais** être déduite du seul mécanisme, d'un score SHAP, d'un réseau STRING, d'une mutation ou d'une modalité avancée.
 
 
-**Séparation obligatoire :** un signal **non identifié** n'est **pas** un mécanisme, mais peut rester un **candidat prédictif black-box** si son assay est original, prédose et correctement apparié. L'exemple de la métabolomique Rotroff comporte des pics GC-TOF inconnus : ils doivent conserver leur identifiant source et peuvent participer à une expérience XGBoost/ablation en CV, **sans être artificiellement transformés en enzyme, transporteur, composé identifié ou voie**. Le logiciel sépare donc `eligible_for_physio_mechanism` de `eligible_for_outcome_ablation`. Un lien physio-pharmaco manquant conduit à l'abstention **sur l'interprétation**, pas à la suppression automatique du signal statistique. Les poids d'attribution et le gain prédictif restent à estimer hors échantillon.
+**Séparation obligatoire :** un signal **non identifié** n'est **pas** un mécanisme, mais peut rester un **candidat prédictif black-box** si son assay est original, prédose et correctement apparié. L'exemple de la métabolomique Rotroff comporte des pics GC-TOF inconnus : ils doivent conserver leur identifiant source et peuvent participer à une expérience XGBoost/ablation en CV, **sans être artificiellement transformés en enzyme, transporteur, composé identifié ou voie**. Le démonstrateur inclut désormais le **signal original Rotroff `222169`** avec le type de méthode **GC-EI-TOF**, le mode EI et l'identité chimique **non attribuée**. Une future identification exige un spectre EI original, une méthode de dérivatisation et un indice de rétention cohérents, avec un étalon authentique pour une affirmation forte ; une métadonnée sans intensités patient ne permet **pas** de rejouer le gain de prédiction. Le logiciel sépare donc `eligible_for_physio_mechanism` de `eligible_for_outcome_ablation`. Un lien physio-pharmaco manquant conduit à l'abstention **sur l'interprétation**, pas à la suppression automatique du signal statistique. Les poids d'attribution et le gain prédictif restent à estimer hors échantillon.
 
 ## 2. La chaîne physio-pharmaco contrôlée
 
@@ -57,7 +57,8 @@ Sources primaires : [consensus AMP/CAP/CPIC CYP3A4/5](https://pmc.ncbi.nlm.nih.g
 | Protéine | Bottom-up peptides partagés | Abondance de fragments peptidiques | Peptides communs, paralogues et fragments tronqués |
 | Protéine ciblée | Peptide N-terminal, C-terminal, variant-spécifique | Indices de région conservée ou manquante | Couverture de séquence et origine du peptide à vérifier |
 | Protéforme | Top-down avec véritable identification | Intégrité, isoforme, PTM si mesurée | Protéforme intacte ≠ transport ou catalyse mesurés |
-| Métabolites | MS1 global | Signaux potentiellement proches du phénotype global | Pic non identifié ≠ métabolite connu ou enzyme |
+| Métabolites | **GC-EI-TOF** non ciblée (Rotroff) | Fragments EI, détection chromatographique, indice de rétention si source disponible | Un identifiant numérique de pic **n'est ni une masse isolée LC-MS ni une structure chimique identifiée** |
+| Métabolites | LC-MS1 global | Signaux potentiellement proches du phénotype global | Pic non identifié ≠ métabolite connu ou enzyme |
 | Métabolites | MS/MS ciblé, référence authentique, isotope/flux | Identité chimique, abondance ou flux | Substrats multiples, flux non automatiquement isoforme-spécifique |
 | Fonction | Sonde CYP sélective, partagée, test OCT2/MATE de transport | Activité sous conditions expérimentales explicites | Dépend du substrat, du tissu, de la méthode ; in vitro ≠ PK humaine |
 
