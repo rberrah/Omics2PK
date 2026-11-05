@@ -140,6 +140,10 @@ if __name__=="__main__":
         print(json.dumps(evaluate_matched_original_day9(sys.argv[1]),
                          indent=2,sort_keys=True))
     except (JarmuschTemporalSourceError, GNPSOriginalSourceError,ValueError,OSError) as exc:
+        # All qualification messages in this script are static schema errors;
+        # never print original rows, participant keys or patient values.
+        safe=str(exc) if type(exc) is JarmuschTemporalSourceError else type(exc).__name__
         print(json.dumps({"status":"ABSTAIN_SOURCE_TEMPORAL_CROSSWALK",
-                          "reason_class":type(exc).__name__}))
+                          "reason_class":type(exc).__name__,
+                          "safe_source_gate":safe}))
         raise SystemExit(2)
