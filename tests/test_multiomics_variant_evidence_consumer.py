@@ -48,6 +48,34 @@ class MultiOmicsHypothesisHandoffTest(unittest.TestCase):
                 qualify_variant_evidence_sidecar(
                     {**example(),field:True},drug="tacrolimus",endpoint="AUC")
 
+    def test_real_engineered_DMS_variant_pair_is_not_an_original_patient_PK_predictor(self):
+        # MaveDB NUDT15 protein abundance and thiopurine cell PD screens
+        # are paired by engineered variant identity, never by patient.
+        engineered={**example(),
+            "genotype_coverage_state":"engineered_protein_variant_construct",
+            "source_pairing_scope":"same_construct_variant_independent_assays",
+            "same_original_variant_identity_across_independent_assays_verified":True,
+            "assays_share_source_biological_unit_tissue_and_time":False,
+            "original_person_germline_genotype_measured":False,
+            "source_variant_is_engineered_construct_not_human_genotype":True,
+            "original_per_assay_signals_measured_not_inferred":{
+                "protein_total":"reference_like",
+                "drug_cell_tolerance":"decreased",
+            },
+        }
+        # No true patient PGx, no predose cell-to-patient transfer:
+        # even an arbitrary claim that the source was "joined" is refused.
+        with self.assertRaises(OmicsVariantEvidenceHandoffError):
+            qualify_variant_evidence_sidecar(
+                engineered,drug="tacrolimus",endpoint="AUC",
+                orig_PGx_pk_join_verified=True)
+        with self.assertRaises(OmicsVariantEvidenceHandoffError):
+            qualify_variant_evidence_sidecar(
+                engineered,drug="metformin",endpoint="CLr")
+        # The optional sidecar remains useful in MultiOmics to generate
+        # mechanism hypotheses; it cannot be imported as a numerical
+        # individual tacrolimus AUC covariate from a cell screen.
+
     def test_invalid_PGx_coding_organ_hypothesis_or_readout_abstains(self):
         for change in (
             {"schema_version":"DOWNSTREAM_EXCHANGE_V1"},
