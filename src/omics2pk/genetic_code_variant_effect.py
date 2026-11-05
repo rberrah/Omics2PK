@@ -302,6 +302,53 @@ def annotate_genomic_snv(*, reference_transcript, variant, genome_assay):
             "genomic_reference_base_checked_against_original_genome":False,
             **seq}
 
+def reconcile_curated_cyp3a5_allele(*, sequence_effect, source_variant_id,
+                                   hgvs_c, star_allele, source_url,
+                                   variant_call_complete=False):
+    """Reconcile coding consequences with independently published CYP3A5 mechanisms.
+
+    CYP3A5 *6 is synonymous by translation yet can disrupt splicing. Only
+    defining variants are crosschecked; not a complete haplotype/diplotype.
+    """
+    from .functional_knowledge import CYP3A5_ALLELES
+    variants={
+        "*3":("rs776746","NM_000777.5:c.219-237A>G",
+              {"intron_variant","splice_region_variant"},
+              "CURATED_CRYPTIC_INTRON3_ACCEPTOR_ABERRANT_SPLICING"),
+        "*6":("rs10264272","NM_000777.5:c.624G>A",
+              {"synonymous_variant"},
+              "CURATED_SYNONYMOUS_EXON7_CHANGE_ABERRANT_SPLICING"),
+        "*7":("rs41303343","NM_000777.5:c.1035dup",
+              {"frameshift_variant"},
+              "CURATED_CODING_DUPLICATION_FRAMESHIFT_PREMATURE_STOP"),
+    }
+    if star_allele not in variants or star_allele not in CYP3A5_ALLELES:
+        raise GeneticCodeEffectError("No qualified curated functional CYP3A5 variant for this identity")
+    expected_id,expected_hgvs,expected_effect,mechanism=variants[star_allele]
+    if (source_variant_id!=expected_id or hgvs_c!=expected_hgvs or
+            sequence_effect.get("gene")!="CYP3A5" or
+            sequence_effect.get("transcript_id")!="NM_000777.5" or
+            sequence_effect.get("sequence_consequence") not in expected_effect or
+            variant_call_complete is not True):
+        raise GeneticCodeEffectError("CYP3A5 defining variant transcript/code effect conflict or incomplete call")
+    if urlparse(_reqstr(source_url,"curated variant source")).scheme!="https":
+        raise GeneticCodeEffectError("Curated CYP3A5 allele needs HTTPS evidence")
+    return {
+        "gene":"CYP3A5",
+        "source_variant_id":source_variant_id,
+        "source_transcript_hgvs":hgvs_c,
+        "curated_star_allele":star_allele,
+        "genetic_code_result":sequence_effect["sequence_consequence"],
+        "independent_literature_mechanism":mechanism,
+        "published_allele_function":"no_function",
+        "in_this_subject_splicing_measured":False,
+        "in_this_subject_protein_activity_measured":False,
+        "full_diplotype_or_variant_phasing_established":False,
+        "patient_specific_activity_loss_percent":None,
+        "curated_source_url":source_url,
+    }
+
+
 def omic_implications(effect, *, genotype_status="partial_assay"):
     """Variant-consequence-specific, *nonquantitative* interpretation limits.
 
