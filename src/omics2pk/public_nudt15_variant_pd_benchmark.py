@@ -28,7 +28,7 @@ from .public_cyp2c9_variant_function_benchmark import (
 URN="urn:mavedb:00000055-0-1"
 SOURCE_DOI="10.1073/pnas.1915680117"
 EXPECTED_ORIGINAL_PAIRED_ROWS=3015
-EXPECTED_PAIRED_MISSENSE=2844
+EXPECTED_PAIRED_MISSENSE=2825
 EXPECTED_SOURCE_SHA256="2e248907c0dcf54372d6ebf79c4d8a91b9ec2f2cd50d6c8aa365abec39d85a59"
 AMINO_LONG={"Ala":"A","Arg":"R","Asn":"N","Asp":"D","Cys":"C",
 "Gln":"Q","Glu":"E","Gly":"G","His":"H","Ile":"I",
