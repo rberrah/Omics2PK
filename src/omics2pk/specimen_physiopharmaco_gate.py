@@ -408,3 +408,82 @@ def qualify_public_omic_model_arms(*,arm_to_original_sources,
         "no_added_omic_accuracy_or_causal_effect_inferred":True,
         "no_clinical_superiority_over_complete_genotype_claim":True,
     }
+
+
+GENOTYPE_TISSUE_CASES={
+    "none":{"liver":"recipient","intestine":"recipient","kidney":"recipient"},
+    "liver_transplant":{"liver":"donor","intestine":"recipient","kidney":"recipient"},
+    "kidney_transplant":{"liver":"recipient","intestine":"recipient","kidney":"donor"},
+    "allogeneic_hsct":{"liver":"recipient","intestine":"recipient","kidney":"recipient"},
+}
+GENOMIC_MATERIAL={
+    "recipient_predonation_blood":"recipient",
+    "recipient_buccal_epithelium":"recipient",
+    "recipient_native_nonhematopoietic_tissue":"recipient",
+    "donor_source_genotype":"donor",
+    "transplant_graft_tissue":"graft",
+    "current_peripheral_blood_leukocytes":"current_hematopoietic",
+}
+
+
+def qualify_pharmacogenetic_sampling_origin(*,organ_transplant_status,
+                                            target_function_organ,
+                                            original_DNA_sample,
+                                            original_alleles_covered_verified,
+                                            donor_recipient_identity_verified,
+                                            hematopoietic_chimerism_qualified):
+    """Does the actual DNA specimen represent the organ whose PK matters?
+
+    Original PGx genomic allele coverage is a separate mandatory gate.
+    After allo-HSCT, present leukocytes may be donor derived, not
+    recipient hepatocyte genotype; do not infer from a measured SNP alone.
+    No genetic result, phenotype or patient-level cause is guessed.
+    """
+    if organ_transplant_status not in GENOTYPE_TISSUE_CASES:
+        raise PhysiopharmacoSpecimenError("Original transplant type must be explicit")
+    expected=GENOTYPE_TISSUE_CASES[organ_transplant_status]
+    if target_function_organ not in expected:
+        raise PhysiopharmacoSpecimenError("Unrecognized CYP/renal organ target")
+    if original_DNA_sample not in GENOMIC_MATERIAL:
+        raise PhysiopharmacoSpecimenError("Original DNA tissue origin not independently verified")
+    if not all(isinstance(v,bool) for v in (
+            original_alleles_covered_verified,
+            donor_recipient_identity_verified,hematopoietic_chimerism_qualified)):
+        raise PhysiopharmacoSpecimenError("All original genome provenance gates must be typed booleans")
+    origin=GENOMIC_MATERIAL[original_DNA_sample]
+    target=expected[target_function_organ]
+    if origin=="graft":
+        if organ_transplant_status=="none":
+            raise PhysiopharmacoSpecimenError("A transplant graft sample requires actual organ transplantation")
+        # A graft tissue identity alone does not say which graft was
+        # sampled; it must be independently mapped to target organ.
+        possible=donor_recipient_identity_verified
+        inferred="ORGAN_GRAFT_ORIGIN_POTENTIALLY_TARGET_IF_ORGAN_IS_VERIFIED"
+    elif origin=="current_hematopoietic":
+        if organ_transplant_status=="allogeneic_hsct":
+            possible=False
+            inferred="ALLO_HSCT_CURRENT_BLOOD_LEUKOCYTE_GENOME_MAY_BE_DONOR_NOT_RECIPIENT"
+        else:
+            possible=donor_recipient_identity_verified
+            inferred="HEMATOPOIETIC_GERMLINE_ORIGIN_REQUIRES_DONOR_RECIPIENT_SOURCE_CHECK"
+    else:
+        possible=origin==target and donor_recipient_identity_verified
+        inferred=("GENOMIC_SOURCE_ORIGIN_MATCHES_TARGET_ORGAN_LINEAGE"
+                  if origin==target else
+                  "DNA_SOURCE_IS_NOT_THE_TARGET_ORGAN_DONOR_OR_RECIPIENT")
+    status=("ORIGINAL_GENOTYPE_ORGAN_LINEAGE_ELIGIBLE_NOT_FUNCTION_ASSAY"
+            if possible and original_alleles_covered_verified else
+            "ABSTAIN_TARGET_ORGAN_GERMLINE_UNQUALIFIED")
+    return {
+        "status":status,
+        "transplant_context":organ_transplant_status,
+        "organ_whose_drug_related_function_is_being_modeled":target_function_organ,
+        "expected_germline_origin_for_target_organ":target,
+        "actual_DNA_sample_source":original_DNA_sample,
+        "source_origin_inference_limit":inferred,
+        "source_alleles_covered_qualified":original_alleles_covered_verified,
+        "original_donor_recipient_identity_verified":donor_recipient_identity_verified,
+        "original_hematopoietic_chimerism_checked":hematopoietic_chimerism_qualified,
+        "never_infer_CYP3A5_function_from_GTx_or_blood_RNA":True,
+        "clinical_drug_PK_gene_effect_estimated":False,
+    }
