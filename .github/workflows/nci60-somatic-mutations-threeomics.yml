@@ -98,6 +98,11 @@ jobs:
           assert 'delta_RMSE_candidate_minus_reference_negative_is_better' in result['prespecified_paired_heldout_MAE_contrasts']['mutations_added_to_RNA']
           assert result['metric_criterion_sensitivity_descriptive_not_model_selection']['no_outer_test_metric_used_for_training_or_selection']
           assert set(result['original_in_vitro_GI50_observed_holdout']['nested_TP53_guided_80_90'])=={'80','90'}
+          rmse_adaptive=result['original_in_vitro_GI50_observed_holdout']['nested_TP53_guided_80_90_using_RMSE_inner']
+          assert set(rmse_adaptive)=={'80','90'}
+          assert all(v['criterion_chosen_using_only_inner_train_validation']=='RMSE' for v in rmse_adaptive.values())
+          assert all(v['never_selected_from_outer_MAE_or_RMSE'] for v in rmse_adaptive.values())
+          assert 'RMSE_selected_nested80_vs_MAE_selected_nested80' in result['prespecified_paired_heldout_MAE_contrasts']
           s=json.load(open('nci60_mutation_mechanism_aggregate.json'))
           assert s['n_original_biologically_distinct_cell_lines']==47
           assert set(s['matched_random_control_comparison_by_layer'])=={'rna','prot','met'}
