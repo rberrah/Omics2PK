@@ -241,3 +241,61 @@ les concentrations observées chez les **mêmes sujets**.
 **pas** validation d'une médiation biologique, d'une
 mutation pharmacogénétique germinale CYP3A5 ni
 d'une stratégie de dose pour le tacrolimus.
+
+## Sensibilité prospective du choix des omiques : MAE ou RMSE en CV interne
+
+**Reproduction réelle passée :** [47 lignées, originales, 17/17 CI vertes
+sur le commit du code #41975269046](https://github.com/rberrah/Omics2PK/actions/runs/41975269046).
+Dans chacun des plis externes, les deux stratégies évaluent exactement les
+mêmes prédictions en validation interne : chacune choisit la plus petite
+combinaison d'omics préservant 80 ou 90 % du gain d'erreur selon son
+**critère propre** (MAE ou RMSE). La sélection est conditionnée par le
+TP53 somatique source, mais **jamais optimisée sur l'outcome externe**.
+
+| Même test original, avec mutations CellMiner | MAE finale | RMSE finale | Spearman de classement |
+|---|---:|---:|---:|
+| ARN fixé, sans sélection post hoc | **0.313205** | **0.395677** | **0.509366** |
+| Sélection interne **MAE**, seuil 80 % | 0.329416 | 0.419691 | non requis pour la sélection |
+| Sélection interne **RMSE**, seuil 80 % | 0.321363 | 0.406738 | 0.463691 |
+| Sélection interne **MAE**, seuil 90 % | 0.330000 | 0.419943 | non requis pour la sélection |
+| Sélection interne **RMSE**, seuil 90 % | 0.324323 | 0.408194 | 0.465888 |
+
+Pour 80 % de conservation, **RMSE-sélection − MAE-sélection** :
+- ΔMAE = **−0.008053**, intervalle bootstrap descriptif
+  95 % [−0.019246 ; +0.001910] ;
+- ΔRMSE = **−0.012953**, intervalle bootstrap descriptif
+  95 % [−0.029722 ; +0.000104].
+
+Les deux différences incluent zéro : **nous ne montrons pas**
+de supériorité statistiquement établie du sélecteur RMSE.
+Les deux méthodes restent moins performantes que le
+**simple ARN fixé a priori**. Par rapport à ce bras fixe,
+RMSE-selection 80 % ajoute ΔMAE **+0.008159**
+(intervalle descriptif [+0.001485 ; +0.015420]) et
+ΔRMSE **+0.011062** ([+0.002700 ; +0.021894]).
+Les intervalles descriptifs ne sont pas corrigés pour
+la multiplicité ni pour le développement du protocole au
+contact d'analyses antérieures : aucune p-value confirmatoire.
+
+L'effet apparent de l'addition de mutations somatiques sur le
+**classement Spearman** après ARN (avec moins bon MAE/RMSE)
+est **+0.029718**. Le bootstrap **apparié par les 47 lignées**
+donne [**−0.105136 ; +0.183267**], englobant zéro :
+pas de preuve que les mutations améliorent le classement.
+Pour les erreurs numériques, l'ajout des flags à l'ARN
+donne ΔRMSE **+0.015738**,
+intervalle [−0.015017 ; +0.049662] ;
+ΔMAE **+0.005127**,
+intervalle [−0.026375 ; +0.036135].
+Les valeurs exactes du résultat original ont été conservées,
+sans rerégler les hyperparamètres après lecture de ces
+performances.
+
+**Conclusion méthodologique :** le critère doit être
+défini selon la *décision* (valeur GI50 précise,
+détection d'erreurs très importantes, classement de
+réponse, exposition PK ou décision de dose) **avant** le test,
+et non retenu pour favoriser le résultat le plus agréable.
+Avec n=47 et des omiques inter-laboratoires, ni les
+métriques secondaires ni les graphes biologiques ne
+peuvent remplacer la validation externe.
