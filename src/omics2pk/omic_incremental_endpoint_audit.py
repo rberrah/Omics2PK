@@ -114,6 +114,7 @@ def audit_omic_incremental_PK_prediction(
     source_omic_sample_prelandmark_verified,
     source_prediction_training_is_subject_disjoint,
     original_source_omics_and_PK_same_subject_verified,
+    qualified_original_specimen_site_evidence=None,
 ):
     """Research-only, source-attested *matched* original held-out predictions.
 
@@ -183,6 +184,26 @@ def audit_omic_incremental_PK_prediction(
     for arm in names:
         vals=_metrics(y,allp[arm])
         compared[arm]={k:round(v,6) for k,v in vals.items()}
+    # Numeric original held-out predictions alone cannot prove where
+    # each omic was physically sampled. The independent source/assay
+    # catalogue must qualify the *same exact model arm names*, not a
+    # guessed organ based on gene symbol or metabolite name.
+    specimen_verified=False
+    if qualified_original_specimen_site_evidence is not None:
+        e=qualified_original_specimen_site_evidence
+        if (not isinstance(e,Mapping) or
+                e.get("status")!="QUALIFIED_ASSAY_TISSUE_SITE_AND_ORIGINAL_STUDY_FOR_PRESPECIFIED_ARMS"
+                or not isinstance(e.get("arm_original_collection_sites"),Mapping)
+                or set(e["arm_original_collection_sites"])!=set(names)):
+            raise OmicIncrementalEvidenceError(
+                "Missing or inconsistent actual collected specimen site for a compared original omic arm")
+        if e.get("endpoint_class")!=TARGETS[endpoint]:
+            raise OmicIncrementalEvidenceError(
+                "Sampled ex-vivo enzyme and actual clinical patient PK endpoint cannot be exchanged")
+        if not e.get("source_site_does_not_prove_actual_original_subject_time_join"):
+            raise OmicIncrementalEvidenceError(
+                "Specimen catalogue cannot assert it independently verified biological donor identity")
+        specimen_verified=True
     baseline=allp["clinical_plus_genotype"]
     contrasts={
         arm:_contrast(y,baseline,allp[arm],predeclared_primary_metric)
@@ -229,6 +250,9 @@ def audit_omic_incremental_PK_prediction(
         "predeclared_primary_loss":predeclared_primary_metric,
         "same_source_subjects_same_prediction_fold_all_arms":True,
         "baseline_clinical_plus_genotype":True,
+        "original_sampling_site_and_assay_method_qualified":specimen_verified,
+        "original_sampling_site_missing_requires_ABSTAIN_mechanistic_claim":not specimen_verified,
+        "qualified_sampling_site_is_not_real_patient_PK_validation":True,
         "measured_prelandmark_molecular_values_required":True,
         "heldout_descriptives_by_predeclared_model_arm":compared,
         "added_omic_minus_genotype_primary_loss_paired_bootstrap":contrasts,
