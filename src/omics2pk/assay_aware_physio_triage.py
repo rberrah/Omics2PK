@@ -537,6 +537,8 @@ def plan_physio_omic_acquisition(*, drug, endpoint, variants=(), assays=()):
         "no_quantitative_activity_or_effect_sizes_invented":True,
         "no_PopPK_CYP_CL_or_dose_inferred":True,
         "no_false_CYP3A5_star_allele_from_gene_level_stop_call":True,
+        "individual_variant_call_does_not_verify_complete_drug_PGx_diplotype":True,
+        "complete_CYP3A5_or_transporter_PGx_requires_separate_haplotype_source":True,
         "original_outcome_not_used_for_assay_prioritization":True,
         "next_validation_contract":(
             "First confirm original same-subject same-landmark and predose "
