@@ -579,6 +579,12 @@ def plan_physio_omic_acquisition(*, drug, endpoint, variants=(), assays=(),
             "published_independently_curated_mechanism_if_any":curated,
         })
     if reports:
+        if genome_assay_background is None:
+            # At least one variant was genuinely supplied by an explicit
+            # source-attested partial or complete assay. That is NOT 'DNA
+            # not assessed'; whole-gene coverage is simply unverified.
+            background["original_genetic_assay_status"]="site_variant_calls_with_unknown_gene_wide_coverage"
+            background["complete_target_coverage_claimed"]=False
         background["sequence_variants_are_observed_calls_not_complete_PGx_diplotype"]=True
     if not isinstance(assays, (list, tuple)) or not assays or len(assays)>1000:
         raise OmicTriageError("At least one original or proposed assay descriptor is required")
