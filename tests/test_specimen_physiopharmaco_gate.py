@@ -2,7 +2,8 @@
 import unittest
 from omics2pk.specimen_physiopharmaco_gate import (
     SOURCES,qualify_public_specimen_for_PK,qualify_public_omic_model_arms,
-    qualify_pharmacogenetic_sampling_origin,PhysiopharmacoSpecimenError,
+    qualify_pharmacogenetic_sampling_origin,qualify_multiomics_specimen_handoff,
+    PhysiopharmacoSpecimenError,
 )
 
 def q(s,drug,process,**kw):
@@ -218,6 +219,68 @@ class SourceTissuePhysioGate(unittest.TestCase):
             hematopoietic_chimerism_qualified=True)
         self.assertEqual(b["status"],
                          "ORIGINAL_GENOTYPE_ORGAN_LINEAGE_ELIGIBLE_NOT_FUNCTION_ASSAY")
+    def test_read_only_multiomics_v1_sampled_tissue_to_PK_mechanism_handoff(self):
+        samples=[
+            {"assay_id":"source_liver_total_RNA",
+             "collected_fraction":"bulk_liver_tissue","anatomical_origin":"liver",
+             "collection_landmark":"untreated_predose",
+             "biological_provenance":"native_human_specimen",
+             "omic":"transcriptomics","assay_method":"bulk_RNAseq_gene",
+             "original_source_sample_key_scope":"same_original_specimen"},
+            {"assay_id":"source_plasma_endogenous_met",
+             "collected_fraction":"plasma","anatomical_origin":"blood",
+             "collection_landmark":"untreated_predose",
+             "biological_provenance":"native_human_specimen",
+             "omic":"metabolomics","assay_method":"GC_TOF_untargeted",
+             "original_source_sample_key_scope":"same_donor_different_fraction"},
+        ]
+        doc={
+            "schema_version":"omics_specimen_context_v1",
+            "status":"QUALIFIED_MEASURED_SITE_AND_ASSAY_PROVENANCE_NOT_TARGET_ORGAN_FUNCTION",
+            "contexts":samples,
+        }
+        p=qualify_multiomics_specimen_handoff(
+            sidecar=doc,drug="tacrolimus",
+            process="hepatic_CYP3A_metabolism")
+        self.assertEqual(p["n_assay_contexts"],2)
+        self.assertEqual(p["n_direct_organ_measured_contexts_not_function_proof"],1)
+        self.assertEqual(p["n_indirect_omic_proxy_contexts"],1)
+        self.assertTrue(p["DOWNSTREAM_EXCHANGE_V1_unchanged"])
+        self.assertFalse(p["source_omics_prediction_vs_complete_PGx_estimated"])
+        samples[1]["collection_landmark"]="post_first_dose"
+        delayed=qualify_multiomics_specimen_handoff(
+            sidecar=doc,drug="tacrolimus",
+            process="hepatic_CYP3A_metabolism")
+        self.assertEqual(delayed["n_source_contexts_disqualified_from_patient_baseline"],1)
+
+    def test_versioned_omic_provenance_cannot_create_patient_PK_from_DMS(self):
+        engineered={
+            "separate_specimen_sidecar_schema":"omics_specimen_context_v1",
+            "status":"QUALIFIED_ORIGINAL_ASSAY_DESCRIPTIVE_HYPOTHESES_NOT_CAUSAL_PROOF",
+            "specimen_provenance_qualified_without_inferring_function":True,
+            "actual_original_assay_specimens":[{
+                "assay_id":"engineered_cyp2c9",
+                "collected_fraction":"engineered_yeast",
+                "anatomical_origin":"laboratory_culture",
+                "collection_landmark":"ex_vivo_drug_incubation",
+                "biological_provenance":"engineered_variant_construct",
+                "omic":"functional_activity",
+                "assay_method":"Clickseq_activity",
+                "original_source_sample_key_scope":
+                    "same_engineered_variant_different_screens",
+            }],
+        }
+        x=qualify_multiomics_specimen_handoff(
+            sidecar=engineered,drug="tacrolimus",
+            process="hepatic_CYP3A_metabolism")
+        self.assertEqual(x["n_source_contexts_disqualified_from_patient_baseline"],1)
+        self.assertEqual(x["n_direct_organ_measured_contexts_not_function_proof"],0)
+        engineered["actual_original_assay_specimens"][0]["anatomical_origin"]="liver"
+        with self.assertRaises(PhysiopharmacoSpecimenError):
+            qualify_multiomics_specimen_handoff(
+                sidecar=engineered,drug="tacrolimus",
+                process="hepatic_CYP3A_metabolism")
+
     def test_stop_unknown_noncatalogue_and_mismatched_process(self):
         with self.assertRaises(PhysiopharmacoSpecimenError):
             q("Unverified_RNA_CYP3A5_from_plasma","tacrolimus","hepatic_CYP3A_metabolism")
