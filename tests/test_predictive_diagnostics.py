@@ -4,7 +4,7 @@ try:
     import numpy as np
     from omics2pk.predictive_diagnostics import (
         DiagnosticsError, summarize_heldout, paired_heldout_contrast,
-        multiplicative_pk_diagnostics,
+        multiplicative_pk_diagnostics, paired_rank_spearman_contrast,
     )
 except ImportError:
     np=None
@@ -35,8 +35,20 @@ class HeldoutDiagnosticsTests(unittest.TestCase):
         self.assertAlmostEqual(contrast["delta_MAE_candidate_minus_reference_negative_is_better"],-.5)
         self.assertEqual(contrast["n_independent_line_units_resampled"],30)
         self.assertEqual(contrast["n_bootstrap_draws"],1999)
+        self.assertAlmostEqual(contrast["delta_RMSE_candidate_minus_reference_negative_is_better"],-.5)
+        self.assertEqual(len(contrast["descriptive_paired_cell_line_RMSE_bootstrap_95pct"]),2)
         self.assertTrue(contrast["repeat_errors_averaged_within_cell_line_before_resampling"])
         self.assertEqual(contrast,paired_heldout_contrast(y,good,bad))
+
+    def test_rank_contrast_resamples_unique_original_lines_not_repetitions(self):
+        y=np.linspace(.1,3.0,30)
+        p1=np.stack([y+.2]*3)
+        p2=np.stack([y-.3]*3)
+        out=paired_rank_spearman_contrast(y,p1,p2,n_draws=299)
+        self.assertEqual(out["n_independent_subjects_resampled"],30)
+        self.assertTrue(out["repeats_averaged_per_subject_before_ranking"])
+        self.assertAlmostEqual(out["delta_Spearman_candidate_minus_reference_positive_is_better"],0)
+        self.assertEqual(len(out["descriptive_paired_subject_Spearman_bootstrap_95pct"]),2)
 
     def test_no_fake_PK_metrics_on_negative_GI50_or_unverified_endpoint(self):
         y=np.linspace(1,10,30)
