@@ -26,7 +26,7 @@ class GEOQualificationError(ValueError):
 
 
 def parse_geo_series_matrix(raw,*,series,max_uncompressed=35_000_000):
-    if not isinstance(raw,(bytes,bytearray)) or not 100<len(raw)<10_000_000:
+    if not isinstance(raw,(bytes,bytearray)) or not 20<len(raw)<10_000_000:
         raise GEOQualificationError("Bounded authentic GEO compressed source required")
     try:
         with gzip.GzipFile(fileobj=io.BytesIO(raw),mode="rb") as h:
