@@ -113,6 +113,18 @@ class LathamSourceGateTests(unittest.TestCase):
         self.assertFalse(result["bootstrap_refits_models_or_corrects_selection"])
         self.assertTrue(result["outer_fold_omic_panel_selection_not_nested"])
         self.assertTrue(result["P20_is_in_vitro_clearance_accuracy_not_dose_target_attainment"])
+        specimen=result["public_original_omic_sampling_site_qualification"]
+        self.assertEqual(specimen["source_public_original_reference"],
+                         "Latham_2025_PMC12990092_Table4")
+        self.assertEqual(specimen["n_distinct_original_measured_assays"],2)
+        self.assertEqual(
+            specimen["arm_original_collection_sites"]["add_proteomics"][0]
+            ["actual_collected_fraction"],"primary_hepatocytes")
+        self.assertEqual(
+            specimen["arm_original_collection_sites"]["add_probe_activity"][0]
+            ["assay_method"],"CYP2C8_and_shared_CYP3A_probe")
+        self.assertTrue(
+            specimen["source_site_does_not_prove_actual_original_subject_time_join"])
         reused=result["reusable_genotype_vs_omic_prediction_qualification"]
         self.assertEqual(reused["n_original_unique_biological_subjects"],13)
         self.assertEqual(reused["n_original_heldout_groups"],13)
