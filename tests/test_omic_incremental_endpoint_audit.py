@@ -57,9 +57,29 @@ class OmicAddedValueResearchTest(unittest.TestCase):
                            a["clinical_plus_genotype"]["P20"])
         self.assertTrue(q["baseline_clinical_plus_genotype"])
         self.assertFalse(q["selected_best_omic_claimed"])
+        self.assertFalse(q["original_sampling_site_and_assay_method_qualified"])
+        self.assertTrue(q["original_sampling_site_missing_requires_ABSTAIN_mechanistic_claim"])
         self.assertFalse(q["nested_hyperparameter_or_modality_selection_independently_verified"])
         self.assertFalse(q["clinical_dose_recommendation_or_improved_patient_PK_proven"])
         self.assertNotIn("SYNTHETIC_SOURCE_000",str(q))
+
+    def test_unqualified_specimen_evidence_cannot_be_attached_to_real_PK(self):
+        with self.assertRaisesRegex(OmicIncrementalEvidenceError,"Sampled ex-vivo"):
+            assess(qualified_original_specimen_site_evidence={
+                "status":"QUALIFIED_ASSAY_TISSUE_SITE_AND_ORIGINAL_STUDY_FOR_PRESPECIFIED_ARMS",
+                "endpoint_class":"IN_VITRO_DRUG_METABOLISM_NOT_CLINICAL_PK",
+                "arm_original_collection_sites": {
+                    x:[] for x in synthetic()[0]["predictions"]
+                },
+                "source_site_does_not_prove_actual_original_subject_time_join":True,
+            })
+        with self.assertRaisesRegex(OmicIncrementalEvidenceError,"specimen site"):
+            assess(qualified_original_specimen_site_evidence={
+                "status":"QUALIFIED_ASSAY_TISSUE_SITE_AND_ORIGINAL_STUDY_FOR_PRESPECIFIED_ARMS",
+                "endpoint_class":"CLINICAL_PK",
+                "arm_original_collection_sites":{"clinical_plus_genotype":[]},
+                "source_site_does_not_prove_actual_original_subject_time_join":True,
+            })
 
     def test_bootstraps_strictly_paired_and_deterministic(self):
         q=assess()
