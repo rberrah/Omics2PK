@@ -12,7 +12,7 @@ from omics2pk.assay_aware_physio_triage import plan_physio_omic_acquisition
 
 S="https://pmc.ncbi.nlm.nih.gov/articles/PMC10565868/"
 T="https://pmc.ncbi.nlm.nih.gov/articles/PMC5709222/"
-P="https://doi.org/10.1124/dmd.113.054825"
+P="https://doi.org/10.1124/dmd.113.054726"
 
 def assay(assay_id, method, tissue, gene=None, **kw):
     d={"assay_id":assay_id,"method":method,"tissue":tissue,
@@ -42,9 +42,12 @@ def demonstrate():
             assay("topdown_unverified","PROTEIN_TOP_DOWN_INTACT","liver","CYP3A5",
                   intact_identity_verified=False),
             assay("CYP3A5_selective_assay","ACTIVITY_CYP3A5_SELECTIVE_PROBE","liver","CYP3A5",
-                  assay_validated=True,selectivity_evidence_url=P),
+                  assay_validated=True,selectivity_evidence_url=P,
+                  probe_assay_code="T5_N_OXIDATION"),
             assay("shared_midazolam_probe","ACTIVITY_CYP3A_SHARED_PROBE","liver","CYP3A5",
-                  assay_validated=True),
+                  assay_validated=True,
+                  probe_assay_code="MIDAZOLAM_1_HYDROXYLATION",
+                  probe_evidence_url="https://doi.org/10.1124/dmd.119.088823"),
             assay("plasma_4bHC_candidate","METABOLITE_MSMS_TARGETED","plasma",
                   candidate_genes=["CYP3A4","CYP3A5"],chemical_identity_grade="source_name_only"),
         ])
