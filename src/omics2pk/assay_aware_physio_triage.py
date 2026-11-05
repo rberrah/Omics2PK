@@ -567,6 +567,10 @@ def plan_physio_omic_acquisition(*, drug, endpoint, variants=(), assays=(),
                 effect.get("last_exon_junction_cDNA_offset") is not None):
             val["premature_stop_nt"]=effect["new_stop_cDNA_offset"]
             val["last_exon_junction_nt"]=effect["last_exon_junction_cDNA_offset"]
+        # The evidence parser normally computes this field; sequence-derived
+        # variants are appended after parsing and must be given the SAME
+        # conservative NMD classification before reaching assay selection.
+        val["nmd_rule"]=_classical_nmd_rule(val)
         variants.append(val)
         reports.append({
             "source_transcript_identity":effect["transcript_id"],
