@@ -125,6 +125,11 @@ performance du modèle clinique+PGx.
   la localisation, la stabilité, l'activité substrat-spécifique ou
   modifier l'épissage. Le code génétique **ne permet pas** de
   calculer les % de perte de fonction.
+- Deux substitutions observées dans **le même codon** peuvent produire
+  **une autre conséquence que deux annotations indépendantes**. Sans
+  phasage et retraduction conjointe, le pipeline refuse de combiner ces
+  effets au lieu d'inventer une protéine non fonctionnelle. Les SNV
+  appartenant à plusieurs transcrits restent un **seul locus**.
 - Les indels à plusieurs bases, variants complexes, SV/CNV, duplications
   d'exons, variants mosaïques, haplotypes et phasage exigent une
   annotation indépendante (VEP/ClinGen/PharmVar, HGVS, signatures source).
