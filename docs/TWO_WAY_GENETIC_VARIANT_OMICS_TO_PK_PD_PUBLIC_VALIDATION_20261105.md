@@ -128,6 +128,31 @@ novel biological discovery or clinical validation.
 `tests/test_public_cyp2c9_variant_function_benchmark.py`,
 `.github/workflows/cyp2c9-public-known-variants-abundance-vs-activity.yml`.
 
+## E1 replicated on a second, independent gene: NUDT15 cellular thiopurine PD
+
+Official Suiter/MaveDB meta-score set `urn:mavedb:00000055-0-1`,
+original SHA-256 pinned and [live source benchmark successful](https://github.com/rberrah/Omics2PK/actions/runs/41996740562).
+The published 3,015 entries yielded **2,825** strict, position-parseable,
+**paired missense variants** at 162 distinct residues after explicitly
+excluding 170 incomplete and 20 ambiguous/nonstandard identity rows;
+**do not silently replace by the secondary n2,844 number**.
+
+Original position-heldout MAE for independently measured HEK293T
+thiopurine tolerance: training mean **0.305701**; naive amino-acid
+change **0.300793**; measured NUDT15 protein stability **0.272973**;
+protein stability+naive AA changes **0.274854**. Paired position-cluster
+bootstrap for protein stability versus mean: **−0.032728**
+95% exploratory interval **[−0.044389, −0.022629]**; added naive
+sequence descriptors **+0.001881** [−0.002778,+0.006553] (no
+established improvement). **131** source variants have abundance≥0.8
+and tolerance<0.3 (stable but sensitive); **222** have abundance<0.3
+but tolerance≥0.8 (unstable yet tolerant) under *exploratory*
+nonclinical thresholds. These two orthogonal phenotypes cannot be
+interchanged. There is **no actual patient RNA, thiopurine plasma PK,
+marrow toxicity, or drug dose outcome in this dataset**.
+
+[Full original NUDT15 source, methods, metrics, interpretation and limits](NUDT15_PUBLIC_MAVEDB_VARIANT_STABILITY_THIOPURINE_PD_20261105.md).
+
 ## E2 already partially measured: real human hepatocyte genotype → proteome/probe → drug depletion
 
 The existing [Latham source replay](LATHAM_PHH_SOURCE_REPLAY_REAL_20261104.md)
@@ -160,12 +185,13 @@ PK or full biological mediation has been proven.
 | SLCO1B1 rs4149056 p.Val174Ala, [PMCID PMC10087178](https://pmc.ncbi.nlm.nih.gov/articles/PMC10087178/) | Known reduced OATP1B1 function and observed rosuvastatin PK association | Clinical PK check on transporter **missense** | Joint subject-level transcriptome/proteome/PK not yet source-verified |
 | SLC22A1 OCT1 p.Arg61Cys / M420del, [JCI original paper](https://www.jci.org/articles/view/30558) | Published variants with similar measured RNA but reduced **substrate-dependent metformin transport** | Counterexample to gene-expression-only rule; substrate-specific function matters | Cross-variant experiments and clinical genotype response are not a matched multiomic PK cohort |
 
-**Prioritization:** (1) CYP2C9 original variant-level replay DONE; (2)
+**Prioritization:** (1) CYP2C9 original variant-level replay **DONE**; (2)
 NUDT15 original MaveDB reanalysis and variant-position-held-out
-thiopurine PD benchmark NEXT; (3) source-row qualification of the
-CYP3A5 *3 exonic/eQTL or splice-specific assay and direct CYP3A
-function; (4) direct real same-patient tacrolimus/rosuvastatin PK
-with complete pharmacogenetic panel. Do not manufacture a combined
+thiopurine cell-PD benchmark **DONE** (see
+[authentic n2,825 NUDT15 results](NUDT15_PUBLIC_MAVEDB_VARIANT_STABILITY_THIOPURINE_PD_20261105.md));
+(3) source-row qualification of CYP3A5 *3 exon QTL versus gene-level RNA
+and splice-specific assays **NOT YET REPRODUCED**; (4) real same-patient
+tacrolimus/rosuvastatin PK with complete pharmacogenetic panel **NOT YET VALIDATED**. Do not manufacture a combined
 genotype–RNA–protein–PK dataset by matching on a gene/variant only.
 
 ## Experimental design for a joint MultiOmics → Omics2PK scientific pathway
