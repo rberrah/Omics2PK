@@ -184,7 +184,9 @@ def benchmark_nudt15_original(rows):
         metrics[label]={
             "heldout_MAE_thiopurine_tolerance_score":round(mean(abs(x) for x in d),6),
             "heldout_RMSE_thiopurine_tolerance_score":round(sqrt(mean(x*x for x in d)),6),
-            "heldout_Spearman":round(_correlation(_ranks(pred),_ranks(observed)),6),
+            "heldout_Spearman":(round(_correlation(_ranks(pred),_ranks(observed)),6)
+                                if _correlation(_ranks(pred),_ranks(observed)) is not None
+                                else None),
             "illustrative_AUROC_tolerance_ge_0_8_not_clinical_toxicity":round(
                 _auroc(pred,binary),6),
         }
