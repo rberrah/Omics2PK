@@ -2,6 +2,8 @@
 
 **General-purpose research framework for evaluating how transcriptomic, proteomic and metabolomic states improve individual pharmacokinetic prediction beyond clinical information and pharmacogenetics.** Tacrolimus/CYP3A is a current flagship validation case, **not a restriction of the framework to one drug or pathway**.
 
+**Public-data-only specimen-aware research programme (draft PR #137):** [where each omic is actually collected, from whom, by which assay and before/after dose](docs/PUBLIC_ONLY_SPECIMEN_ORIGIN_PHYSIOPHARMACO_20261105.md); [original genotype-plus-omic PK metrics and uncertainty](docs/OMIC_INCREMENTAL_PK_ENDPOINT_QUALIFICATION_20261105.md). **Patient liver function cannot be measured from whole-blood RNA by relabeling; plasma metabolites are systemic proxies, and original same-person complete PGx + multiomic tacrolimus PK has not yet been qualified.**
+
 ![General Omics2PK graphical abstract: measured clinical/genetic and single/multiomics data pass through direct-feature, functional-score, RNA-network or latent representations, compared with regression, XGBoost and PopPK on held-out patients and genuine measured PK.](docs/assets/omics2pk-generated-optimized.webp)
 
 [Original generated image (PNG, full resolution)](docs/assets/omics2pk-generated-original.png) · [Optimized WebP](docs/assets/omics2pk-generated-optimized.webp) · [Editable vector adaptation (SVG)](docs/assets/omics2pk-graphical-abstract.svg) · [Scientific tacrolimus protocol](docs/TACROLIMUS_FIRST_CYP3A4_CYP3A5_RESEARCH_PROTOCOL_20261019.md) · [Real-cohort source audit](docs/CYP3A_TACROLIMUS_OMICS_PK_PUBLIC_SOURCE_ACQUISITION_AUDIT_20261019.md) · [MultiOmics producer](https://github.com/rberrah/MultiOmics)
