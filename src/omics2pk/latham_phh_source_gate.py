@@ -8,7 +8,8 @@ activity is shared CYP3A4/5, not CYP3A5-specific activity.
 from __future__ import annotations
 
 import re
-from math import isfinite, log
+from math import isfinite, log, sqrt
+from random import Random
 from statistics import mean
 from typing import Mapping, Sequence
 
@@ -121,7 +122,10 @@ def benchmark_latham_phh_table4(rows: Sequence[Mapping[str, object]]) -> dict:
     arms = ("pgx_only", "pgx_plus_proteins", "pgx_plus_probe_activities",
             "pgx_plus_proteins_and_probe_activities")
     losses = {name: [] for name in arms}
+    predictions = {name: [] for name in arms}
+    observed = []
     for held in complete:
+        observed.append(held["outcome"])
         train = [r for r in complete if r["donor_id"] != held["donor_id"]]
         if len(train) != 12:
             raise LathamPHHError("Invalid held-donor training partition")
@@ -135,8 +139,58 @@ def benchmark_latham_phh_table4(rows: Sequence[Mapping[str, object]]) -> dict:
                 return v
             guess = _ridge_predict([vector(r) for r in train],
                                    [log(r["outcome"]) for r in train], [vector(held)])[0]
+            if not isfinite(guess) or guess <= 0:
+                raise LathamPHHError("Invalid strictly positive heldout original imatinib clearance")
+            predictions[name].append(guess)
             losses[name].append(abs(guess - held["outcome"]))
     scores = {name: round(mean(values), 6) for name, values in losses.items()}
+
+    # PK-oriented multi-metric audit on the *same heldout biological donors*.
+    # The target here is imatinib clearance in vitro. 'P20' is a descriptive
+    # accuracy fraction, NOT a therapeutic target-attainment probability.
+    # Do not select models on these outer-fold errors and then report the
+    # selected model's uncorrected error as an unbiased validation.
+    logs = {arm:[log(p/y) for p,y in zip(predictions[arm],observed)]
+            for arm in arms}
+    heldout_donor_metrics = {}
+    for arm in arms:
+        errors=[p-y for p,y in zip(predictions[arm],observed)]
+        l=logs[arm]
+        heldout_donor_metrics[arm]={
+            "MAE_original_in_vitro_clearance_scale":round(mean(abs(v) for v in errors),6),
+            "RMSE_original_in_vitro_clearance_scale":round(sqrt(mean(v*v for v in errors)),6),
+            "mean_absolute_log_predicted_over_observed":round(mean(abs(v) for v in l),6),
+            "root_mean_squared_log_predicted_over_observed":round(sqrt(mean(v*v for v in l)),6),
+            "mean_signed_log_bias":round(mean(l),6),
+            "P20_ratio_0_8_to_1_2_not_drug_target":round(mean(
+                0.8 <= p/y <= 1.2 for p,y in zip(predictions[arm],observed)),6),
+            "within_factor_2_ratio_0_5_to_2_0":round(mean(
+                0.5 <= p/y <= 2.0 for p,y in zip(predictions[arm],observed)),6),
+        }
+    # Exploratory 999-draw paired cluster-bootstrap, one PHH donor per cluster.
+    # This resamples heldout residuals; DOES NOT refit CV, address test-set
+    # selection, optimize assay choice, or establish transportable clinical gain.
+    rng=Random(20261105)
+    draws=[[rng.randrange(len(complete)) for _ in complete] for _ in range(999)]
+    contrasts={}
+    for arm in arms[1:]:
+        def lossdiff(metric):
+            if metric=="MAE":
+                return [losses[arm][i]-losses["pgx_only"][i]
+                        for i in range(len(complete))]
+            return [abs(logs[arm][i])-abs(logs["pgx_only"][i])
+                    for i in range(len(complete))]
+        results={}
+        for name in ("MAE","mean_absolute_log_error"):
+            values=lossdiff(name)
+            estimates=sorted(mean(values[i] for i in ix) for ix in draws)
+            results[name]={
+                "paired_delta_negative_favors_added_assay":round(mean(values),6),
+                "exploratory_donor_bootstrap_95pct_interval":[
+                    round(estimates[24],6),round(estimates[974],6)],
+                "interval_includes_zero":estimates[24]<=0<=estimates[974],
+            }
+        contrasts[arm+"_vs_pgx_only"]=results
     # Group-specific contrasts are DESCRIPTIVE fold-disjoint measurements,
     # not a discovered mutation-specific predictor: n=13 and PM dominates.
     # Original donor IDs stay private; never export per-person errors.
@@ -187,6 +241,11 @@ def benchmark_latham_phh_table4(rows: Sequence[Mapping[str, object]]) -> dict:
         "endpoint_table4_unit": "microlitre_per_million_cells_per_minute",
         "source_prose_unit_discrepancy_not_resolved": True,
         "heldout_MAE_by_predeclared_arm_source_table_scale": scores,
+        "heldout_multiple_endpoint_appropriate_errors_same_donors":heldout_donor_metrics,
+        "exploratory_paired_13_original_donor_residual_bootstraps":contrasts,
+        "bootstrap_refits_models_or_corrects_selection":False,
+        "outer_fold_omic_panel_selection_not_nested":True,
+        "P20_is_in_vitro_clearance_accuracy_not_dose_target_attainment":True,
         "genotype_stratified_MAE_exploratory":stratified,
         "allele_star6_or_star7_separate_effect_estimable":False,
         "no_RNA_or_endogenous_metabolomics_in_original_PHH_table4":True,
