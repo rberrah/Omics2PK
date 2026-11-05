@@ -498,6 +498,7 @@ def plan_physio_omic_acquisition(*, drug, endpoint, variants=(), assays=(),
         raise OmicTriageError("Sequence-edited genomic variant list must be explicit and finite")
     reports=[]
     seen_variant_ids=set()
+    seen_coding_codons=set()
     consequence_map={
         "missense_variant":"missense",
         "synonymous_variant":"synonymous",
@@ -542,6 +543,13 @@ def plan_physio_omic_acquisition(*, drug, endpoint, variants=(), assays=(),
         if uid in seen_variant_ids:
             raise OmicTriageError("Duplicate unphased genomic variant on same original transcript")
         seen_variant_ids.add(uid)
+        if effect.get("aa_position_1based") is not None:
+            codon_key=(effect["gene"],effect["transcript_id"],
+                       effect["aa_position_1based"])
+            if codon_key in seen_coding_codons:
+                raise OmicTriageError(
+                    "Two source variants in same codon require original phased haplotype and joint translation")
+            seen_coding_codons.add(codon_key)
         curated=None
         if entry.get("curated_cyp3a5_allele") is not None:
             meta=entry["curated_cyp3a5_allele"]
