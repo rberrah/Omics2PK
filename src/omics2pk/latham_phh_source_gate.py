@@ -280,6 +280,7 @@ def benchmark_latham_phh_table4(rows: Sequence[Mapping[str, object]]) -> dict:
         source_omic_sample_prelandmark_verified=True,
         source_prediction_training_is_subject_disjoint=True,
         original_source_omics_and_PK_same_subject_verified=True,
+        qualified_original_specimen_site_evidence=original_sampling_site_evidence,
     )
     source_arm_map={
         "clinical_plus_genotype":"pgx_only",
