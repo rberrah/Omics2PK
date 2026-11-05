@@ -62,7 +62,19 @@ def demonstrate():
                   "kidney","SLC22A2",assay_validated=True,substrate_drug="metformin"),
             assay("hepatic_OCT1_RNA_for_CLr","RNA_GENE_BULK","liver","SLC22A1"),
         ])
+    rotroff=plan_physio_omic_acquisition(
+        drug="metformin",endpoint="AUClast_0_24",
+        assays=[{"assay_id":"Rotroff_GC_TOF_unknown_222169",
+                 "method":"METABOLITE_GC_EI_TOF_UNTARGETED",
+                 "tissue":"plasma","status":"original_measured",
+                 "collection_phase":"predose",
+                 "source_url":"https://doi.org/10.3389/fphar.2016.00135",
+                 "original_feature_id":"222169","candidate_genes":[],
+                 "chemical_identity_grade":"unassigned",
+                 "ionization_type":"EI",
+                 "derivatization_method":"source_unknown"}])
     return {
+        "original_Rotroff_metformin_source_feature_ID_only_no_patient_data":rotroff,
         "demo_type":"HYPOTHETICAL_ASSAY_METADATA_ONLY_NOT_PATIENT_PK",
         "is_original_patient_study":False,
         "data_driven_expected_performance_claim":False,
