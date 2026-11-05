@@ -148,3 +148,96 @@ mutation→protéine→activité, ni d'amélioration de la PK clinique.
 Une réplique sur **un même patient avec génotype germinal fonctionnel,
 ARN/protéines/métabolites et PK observée** est nécessaire pour répondre
 à la question centrale d'Omics2PK.
+
+## Résultats réellement exécutés : métriques et interprétation biologique
+
+Source originale indépendante et tests numériques :
+[workflow NCI-60 #41974110167, SUCCESS](https://github.com/rberrah/Omics2PK/actions/runs/41974110167).
+Toutes les métriques ci-dessous sont calculées sur les **47 mêmes lignées**
+biologiques, avec trois prédictions hors entraînement par lignée (et
+non 141 lignées indépendantes). L'endpoint est la **réponse GI50
+doxorubicine traitée par la source**, sans conversion arbitraire
+en unité de concentration.
+
+### MAE, RMSE et classement ne répondent pas exactement à la même question
+
+| Même protocole source | MAE | RMSE | Spearman par lignée | P90 erreur absolue par lignée |
+|---|---:|---:|---:|---:|
+| Type tumoral + ARN, **sans signal de mutation** | **0.308078** | **0.379938** | 0.479648 | **0.558996** |
+| Type tumoral + mutations somatiques + ARN | 0.313205 | 0.395677 | **0.509366** | 0.670756 |
+| Type tumoral + mutations + ARN + protéines | 0.328572 | 0.406734 | 0.502081 | 0.640206 |
+| Type tumoral + mutations + ARN + métabolites | 0.337799 | 0.410918 | 0.463691 | 0.611291 |
+| Type tumoral + mutations + trois omiques | 0.349732 | 0.426292 | 0.439292 | 0.630521 |
+
+**Conclusion concrète :** le MAE, le RMSE et le P90 privilégient
+l'ARN **sans les flags somatiques CellMiner**, alors que Spearman privilégie
+numériquement l'ARN **avec ces flags**. Cela ne prouve **aucun**
+avantage de classement statistiquement établi : la différence
+de Spearman est petite et l'expérience n'a pas de cohorte externe.
+Le choix d'un critère doit précéder la comparaison.
+
+Au sein des **huit bras possédant tous les signaux de mutation**,
+l'ARN seul est premier en MAE, RMSE et Spearman, ce qui confirme
+la robustesse de sa performance **dans ce protocole seulement**.
+Le biais moyen prédit−observé pour mutation+ARN est 0.001762 :
+**un biais moyen faible ne suffit pas** à garantir une bonne
+prédiction individuelle. Sa concordance CCC est 0.424119,
+R² hors échantillon 0.231945, pente de calibration
+**descriptive** 1.044527, et la P90 erreur 0.670756.
+
+**Contrastes MAE appariés par lignée (bootstrap descriptif 1 999,
+sans refit ni correction de multiplicité) :**
+- Mutation+ARN − mutation seule : **−0.067973**, intervalle
+  exploratoire **[−0.115179 ; −0.023317]**.
+- Trois omiques+mutation − ARN+mutation : **+0.036527**,
+  intervalle **[+0.003506 ; +0.070812]**.
+- ARN+mutation − ARN sans mutation : **+0.005127**,
+  intervalle **[−0.026375 ; +0.036135]**.
+  Ce dernier est compatible avec un bénéfice comme avec une
+  dégradation ; ne pas déclarer que les mutations aggravent
+  **significativement** le résultat.
+
+### Vraie cohérence inter-omique : même gène, source mesurée, pas hypothèse
+
+Sur les **47** lignées d'origine, les deux assays sont disponibles
+pour trois gènes directs pharmacologiques :
+
+| Gène source | Corrélation ARN vs protéine SWATH (Spearman) | Ce qu'elle peut dire |
+|---|---:|---|
+| **CBR1** | **0.624** | Les abondances ont un lien inter-assay positif ; la corrélation ARN–GI50 est pourtant faible (−0.120), tout comme protéine–GI50 (−0.135) |
+| **TOP2B** | **0.304** | Couplage modéré observé, pas preuve d'activité topoisomérase |
+| **ABCB1** | **0.196** | Faible concordance entre ARN et abondance de peptides, malgré une corrélation ARN–GI50 de −0.403 et protéine–GI50 de −0.076 |
+
+Tous ces coefficients sont **exploratoires, sans p-values confirmatoires,
+non corrigés pour multiplicités ou tissu/lot**, et produits de
+différents laboratoires/préparations. Une relation ARN↔protéine ne
+suffit pas à prouver le transport de doxorubicine ou une modification de CL.
+
+Sur **TOP2B**, le coefficient ARN↔protéine est 0.044 chez 24
+lignées TP53 nonpositives et 0.741 chez les 23 positives.
+C'est une **hypothèse exploratoire**, potentiellement influencée
+par lots, types tumoraux ou hasard ; pas une interaction TP53
+causale démontrée. L'ARN et la protéine CBR1 sont davantage
+corrélés (0.624), mais les mutations CBR1 ne sont **pas
+assayées** dans CellMiner. Le test direct
+mutation CBR1 → ARN → protéine est donc **impossible** ici.
+
+Les gènes TOP2A, ABCC1, ABCG2, CBR3 n'ont pas tous de
+protéines dans le SWATH original. Pour ABCB1, seulement **4**
+lignées ont un signal de mutation : effet fonctionnel de cette
+mutation non estimable avec ce n. Les six métabolites « redox »
+sont des **noms de source**, sans validation indépendante
+de leur identité MSI-1, ni GSSG/NADPH/flux pour fermer la voie ;
+ne pas attribuer une activité enzymatique à une abondance isolée.
+
+La chaîne mécanistique gagne à être un **graphe des preuves
+et des absences de preuve**, séparé des performances
+prédictives. Une vraie validation sur PK humaine
+nécessite le génotype fonctionnel complet, l'assay
+protéique/activité, la métabolomique qualifiée et
+les concentrations observées chez les **mêmes sujets**.
+
+**Statut scientifique :** résultats descriptifs et réels,
+**pas** validation d'une médiation biologique, d'une
+mutation pharmacogénétique germinale CYP3A5 ni
+d'une stratégie de dose pour le tacrolimus.
