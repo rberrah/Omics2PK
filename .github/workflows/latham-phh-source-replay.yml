@@ -4,6 +4,12 @@ name: Public PHH genotype proteome enzyme-activity imatinib source replay
 # A source-unavailable replay must FAIL, not silently count as reproduced.
 # Prior verified successful source replay: Actions run 41805204594.
 on:
+  pull_request:
+    paths:
+      - 'src/omics2pk/latham_phh_source_gate.py'
+      - 'scripts/benchmark_latham_phh_original.py'
+      - 'tests/test_latham_phh_source_gate.py'
+      - '.github/workflows/latham-phh-source-replay.yml'
   workflow_dispatch:
 permissions:
   contents: read
