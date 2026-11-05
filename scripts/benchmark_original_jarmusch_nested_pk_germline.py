@@ -164,6 +164,7 @@ def _nested_cv(original_x,clinical,genotypes,observed,
             continue
         predictions=np.empty(len(y))
         selected=[]
+        inner_margins_nonzero_minus_zero=[]
         for held in range(len(y)):
             outer_train=np.array([i for i in range(len(y)) if i!=held],int)
             outer_test=np.array([held],int)
@@ -195,6 +196,16 @@ def _nested_cv(original_x,clinical,genotypes,observed,
             valid=[z for z in params if np.isfinite(z[0])]
             if not valid:
                 raise NestedPKValidationError("All nested fits fail original source validation")
+            # Explain each k-selection with the *actual inner training-only*
+            # log-MAE gain versus k=0, not with the held-out patient's label.
+            # Positive margin means the best nonzero-omic configuration was
+            # worse than k=0 on inner validation; negative means it was better.
+            zeros=[v[0] for v in valid if v[1]==0]
+            nonzeros=[v[0] for v in valid if v[1]>0]
+            if not zeros:
+                raise NestedPKValidationError("Model must always permit zero molecular features")
+            if nonzeros:
+                inner_margins_nonzero_minus_zero.append(min(nonzeros)-min(zeros))
             chosen=sorted(valid,key=lambda z:(z[0],z[1],-z[2]))[0]
             _,k,alpha=chosen
             pred=_nested_predict_once(
@@ -214,6 +225,27 @@ def _nested_cv(original_x,clinical,genotypes,observed,
             "p20":round(float(np.mean(losses/y<=.2)),6),
             "k_selected_counts":{str(k):int(sum(q[0]==k for q in selected)) for k in OMIC_K},
             "alpha_selected_counts":{str(a):int(sum(q[1]==a for q in selected)) for a in ALPHAS},
+            "selection_rule":{
+                "objective":"minimum inner fourfold mean absolute log(CL/F) prediction error",
+                "models_compared":"Ridge alpha1/20/100 x k0/1/3, training-only metabolite prevalence and ranking",
+                "zero_features_is_eligible_at_every_outer_fold":True,
+                "tie_break":"smaller k; then stronger ridge alpha",
+                "selection_is_statistical_not_proof_of_absent_biology":True,
+                "PK_MAE_in_original_units_is_outer_evaluation_not_inner_selection_metric":True,
+            },
+            "inner_cv_nonzero_minus_zero_logMAE_summary":(
+                {
+                    "n_outer_folds":len(inner_margins_nonzero_minus_zero),
+                    "n_folds_nonzero_beats_zero":int(sum(v<0 for v in inner_margins_nonzero_minus_zero)),
+                    "n_folds_zero_better_or_equal":int(sum(v>=0 for v in inner_margins_nonzero_minus_zero)),
+                    "mean_margin":round(float(mean(inner_margins_nonzero_minus_zero)),6),
+                    "median_margin":round(float(np.median(inner_margins_nonzero_minus_zero)),6),
+                    "min_margin":round(float(min(inner_margins_nonzero_minus_zero)),6),
+                    "max_margin":round(float(max(inner_margins_nonzero_minus_zero)),6),
+                    "positive_means_unselected_omics_increases_inner_validation_error":True,
+                    "no_subject_level_margins_exported":True,
+                }
+                if inner_margins_nonzero_minus_zero else None),
             "no_source_individual_outcomes_or_predictions_printed":True,
         }
         # Internal only, used for paired model comparisons, never logged.
