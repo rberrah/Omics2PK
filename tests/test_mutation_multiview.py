@@ -37,6 +37,15 @@ class MutationViews(unittest.TestCase):
         self.assertEqual(set(a["original_in_vitro_GI50_observed_holdout"]["fixed_without_original_somatic_mutation_features"]),set(MODES))
         self.assertEqual(set(a["original_in_vitro_GI50_observed_holdout"]["observed_mutation_incremental_delta_MAE_negative_is_better"]),set(MODES))
         self.assertEqual(set(a["original_in_vitro_GI50_observed_holdout"]["nested_TP53_guided_80_90"]),{"80","90"})
+        objective=a["original_in_vitro_GI50_observed_holdout"]["nested_TP53_guided_80_90_using_RMSE_inner"]
+        self.assertEqual(set(objective),{"80","90"})
+        self.assertTrue(all(v["criterion_chosen_using_only_inner_train_validation"]=="RMSE"
+                            and v["never_selected_from_outer_MAE_or_RMSE"]
+                            for v in objective.values()))
+        self.assertEqual(set(a["multi_metric_exploratory_heldout"]
+                             ["nested_TP53_RMSE_inner_modality_selection"]),{"80","90"})
+        self.assertIn("RMSE_selected_nested80_vs_MAE_selected_nested80",
+                      a["prespecified_paired_heldout_MAE_contrasts"])
         self.assertTrue(a["genotype_subgroup_model_chosen_using_outer_response"] is False)
         self.assertTrue(a["no_externally_replicated_modality_by_genotype_interaction"])
         self.assertTrue(a["no_patient_or_original_cell_line_feature_rows_exported"])
