@@ -4,7 +4,7 @@ import gzip
 import io
 import unittest
 from scripts.audit_public_cyp3a5_geo_rna_genotype_join import (
-    parse_geo_series_matrix,GEOQualificationError,
+    parse_geo_series_matrix,parse_geo_family_soft,GEOQualificationError,
 )
 def fixture(n=60,prefix="MP-"):
     out=io.StringIO()
@@ -25,6 +25,23 @@ class GEOSourcePairingTest(unittest.TestCase):
         b=parse_geo_series_matrix(fixture(prefix="other-"),series="DNA")
         self.assertEqual(len(set(a["original_titles"])&set(b["original_titles"])),0)
 
+    def test_geo_family_soft_original_RNAseq_without_series_matrix(self):
+        def soft(n,prefix):
+            lines=["^SERIES = GSE124074"]
+            for i in range(n):
+                lines.extend([
+                    f"^SAMPLE = GSM{3500000+i}",
+                    f"!Sample_title = {prefix}{i}",
+                    "!Sample_characteristics_ch1 = source synthetic context",
+                ])
+            return gzip.compress(("\n".join(lines)+"\n").encode())
+        r=parse_geo_family_soft(soft(60,"MP-"),series="RNA_seq_GSE124074")
+        d=parse_geo_family_soft(soft(96,"MP-"),series="genotyping_GSE147628")
+        self.assertEqual(len(set(r["original_titles"])&set(d["original_titles"])),60)
+        self.assertEqual(r["source_format"],"original_GEO_family_SOFT_metadata_only")
+        with self.assertRaisesRegex(GEOQualificationError,"pairing"):
+            parse_geo_family_soft(gzip.compress(b"^SAMPLE = GSM3520000\n"),
+                                  series="bad")
     def test_failed_source_abstains(self):
         with self.assertRaises(GEOQualificationError):
             parse_geo_series_matrix(b"bad_gzip"*200,series="RNA")
