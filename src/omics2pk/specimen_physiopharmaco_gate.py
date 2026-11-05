@@ -21,6 +21,7 @@ PROCESS={
         "hepatic_CYP3A_metabolism":{"liver"},
         "intestinal_CYP3A_first_pass":{"small_intestine"},
         "whole_blood_erythrocyte_partition":{"blood"},
+        "immune_T_cell_PD":{"blood"},
     },
     "metformin":{
         "renal_transporter_secretion":{"kidney"},
@@ -267,7 +268,10 @@ def qualify_public_specimen_for_PK(*,source_id,drug,process,
     original=s["original_organ"]
     expected=PROCESS[drug][process]
     if original in expected:
-        if s["original_sample"] in TISSUE_LEVEL:
+        if (process=="immune_T_cell_PD" and
+                s["original_sample"] in {"white_blood_cells","PBMC"}):
+            relevance="IMMUNE_CELL_MIXTURE_POTENTIAL_PD_PROXY_NOT_TCELL_SPECIFIC_EFFECT"
+        elif s["original_sample"] in TISSUE_LEVEL:
             relevance="SOURCE_IN_TARGET_ORGAN_BUT_NOT_PROOF_IN_VIVO_FUNCTION"
         elif s["original_sample"] in BLOOD_CELL:
             relevance="SOURCE_BLOOD_COMPARTMENT_SAME_ORGAN_NOT_SAME_DRUG_PARTITION"
