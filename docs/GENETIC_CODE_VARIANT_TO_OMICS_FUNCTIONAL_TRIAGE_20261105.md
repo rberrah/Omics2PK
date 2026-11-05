@@ -60,9 +60,11 @@ Ces quatre niveaux ne sont **jamais automatiquement équivalents**.
   l'isoforme la plus inquiétante.
 - `crosscheck_source_vep_terms()` : compare l'effet local aux termes
   Sequence Ontology d'une annotation **VEP versionnée déclarée**.
-  En cas de désaccord de conséquence ou de transcrit, le pipeline
-  **s'abstient**. Ce contrôle ne télécharge pas VEP et n'authentifie
-  pas automatiquement un VCF original.
+  L'assemblage, le chromosome, la position 1-based, REF/ALT
+  génomiques **dans l'orientation du génome**, le gène et le transcrit
+  doivent correspondre exactement. En cas de désaccord de conséquence
+  ou de locus, le pipeline **s'abstient**. Ce contrôle ne télécharge
+  pas VEP et n'authentifie pas automatiquement un VCF original.
 - `reconcile_curated_cyp3a5_allele()` : corrige les limites de la
   seule traduction via une **preuve externe d'allèle définissant**
   *3 (intron / accepteur cryptique), *6 (substitution **synonyme**
