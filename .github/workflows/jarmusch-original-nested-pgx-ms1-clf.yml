@@ -1,0 +1,51 @@
+name: Real Jarmusch same-volunteer nested PGx vs predose metabolomic midazolam PK
+on:
+  pull_request:
+    paths:
+      - scripts/benchmark_original_jarmusch_nested_pk_germline.py
+      - scripts/validate_local_jarmusch14_gnps_biom_pk.py
+      - scripts/download_public_jarmusch_gnps.py
+      - tests/test_jarmusch_original_nested_pk.py
+      - .github/workflows/jarmusch-original-nested-pgx-ms1-clf.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  original-person-heldout:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+      - name: Install numerical source reader and nested CV
+        run: python -m pip install "numpy>=1.26,<3" "scipy>=1.11,<2" "scikit-learn>=1.5,<2" "h5py>=3.10,<4"
+      - name: Synthetic-only nested isolation and negative source test
+        env:
+          PYTHONPATH: "src:."
+        run: python -m unittest discover -s tests -p 'test_jarmusch_original_nested_pk.py' -v
+      - name: Official GNPS public task output with original/source ZIP SHA verification
+        run: |
+          python -m scripts.download_public_jarmusch_gnps /tmp/jarmusch_original_public.zip
+      - name: Human 13-person original CYP3A4/5 genotype and observed midazolam CLF nested replay
+        env:
+          PYTHONPATH: "src:."
+        run: |
+          python -m scripts.benchmark_original_jarmusch_nested_pk_germline /tmp/jarmusch_original_public.zip > /tmp/jarmusch_nested_research.json
+          python - <<'PY'
+          import json
+          p="/tmp/jarmusch_nested_research.json"
+          obj=json.load(open(p))
+          assert obj["status"]=="ACTUAL_ORIGINAL_JARMUSCH_HUMAN_PK_NESTED_PGX_OMICS_EXPLORATORY"
+          assert obj["no_volunteer_rows_or_PK_predictions_redistributed"]
+          assert obj["n_treated_humans_not_independent_cross_period_replicates"]==13
+          assert obj["results"]["day1"]["n_source_people"]==13
+          assert obj["results"]["day9"]["n_source_people"]==12
+          for day in ("day1","day9"):
+            assert obj["results"][day]["models"]["age_sex_weight_PGx_only"]["status"]=="MEASURED_ORIGINAL_PATIENT_HELDOUT_NESTED"
+          print(json.dumps(obj,indent=2,sort_keys=True))
+          PY
+      - if: always()
+        name: Remove ephemeral volunteer-linked source archive and original result JSON
+        run: rm -f /tmp/jarmusch_original_public.zip /tmp/jarmusch_nested_research.json
