@@ -243,6 +243,39 @@ class PhysiopharmMethodTriageTests(unittest.TestCase):
                  [{"gene":"CYP3A5","consequence":"premature_stop",
                    "call_status":"missing","source_variant_id":"rs776746"}])
 
+    def test_regulatory_vs_missense_changes_transcript_interpretability(self):
+        regulatory=plan(
+            [a("rna","RNA_GENE_BULK"),
+             a("function","ACTIVITY_CYP3A5_SELECTIVE_PROBE",assay_validated=True,
+               selectivity_evidence_url="https://doi.org/10.1124/dmd.113.054726",
+               probe_assay_code="T5_N_OXIDATION")],
+            [variant("regulatory",source_variant_id="hypothetical_regulatory",
+                     allele_state="heterozygous")])
+        self.assertEqual(byname(regulatory,"rna")["candidate_explanatory_role"],
+                         "regulatory_expression_hypothesis")
+        self.assertIn("RNA_CAN_REFLECT_REGULATORY_EXPRESSION_CHANGE_NOT_ACTIVITY",
+                      byname(regulatory,"rna")["evidence_observations"])
+        missense=plan([a("rna","RNA_GENE_BULK")],
+                      [variant("missense",source_variant_id="hypothetical_missense",
+                               allele_state="heterozygous")])
+        self.assertEqual(byname(missense,"rna")["candidate_explanatory_role"],
+                         "total_rna_proxy")
+        self.assertIn("MISSENSE_CAN_IMPAIR_PROTEIN_FUNCTION_WITH_UNCHANGED_RNA_ABUNDANCE",
+                      byname(missense,"rna")["limitations"])
+
+    def test_blood_surrogate_priority_below_kidney_and_microsomal_transport_not_cellular(self):
+        r=plan([a("blood","RNA_GENE_BULK",gene="SLC22A2",tissue="whole_blood"),
+                a("kidney","RNA_GENE_BULK",gene="SLC22A2",tissue="kidney"),
+                a("microsomes","ACTIVITY_TRANSPORT_SUBSTRATE",gene="SLC22A2",
+                  tissue="microsomes",assay_validated=True,substrate_drug="metformin")],
+               drug="metformin",endpoint="CLr")
+        self.assertEqual(byname(r,"kidney")["tissue_relevance_priority_not_expected_prediction_gain"],1)
+        self.assertEqual(byname(r,"blood")["tissue_relevance_priority_not_expected_prediction_gain"],2)
+        self.assertEqual(byname(r,"microsomes")["candidate_explanatory_role"],"pathway_proxy")
+        self.assertIn("MICROSOME_FRACTION_LACKS_INTACT_TRANSPORTER_CELL_CONTEXT",
+                      byname(r,"microsomes")["limitations"])
+        self.assertTrue(byname(r,"blood")["methodology_is_not_evidence_of_patient_specific_PK_gain"])
+
     def test_assay_transcript_mismatch_is_explicit_not_splice_evidence(self):
         r=plan([a("rna","RNA_LONG_READ_ISOFORM",transcript_id="NM_000777.2")],
                [variant("splice_disrupting",star_allele="*3")])
