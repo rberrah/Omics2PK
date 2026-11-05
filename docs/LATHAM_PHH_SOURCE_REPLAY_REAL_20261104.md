@@ -23,6 +23,54 @@ Implementation: `src/omics2pk/latham_phh_source_gate.py` and `scripts/benchmark_
 
 These are **genuine source-read real human-donor results**, first independently verified in a successful GitHub workflow on 2026-11-04. They are a single tiny exploratory study, not a new external cohort, not clinical PK (E3), not predicted tacrolimus AUC, not a validated effect of curated omic priors, and not a demonstration that proteomics is redundant. No nested model selection or clinically meaningful interval is supported by n13.
 
+## 2026-11-05: independent endpoint-sensitive error metrics and donor-paired uncertainty
+
+**Live original-source replay SUCCESS**:
+[GitHub Actions #42015617333](https://github.com/rberrah/Omics2PK/actions/runs/42015617333).
+The source reader acquired the official PMC HTML and reproduced the exact
+original **13 protein-complete biological donor** rows. The original absolute
+source-unit MAEs remain unchanged. Additional *held-donor-out* predictions
+were retained **in memory only**, with no donor IDs/predictions released.
+
+| Original same-n13 model arm | Linear MAE ↓ | Linear RMSE ↓ | Mean absolute log(pred/obs) ↓ | Log RMSE ↓ | Within ±20% |
+|---|---:|---:|---:|---:|---:|
+| PGx only | 2.906576 | 3.845941 | 0.432147 | 0.548539 | **5/13** |
+| PGx + targeted CYP2C8/3A4/3A5 proteins | 3.003704 | 4.184066 | **0.408474** | **0.535347** | **5/13** |
+| PGx + CYP2C8 and shared CYP3A probe activities | **2.762944** | **3.778989** | 0.415360 | 0.551937 | **5/13** |
+| PGx + both | 3.262812 | 4.597902 | 0.445258 | 0.588263 | **5/13** |
+
+The ratio-based P20 criterion (0.8–1.2) is an **accuracy summary of
+in-vitro clearance prediction**, not a dose attainment probability or
+clinical therapeutic outcome. All four also have exactly **10/13
+(76.9%)** observations within a factor of two.
+
+**Paired original donor-residual bootstrap**, 999 fixed-seed draws,
+95% percentile interval; same independent donors and original
+heldout predictions, **without refitting or correcting post-hoc model
+selection**:
+
+| Prespecified arm minus PGx alone | ΔMAE (negative better), 95% interval | Δ mean absolute log error, 95% interval |
+|---|---|---|
+| + proteins | +0.097128 [−0.970203, +1.602390] | −0.023673 [−0.149653, +0.144656] |
+| + probe activities | −0.143632 [−0.953050, +0.709198] | −0.016787 [−0.129581, +0.106302] |
+| + both | +0.356235 [−0.764823, +1.862689] | +0.013110 [−0.122345, +0.191671] |
+
+**Scientific conclusion:** neither molecular augmentation shows a
+reliably established incremental benefit in n13; the apparent
+“best omic” **changes with the chosen loss function**.
+The metric should be prespecified according to the intended
+drug-exposure and dosing consequence, not chosen post hoc to favor a
+modality. Linear MAE weights high-clearance absolute deviations more
+than log-scale error, whereas log errors emphasize multiplicative
+prediction ratios and relative error. P20 cannot discriminate these
+arms here. Neither assay measures CYP3A5-selective metabolism;
+**none is human patient plasma PK or validation of a dosing strategy**.
+
+Source and code:
+`src/omics2pk/latham_phh_source_gate.py`,
+`tests/test_latham_phh_source_gate.py`. Published main text has a
+unit discrepancy; do not silently change the source numeric scale.
+
 ## Critical biological counterexample: molecular signal is not synonymous with function
 
 **Of the ten CYP3A5 CPIC nonexpresser-class donors**, nine have complete source quantitative CYP3A5-targeted peptide measurements, and **all nine have a positive measured CYP3A5-targeted protein signal**. All **10/10** nonexpresser-class donors have positive **shared CYP3A4/5 midazolam-probe activity**. This is not a paradox to 'correct' by assigning high CYP3A5 function:
