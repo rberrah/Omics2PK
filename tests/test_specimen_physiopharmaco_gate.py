@@ -50,6 +50,8 @@ class SourceTissuePhysioGate(unittest.TestCase):
                          ["eligible_as_baseline_individual_PK_omic_proxy_under_source_contract"])
         self.assertEqual(a["mechanistic_relation_of_sample_to_process"],
                          "SYSTEMIC_BIOFLUID_PROXY_NOT_TISSUE_SPECIFIC_ENZYME_FUNCTION")
+        self.assertIn("BLOOD_OR_URINE_SAMPLE",a["potential_clinical_collection_feasibility"])
+        self.assertFalse(a["assay_clinically_validated_for_dosing"])
 
     def test_Latham_original_pHh_protein_not_function_or_clinical_PK(self):
         prot=q("LATHAM_PHH_CYP_PROTEIN","imatinib","hepatic_CYP_metabolism")
@@ -60,6 +62,8 @@ class SourceTissuePhysioGate(unittest.TestCase):
         self.assertTrue(act["source_is_direct_measurement_of_expected_target_organ_function"])
         self.assertFalse(act["original_paired_human_drug_PK_source_present"])
         self.assertFalse(act["eligible_as_baseline_individual_PK_omic_proxy_under_source_contract"])
+        self.assertIn("INVASIVE_BIOPSY_OR_EX_VIVO",
+                      act["potential_clinical_collection_feasibility"])
 
     def test_EATRIS_blood_cell_transcript_not_plasma_or_liver(self):
         rna=q("EATRIS_WHITE_BLOOD_CELLS_RNA","tacrolimus","hepatic_CYP3A_metabolism")
