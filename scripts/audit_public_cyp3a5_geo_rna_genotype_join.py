@@ -73,7 +73,8 @@ def audit_original():
                 "User-Agent":"Omics2PK-original-GEO-variant-omics-source-audit/1.0"}),timeout=35) as response:
                 raw=response.read(10_000_001)
         except (HTTPError,URLError,OSError,TimeoutError) as exc:
-            raise GEOQualificationError(name+": OFFICIAL_SOURCE_UNAVAILABLE") from exc
+            category=("HTTP_"+str(exc.code) if isinstance(exc,HTTPError) else type(exc).__name__)
+            raise GEOQualificationError(name+": OFFICIAL_SOURCE_UNAVAILABLE_"+category) from exc
         parsed[name]=parse_geo_series_matrix(raw,series=name)
     r=parsed["RNA_seq_GSE124074"]
     d=parsed["genotyping_GSE147628"]
