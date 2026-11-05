@@ -113,6 +113,21 @@ class LathamSourceGateTests(unittest.TestCase):
         self.assertFalse(result["bootstrap_refits_models_or_corrects_selection"])
         self.assertTrue(result["outer_fold_omic_panel_selection_not_nested"])
         self.assertTrue(result["P20_is_in_vitro_clearance_accuracy_not_dose_target_attainment"])
+        reused=result["reusable_genotype_vs_omic_prediction_qualification"]
+        self.assertEqual(reused["n_original_unique_biological_subjects"],13)
+        self.assertEqual(reused["n_original_heldout_groups"],13)
+        self.assertEqual(reused["endpoint_class"],"IN_VITRO_DRUG_METABOLISM_NOT_CLINICAL_PK")
+        self.assertEqual(reused["predeclared_primary_loss"],"mean_absolute_log_error")
+        self.assertFalse(reused["geno_reference_was_complete_diplotype"])
+        self.assertFalse(reused["selected_best_omic_claimed"])
+        self.assertTrue(all(
+            val["status"]=="ABSTAIN_TOO_FEW_INDEPENDENT_VARIANT_STRATUM_SUBJECTS"
+            for val in reused["within_variant_function_groups"].values()))
+        self.assertEqual(
+            reused["heldout_descriptives_by_predeclared_model_arm"]
+            ["add_probe_activity"]["MAE"],
+            result["heldout_MAE_by_predeclared_arm_source_table_scale"]
+            ["pgx_plus_probe_activities"])
         # Deterministic and independent of source donor row ordering.
         again=benchmark_latham_phh_table4(list(reversed(fixture())))
         self.assertEqual(result["heldout_multiple_endpoint_appropriate_errors_same_donors"],
