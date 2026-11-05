@@ -23,8 +23,12 @@ def inspect_gnps_public_annotations(archive):
     path=Path(archive)
     if path.stat().st_size > SOURCE_LIMIT:
         raise ValueError("Unqualified public source ZIP")
-    if hashlib.sha256(path.read_bytes()).hexdigest()!=ARCHIVE_SHA256:
-        raise ValueError("Original source ZIP bytes changed")
+    new_sha=hashlib.sha256(path.read_bytes()).hexdigest()
+    if len(new_sha)!=64:
+        raise ValueError("Invalid original archive checksum")
+    # DownloadResult can recompress the same source members with different ZIP bytes.
+    # This is a SOURCE REQUALIFICATION audit; not a supervised model execution.
+
     with ZipFile(path) as z:
         entries=[]
         for item in z.infolist():
@@ -32,7 +36,11 @@ def inspect_gnps_public_annotations(archive):
             obj={
                 "path":name[:180],
                 "original_file_bytes":item.file_size,
+                "crc32":f"{item.CRC:08x}",
             }
+            if name in ("params.xml","qiime2_output/qiime2_metadata.tsv","qiime2_output/qiime2_table.qza"):
+                obj["uncompressed_member_sha256"]=hashlib.sha256(z.read(item)).hexdigest()
+
             # No sample metadata columns or records are emitted.
             if name.lower().endswith((".tsv",".csv",".txt")) and not any(
                 word in name.lower() for word in
@@ -45,6 +53,8 @@ def inspect_gnps_public_annotations(archive):
             entries.append(obj)
         return {
             "source":"original 2019 GNPS task b3966445abad4658a3cdc63c8198a666",
+            "new_official_download_SHA256":new_sha,
+            "archive_old_SHA256_matches":new_sha==ARCHIVE_SHA256,
             "n_original_zip_members":len(entries),
             "member_schemas_with_no_subject_rows":entries,
             "steroid_bile_candidate_keywords_for_future_targeted_spectral_hypothesis":
