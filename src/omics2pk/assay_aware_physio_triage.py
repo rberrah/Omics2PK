@@ -252,12 +252,23 @@ def _rule_assay(drug, endpoint, a, variants):
     target_genes = set(a["candidate_genes"] or ()) if a["gene"] is None else {a["gene"]}
     relevant = [g for g in sorted(target_genes) if g in KNOWN[drug]["transporters"]]
     if not relevant:
+        # An unidentified feature MAY help out-of-sample prediction even if
+        # no biological function can be assigned. Reject the causal claim,
+        # not an independently validated black-box baseline measurement.
+        blackbox=a["status"]=="original_measured" and a["collection_phase"]=="predose"
         return {
-            "status": "ABSTAIN_NOT_IN_DRUG_SPECIFIC_MECHANISM_REGISTRY",
+            "status":("CANDIDATE_PREDICTIVE_ONLY_NO_CURATED_MECHANISM"
+                      if blackbox else "ABSTAIN_NO_CURATED_MECHANISM_UNMEASURED_OR_POSTDOSE"),
             "source_gene_or_pathway_hypothesis":sorted(target_genes),
             "assay_id":a["assay_id"], "method":method, "modality":a["modality"],
+            "mechanistic_mapping_status":"ABSTAIN_SOURCE_IDENTITY_OR_DRUG_PATHWAY_UNQUALIFIED",
+            "candidate_explanatory_role":"nonspecific_signal",
+            "heuristic_acquisition_priority_tier_not_predictive_rank":6,
+            "tissue_relevance_priority_not_expected_prediction_gain":99,
             "mechanism_confirmed_for_subject":False,
-            "eligible_for_outcome_ablation":False,
+            "eligible_for_physio_mechanism":False,
+            "eligible_for_outcome_ablation":blackbox,
+            "blackbox_statistical_validation_does_not_assign_gene_or_enzyme":True,
             "why": ["NO_VERIFIED_DRUG_SPECIFIC_PATHWAY_LINK_FOR_THIS_ASSAY"],
         }
     tissue = [_is_relevant_tissue(drug,g,a["tissue"],endpoint) for g in relevant]
@@ -266,12 +277,19 @@ def _rule_assay(drug, endpoint, a, variants):
     # An uptake/transporter process in another organ cannot automatically
     # become a direct mechanistic covariate for a different PK endpoint.
     if all(t == "DRUG_PATHWAY_NOT_DIRECT_FOR_RENAL_CLEARANCE" for t in tissue):
+        blackbox=a["status"]=="original_measured" and a["collection_phase"]=="predose"
         return {
             "status":"ABSTAIN_WRONG_DRUG_PROCESS_FOR_ENDPOINT",
             "assay_id":a["assay_id"],"method":method,"modality":a["modality"],
             "source_gene_or_pathway_hypothesis":relevant,
+            "mechanistic_mapping_status":"ABSTAIN_DIRECT_PARAMETER_CAUSAL_LINK",
+            "candidate_explanatory_role":"nonspecific_signal",
+            "tissue_relevance_priority_not_expected_prediction_gain":99,
+            "heuristic_acquisition_priority_tier_not_predictive_rank":6,
             "mechanism_confirmed_for_subject":False,
-            "eligible_for_outcome_ablation":False,
+            "eligible_for_physio_mechanism":False,
+            "eligible_for_outcome_ablation":blackbox,
+            "blackbox_statistical_validation_does_not_assign_gene_or_enzyme":True,
             "why":["RENAL_CLEARANCE_NOT_INFERRED_FROM_HEPATIC_UPTAKE_PROXY"],
         }
     assoc = [v for v in variants if v["gene"] in relevant and v["call_status"] != "missing"]
@@ -419,6 +437,8 @@ def _rule_assay(drug, endpoint, a, variants):
                   "PROSPECTIVE_MEASUREMENT_NOT_YET_ELIGIBLE" if a["status"]=="proposed" else
                   "ABSTAIN_PREDOSE_LEAKAGE_OR_TIMING_UNRESOLVED"),
         "eligible_for_outcome_ablation":eligible,
+        "eligible_for_physio_mechanism":True,
+        "blackbox_statistical_validation_does_not_assign_gene_or_enzyme":True,
         "evidence_observations":sorted(set(evidence)),
         "limitations":sorted(set(issues)),
         "methodology_is_not_evidence_of_patient_specific_PK_gain":True,
@@ -456,7 +476,7 @@ def plan_physio_omic_acquisition(*, drug, endpoint, variants=(), assays=()):
         a["assay_id"]))
     grouped={}
     for item in outputs:
-        if item["status"].startswith(("CANDIDATE","PROSPECTIVE")):
+        if item.get("eligible_for_physio_mechanism") is True:
             for gene in item["source_gene_or_pathway_hypothesis"]:
                 grouped.setdefault(gene,[]).append(item["assay_id"])
     available_modalities=sorted({
