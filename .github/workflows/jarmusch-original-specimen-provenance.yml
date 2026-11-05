@@ -1,0 +1,39 @@
+name: Jarmusch original source plasma urine feces day1 day9 site-timepoint audit
+on:
+  pull_request:
+    paths:
+      - scripts/audit_original_jarmusch_compartments.py
+      - scripts/validate_local_jarmusch14_gnps_biom_pk.py
+      - .github/workflows/jarmusch-original-specimen-provenance.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  qualified-original-specimens:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+      - run: python -m pip install "numpy>=1.26,<3"
+      - name: Download canonical original public GNPS artifact
+        env:
+          PYTHONPATH: "src:."
+        run: python -m scripts.download_public_jarmusch_gnps /tmp/source_gnps.zip
+      - name: Verify exact original specimen and predose sampling times
+        env:
+          PYTHONPATH: "src:."
+        run: |
+          python -m scripts.audit_original_jarmusch_compartments /tmp/source_gnps.zip > /tmp/source_compartment_aggregate.json
+          python - <<'PY'
+          import json
+          r=json.load(open("/tmp/source_compartment_aggregate.json"))
+          assert r["status"]=="ORIGINAL_GNPS_SOURCE_QUALIFIED_COMPARTMENT_AND_TIMEPOINT_AUDIT"
+          assert r["predose_plasma_by_day"]["1"]["n_original_predose_plasma_biological_people"]==13
+          assert r["original_source_individual_sample_labels_never_exported"]
+          print(json.dumps(r,sort_keys=True,indent=2))
+          PY
+      - if: always()
+        run: rm -f /tmp/source_gnps.zip /tmp/source_compartment_aggregate.json
