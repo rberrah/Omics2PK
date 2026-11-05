@@ -241,6 +241,7 @@ SOURCES={
 TISSUE_LEVEL={"bulk_liver_tissue","liver_microsomes","primary_hepatocytes",
               "small_intestinal_tissue","kidney_tissue"}
 FLUID_LEVEL={"plasma","serum","urine"}
+CLINIC_BIOFLUID_OR_CELLS={"plasma","serum","urine","whole_blood","PBMC","white_blood_cells"}
 BLOOD_CELL={"PBMC","white_blood_cells","whole_blood"}
 POST={"post_first_dose","post_second_dose","postdrug_response"}
 NONPREDICTIVE={"reference_atlas_aggregate","cross_study_cultures","postdrug_response"}
@@ -303,6 +304,12 @@ def qualify_public_specimen_for_PK(*,source_id,drug,process,
         temporal="POST_FIRST_DOSE_ONLY_POTENTIALLY_ELIGIBLE_FOR_LATER_FUTURE_OUTCOME_WITH_TIMING_QC"
     if source_id=="ROTROFF_PLASMA_GCTOF_C" and intended_prediction=="on_treatment_future_landmark":
         temporal="POST_SECOND_DOSE_ONLY_POTENTIALLY_ELIGIBLE_FOR_LATER_FUTURE_OUTCOME_WITH_TIMING_QC"
+    if s["original_sample"] in CLINIC_BIOFLUID_OR_CELLS:
+        practicality="BLOOD_OR_URINE_SAMPLE_POTENTIALLY_ACCESSIBLE_NOT_AUTOMATICALLY_ASSAY_VALIDATED"
+    elif s["original_sample"] in TISSUE_LEVEL:
+        practicality="INVASIVE_BIOPSY_OR_EX_VIVO_HUMAN_TISSUE_NOT_ROUTINE_PREDOSE_SAMPLE"
+    else:
+        practicality="CULTURE_OR_REFERENCE_SAMPLE_NOT_A_ROUTINE_PATIENT_PREDOSE_COLLECTION"
     is_source_real=bool(s["has_direct_patient_drug_PK"])
     can_fit=(
         temporal in {"MEASURED_PRETREATMENT_SYSTEMIC_SPECIMEN"}
@@ -320,6 +327,8 @@ def qualify_public_specimen_for_PK(*,source_id,drug,process,
         "source":source_id,"original_reference":s["original_reference"],
         "measured_source_omic":s["omic"],
         "actual_collected_fraction":s["original_sample"],
+        "potential_clinical_collection_feasibility":practicality,
+        "assay_clinically_validated_for_dosing":False,
         "actual_anatomical_collection_organ":original,
         "assay_method":s["method"],
         "collection_landmark":s["collection"],
