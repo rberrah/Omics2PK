@@ -15,6 +15,7 @@ from sklearn.linear_model import Ridge
 from sklearn.model_selection import KFold
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
 from omics2pk.modalities_information_budget import choose_minimum_modalities
+from omics2pk.predictive_diagnostics import summarize_heldout, paired_heldout_contrast
 
 SEED=20261104
 CAPS={"rna":300,"prot":300,"met":120}
@@ -225,7 +226,67 @@ def evaluate_mutation_modality_budget(ids, lineage, response, mutation_labels,
                     for arm,vec in fixed.items() if arm!="mutation_only"}}
         by_mutation[label]={"status":"DESCRIPTIVE_SUBGROUP_NOT_MUTATION_EFFECT_TEST",
                             "conditional_original_test_errors":per_group}
+    # Report *all* prespecified view diagnostics rather than declaring MAE
+    # the sole definition of success. Ranking/calibration are OOF descriptive.
+    diagnostics={
+        "mutation_adjusted_fixed":{
+            arm:summarize_heldout(y,vec) for arm,vec in fixed.items()},
+        "fixed_without_mutation_features":{
+            arm:summarize_heldout(y,vec)
+            for arm,vec in fixed_without_mutations.items()},
+        "TP53_interactions":{
+            arm:summarize_heldout(y,vec) for arm,vec in interacts.items()},
+        "nested_TP53_modality_selection":{
+            str(int(q*100)):summarize_heldout(y,vec)
+            for q,vec in adaptive.items()},
+    }
+    contrasts={}
+    prescribed={
+        "mutation_plus_RNA_vs_mutation_only":
+            (fixed["mutation_rna"],fixed["mutation_only"]),
+        "mutation_plus_protein_vs_mutation_only":
+            (fixed["mutation_protein"],fixed["mutation_only"]),
+        "mutation_plus_metabolite_vs_mutation_only":
+            (fixed["mutation_metabolite"],fixed["mutation_only"]),
+        "all_three_vs_mutation_plus_RNA":
+            (fixed["mutation_threeomics"],fixed["mutation_rna"]),
+        "RNA_plus_protein_vs_RNA":
+            (fixed["mutation_rna_protein"],fixed["mutation_rna"]),
+        "RNA_plus_metabolite_vs_RNA":
+            (fixed["mutation_rna_metabolite"],fixed["mutation_rna"]),
+        "TP53_x_RNA_vs_mutation_plus_RNA":
+            (interacts["mutation_rna"],fixed["mutation_rna"]),
+        "mutations_added_to_RNA":
+            (fixed["mutation_rna"],fixed_without_mutations["mutation_rna"]),
+        "mutations_added_to_no_omics":
+            (fixed["mutation_only"],fixed_without_mutations["mutation_only"]),
+        "nested80_vs_mutation_plus_RNA":
+            (adaptive[0.8],fixed["mutation_rna"]),
+        "nested90_vs_mutation_plus_RNA":
+            (adaptive[0.9],fixed["mutation_rna"]),
+    }
+    for name,(candidate,reference) in prescribed.items():
+        contrasts[name]=paired_heldout_contrast(y,candidate,reference)
+    # Report metric rank disagreement without using any outer-holdout
+    # summary to change the model, the alpha, the omic budget or fold seed.
+    audit=diagnostics["mutation_adjusted_fixed"]
+    lowest_MAE=min(audit,key=lambda a:audit[a]["MAE_original_source_scale"])
+    lowest_RMSE=min(audit,key=lambda a:audit[a]["RMSE_original_source_scale"])
+    highest_rank=max(audit,key=lambda a:
+                     float("-inf") if audit[a]["Spearman_per_unique_cell_line_repeat_mean_prediction"] is None
+                     else audit[a]["Spearman_per_unique_cell_line_repeat_mean_prediction"])
     return {
+        "multi_metric_exploratory_heldout":diagnostics,
+        "prespecified_paired_heldout_MAE_contrasts":contrasts,
+        "metric_criterion_sensitivity_descriptive_not_model_selection":{
+            "lowest_MAE_arm":lowest_MAE,
+            "lowest_RMSE_arm":lowest_RMSE,
+            "highest_Spearman_arm":highest_rank,
+            "MAE_RMSE_Spearman_recommend_same_arm":
+                lowest_MAE==lowest_RMSE==highest_rank,
+            "no_outer_test_metric_used_for_training_or_selection":True,
+        },
+        "omics_ablation_differences_are_predictive_not_causal":True,
         "source_observed_mutation_gene_subgroups":by_mutation,
         "status":"SOURCE_MUTATION_AWARE_THREEOMIC_CELL_LINE_GI50_RESEARCH_NOT_PK",
         "n_unique_biological_cell_lines":n,
