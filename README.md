@@ -38,6 +38,34 @@ The [GSE49012 original GEO source-qualification report](docs/GSE49012_ORIGINAL_M
 
 An [original-source acquisition decision and author request manifest](docs/PUBLIC_COHORT_SOURCE_ACQUISITION_20261104.md) now tracks **Zhang n100** (RNA+protein+CYP activities), **Liu n55** (CYP3A genotype+miRNA+mRNA+shared CYP3A activities+in-vitro atorvastatin metabolism), **Ohtsuki n17**, and the newly released **PXD085173 n61** human liver S9 DIA proteomics repository (University of Washington, 2026-10-23, [PXD085173](https://www.omicsdi.org/dataset/panorama/PXD085173)). The associated new preprint reports CYP2C9+FABP1 protein relationships with diclofenac/tolbutamide hydroxylation in **61 human livers**. However **neither the 61-donor observed activity crosswalk nor the Zhang/Liu/Ohtsuki complete individual source matrices are currently verified and acquired**. PXD085173 is a **within-proteomics, protein-context-to-function** hypothesis, not a CYP3A5-specific assay or genome/RNA/proteomics/drug-PK matched cohort. No recipient has been contacted automatically and no third-party donor data have been committed. See [existing acquisition issue #63](https://github.com/rberrah/Omics2PK/issues/63).
 
+### Reference-checked genomic sequence → codon / splice context → omic evidence (2026-11-05)
+
+The [genetic-code and variant-aware Omics2PK method](docs/GENETIC_CODE_VARIANT_TO_OMICS_FUNCTIONAL_TRIAGE_20261105.md)
+now checks caller-attested GRCh37/38 SNV coordinates, forward genomic REF/ALT,
+transcript exon intervals and strand, complete reference CDS, nuclear codons,
+**synonymous, missense, stop-gained/lost, start-lost and intron splice-site context**,
+and transcript-oriented frameshift/in-frame edits. Early stop NMD is
+**hypothesis only**, not a measured mRNA/protein loss; missense may preserve
+RNA and total protein while altering catalytic function. The same variant
+can be exonic in one transcript and intronic in another. A local
+codon-synonymous consequence is **not a functional-normality assertion**:
+the curated CYP3A5 *6 splice-disrupting exception is explicitly tested.
+
+`src/omics2pk/genetic_code_variant_effect.py` integrates into
+`plan_physio_omic_acquisition(sequence_variants=..., genome_assay_background=...)`.
+Missing/partially assayed genotype is never presumed WT, nor is one defining
+variant a phased CYP3A5 diplotype. An externally supplied, pinned Ensembl
+VEP Sequence Ontology annotation can be crosschecked, with conflicts
+reported as **ABSTAIN**, not silently assigned to an active enzyme.
+The source reference transcript is caller-attested, **not independently
+retrieved or validated against the genomic FASTA in this offline module**.
+
+[Synthetic sequence-only demo](scripts/demo_genetic_code_omic_interpretation.py)
+and [adversarial tests](tests/test_genetic_code_variant_effect.py) keep all
+mock reference coordinates separate from authentic donor-level PGx/PK.
+Genomic annotation does **not** predict the best-performing omic or an
+individual clearance; same-patient source assays and independent PK
+holdouts are still mandatory.
 ### Physio-pharmacology × variant consequence × actual assay methodology (2026-11-05)
 
 The new [assay-aware prospective omic selection pipeline](docs/PIPELINE_PHYSIOPHARMACO_ASSAY_AWARE_OMICS_20261105.md)
