@@ -131,19 +131,19 @@ novel biological discovery or clinical validation.
 ## E1 replicated on a second, independent gene: NUDT15 cellular thiopurine PD
 
 Official Suiter/MaveDB meta-score set `urn:mavedb:00000055-0-1`,
-original SHA-256 pinned and [live source benchmark successful](https://github.com/rberrah/Omics2PK/actions/runs/41996740562).
-The published 3,015 entries yielded **2,825** strict, position-parseable,
-**paired missense variants** at 162 distinct residues after explicitly
-excluding 170 incomplete and 20 ambiguous/nonstandard identity rows;
+original SHA-256 pinned and [live source benchmark successful](https://github.com/rberrah/Omics2PK/actions/runs/42016076614).
+The published 3,015 entries yielded **2,844** strict, position-parseable,
+**paired missense variants** at 163 distinct residues after explicitly
+excluding 170 incomplete and one wild-type reference `p.=` row; the previously missing 19 were real terminal-residue (position 164) missense variants;
 **do not silently replace by the secondary n2,844 number**.
 
 Original position-heldout MAE for independently measured HEK293T
-thiopurine tolerance: training mean **0.305701**; naive amino-acid
-change **0.300793**; measured NUDT15 protein stability **0.272973**;
-protein stability+naive AA changes **0.274854**. Paired position-cluster
-bootstrap for protein stability versus mean: **−0.032728**
-95% exploratory interval **[−0.044389, −0.022629]**; added naive
-sequence descriptors **+0.001881** [−0.002778,+0.006553] (no
+thiopurine tolerance: training mean **0.304686**; naive amino-acid
+change **0.300234**; measured NUDT15 protein stability **0.271991**;
+protein stability+naive AA changes **0.274013**. Paired position-cluster
+bootstrap for protein stability versus mean: **−0.032695**
+95% exploratory interval **[−0.043037, −0.022045]**; added naive
+sequence descriptors **+0.002022** [−0.002845,+0.006646] (no
 established improvement). **131** source variants have abundance≥0.8
 and tolerance<0.3 (stable but sensitive); **222** have abundance<0.3
 but tolerance≥0.8 (unstable yet tolerant) under *exploratory*
@@ -188,7 +188,7 @@ PK or full biological mediation has been proven.
 **Prioritization:** (1) CYP2C9 original variant-level replay **DONE**; (2)
 NUDT15 original MaveDB reanalysis and variant-position-held-out
 thiopurine cell-PD benchmark **DONE** (see
-[authentic n2,825 NUDT15 results](NUDT15_PUBLIC_MAVEDB_VARIANT_STABILITY_THIOPURINE_PD_20261105.md));
+[authentic n2,844 NUDT15 results](NUDT15_PUBLIC_MAVEDB_VARIANT_STABILITY_THIOPURINE_PD_20261105.md));
 (3) source-row qualification of CYP3A5 *3 exon QTL versus gene-level RNA
 and splice-specific assays **NOT YET REPRODUCED**; (4) real same-patient
 tacrolimus/rosuvastatin PK with complete pharmacogenetic panel **NOT YET VALIDATED**. Do not manufacture a combined
@@ -201,6 +201,79 @@ genotype–RNA–protein–PK dataset by matching on a gene/variant only.
 The published Zhong et al. 2020 CYP3A5 rs776746 eExon-QTL despite not significant as gene-level eQTL provides a strong **assay-resolution hypothesis**. However, **exact individual SNP genotypes, exon/junction counts, CYP3A5-selective activity and real drug PK have NOT yet been obtained and reproduced jointly**. Therefore no numerical 'exon RNA improves over gene RNA' or 'omic beats PGx for tacrolimus CL' claim is valid yet.
 
 **MultiOmics producer PR [#121](https://github.com/rberrah/MultiOmics/pull/121)** now has a separate optional synthetic-tested mechanism-hypothesis sidecar, preserving frozen `DOWNSTREAM_EXCHANGE_V1`; **Omics2PK consumer in [#137](https://github.com/rberrah/Omics2PK/pull/137)** accepts its qualified labels as *hypotheses only*. Real patient-level transfer and clinical PK evaluation remain gated by actual same-person matrices.
+
+## Previous genuine same-person RNA + measured SNP + enzyme-function validation (HLC)
+
+The user's **previously owner-authorized original Sage Human Liver Cohort** result
+is already documented in
+[HLC original-source qualification and numerical results](HLC_ORIGINAL_400_LIVER_CYP_RNA_GENOTYPE_RESULTS_20261018.md).
+These private genotype, liver RNA and microsomal CYP probe activity values were
+previously evaluated **without redistribution**. Original 195 genotyped
+donors, 178 genotype+RNA identity matches, and n171–172 with a respective
+measured activity. Three prespecified 5-fold partitions, same original
+subjects per arm, fixed Ridge and train-only imputations:
+
+| Actual independent microsomal CYP activity | n | Age+sex + one real SNP (MAE) | + source matching liver CYP RNA (MAE) | Added RNA relative MAE gain |
+|---|---:|---:|---:|---:|
+| CYP3A4 midazolam/shared CYP3A probe | 171 | 697.803 | **641.836** | **8.0%** |
+| CYP3A4 testosterone/shared CYP3A probe | 171 | 3453.227 | **3176.100** | **8.0%** |
+| CYP2C9 probe | 172 | 183.260 | **173.455** | **5.4%** |
+
+**This is genuine measured donor-level genotype + RNA + enzyme-function evidence**,
+much more directly relevant to the user question than merely pairing GEO
+sample titles. **But** the "genotype" model includes **only one measured
+SNP** (rs776746 or rs1799853), not a full PharmVar star-allele
+diplotype or CYP activity score; rs776746 source array allele orientation
+was not independently confirmed. CYP3A4 midazolam/testosterone outcomes
+are CYP3A-shared and **not CYP3A5-selective enzyme function**. External
+batch normalization, site-heldout generalization, clinical tacrolimus
+PK and dynamic medication/disease confounders remain unqualified.
+The private source original measurements are **not public GitHub CI assets**.
+These are retrospective previously executed results, **not newly rerun
+independent experiments today**.
+
+## Newly reproduced clinical-method E2: Latham real human PHH genotype vs molecular layers
+
+[Original official Table 4 source replay #42015617333](https://github.com/rberrah/Omics2PK/actions/runs/42015617333) successfully reproduced
+**13** protein-complete donor heldouts for *in-vitro* imatinib apparent clearance,
+comparing clinical-source PGx alone with targeted CYP proteins, **shared**
+CYP3A plus CYP2C8 probe activities, and both. Their predictive ranking
+changes by endpoint-appropriate error metric:
+
+| Same original PHH donors / fixed Ridge arms | Linear MAE ↓ | Absolute log error ↓ | P20 accuracy ↑ |
+|---|---:|---:|---:|
+| CYP2C8 + CYP3A5 source PGx alone | 2.906576 | 0.432147 | 5/13 (38.5%) |
+| PGx + CYP2C8/3A4/3A5 proteins | 3.003704 | **0.408474** | 5/13 |
+| PGx + CYP2C8/CYP3A4-5 probe activities | **2.762944** | 0.415360 | 5/13 |
+| PGx + both molecular layers | 3.262812 | 0.445258 | 5/13 |
+
+All **three** additions' 95% exploratory **paired donor-residual
+bootstrap intervals include zero**, whether using linear MAE or log-MAE.
+Even though probe activity numerically wins linear MAE and protein
+abundance wins log-MAE, **n13 is insufficient to establish either
+modality as superior over PGx alone**. P20 ties, RMSE does not fully
+agree; the source is **in-vitro imatinib depletion**, not the
+clinical plasma PK of tacrolimus or imatinib, and it is *not* an
+independent external cohort.
+
+[Full PHH source and updated multi-metric methods](LATHAM_PHH_SOURCE_REPLAY_REAL_20261104.md).
+
+## Scientific prior art — do not overclaim a new discovery
+
+Kırboğa, *G3* **2026-08-29**, DOI
+[10.1093/g3journal/jkag248](https://doi.org/10.1093/g3journal/jkag248),
+has already assembled and extensively analyzed DMS **26,198 missense
+variants** from CYP2C9, CYP2C19 and NUDT15, including the source
+**4,421** paired CYP2C9 and **2,844** paired NUDT15 cases, activity vs
+abundance decoupling (**28% and 48%** under its 0.3-score threshold),
+AlphaMissense, ESM1v, supervised ESM2, protein structural features,
+contact-graph neural networks and multitask outcomes. **Our replays
+are reproducibility and model-selection guards; the novel scientific
+objective is NOT to rediscover these discordances.** A contribution
+could arise only if an original physiology+assay+genomic-condition
+strategy determines **incremental generalization over an authentic
+PGx/clinical baseline on genuinely measured PK/PD**, rather than merely
+predicting DMS biochemical scores in another way.
 
 ## Experimental design for a joint MultiOmics → Omics2PK scientific pathway
 
