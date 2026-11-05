@@ -1,0 +1,54 @@
+name: Wegler source-original 15 donor 5 CYP protein vs target and XGB intrinsic CL (not clinical PK)
+on:
+  pull_request:
+    paths:
+      - scripts/benchmark_original_wegler15_target_vs_five_cyps.py
+      - tests/test_wegler15_target_vs_five_cyps.py
+      - scripts/audit_wegler_source_structure.py
+      - .github/workflows/wegler15-original-5cyp-information-budget.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  original-source-cyp5:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+      - name: Install scientific and source readers
+        run: python -m pip install "numpy>=1.26,<3" "scipy>=1.11,<2" "scikit-learn>=1.5,<2" "xgboost>=2,<4" "pypdf>=4,<7"
+      - name: Synthetic original-shape donor, missingness, feature and tuning tests
+        env:
+          PYTHONPATH: "src:."
+        run: python -m unittest discover -s tests -p 'test_wegler15_target_vs_five_cyps.py' -v
+      - name: Replay official SHA256-pinned PMC actual original 15 donors five drugs HH and HLM
+        env:
+          PYTHONPATH: "src:."
+        run: |
+          python -m scripts.benchmark_original_wegler15_target_vs_five_cyps > /tmp/wegler_original_5cyp_result.json || {
+            cat /tmp/wegler_original_5cyp_result.json
+            exit 2
+          }
+          python - <<'PY'
+          import json
+          o=json.load(open("/tmp/wegler_original_5cyp_result.json"))
+          assert o["status"]=="REAL_WEGLER_15_DONOR_TARGET_VS_5_PROTEINS_VS_XGB_NOT_HUMAN_PK"
+          assert o["verified_source_PDF_SHA256"]=="5beaab1117a32bb281734504dc19237bd264b5db0857837dfd794a9319892bab"
+          assert o["original_study_source_matched_donors"]==15
+          assert o["no_source_donor_IDs_or_measurements_printed"]
+          assert o["no_original_patient_PK_or_full_PGx_or_multilayer_omics"]
+          assert set(o["results"])=={"HH","HLM"}
+          assert set(o["results"]["HH"])=={"midazolam","omeprazole","bupropion","diclofenac","bufuralol"}
+          for sys in o["results"].values():
+            for drug,r in sys.items():
+              assert 8<=r["n_independent_original_donors"]<=15
+              assert len(r["MAE_log_original_intrinsic_clearance"])==6
+              assert r["same_complete_case_donor_set_all_models"]
+              assert r["no_individual_original_donor_data_emitted"]
+          print(json.dumps(o,indent=2,sort_keys=True))
+          PY
+      - if: always()
+        run: rm -f /tmp/wegler_original_5cyp_result.json
