@@ -61,6 +61,9 @@ def _target_rows(original, measured, target):
 def _metrics_cv(rows, target, repeats=3):
     if target not in GENES or repeats not in (1, 2, 3):
         raise EPALinkageError("Unqualified endpoint/CV specification")
+    if len(set(r[0] for r in rows)) != len(rows):
+        raise EPALinkageError("Duplicate original biological donor")
+    rows = sorted(rows, key=lambda x: x[0])
     names=[f"{arm}|alpha_{int(a)}" for arm in ARMS for a in ALPHAS]
     n=len(rows)
     X=np.asarray([r[1:] for r in rows],dtype=float)
