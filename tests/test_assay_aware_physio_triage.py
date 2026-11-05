@@ -142,10 +142,14 @@ class PhysiopharmMethodTriageTests(unittest.TestCase):
     def test_selective_vs_shared_functional_activity_and_laboratory_doxorubicin_warning(self):
         r=plan([
             a("specific","ACTIVITY_CYP3A5_SELECTIVE_PROBE",assay_validated=True,
-              selectivity_evidence_url="https://doi.org/10.1124/dmd.113.054825"),
-            a("shared","ACTIVITY_CYP3A_SHARED_PROBE",assay_validated=True),
+              selectivity_evidence_url="https://doi.org/10.1124/dmd.113.054726",
+              probe_assay_code="T5_N_OXIDATION"),
+            a("shared","ACTIVITY_CYP3A_SHARED_PROBE",assay_validated=True,
+              probe_assay_code="MIDAZOLAM_1_HYDROXYLATION",
+              probe_evidence_url="https://doi.org/10.1124/dmd.119.088823"),
             a("unqualified","ACTIVITY_CYP3A5_SELECTIVE_PROBE",assay_validated=False,
-              selectivity_evidence_url="https://doi.org/10.1124/dmd.113.054825"),
+              selectivity_evidence_url="https://doi.org/10.1124/dmd.113.054726",
+              probe_assay_code="T5_N_OXIDATION"),
         ])
         self.assertEqual(byname(r,"specific")["candidate_explanatory_role"],
                          "direct_measured_function")
