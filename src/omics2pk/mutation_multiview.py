@@ -15,7 +15,9 @@ from sklearn.linear_model import Ridge
 from sklearn.model_selection import KFold
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
 from omics2pk.modalities_information_budget import choose_minimum_modalities
-from omics2pk.predictive_diagnostics import summarize_heldout, paired_heldout_contrast
+from omics2pk.predictive_diagnostics import (
+    summarize_heldout, paired_heldout_contrast, paired_rank_spearman_contrast,
+)
 
 SEED=20261104
 CAPS={"rna":300,"prot":300,"met":120}
@@ -267,6 +269,12 @@ def evaluate_mutation_modality_budget(ids, lineage, response, mutation_labels,
     }
     for name,(candidate,reference) in prescribed.items():
         contrasts[name]=paired_heldout_contrast(y,candidate,reference)
+    rank_contrasts={
+        name:paired_rank_spearman_contrast(y,*prescribed[name])
+        for name in ("mutations_added_to_RNA",
+                     "all_three_vs_mutation_plus_RNA",
+                     "mutation_plus_RNA_vs_mutation_only")
+    }
     # Report metric rank disagreement without using any outer-holdout
     # summary to change the model, the alpha, the omic budget or fold seed.
     audit=diagnostics["mutation_adjusted_fixed"]
@@ -278,6 +286,7 @@ def evaluate_mutation_modality_budget(ids, lineage, response, mutation_labels,
     return {
         "multi_metric_exploratory_heldout":diagnostics,
         "prespecified_paired_heldout_MAE_contrasts":contrasts,
+        "prespecified_paired_heldout_rank_Spearman_contrasts":rank_contrasts,
         "metric_criterion_sensitivity_descriptive_not_model_selection":{
             "lowest_MAE_arm":lowest_MAE,
             "lowest_RMSE_arm":lowest_RMSE,
