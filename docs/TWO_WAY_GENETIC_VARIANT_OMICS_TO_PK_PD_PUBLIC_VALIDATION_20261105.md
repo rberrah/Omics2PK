@@ -275,6 +275,50 @@ strategy determines **incremental generalization over an authentic
 PGx/clinical baseline on genuinely measured PK/PD**, rather than merely
 predicting DMS biochemical scores in another way.
 
+## Two fully source-replayed original public gene experiments now implemented inside MultiOmics
+
+MultiOmics [draft PR #121](https://github.com/rberrah/MultiOmics/pull/121)
+is no longer a synthetic-only explanation engine. The exact
+**qualitative source/assay-qualified interpreter** was run on two
+primary original public sources with source identity checking:
+
+1. **CYP2C9** (Amorosi et al., AJHG 2021):
+   [official n4,421 paired constructs replay SUCCESS](https://github.com/rberrah/MultiOmics/actions/runs/42020023060).
+   The engine identified **400** original `wt-like` abundance / `decreased`
+   enzymatic activity variants, and **12 additional** `wt-like` abundance /
+   `nonsense-like` activity variants, giving **412**
+   `HYPOTHESIS_PRESERVED_ABUNDANCE_LOST_MISSENSE_FUNCTION`;
+   **4,009** did not satisfy that strong pattern.
+   Distinct yeast activity assay and human cultured-cell VAMP-seq
+   protein quantification share **construct variant**, not donor.
+2. **NUDT15** (Suiter et al., PNAS 2020):
+   [original n2,844 paired constructs replay SUCCESS](https://github.com/rberrah/MultiOmics/actions/runs/42019147700).
+   **131** abundance >=0.8 and thiopurine cell tolerance <0.3;
+   **222** abundance <0.3 and cell tolerance >=0.8; **2,491**
+   remaining without either prespecified extreme contradiction.
+   **Thiopurine cellular PD is not independently assayed NUDT15 hydrolase
+   activity and not a patient marrow toxicity outcome.**
+
+**Zero** automatically proven causal proteolysis or human plasma PK
+claims. Original protein and cell measurements are **assays from
+different experimental hosts/times** indexed by original variant
+construct identity, not from patients with measured germline
+PGx or drug pharmacokinetics. The source-based studies independently
+published these discordances; our contribution is software
+qualification and demonstration that the **same evidence-level
+interpretation algorithm** applies to separate genes/assays.
+
+**Safety gate to Omics2PK:** the consumer's
+`test_real_engineered_DMS_variant_pair_is_not_an_original_patient_PK_predictor`
+test explicitly rejects carrying such DMS results into
+`clinical+PGx` individual PK as if they were predose measured
+patient omics. The [generic incremental PK evidence evaluator](OMIC_INCREMENTAL_PK_ENDPOINT_QUALIFICATION_20261105.md)
+instead requires actual original per-subject measured outcomes
+and independent heldout genotype-plus-omic prediction arms.
+Its source-real Latham n13 n9/3/1 variant-stratum requalification
+succeeded [on official source replay #42017839096](https://github.com/rberrah/Omics2PK/actions/runs/42017839096)
+(rerun after external source temporarily unavailable).
+
 ## Experimental design for a joint MultiOmics → Omics2PK scientific pathway
 
 ### Lane 1: MultiOmics (variant → molecular readout, and observed omics → functional phenotype)
