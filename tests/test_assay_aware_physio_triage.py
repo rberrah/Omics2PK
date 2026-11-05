@@ -279,9 +279,10 @@ class PhysiopharmMethodTriageTests(unittest.TestCase):
     def test_unknown_original_metabolite_remains_predictive_candidate_not_fake_transport(self):
         # Real public Rotroff metformin source has this unknown original
         # GC-TOF feature; no identity or enzyme association was confirmed.
-        r=plan([{"assay_id":"original_222169","method":"METABOLITE_MS1_UNTARGETED",
+        r=plan([{"assay_id":"original_222169","method":"METABOLITE_GC_EI_TOF_UNTARGETED",
                  "tissue":"plasma","candidate_genes":[],
                  "chemical_identity_grade":"unassigned",
+                 "ionization_type":"EI","derivatization_method":"source_unknown",
                  "status":"original_measured","collection_phase":"predose",
                  "source_url":"https://doi.org/10.3389/fphar.2016.00135",
                  "original_feature_id":"222169"}],
@@ -296,6 +297,23 @@ class PhysiopharmMethodTriageTests(unittest.TestCase):
                       r["prospective_fold_safe_evaluation_plan"]
                       ["candidate_arms_not_fitted_models"][1]["modalities"])
         self.assertEqual(r["genes_with_any_relevant_assay_by_source"],{})
+
+    def test_gc_ei_requires_assay_specific_ionization_and_retention_for_identity(self):
+        record={"assay_id":"unknownEI","method":"METABOLITE_GC_EI_TOF_UNTARGETED",
+                "tissue":"plasma","candidate_genes":[],
+                "chemical_identity_grade":"unassigned","status":"proposed",
+                "collection_phase":"predose","derivatization_method":"source_unknown"}
+        with self.assertRaisesRegex(OmicTriageError,"GC-EI-TOF"):
+            plan([record],drug="metformin",endpoint="CLr")
+        record["ionization_type"]="EI"
+        self.assertFalse(byname(plan([record],drug="metformin",endpoint="CLr"),
+                                "unknownEI")["eligible_for_outcome_ablation"])
+        record["chemical_identity_grade"]="confirmed_standard"
+        with self.assertRaisesRegex(OmicTriageError,"reference spectrum"):
+            plan([record],drug="metformin",endpoint="CLr")
+        record["source_EI_standard_spectrum_url"]="https://massbank.eu/MassBank/"
+        with self.assertRaisesRegex(OmicTriageError,"retention index"):
+            plan([record],drug="metformin",endpoint="CLr")
 
     def test_wrong_pk_process_can_still_be_exploratory_blackbox_not_mechanism(self):
         r=plan([a("oct1_real","RNA_GENE_BULK",gene="SLC22A1",tissue="liver",
