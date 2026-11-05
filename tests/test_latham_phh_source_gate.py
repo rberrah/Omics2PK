@@ -132,6 +132,8 @@ class LathamSourceGateTests(unittest.TestCase):
         self.assertEqual(reused["predeclared_primary_loss"],"mean_absolute_log_error")
         self.assertFalse(reused["geno_reference_was_complete_diplotype"])
         self.assertFalse(reused["selected_best_omic_claimed"])
+        self.assertTrue(reused["original_sampling_site_and_assay_method_qualified"])
+        self.assertFalse(reused["original_sampling_site_missing_requires_ABSTAIN_mechanistic_claim"])
         self.assertTrue(all(
             val["status"]=="ABSTAIN_TOO_FEW_INDEPENDENT_VARIANT_STRATUM_SUBJECTS"
             for val in reused["within_variant_function_groups"].values()))
