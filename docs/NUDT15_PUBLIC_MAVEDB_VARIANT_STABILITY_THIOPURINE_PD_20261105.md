@@ -26,14 +26,14 @@ Constructs are matched by amino acid variant, not same original human tissue/cli
 
 ## Matched measurements: real original numerical results
 
-**Fixed method:** Ridge(alpha=30) with three-view representations, same **5 outer folds separated by 162 protein positions** (so no other mutation at a heldout residue can appear in training), normalization fitted **train-only**. No hyperparameters learned on heldout values; phenotype is never used as an input feature.
+**Fixed method:** Ridge(alpha=30) with three-view representations, same **5 outer folds separated by 163 protein positions** (so no other mutation at a heldout residue can appear in training), normalization fitted **train-only**. No hyperparameters learned on heldout values; phenotype is never used as an input feature.
 
 | Inputs to predict thiopurine cell tolerance | Heldout MAE ↓ | RMSE ↓ | Spearman ↑ | AUROC* ↑ |
 |---|---:|---:|---:|---:|
-| Fold training mean | 0.305701 | 0.372867 | −0.142310 | 0.429567 |
-| Simple physicochemical amino-acid descriptors | 0.300793 | 0.371984 | 0.107423 | 0.571698 |
-| **Measured protein stability/abundance** | **0.271991** | **0.345336** | 0.308120 | 0.684932 |
-| Stability + simple AA descriptors | 0.274854 | 0.348773 | 0.319197 | 0.689862 |
+| Fold training mean | 0.304686 | 0.372160 | −0.134697 | 0.433288 |
+| Simple physicochemical amino-acid descriptors | 0.300234 | 0.371392 | 0.106126 | 0.571266 |
+| **Measured protein stability/abundance** | **0.271991** | **0.345336** | 0.310380 | 0.686016 |
+| Stability + simple AA descriptors | 0.274013 | 0.347946 | 0.320894 | 0.690816 |
 
 \*AUROC uses an **illustrative score ≥0.8**, not independent clinical toxicity or a validated therapeutic threshold. It is a classification AUROC, **never a pharmacokinetic AUC**.
 
