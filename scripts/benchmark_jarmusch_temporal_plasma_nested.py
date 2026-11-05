@@ -75,10 +75,18 @@ def _temporal_source_join(archive):
     if len(intersect)!=11:
         raise JarmuschTemporalSourceError("Nonmatching J1/J9 original biological donor keys")
     d1_idx={person:i for i,person in enumerate(orig_persons)}
-    indices=[d1_idx[p] for p in intersect]
+    # Biological specimen availability and actual observed PK availability
+    # are DISTINCT; qualify the real complete-case intersection before fits.
+    # A complete day9 plasma assay does not imply a measured day9 CL/F.
+    matched=[(p,d1_idx[p]) for p in intersect]
+    complete=[(p,i) for p,i in matched
+              if np.isfinite(pk["day9"][i]) and pk["day9"][i]>0]
+    if not 10<=len(complete)<=11:
+        raise JarmuschTemporalSourceError(
+            "Too few original day9 clinically observed PK outcomes in matched source")
+    valid_people=[p for p,_ in complete]
+    indices=[i for _,i in complete]
     y=pk["day9"][indices]
-    if not np.isfinite(y).all() or np.any(y<=0):
-        raise JarmuschTemporalSourceError("Missing genuine day9 PK for paired J1/J9 t0 plasma subjects")
     with ZipFile(io.BytesIO(qza)) as q:
         names=[s for s in q.namelist() if s.endswith("/data/feature-table.biom")]
         if len(names)!=1:
@@ -89,7 +97,7 @@ def _temporal_source_join(archive):
         if len(q_samples)!=1198 or len(set(q_samples))!=1198:
             raise JarmuschTemporalSourceError("Original measured MS sample IDs changed")
         mapping={v:i for i,v in enumerate(q_samples)}
-        assays=[d9[p] for p in intersect]
+        assays=[d9[p] for p in valid_people]
         if any(s not in mapping for s in assays):
             raise JarmuschTemporalSourceError("Source day9 plasma sample missing from QZA")
         mat=csr_matrix(
@@ -98,7 +106,7 @@ def _temporal_source_join(archive):
             shape=(1198,6349))
         x9=mat[[mapping[s] for s in assays]].toarray()
     x1matched=x1[indices]
-    if x9.shape!=(11,6349) or x1matched.shape!=x9.shape:
+    if x9.shape!=(len(complete),6349) or x1matched.shape!=x9.shape:
         raise JarmuschTemporalSourceError("Source original paired metabolomics shape invalid")
     if np.any(x9<0) or not np.isfinite(x9).all():
         raise JarmuschTemporalSourceError("Source original J9 molecular intensities invalid")
@@ -117,13 +125,14 @@ def evaluate_matched_original_day9(archive):
             original_x,c,g,y,candidates=candidates,
             source_label="observed oral midazolam day9 CL/F")
     return {
-        "status":"ACTUAL_JARMUSCH_ORIGINAL_SAME11_DAY9_PK_PREDOSE_DAY1_VS_DAY9_PLASMA",
+        "status":"ACTUAL_JARMUSCH_ORIGINAL_DAY9_COMPLETE_CASE_PREDOSE_DAY1_VS_DAY9_PLASMA",
         "n_original_unique_patients_with_both_predose_times":11,
+        "n_original_patients_with_both_predose_times_and_valid_day9_PK":len(y),
         "source_compartment":"peripheral blood-derived plasma, no liver mRNA/protein",
         "day1_source":"before antibiotics, baseline predicted day9 clinical phenotype",
         "day9_source":"after cefprozil course; immediately before oral drug probe dosing",
         "original_day9_pk_end_point":"observed oral midazolam CL/F (not hepatic CYP3A4-specific CL)",
-        "same_11_patient_labels_heldout_for_both_sample_clocks":True,
+        "same_complete_case_person_labels_heldout_for_both_sample_clocks":True,
         "primary_provenance_gate_passed":audit["status"]=="ORIGINAL_GNPS_SOURCE_QUALIFIED_COMPARTMENT_AND_TIMEPOINT_AUDIT",
         "source_MS1_identity_is_putative_not_functional_metabolite_confirmation":True,
         "origin_and_timing_matter_for_comparison":True,
