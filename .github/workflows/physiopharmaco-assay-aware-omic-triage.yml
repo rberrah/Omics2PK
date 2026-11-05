@@ -46,6 +46,13 @@ jobs:
           p={x["assay_id"]:x for x in met["assay_candidates_by_interpretability_not_expected_model_performance"]}
           assert p["hepatic_OCT1_RNA_for_CLr"]["status"]=="ABSTAIN_WRONG_DRUG_PROCESS_FOR_ENDPOINT"
           assert p["renal_OCT2_transport_function"]["candidate_explanatory_role"]=="direct_measured_function"
+          rot=report["original_Rotroff_metformin_source_feature_ID_only_no_patient_data"]
+          peak=rot["assay_candidates_by_interpretability_not_expected_model_performance"][0]
+          assert peak["method"]=="METABOLITE_GC_EI_TOF_UNTARGETED"
+          assert peak["status"]=="CANDIDATE_PREDICTIVE_ONLY_NO_CURATED_MECHANISM"
+          assert peak["eligible_for_outcome_ablation"]
+          assert peak["eligible_for_physio_mechanism"] is False
+          assert not rot["prospective_fold_safe_evaluation_plan"]["actual_same_subject_modalities_intersection_verified"]
           assert not tac["prospective_fold_safe_evaluation_plan"]["actual_same_subject_modalities_intersection_verified"]
           assert tac["no_quantitative_activity_or_effect_sizes_invented"]
           print("PASS: no same-donor PK claim, tissue-appropriate drug-specific omic assay design, explicit NMD unknown")
