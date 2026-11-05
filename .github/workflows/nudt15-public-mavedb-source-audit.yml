@@ -1,0 +1,19 @@
+name: Public NUDT15 original MaveDB paired stability thiopurine PD source schema
+on:
+  pull_request:
+    paths:
+      - "scripts/audit_nudt15_mavedb_source.py"
+      - ".github/workflows/nudt15-public-mavedb-source-audit.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+      - run: python scripts/audit_nudt15_mavedb_source.py
