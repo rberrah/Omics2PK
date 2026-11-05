@@ -2,7 +2,7 @@
 import unittest
 from omics2pk.specimen_physiopharmaco_gate import (
     SOURCES,qualify_public_specimen_for_PK,qualify_public_omic_model_arms,
-    PhysiopharmacoSpecimenError,
+    qualify_pharmacogenetic_sampling_origin,PhysiopharmacoSpecimenError,
 )
 
 def q(s,drug,process,**kw):
@@ -153,6 +153,56 @@ class SourceTissuePhysioGate(unittest.TestCase):
                 },drug="tacrolimus",process="hepatic_CYP3A_metabolism",
                 endpoint_class="CLINICAL_PK")
 
+    def test_organ_donor_versus_recipient_sample_genotype_origin(self):
+        def geno(context,organ,sample,identity=True):
+            return qualify_pharmacogenetic_sampling_origin(
+                organ_transplant_status=context,target_function_organ=organ,
+                original_DNA_sample=sample,original_alleles_covered_verified=True,
+                donor_recipient_identity_verified=identity,
+                hematopoietic_chimerism_qualified=True)
+        # CYP hepatic metabolism after liver transplant: donor genotype
+        # matches transplanted liver, recipient peripheral blood does not.
+        donor=geno("liver_transplant","liver","donor_source_genotype")
+        self.assertEqual(donor["status"],
+                         "ORIGINAL_GENOTYPE_ORGAN_LINEAGE_ELIGIBLE_NOT_FUNCTION_ASSAY")
+        blood=geno("liver_transplant","liver","recipient_predonation_blood")
+        self.assertEqual(blood["status"],"ABSTAIN_TARGET_ORGAN_GERMLINE_UNQUALIFIED")
+        # Intestinal first pass remains recipient-derived in liver recipient.
+        intestine=geno("liver_transplant","intestine","recipient_predonation_blood")
+        self.assertEqual(intestine["status"],
+                         "ORIGINAL_GENOTYPE_ORGAN_LINEAGE_ELIGIBLE_NOT_FUNCTION_ASSAY")
+        # A liver graft sample is not the genotype of kidney or intestine.
+        incorrect=geno("liver_transplant","intestine","transplant_graft_tissue")
+        self.assertEqual(incorrect["status"],"ABSTAIN_TARGET_ORGAN_GERMLINE_UNQUALIFIED")
+        kidney=geno("kidney_transplant","kidney","transplant_graft_tissue")
+        self.assertEqual(kidney["status"],
+                         "ORIGINAL_GENOTYPE_ORGAN_LINEAGE_ELIGIBLE_NOT_FUNCTION_ASSAY")
+        no_alleles=qualify_pharmacogenetic_sampling_origin(
+            organ_transplant_status="liver_transplant",target_function_organ="liver",
+            original_DNA_sample="donor_source_genotype",
+            original_alleles_covered_verified=False,
+            donor_recipient_identity_verified=True,
+            hematopoietic_chimerism_qualified=True)
+        self.assertEqual(no_alleles["status"],
+                         "ABSTAIN_TARGET_ORGAN_GERMLINE_UNQUALIFIED")
+
+    def test_hematopoietic_donor_blood_not_recipient_germline_after_allo_HSCT(self):
+        a=qualify_pharmacogenetic_sampling_origin(
+            organ_transplant_status="allogeneic_hsct",target_function_organ="liver",
+            original_DNA_sample="current_peripheral_blood_leukocytes",
+            original_alleles_covered_verified=True,
+            donor_recipient_identity_verified=True,
+            hematopoietic_chimerism_qualified=False)
+        self.assertEqual(a["status"],"ABSTAIN_TARGET_ORGAN_GERMLINE_UNQUALIFIED")
+        self.assertIn("MAY_BE_DONOR",a["source_origin_inference_limit"])
+        b=qualify_pharmacogenetic_sampling_origin(
+            organ_transplant_status="allogeneic_hsct",target_function_organ="liver",
+            original_DNA_sample="recipient_native_nonhematopoietic_tissue",
+            original_alleles_covered_verified=True,
+            donor_recipient_identity_verified=True,
+            hematopoietic_chimerism_qualified=True)
+        self.assertEqual(b["status"],
+                         "ORIGINAL_GENOTYPE_ORGAN_LINEAGE_ELIGIBLE_NOT_FUNCTION_ASSAY")
     def test_stop_unknown_noncatalogue_and_mismatched_process(self):
         with self.assertRaises(PhysiopharmacoSpecimenError):
             q("Unverified_RNA_CYP3A5_from_plasma","tacrolimus","hepatic_CYP3A_metabolism")
