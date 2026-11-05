@@ -358,6 +358,29 @@ class PhysiopharmMethodTriageTests(unittest.TestCase):
                       byname(r,"bulk")["limitations"])
         self.assertFalse(annotated["predicted_omic_interpretability_from_sequence_not_activity"]
                          ["mutation_causes_loss_of_function_proven"])
+        self.assertEqual(r["genomic_assay_background_without_or_with_called_variants"]
+                         ["original_genetic_assay_status"],
+                         "site_variant_calls_with_unknown_gene_wide_coverage")
+        vep={"transcript_id":"NM_999999.1","assembly":"GRCh38","gene":"CYP3A5",
+             "vep_release":115,
+             "source_url":"https://www.ensembl.org/info/docs/tools/vep/index.html",
+             "sequence_ontology_terms":["missense_variant"]}
+        source_qualified=plan_physio_omic_acquisition(
+            drug="tacrolimus",endpoint="AUC",assays=choices,
+            sequence_variants=[{"reference_transcript":t,"variant":gen,
+                                "genome_assay":bg,
+                                "vep_transcript_annotation":vep}])
+        self.assertEqual(
+            source_qualified["reference_checked_DNA_transcript_codon_consequences"][0]
+            ["original_source_VEP_annotation_crosscheck_if_supplied"]["status"],
+            "SOURCE_DECLARED_VEP_SO_TERM_CONCORDANCE_NOT_FUNCTIONAL_PROOF")
+        with self.assertRaisesRegex(OmicTriageError,"VEP and local transcript"):
+            plan_physio_omic_acquisition(
+                drug="tacrolimus",endpoint="AUC",assays=choices,
+                sequence_variants=[{"reference_transcript":t,"variant":gen,
+                                    "genome_assay":bg,
+                                    "vep_transcript_annotation":{
+                                        **vep,"sequence_ontology_terms":["synonymous_variant"]}}])
         self.assertTrue(r["no_reported_variants_not_equivalent_to_functional_wildtype"])
         # Same synthetic region, a changed codon can produce a STOP instead.
         gen["genomic_position_1based"]=103
