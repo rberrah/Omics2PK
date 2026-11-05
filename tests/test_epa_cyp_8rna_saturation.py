@@ -1,8 +1,19 @@
 """Synthetic-only tests; never pass fixtures as original human cohort evidence."""
 import unittest
-import numpy as np
 from omics2pk.epa_liver_cyp_validation import EPALinkageError
-from scripts.benchmark_original_epa_cyp_8rna_saturation import _metrics_cv, GENES
+
+# The default repository-wide software qualification intentionally runs
+# without numerical optional extras. The dedicated source workflow installs
+# numpy/scikit-learn and runs these contracts rather than silently skipping.
+try:
+    import numpy as np
+    from scripts.benchmark_original_epa_cyp_8rna_saturation import _metrics_cv, GENES
+except ModuleNotFoundError as exc:
+    if exc.name not in {"numpy", "sklearn", "scipy"}:
+        raise
+    np = None
+    _metrics_cv = None
+    GENES = ()
 
 
 def synthetic_rows(seed=20261105):
@@ -19,6 +30,7 @@ def synthetic_rows(seed=20261105):
             for i in range(n)]
 
 
+@unittest.skipUnless(_metrics_cv is not None, "NumPy/sklearn optional scientific extras absent")
 class OriginalEPASaturationSyntheticContracts(unittest.TestCase):
     def test_all_arms_complete_and_not_original_PK(self):
         r=_metrics_cv(synthetic_rows(),"CYP3A4",repeats=1)
