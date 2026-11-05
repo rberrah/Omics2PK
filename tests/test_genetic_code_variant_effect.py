@@ -64,6 +64,20 @@ class GeneticCodeConsequencesTest(unittest.TestCase):
         self.assertTrue(implications["RNA_abundance_is_not_functional_protein"])
         self.assertFalse(implications["mutation_causes_loss_of_function_proven"])
 
+    def test_heterozygous_missense_does_not_eliminate_wildtype_allele(self):
+        observed={**variant(104,"A","C"),"allele_state":"heterozygous"}
+        result=annotate_genomic_snv(
+            reference_transcript=transcript(),variant=observed,
+            genome_assay=ASSAY)
+        self.assertEqual(result["original_attested_allele_state_or_unresolved"],
+                         "heterozygous")
+        self.assertTrue(result["functional_wildtype_allele_contribution_not_ruled_out"])
+        with self.assertRaises(GeneticCodeEffectError):
+            annotate_genomic_snv(
+                reference_transcript=transcript(),
+                variant={**observed,"allele_state":"assume_double_loss"},
+                genome_assay=ASSAY)
+
     def test_exonic_synonymous_is_not_always_functionally_neutral(self):
         # GCT Ala -> GCC Ala, no amino-acid change; splicing remains unknown.
         result=annotate_genomic_snv(
