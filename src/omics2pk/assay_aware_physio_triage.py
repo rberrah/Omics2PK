@@ -35,6 +35,7 @@ METHODS = {
     "PROTEIN_TARGETED_PEPTIDE": ("proteomics", "targeted_peptide"),
     "PROTEIN_TOP_DOWN_INTACT": ("proteomics", "intact_proteoform"),
     "METABOLITE_MS1_UNTARGETED": ("metabolomics", "source_chemical_peak"),
+    "METABOLITE_GC_EI_TOF_UNTARGETED": ("metabolomics", "source_EI_fragment_peak"),
     "METABOLITE_MSMS_TARGETED": ("metabolomics", "identified_molecule"),
     "METABOLITE_ISOTOPE_FLUX": ("metabolomics", "metabolic_flux"),
     "ACTIVITY_CYP3A_SHARED_PROBE": ("functional_activity", "shared_cyp3a"),
@@ -206,6 +207,15 @@ def _method_assay(entry):
             raise OmicTriageError("Metabolite structure/identity confidence must be declared")
         if method == "METABOLITE_MS1_UNTARGETED" and entry["chemical_identity_grade"] == "confirmed_standard":
             raise OmicTriageError("Untargeted MS1 alone does not confirm chemical structure with reference standard")
+        if method == "METABOLITE_GC_EI_TOF_UNTARGETED":
+            if entry.get("ionization_type") != "EI":
+                raise OmicTriageError("GC-EI-TOF requires explicit EI fragmentation provenance")
+            _nonblank(entry.get("derivatization_method"), "GC derivatization protocol, or source_unknown")
+            if entry["chemical_identity_grade"]=="confirmed_standard":
+                _source_url(entry.get("source_EI_standard_spectrum_url"),
+                            "GC-EI authentic standard reference spectrum")
+                _nonblank(entry.get("source_retention_index_reference"),
+                          "GC retention index reference under comparable method")
     if method.startswith("ACTIVITY_"):
         if not isinstance(entry.get("assay_validated"), bool):
             raise OmicTriageError("Enzyme/transporter probe requires an explicit validation boolean")
