@@ -24,7 +24,9 @@ MIN_BYTES=50_000_000
 def get_public_archive(path: Path):
     digest=hashlib.sha256()
     size=0
-    req=Request(SOURCE_URL,headers={
+    # The official GNPS DownloadResult servlet returns HTTP 405 to GET,
+    # but serves the published archive via POST (verified original source probe).
+    req=Request(SOURCE_URL,data=b"",headers={
         "User-Agent":"Omics2PK-academic-source-reproduction/1.0",
         "Accept":"application/zip,application/octet-stream,*/*"})
     try:
