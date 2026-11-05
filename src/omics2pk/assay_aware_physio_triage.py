@@ -133,6 +133,8 @@ def _variants(entries):
             raise OmicTriageError("Use qualified NM_ or ENST transcript accession")
         star = item.get("star_allele")
         if star is not None:
+            if star == "*1":
+                raise OmicTriageError("Reference *1 is a haplotype call, not a causal mutation event")
             if gene != "CYP3A5" or star not in CYP3A5_ALLELES:
                 raise OmicTriageError("Only explicitly source-classified CYP3A5 *1/*3/*6/*7 allowed")
             expected = {
@@ -188,8 +190,11 @@ def _method_assay(entry):
     if method == "PROTEIN_TARGETED_PEPTIDE":
         if entry.get("peptide_region") not in PEPTIDE_REGIONS:
             raise OmicTriageError("Targeted protein assay needs peptide location relative to variant")
-    if method == "PROTEIN_TOP_DOWN_INTACT" and entry.get("intact_identity_verified") not in (True, False):
-        raise OmicTriageError("Intact-proteoform assertion requires explicit verification boolean")
+    if method == "PROTEIN_TOP_DOWN_INTACT":
+        if entry.get("intact_identity_verified") not in (True, False):
+            raise OmicTriageError("Intact-proteoform assertion requires explicit verification boolean")
+        if entry.get("intact_identity_verified") is True:
+            _source_url(entry.get("original_spectrum_url"), "Original proteoform spectrum and isoform evidence")
     if method.startswith("METABOLITE_"):
         if entry.get("chemical_identity_grade") not in IDENTITIES:
             raise OmicTriageError("Metabolite structure/identity confidence must be declared")
@@ -242,6 +247,17 @@ def _rule_assay(drug, endpoint, a, variants):
     tissue = [_is_relevant_tissue(drug,g,a["tissue"],endpoint) for g in relevant]
     if any(t != "DIRECT_DRUG_RELEVANT_TISSUE" for t in tissue):
         issues.extend(sorted(set(t for t in tissue if t != "DIRECT_DRUG_RELEVANT_TISSUE")))
+    # An uptake/transporter process in another organ cannot automatically
+    # become a direct mechanistic covariate for a different PK endpoint.
+    if all(t == "DRUG_PATHWAY_NOT_DIRECT_FOR_RENAL_CLEARANCE" for t in tissue):
+        return {
+            "status":"ABSTAIN_WRONG_DRUG_PROCESS_FOR_ENDPOINT",
+            "assay_id":a["assay_id"],"method":method,"modality":a["modality"],
+            "source_gene_or_pathway_hypothesis":relevant,
+            "mechanism_confirmed_for_subject":False,
+            "eligible_for_outcome_ablation":False,
+            "why":["RENAL_CLEARANCE_NOT_INFERRED_FROM_HEPATIC_UPTAKE_PROXY"],
+        }
     assoc = [v for v in variants if v["gene"] in relevant and v["call_status"] != "missing"]
     nmd = {v["nmd_rule"] for v in assoc}
     if assoc and any(v["nmd_rule"] == "CLASSICAL_EJC_NMD_PLAUSIBLE_NOT_CONFIRMED" for v in assoc):
