@@ -91,6 +91,11 @@ jobs:
           assert 'Spearman_per_unique_cell_line_repeat_mean_prediction' in score
           assert score['source_has_not_proven_physical_GI50_unit_or_log_transform']
           assert result['prespecified_paired_heldout_MAE_contrasts']['mutations_added_to_RNA']['n_independent_line_units_resampled']==47
+          comparison=result['prespecified_paired_heldout_rank_Spearman_contrasts']['mutations_added_to_RNA']
+          assert comparison['status']=='EXPLORATORY_PAIRED_SPEARMAN_NOT_EXTERNAL'
+          assert comparison['n_independent_subjects_resampled']==47
+          assert comparison['not_external_or_model_selection_adjusted']
+          assert 'delta_RMSE_candidate_minus_reference_negative_is_better' in result['prespecified_paired_heldout_MAE_contrasts']['mutations_added_to_RNA']
           assert result['metric_criterion_sensitivity_descriptive_not_model_selection']['no_outer_test_metric_used_for_training_or_selection']
           assert set(result['original_in_vitro_GI50_observed_holdout']['nested_TP53_guided_80_90'])=={'80','90'}
           s=json.load(open('nci60_mutation_mechanism_aggregate.json'))
