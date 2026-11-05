@@ -14,6 +14,8 @@ from sklearn.model_selection import KFold
 
 from omics2pk.mechanism_matched_control import matched_source_control_panels
 from omics2pk.nci60_biochemical_coverage import PATHWAY_PANELS
+from omics2pk.predictive_diagnostics import summarize_heldout
+from omics2pk.biological_cascade_audit import audit_original_measured_cascade
 
 RNA_PRIOR=("TOP2A","TOP2B","ABCB1","ABCC1","ABCG2","CBR1","CBR3")
 PROTEIN_PRIOR=("TOP2B","ABCB1","CBR1")
@@ -113,9 +115,17 @@ def compare_source_priors_by_mutation(ids,lineage,y,mutation,mutation_labels,
     controls_result={}
     for key,vec in null.items():
         ctrl=np.abs(vec-y[None,None,:]).mean(axis=(1,2))
+        ctrl_rmse=np.sqrt(np.mean((vec-y[None,None,:])**2,axis=(1,2)))
         lower,median,upper=np.quantile(ctrl,[0.05,0.5,0.95])
+        lo_rmse,med_rmse,hi_rmse=np.quantile(ctrl_rmse,[.05,.5,.95])
         label=key+"_prior"
+        observed_rmse=float(np.sqrt(np.mean((predictions[label]-y[None,:])**2)))
         controls_result[key]={
+            "prior_RMSE_original_processed_GI50":round(observed_rmse,6),
+            "matched_source_random_RMSE_q05_q50_q95":[round(float(v),6)
+                                                        for v in (lo_rmse,med_rmse,hi_rmse)],
+            "fraction_of_random_matched_panels_with_lower_RMSE_than_prior":
+                round(float(np.mean(ctrl_rmse<observed_rmse)),6),
             "n_predeclared_measured_source_features":len(prior[key]),
             "n_assay_matched_negative_control_pipelines":controls,
             "prior_MAE":mae[label],
@@ -144,7 +154,14 @@ def compare_source_priors_by_mutation(ids,lineage,y,mutation,mutation_labels,
                 for key,err in abs_err.items() if key!="mutation_only"},
             "subgroup_posthoc_descriptive_only":True,
         }
+    cascade=audit_original_measured_cascade(
+        ids,y,mut,mutation_labels,source_names,xs)
+    diagnostics={arm:summarize_heldout(y,values)
+                 for arm,values in predictions.items()}
     return {
+        "predeclared_mechanistic_cascade_evidence":cascade,
+        "multi_metric_heldout_per_prior_model":diagnostics,
+        "biological_prior_RNA_protein_metabolite_signal_not_drug_function":True,
         "status":"REAL_SOURCE_SOMATIC_MUTATION_CONDITIONAL_RNA_PROTEIN_METABOLITE_PRIOR_NULL_GI50",
         "n_original_biologically_distinct_cell_lines":n,
         "n_repeated_correlated_test_predictions":n*repeats,
