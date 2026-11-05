@@ -31,6 +31,13 @@ jobs:
           assert o["n_individual_cyp2c9_missense_variants_with_both_scores"]==4421
           assert o["n_independent_protein_positions_grouped_for_holdout"]==464
           assert o["n_original_public_missense_decreased_activity_but_wt_like_abundance"]==400
+          classes=o["source_genetic_code_class_controls_not_human_mRNA_NMD"]
+          assert classes["nonsense"]["n_source_variant_substitutions"]==57
+          assert classes["synonymous"]["n_source_variant_substitutions"]==164
+          assert classes["missense"]["n_source_variant_substitutions"]==4421
+          assert classes["nonsense"]["source_assay_median_activity_score"]<0.02
+          assert classes["synonymous"]["source_assay_median_activity_score"]>0.95
+          assert o["stop_codon_construct_abundance_not_extrapolated_to_real_patient_NMD"]
           assert o["source_bytes_and_individual_scores_not_committed_or_exported"]
           assert o["heldout_by_amino_acid_position_not_variant_random_split"]
           assert o["not_transcriptome_metabolome_or_human_drug_PK"]
