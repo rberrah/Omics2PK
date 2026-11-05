@@ -320,6 +320,9 @@ def _rule_assay(drug, endpoint, a, variants):
             roles.append("total_rna_proxy")
         if assoc and any(v["consequence"]=="missense" for v in assoc):
             issues.append("MISSENSE_CAN_IMPAIR_PROTEIN_FUNCTION_WITH_UNCHANGED_RNA_ABUNDANCE")
+        if assoc and any(v.get("genetic_code_consequence") in {
+                "intron_variant","splice_region_variant"} for v in assoc):
+            issues.append("INTRONIC_VARIATION_CAN_AFFECT_REGULATION_OR_SPLICING_BUT_NOT_PROVEN")
         if assoc and any(v["consequence"] in {"splice_disrupting","premature_stop","frameshift"} for v in assoc):
             issues.append("TOTAL_RNA_CANNOT_DISTINGUISH_FUNCTIONAL_FROM_ABERRANT_TRANSCRIPT")
         if any(v.get("allele_state", "unresolved")=="heterozygous" for v in assoc):
@@ -457,7 +460,8 @@ def _rule_assay(drug, endpoint, a, variants):
     }
 
 
-def plan_physio_omic_acquisition(*, drug, endpoint, variants=(), assays=()):
+def plan_physio_omic_acquisition(*, drug, endpoint, variants=(), assays=(),
+                                  sequence_variants=(), genome_assay_background=None):
     """Pre-outcome ranked measurement design; not 'best omic' learned from data.
 
     The discrete ordering ranks *mechanistic interpretability of proposed
@@ -469,6 +473,109 @@ def plan_physio_omic_acquisition(*, drug, endpoint, variants=(), assays=()):
     if endpoint not in KNOWN[drug]["endpoints"]:
         raise OmicTriageError("Drug-specific original PK endpoint must be explicit")
     variants=_variants(variants)
+    # Sequence-aware enrichment is a separate, documented input: genomic
+    # coordinates/REF on a pinned build and exact, spliced transcript seq.
+    # It crosschecks the genetic code; cannot call phenotypes or whole
+    # PGx haplotypes. Intronic variants do not have a translated codon.
+    from .genetic_code_variant_effect import (
+        _background, annotate_genomic_snv, omic_implications,
+        reconcile_curated_cyp3a5_allele, GeneticCodeEffectError)
+    if genome_assay_background is None:
+        background={
+            "original_genetic_assay_status":"not_assessed",
+            "no_variant_detected_is_not_proof_of_unmodified_function":True,
+            "all_intronic_regulatory_and_structural_variants_excluded":False,
+            "star_allele_diplotype_verified":False,
+            "absence_of_called_variant_is_not_universal_reference_genome":True,
+        }
+    else:
+        try:
+            background=_background(genome_assay_background)
+        except GeneticCodeEffectError as exc:
+            raise OmicTriageError("DNA background qualification failed: "+str(exc)) from exc
+    if not isinstance(sequence_variants,(list,tuple)) or len(sequence_variants)>1000:
+        raise OmicTriageError("Sequence-edited genomic variant list must be explicit and finite")
+    reports=[]
+    seen_variant_ids=set()
+    consequence_map={
+        "missense_variant":"missense",
+        "synonymous_variant":"synonymous",
+        "stop_gained":"premature_stop",
+        "frameshift_variant":"frameshift",
+        "splice_donor_variant":"splice_disrupting",
+        "splice_acceptor_variant":"splice_disrupting",
+        "splice_region_variant":"unknown",
+        "intron_variant":"unknown",
+        "5_prime_UTR_variant":"regulatory",
+        "3_prime_UTR_variant":"regulatory",
+        "stop_lost":"unknown",
+        "start_lost":"unknown",
+        "inframe_insertion_or_deletion":"unknown",
+    }
+    for entry in sequence_variants:
+        if (not isinstance(entry, Mapping) or
+                not isinstance(entry.get("reference_transcript"),Mapping) or
+                not isinstance(entry.get("variant"),Mapping) or
+                not isinstance(entry.get("genome_assay"),Mapping)):
+            raise OmicTriageError("Each sequence variant needs original genome call, reference transcript, DNA assay metadata")
+        try:
+            effect=annotate_genomic_snv(
+                reference_transcript=entry["reference_transcript"],
+                variant=entry["variant"],
+                genome_assay=entry["genome_assay"])
+            implication=omic_implications(effect)
+        except GeneticCodeEffectError as exc:
+            raise OmicTriageError("Source genome-to-transcript/reference conflict: "+str(exc)) from exc
+        raw=entry["variant"]
+        uid=(effect["assembly"],effect["chromosome"],raw["genomic_position_1based"],
+             raw["genomic_ref_allele"],raw["genomic_alt_allele"],effect["transcript_id"])
+        if uid in seen_variant_ids:
+            raise OmicTriageError("Duplicate unphased genomic variant on same original transcript")
+        seen_variant_ids.add(uid)
+        curated=None
+        if entry.get("curated_cyp3a5_allele") is not None:
+            meta=entry["curated_cyp3a5_allele"]
+            if not isinstance(meta,Mapping):
+                raise OmicTriageError("CYP3A5 curated variant evidence must be a mapping")
+            try:
+                curated=reconcile_curated_cyp3a5_allele(
+                    sequence_effect=effect,
+                    source_variant_id=meta.get("source_variant_id"),
+                    hgvs_c=meta.get("transcript_hgvs"),
+                    star_allele=meta.get("star_allele"),
+                    source_url=meta.get("evidence_url"),
+                    variant_call_complete=meta.get("variant_call_complete",False))
+            except GeneticCodeEffectError as exc:
+                raise OmicTriageError("Curated functional variant disagrees with original translation: "+str(exc)) from exc
+        consequence=consequence_map.get(effect["sequence_consequence"],"unknown")
+        # Curated *6 synonymous sequence but splice disruption: retain BOTH
+        # independently sourced biological evidence levels.
+        if curated is not None and curated["curated_star_allele"] in {"*3","*6"}:
+            consequence="splice_disrupting"
+        val={
+            "gene":effect["gene"],"consequence":consequence,
+            "call_status":"partial", # a called site never establishes full haplotype
+            "source_variant_id":(":".join(str(v) for v in uid[:3])+
+                                 ":"+uid[3]+">"+uid[4]),
+            "source_url":raw["variant_source_url"],
+            "transcript_id":effect["transcript_id"],
+            "allele_state":"unresolved",
+            "genetic_code_consequence":effect["sequence_consequence"],
+            "sequence_prediction_not_donor_function":True,
+        }
+        if (effect.get("new_stop_cDNA_offset") is not None and
+                effect.get("last_exon_junction_cDNA_offset") is not None):
+            val["premature_stop_nt"]=effect["new_stop_cDNA_offset"]
+            val["last_exon_junction_nt"]=effect["last_exon_junction_cDNA_offset"]
+        variants.append(val)
+        reports.append({
+            "source_transcript_identity":effect["transcript_id"],
+            "consequence_derived_from_supplied_reference_code":effect,
+            "predicted_omic_interpretability_from_sequence_not_activity":implication,
+            "published_independently_curated_mechanism_if_any":curated,
+        })
+    if reports:
+        background["sequence_variants_are_observed_calls_not_complete_PGx_diplotype"]=True
     if not isinstance(assays, (list, tuple)) or not assays or len(assays)>1000:
         raise OmicTriageError("At least one original or proposed assay descriptor is required")
     parsed=[_method_assay(a) for a in assays]
@@ -530,12 +637,18 @@ def plan_physio_omic_acquisition(*, drug, endpoint, variants=(), assays=()):
         "drug":drug,
         "index_PK_endpoint":endpoint,
         "drug_specific_mechanism_source_url":PK_SOURCES[drug],
+        "reference_checked_DNA_transcript_codon_consequences":reports,
+        "genomic_assay_background_without_or_with_called_variants":background,
+        "no_reported_variants_not_equivalent_to_functional_wildtype":True,
+        "unphased_multiple_variants_not_combined_into_haplotypes":True,
         "variant_source_consequence_interpretations":[{
             "gene":v["gene"],"source_variant_id":v.get("source_variant_id"),
             "star_allele":v.get("star_allele"),
             "call_status":v["call_status"],
             "consequence":v["consequence"],"transcript_id":v.get("transcript_id"),
             "allele_state":v.get("allele_state","unresolved"),
+            "genetic_code_consequence_if_source_qualified":v.get("genetic_code_consequence"),
+            "single_annotated_variant_does_not_establish_diplotype":True,
             "canonical_NMD_rule_not_function_proof":v["nmd_rule"],
         } for v in variants],
         "assay_candidates_by_interpretability_not_expected_model_performance":outputs,
