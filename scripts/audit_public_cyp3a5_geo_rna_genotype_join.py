@@ -25,6 +25,49 @@ class GEOQualificationError(ValueError):
     pass
 
 
+def parse_geo_family_soft(raw, *, series, max_uncompressed=180_000_000):
+    """GEO public RNA-seq often has no Series Matrix; family SOFT is canonical.
+
+    Stream only original sample accession/title metadata. Never retain or
+    expose any original expression rows, measurements or patient attributes.
+    """
+    if not isinstance(raw,(bytes,bytearray)) or not 20<len(raw)<25_000_000:
+        raise GEOQualificationError("Bounded authentic GEO family SOFT source required")
+    try:
+        stream=gzip.GzipFile(fileobj=io.BytesIO(raw),mode="rb")
+        accession=None
+        titles=[]
+        gsm=[]
+        total_bytes=0
+        for line in stream:
+            total_bytes+=len(line)
+            if total_bytes>max_uncompressed:
+                raise GEOQualificationError("Source family SOFT exceeds bounded streaming audit")
+            if line.startswith(b"^SAMPLE = "):
+                accession=line.split(b"=",1)[1].strip().decode("utf-8")
+                gsm.append(accession)
+            elif line.startswith(b"!Sample_title = "):
+                if accession is None:
+                    raise GEOQualificationError("Sample title before original accession")
+                titles.append(line.split(b"=",1)[1].strip().decode("utf-8"))
+    except (EOFError,OSError,UnicodeDecodeError) as exc:
+        raise GEOQualificationError("Original GEO SOFT decompression/encoding invalid") from exc
+    if len(gsm)!=len(titles) or len(gsm)!=len(set(gsm)):
+        raise GEOQualificationError("GEO family SOFT original GSM/title pairing invalid")
+    if any(not re.fullmatch(r"GSM[0-9]{6,10}",z) for z in gsm):
+        raise GEOQualificationError("Non-original GEO SOFT GSM accession")
+    if not gsm:
+        raise GEOQualificationError("No GEO original source biological sample titles")
+    return {
+        "source_series":series,
+        "n_GEO_sample_records":len(gsm),
+        "source_SHA256":hashlib.sha256(raw).hexdigest(),
+        "n_unique_sample_titles":len(set(titles)),
+        "original_titles":titles,
+        "source_format":"original_GEO_family_SOFT_metadata_only",
+    }
+
+
 def parse_geo_series_matrix(raw,*,series,max_uncompressed=35_000_000):
     if not isinstance(raw,(bytes,bytearray)) or not 20<len(raw)<10_000_000:
         raise GEOQualificationError("Bounded authentic GEO compressed source required")
@@ -68,14 +111,29 @@ def parse_geo_series_matrix(raw,*,series,max_uncompressed=35_000_000):
 def audit_original():
     parsed={}
     for name,url in SERIES.items():
-        try:
-            with urlopen(Request(url,headers={
-                "User-Agent":"Omics2PK-original-GEO-variant-omics-source-audit/1.0"}),timeout=35) as response:
-                raw=response.read(10_000_001)
-        except (HTTPError,URLError,OSError,TimeoutError) as exc:
-            category=("HTTP_"+str(exc.code) if isinstance(exc,HTTPError) else type(exc).__name__)
-            raise GEOQualificationError(name+": OFFICIAL_SOURCE_UNAVAILABLE_"+category) from exc
-        parsed[name]=parse_geo_series_matrix(raw,series=name)
+        # RNA-seq and Illumina genotyping GEO series commonly provide
+        # family SOFT, but no Series Matrix file (HTTP 404). Source
+        # URL-specific fallback, never synthetic substitute.
+        soft=url.replace("/matrix/","/soft/").replace(
+            "_series_matrix.txt.gz","_family.soft.gz")
+        errors=[]
+        for method,location,reader,limit in (
+            ("series_matrix",url,parse_geo_series_matrix,10_000_001),
+            ("family_SOFT",soft,parse_geo_family_soft,25_000_001),
+        ):
+            try:
+                with urlopen(Request(location,headers={
+                    "User-Agent":"Omics2PK-original-GEO-variant-omics-source-audit/1.0"}),timeout=35) as response:
+                    raw=response.read(limit)
+                parsed[name]=reader(raw,series=name)
+                parsed[name]["source_download_format"]=method
+                break
+            except (HTTPError,URLError,OSError,TimeoutError,GEOQualificationError) as exc:
+                errors.append("HTTP_"+str(exc.code) if isinstance(exc,HTTPError)
+                              else type(exc).__name__)
+        if name not in parsed:
+            raise GEOQualificationError(name+": OFFICIAL_SOURCE_NOT_QUALIFIED_"+
+                                        "_".join(errors))
     r=parsed["RNA_seq_GSE124074"]
     d=parsed["genotyping_GSE147628"]
     # This is a *metadata-only* overlap of source titles. It is NOT
