@@ -145,7 +145,7 @@ class SourceTissuePhysioGate(unittest.TestCase):
                         "clinical_plus_genotype":[],"add_metabolomics":[post],
                     },drug="metformin",process="renal_transporter_secretion",
                     endpoint_class="CLINICAL_PK")
-        with self.assertRaisesRegex(PhysiopharmacoSpecimenError,"no real same-original"):
+        with self.assertRaisesRegex(PhysiopharmacoSpecimenError,"No real same-original"):
             qualify_public_omic_model_arms(
                 arm_to_original_sources={
                     "clinical_plus_genotype":[],
