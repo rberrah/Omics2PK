@@ -87,6 +87,39 @@ class LathamSourceGateTests(unittest.TestCase):
         self.assertFalse(r["in_vivo_PopPK_or_tacrolimus_prediction_demonstrated"])
         self.assertNotIn("XAA", str(r))
 
+    def test_PK_oriented_MAE_RMSE_log_error_and_p20_are_distinct_and_fold_safe(self):
+        result=benchmark_latham_phh_table4(fixture())
+        metrics=result["heldout_multiple_endpoint_appropriate_errors_same_donors"]
+        self.assertEqual(set(metrics),set(result["heldout_MAE_by_predeclared_arm_source_table_scale"]))
+        for arm, m in metrics.items():
+            self.assertEqual(m["MAE_original_in_vitro_clearance_scale"],
+                             result["heldout_MAE_by_predeclared_arm_source_table_scale"][arm])
+            self.assertGreaterEqual(m["RMSE_original_in_vitro_clearance_scale"],
+                                    m["MAE_original_in_vitro_clearance_scale"])
+            self.assertGreaterEqual(
+                m["root_mean_squared_log_predicted_over_observed"],
+                m["mean_absolute_log_predicted_over_observed"])
+            self.assertTrue(0 <= m["P20_ratio_0_8_to_1_2_not_drug_target"] <= 1)
+            self.assertTrue(0 <= m["within_factor_2_ratio_0_5_to_2_0"] <= 1)
+            self.assertGreaterEqual(m["within_factor_2_ratio_0_5_to_2_0"],
+                                    m["P20_ratio_0_8_to_1_2_not_drug_target"])
+        paired=result["exploratory_paired_13_original_donor_residual_bootstraps"]
+        self.assertEqual(len(paired),3)
+        for arm,d in paired.items():
+            self.assertEqual(set(d),{"MAE","mean_absolute_log_error"})
+            for metric,record in d.items():
+                self.assertLessEqual(record["exploratory_donor_bootstrap_95pct_interval"][0],
+                                     record["exploratory_donor_bootstrap_95pct_interval"][1])
+        self.assertFalse(result["bootstrap_refits_models_or_corrects_selection"])
+        self.assertTrue(result["outer_fold_omic_panel_selection_not_nested"])
+        self.assertTrue(result["P20_is_in_vitro_clearance_accuracy_not_dose_target_attainment"])
+        # Deterministic and independent of source donor row ordering.
+        again=benchmark_latham_phh_table4(list(reversed(fixture())))
+        self.assertEqual(result["heldout_multiple_endpoint_appropriate_errors_same_donors"],
+                         again["heldout_multiple_endpoint_appropriate_errors_same_donors"])
+        self.assertEqual(result["exploratory_paired_13_original_donor_residual_bootstraps"],
+                         again["exploratory_paired_13_original_donor_residual_bootstraps"])
+
     def test_metabolite_outcome_changes_never_enter_predictor_vectors(self):
         a = fixture()
         original = benchmark_latham_phh_table4(a)
@@ -95,6 +128,10 @@ class LathamSourceGateTests(unittest.TestCase):
         again = benchmark_latham_phh_table4(a)
         self.assertEqual(original["heldout_MAE_by_predeclared_arm_source_table_scale"],
                          again["heldout_MAE_by_predeclared_arm_source_table_scale"])
+        self.assertEqual(original["heldout_multiple_endpoint_appropriate_errors_same_donors"],
+                         again["heldout_multiple_endpoint_appropriate_errors_same_donors"])
+        self.assertEqual(original["exploratory_paired_13_original_donor_residual_bootstraps"],
+                         again["exploratory_paired_13_original_donor_residual_bootstraps"])
 
     def test_duplicate_or_missing_donor_fails_closed(self):
         a = fixture()
