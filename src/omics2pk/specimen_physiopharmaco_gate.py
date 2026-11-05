@@ -336,3 +336,75 @@ def qualify_public_specimen_for_PK(*,source_id,drug,process,
         "patient_PK_improvement_vs_complete_genotype_proven":False,
         "original_subject_rows_and_matrices_exported":False,
     }
+
+
+def qualify_public_omic_model_arms(*,arm_to_original_sources,
+                                   drug,process,endpoint_class):
+    """Guard against joining molecular arms from unrelated public cohorts.
+
+    This is study/source metadata qualification ONLY. Even if two
+    modalities originate from the same article, the original individual
+    patient ID match, assay precision and collection time must still be
+    checked by the primary-source predictor. No feature matrix generated.
+    """
+    if endpoint_class not in {
+            "CLINICAL_PK","IN_VITRO_DRUG_METABOLISM_NOT_CLINICAL_PK",
+            "BIOLOGICAL_FUNCTION_NOT_CLINICAL_PK","IN_VITRO_CELL_PD_NOT_PATIENT"}:
+        raise PhysiopharmacoSpecimenError("Original independent phenotype class unqualified")
+    if not isinstance(arm_to_original_sources,Mapping) or (
+            "clinical_plus_genotype" not in arm_to_original_sources):
+        raise PhysiopharmacoSpecimenError("Original clinical+measured genotype baseline mandatory")
+    if arm_to_original_sources["clinical_plus_genotype"] not in ([],()):
+        raise PhysiopharmacoSpecimenError("Clinical+genotype model arm cannot silently contain added omics")
+    if len(arm_to_original_sources)<2 or len(arm_to_original_sources)>20:
+        raise PhysiopharmacoSpecimenError("Original source omic comparison not specified")
+    used=set();descriptions={}
+    for arm,names in sorted(arm_to_original_sources.items()):
+        if not isinstance(arm,str) or not arm.strip():
+            raise PhysiopharmacoSpecimenError("Invalid original model arm identity")
+        if not isinstance(names,(list,tuple)) or (arm!="clinical_plus_genotype" and not names):
+            raise PhysiopharmacoSpecimenError("Every added omic model needs an actual measured source")
+        if len(names)!=len(set(names)):
+            raise PhysiopharmacoSpecimenError("Duplicate original assay in one omic arm")
+        assays=[]
+        for name in names:
+            q=qualify_public_specimen_for_PK(
+                source_id=name,drug=drug,process=process,
+                intended_prediction="ex_vivo_function" if endpoint_class!= "CLINICAL_PK"
+                else "baseline_predose",
+                require_real_human_drug_PK=(endpoint_class=="CLINICAL_PK"),
+            )
+            if q["sample_timing_interpretation"] in {
+                    "POSTDOSE_NOT_ELIGIBLE_AS_BASELINE_PREDICTOR",
+                    "REFERENCE_ATLAS_MEDIAN_NOT_INDIVIDUAL_BASELINE",
+                    "SOURCE_CELL_LINE_CULTURE_BATCH_NOT_PATIENT_TIME"}:
+                raise PhysiopharmacoSpecimenError(
+                    "Cannot insert post-dose, atlas median or cross-study culture profiles as individual predose predictors")
+            if endpoint_class=="CLINICAL_PK":
+                if not q["eligible_as_baseline_individual_PK_omic_proxy_under_source_contract"]:
+                    raise PhysiopharmacoSpecimenError(
+                        "No real same-original-patient predose omic and clinical PK join qualified by this public source")
+            elif q["public_original_source_qualification"] not in {
+                    "ORIGINAL_PUBLIC_DONOR_DATA_REPLAYED",
+                    "OWNER_AUTHORIZED_REPLAY_NOT_OPEN_RAW",
+            }:
+                raise PhysiopharmacoSpecimenError(
+                    "In-vitro function assay requires actual original individual human donor data")
+            assays.append(q)
+            used.add(name)
+        descriptions[arm]=assays
+    unique_refs={SOURCES[k]["original_reference"] for k in used}
+    if len(unique_refs)!=1:
+        raise PhysiopharmacoSpecimenError(
+            "Original omic arms from different studies cannot be matched as one biological cohort")
+    return {
+        "status":"QUALIFIED_ASSAY_TISSUE_SITE_AND_ORIGINAL_STUDY_FOR_PRESPECIFIED_ARMS",
+        "drug":drug,"biological_process":process,
+        "endpoint_class":endpoint_class,
+        "source_public_original_reference":next(iter(unique_refs)),
+        "n_distinct_original_measured_assays":len(used),
+        "arm_original_collection_sites":descriptions,
+        "source_site_does_not_prove_actual_original_subject_time_join":True,
+        "no_added_omic_accuracy_or_causal_effect_inferred":True,
+        "no_clinical_superiority_over_complete_genotype_claim":True,
+    }
