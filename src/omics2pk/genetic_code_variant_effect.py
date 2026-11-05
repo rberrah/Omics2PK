@@ -271,6 +271,9 @@ def annotate_genomic_snv(*, reference_transcript, variant, genome_assay):
         raise GeneticCodeEffectError("Original forward genomic single-base REF and ALT required")
     if variant.get("gene")!=r["gene"]:
         raise GeneticCodeEffectError("Gene cannot be silently assigned from genome position")
+    allele_state=variant.get("allele_state","unresolved")
+    if allele_state not in {"heterozygous","biallelic","hemizygous","unresolved"}:
+        raise GeneticCodeEffectError("Original genotype allelic state must be source-attested or unresolved")
     original_url=_reqstr(variant.get("variant_source_url"),"source genomic variant")
     if urlparse(original_url).scheme!="https":
         raise GeneticCodeEffectError("Source genomic variant requires HTTPS provenance")
@@ -281,6 +284,9 @@ def annotate_genomic_snv(*, reference_transcript, variant, genome_assay):
         "original_source_attested_not_live_reference_verified":True,
         "real_patient_germline_or_somatic_status_not_inferred":True,
         "complete_star_allele_haplotype_not_inferred":True,
+        "original_attested_allele_state_or_unresolved":allele_state,
+        "functional_wildtype_allele_contribution_not_ruled_out":allele_state in {
+            "heterozygous","unresolved"},
         **background,
     }
     if idx is None:
