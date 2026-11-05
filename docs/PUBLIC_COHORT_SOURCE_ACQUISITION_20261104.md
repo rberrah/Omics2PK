@@ -86,3 +86,78 @@ Sincerely, [researcher, institutional signature]
 - `PXD085173_61_ACTIVITY_AND_PROTEOME_CROSSWALK=ABSTAIN_ORIGINAL_ACTIVITY_KEY_NOT_ACQUIRED`
 
 Keep the previous `GSE49012` source-phenotype/publication parity blocker separate; **do not treat PXD085173 as a correction or replacement for that cohort**.
+
+
+## 2026-11-05 new nearest clinical CYP3A genotype + endogenous omic + measured PK lead: Shin 2013
+
+Primary [Shin et al., CPT 2013, DOI 10.1038/clpt.2013.128](https://doi.org/10.1038/clpt.2013.128),
+[PubMed 23784264](https://pubmed.ncbi.nlm.nih.gov/23784264/),
+reports **24 original healthy participants**, measured
+**IV midazolam clearance in three periods**:
+baseline, after ketoconazole CYP3A inhibition,
+and after rifampicin CYP3A induction.
+Blood/urine was collected around study periods;
+**urine 12-hour collections were obtained before and
+after midazolam** for endogenous steroid metabolomic
+profiling. Authors report **CYP3A5*3** genotype and
+metabolites/ratios, including DHEA and 7β-hydroxy-DHEA,
+cortisone and 6β-hydroxycortisone. A subsequent review
+(PMC4767386) describes a joint CYP3A5/three-metabolite
+model with reported \`r²≈0.70\`; this is **a secondary
+description of published model fit, not an independently
+reproduced, heldout or externally validated Omics2PK result**.
+Midazolam CYP3A is shared CYP3A4/CYP3A5 activity, NOT
+CYP3A5-specific catalysis.
+
+**Crucial original data gate:** Wiley lists four
+supplementary DOC tables and two TIFF figures, but we
+have **not acquired or source-verified 24 deidentified
+person × period rows with genuine genotype, true
+pre-dose metabolite assay values, and measured midazolam
+plasma CL**. No source-qualified original LODO
+clinical+PGx vs +metabolite MAE is available. No
+patient-value reconstruction from model equation or
+figures. Non-independent repeated periods must be
+held out by biological subject, not period, and
+inhibition/induction conditions cannot be treated
+as baseline independent test cohorts.
+
+This is a high-priority **real-drug same-subject
+study to seek an authorized original data extract**,
+not a complete publicly downloadable Omics2PK benchmark.
+Corresponding author listed by publisher:
+**Joo-Youn Cho** (\`joocho@snu.ac.kr\`; publication-era
+address, present deliverability unknown).
+Ask for original 24 subject IDs, 3 periods, genotype
+CYP3A5*3 allele-level calls and all originally measured
+metabolite/ratio source values with collection times,
+midazolam infusion/PK and period-specific renal/hepatic
+covariates, assay units, QC/BLQ, independent period
+processing, and explicit permissions. Run patient-level
+blocked CV with both clinical+true PGx and incremental
+pre-MDZ metabolite panels. No tacrolimus direct proof.
+
+**Complementarity with already executed real human
+midazolam PK:** Jarmusch n13 true PGx + predose
+untargeted plasma MS and observed oral CL/F currently
+shows NO reliable improvement from naive 2-PC MS1
+added to age/sex/limited PGx. Shin is more
+*endogenously mechanism-targeted* and IV CL, so a
+sensible attempted independent replication or
+mechanism falsification—not a reason to overwrite
+Jarmusch's negative findings.
+
+**New reproducible real public E2 result:** separate
+small draft [Omics2PK PR #139](https://github.com/rberrah/Omics2PK/pull/139),
+[original US EPA source workflow #42101612511](https://github.com/rberrah/Omics2PK/actions/runs/42101612511)
+compares **target CYP qPCR RNA** versus **all eight
+CYP qPCR transcripts** on 93–95 real identical
+donors per measured human liver functional CYP
+outcome, 3 × 5 donor-heldout CV. At fixed Ridge
+alpha1, extra seven CYP RNAs worsen 5/8
+activity prediction MAEs; a larger fixed penalty
+changes which enzymes benefit. The data do not
+contain PGx, human patient PK or separate omic
+modalities: this is biological *information
+selection* evidence only, explicitly research
+and source-validated.
