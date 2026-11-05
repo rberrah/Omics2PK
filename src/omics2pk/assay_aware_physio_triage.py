@@ -53,12 +53,14 @@ GENOTYPE_STATUSES = {"complete", "partial", "missing"}
 PEPTIDE_REGIONS = {"n_terminal", "c_terminal", "spans_variant", "unknown"}
 IDENTITIES = {"unassigned", "source_name_only", "putative_ms2", "confirmed_standard"}
 ROLES = ("direct_measured_function", "variant_or_isoform_resolution",
-         "protein_or_isoform_abundance", "total_rna_proxy", "pathway_proxy",
+         "protein_or_isoform_abundance", "regulatory_expression_hypothesis",
+    "total_rna_proxy", "pathway_proxy",
          "nonspecific_signal")
 LEVELS = {
     "direct_measured_function": 1,
     "variant_or_isoform_resolution": 2,
     "protein_or_isoform_abundance": 3,
+    "regulatory_expression_hypothesis": 3,
     "total_rna_proxy": 4,
     "pathway_proxy": 5,
     "nonspecific_signal": 6,
@@ -281,7 +283,15 @@ def _rule_assay(drug, endpoint, a, variants):
     if any(v["nmd_rule"].startswith("UNKNOWN_NO_TRANSCRIPT") for v in assoc):
         issues.append("PREMATURE_TERMINATION_NMD_GEOMETRY_UNRESOLVED")
     if method in {"RNA_GENE_BULK","RNA_3PRIME_TAG","RNA_EXON_SHORT_READ"}:
-        roles.append("total_rna_proxy")
+        if assoc and any(v["consequence"]=="regulatory" for v in assoc) and not any(
+                v["consequence"] in {"splice_disrupting","premature_stop","frameshift"}
+                for v in assoc):
+            roles.append("regulatory_expression_hypothesis")
+            evidence.append("RNA_CAN_REFLECT_REGULATORY_EXPRESSION_CHANGE_NOT_ACTIVITY")
+        else:
+            roles.append("total_rna_proxy")
+        if assoc and any(v["consequence"]=="missense" for v in assoc):
+            issues.append("MISSENSE_CAN_IMPAIR_PROTEIN_FUNCTION_WITH_UNCHANGED_RNA_ABUNDANCE")
         if assoc and any(v["consequence"] in {"splice_disrupting","premature_stop","frameshift"} for v in assoc):
             issues.append("TOTAL_RNA_CANNOT_DISTINGUISH_FUNCTIONAL_FROM_ABERRANT_TRANSCRIPT")
         if any(v.get("allele_state", "unresolved")=="heterozygous" for v in assoc):
@@ -352,6 +362,9 @@ def _rule_assay(drug, endpoint, a, variants):
             issues.append("PROBE_NOT_VALIDATED")
     elif method == "ACTIVITY_TRANSPORT_SUBSTRATE":
         match=a["substrate_drug"].casefold()==drug
+        if a["tissue"]=="microsomes":
+            issues.append("MICROSOME_FRACTION_LACKS_INTACT_TRANSPORTER_CELL_CONTEXT")
+            match=False
         if a["assay_validated"] and match and len(relevant)==1:
             roles.append("direct_measured_function")
         else:
@@ -360,6 +373,20 @@ def _rule_assay(drug, endpoint, a, variants):
     else:
         raise OmicTriageError("Unsupported modality rule path")
     role=min(roles,key=lambda r:LEVELS[r])
+    tissue_quality=("DIRECT_PHYSIOLOGICAL_TARGET_ORGAN" if all(
+                    t=="DIRECT_DRUG_RELEVANT_TISSUE" for t in tissue)
+                    else "INDIRECT_CIRCULATING_SURROGATE_NOT_ORGAN_FUNCTION" if all(
+                    t in {"DIRECT_DRUG_RELEVANT_TISSUE",
+                          "CIRCULATING_PROXY_TISSUE_NOT_DIRECT_ORGAN_ACTIVITY"}
+                    for t in tissue)
+                    else "NONMATCHING_OR_PARTIALLY_UNSUPPORTED_ORGAN")
+    tissue_priority={
+        "DIRECT_PHYSIOLOGICAL_TARGET_ORGAN":1,
+        "INDIRECT_CIRCULATING_SURROGATE_NOT_ORGAN_FUNCTION":2,
+        "NONMATCHING_OR_PARTIALLY_UNSUPPORTED_ORGAN":3,
+    }[tissue_quality]
+    if tissue_priority>1:
+        issues.append("METHODOLOGICALLY_VALID_ASSAY_IS_NOT_DIRECT_DRUG_ORGAN_FUNCTION")
     if (a["collection_phase"]=="postdose" or
             a["collection_phase"]=="unknown"):
         issues.append("NOT_QUALIFIED_PREDOSE_PREDICTOR")
@@ -385,6 +412,8 @@ def _rule_assay(drug, endpoint, a, variants):
         } for g in relevant],
         "variant_NMD_statuses":sorted(nmd),
         "candidate_explanatory_role":role,
+        "methodological_mechanistic_tissue_relevance":tissue_quality,
+        "tissue_relevance_priority_not_expected_prediction_gain":tissue_priority,
         "heuristic_acquisition_priority_tier_not_predictive_rank":LEVELS[role],
         "status":("CANDIDATE_FOR_FOLD_SAFE_EVALUATION" if eligible else
                   "PROSPECTIVE_MEASUREMENT_NOT_YET_ELIGIBLE" if a["status"]=="proposed" else
@@ -421,6 +450,7 @@ def plan_physio_omic_acquisition(*, drug, endpoint, variants=(), assays=()):
     outputs=[_rule_assay(drug,endpoint,a,variants) for a in parsed]
     outputs.sort(key=lambda a:(
         not a["status"].startswith(("CANDIDATE","PROSPECTIVE")),
+        a.get("tissue_relevance_priority_not_expected_prediction_gain",99),
         a.get("heuristic_acquisition_priority_tier_not_predictive_rank",999),
         a["assay_id"]))
     grouped={}
@@ -479,6 +509,7 @@ def plan_physio_omic_acquisition(*, drug, endpoint, variants=(), assays=()):
         } for v in variants],
         "assay_candidates_by_interpretability_not_expected_model_performance":outputs,
         "genes_with_any_relevant_assay_by_source":grouped,
+        "candidate_physio_assays_require_biological_validity_not_SHAP_only":True,
         "missing_measured_drug_process_genes":sorted(
             set(KNOWN[drug]["transporters"])-set(grouped)),
         "methodological_priorities_not_patient_PK_gain_estimates":True,
