@@ -8,6 +8,8 @@ import math
 from pathlib import Path
 from typing import Any
 
+from .tissue_evidence import audit_tissue_source_provenance
+
 OMICS = frozenset({"transcriptomics", "proteomics", "metabolomics"})
 SCHEMA_VERSION = "1.0.0"
 
@@ -126,7 +128,8 @@ def inspect_exchange(directory: str | Path) -> dict[str, Any]:
     return {"schema_version": SCHEMA_VERSION, "analysis_id": manifest.get("analysis_id"),
             "data_access": study["data_access"], "validation": status,
             "subjects": len({r["subject_id"] for r in samples}), "assays": len(samples),
-            "matrices": matrices, "clinical_use": False, "network_inferred": False}
+            "matrices": matrices, "clinical_use": False, "network_inferred": False,
+            "source_tissue_evidence": audit_tissue_source_provenance(samples)}
 
 
 def _sweet_expression_preflight(

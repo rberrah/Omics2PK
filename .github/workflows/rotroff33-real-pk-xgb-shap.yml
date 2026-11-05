@@ -1,0 +1,51 @@
+name: Original Rotroff predose human PK XGBoost SHAP and fold-safe white-box
+on:
+  pull_request:
+    paths:
+      - "src/omics2pk/rotroff33_xgb_shap_whitebox.py"
+      - "scripts/validate_rotroff33_xgb_shap_whitebox.py"
+      - "tests/test_rotroff33_xgb_shap_whitebox.py"
+      - ".github/workflows/rotroff33-real-pk-xgb-shap.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  genuine-human-pk-xgb-shap:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+      - name: Pin scientific training/XGB TreeSHAP stack, no external SHAP model dependence
+        run: |
+          python -m pip install -e .
+          python -m pip install 'numpy==2.2.6' 'scikit-learn==1.7.2' 'xgboost==3.0.5'
+      - name: Offline synthetic-only SHAP additivity and clinical source-gate tests
+        run: python -m unittest discover -s tests -p 'test_rotroff33_xgb_shap_whitebox.py' -v
+      - name: Published Rotroff n32 real metformin AUC and CLr 384 feature XGB and train-only white-box
+        run: |
+          set -o pipefail
+          python -m scripts.validate_rotroff33_xgb_shap_whitebox | tee rotroff33_original_xgb_shap_whitebox_aggregate.json
+      - name: Verify explicitly source-matched human PK and no chemical mechanism overclaim
+        run: |
+          python - <<'PY'
+          import json
+          r=json.load(open('rotroff33_original_xgb_shap_whitebox_aggregate.json'))
+          assert r['status'].startswith('EXECUTED_ORIGINAL_HUMAN_')
+          assert r['n_source_omics_features']==384
+          assert r['n_unknown_numeric_bins_unidentified']==229
+          assert not r['external_clinical_validation']
+          assert not r['actual_genotype_and_PopPK_baseline_available']
+          assert len(r['endpoints'])==2
+          for endpoint in r['endpoints'].values():
+              assert endpoint['n_exact_original_LOOCV_test_folds']==32
+              assert len(endpoint['models_same_subject_same_outer_folds'])==7
+              assert endpoint['outer_test_SHAP_never_used_to_select_scored_features']
+          PY
+      - uses: actions/upload-artifact@v6
+        with:
+          name: rotroff33-genuine-human-pk-xgb-shap-aggregate-only
+          path: rotroff33_original_xgb_shap_whitebox_aggregate.json
+          retention-days: 21

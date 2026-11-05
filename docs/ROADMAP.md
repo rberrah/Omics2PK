@@ -2,6 +2,81 @@
 
 This list follows the earlier MultiOmics → SWEET → Pillar A → Pillar B R2 discussions. **When inspected the Omics2PK repository was empty; there was no pre-existing to-do file to read.** The plan below has therefore been reconstructed and must be reconciled with the owner's priorities.
 
+## Public-only execution track — frozen 2026-11-05
+
+**For current development, assume NO additional owner, hospital,
+BIOMARGIN/ABIS, tacrolimus, proteomics or genotype cohort will arrive.**
+Access to future specimens is an *optional* external scientific
+validation, not a blocker to source-audited public research work.
+This overrides the outdated assumption below that further
+development must primarily wait on new cohort acquisition.
+
+- [x] Document source-real original sampling sites,
+  **actual tissue vs biofluid vs engineered cell line**, collection
+  landmark and assay technology:
+  [public-only site catalogue](PUBLIC_ONLY_SPECIMEN_ORIGIN_PHYSIOPHARMACO_20261105.md).
+- [x] Add fail-closed physiopharmacological tissue/source control,
+  original variant/construct donor origin, transplanted organ donor
+  versus recipient and possible allo-HSCT hematopoietic chimerism.
+  Real protein/metabolite abundance must NOT be assigned an
+  unmeasured origin/causal enzyme.
+- [x] Test original GTEx V8 **liver vs whole-blood CYP3A4/5 RNA**
+  on published medians (not paired donor phenotype).
+- [x] Original **Latham n13 PHH in-vitro** public gene/targeted
+  protein/shared substrate activity and imatinib clearance,
+  compared across source PGx-only, +protein, +probe and both,
+  MAE/log MAE/RMSE/P20 and exploratory paired intervals.
+  Source-annotated adapter has synthetic strict source tests;
+  subsequent official PMC downloads can transiently fail
+  despite previous successful source replays. Keep fail-closed.
+- [x] NCI60 **47 matched named cancer cell lines**
+  cross-study RNA/protein/metabolomics/somatic mutation,
+  actual doxorubicin cell PD: separate biological cell-line
+  generalization from human drug PK; no forced same aliquot.
+- [x] MultiOmics CYP2C9 **n4,421 engineered variant**
+  VAMP-seq cultured human protein versus yeast
+  Click-seq activity, and NUDT15 **n2,844 variants**
+  independent HEK293T protein and post-thioguanine cell PD:
+  original-source protein/function contradiction is a
+  *candidate mechanism*, not protein decay proof.
+- [x] Rotroff **33 original heparin plasma predose/postdose
+  GC-TOF** same-person studies, n32 real metformin
+  plasma PK AUClast/CLr: only time A is pre-treatment,
+  B/C require an on-treatment future landmark;
+  **full patient PGx is absent**.
+- [ ] Use the already open EATRIS-Plus v4 processed
+  n125 **white-blood-cell RNA + plasma protein/metabolome**
+  to audit assay-specific missingness and cross-fraction
+  sample matching (without restricted WGS/clinical PK).
+  This is a **MultiOmics integration** benchmark, not
+  a genotype-to-CYP PK proof.
+- [ ] Complete original public GEO hepatocyte
+  **GSE124074 RNA + GSE147628 genotyping**
+  per-donor rs776746/exon-junction readouts *only if
+  original public genotype and quantitative exon files
+  are explicitly available*; we already confirmed
+  60 exact sample title matches, not true SNP values.
+- [ ] Consolidate publication-ready, preregistered
+  **absence of guaranteed benefit from adding omics**:
+  physiological tissue, variant consequence, omic method,
+  pre-vs-postdose and source genotype coverage as
+  explanatory *gates*; compare with random/method-matched
+  controls, multi-metric heldout losses and
+  subject/site-provenance null tests.
+- [ ] Independent full patient clinical PK + **complete**
+  CYP3A4/5 PGx + all omics and organ/treatment context:
+  **explicitly not currently achievable** in the public-only
+  source data; keep as a future unproven extension rather than
+  a prerequisite or completed claim.
+
+**Strict outcome ceiling:** existing public data can establish
+functional prediction in isolated tissues, or systemic
+metabolomics vs measured metformin PK **without full PGx**;
+they cannot establish that tissue-guided multiomics
+improves clinical tacrolimus PK over complete PGx.
+No donor/source patient matrices should be copied to
+public GitHub to circumvent licensing or privacy.
+
 ## Current development boundary — source acquisition first
 
 The remaining open scientific blockers are now consolidated in [the external data acquisition matrix](EXTERNAL_DATA_ACQUISITION_MATRIX_20261024.md). Until one of those gates receives legitimate real source rows, generic SWEET/model complexity is **not** the priority. Software changes should be limited to source ingestion, leakage/identity safety, preregistered execution, or reproducibility of an acquired dataset.

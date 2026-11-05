@@ -1,0 +1,53 @@
+name: Original NCI60 metabolite identity and pathway ablations (not PK)
+on:
+  pull_request:
+    paths:
+      - "scripts/benchmark_original_nci60_pathway_annotation.py"
+      - "src/omics2pk/nci60_biochemical_coverage.py"
+      - "scripts/benchmark_original_nci60_threeomics_swath.py"
+      - "tests/test_nci60_biochemical_coverage.py"
+      - ".github/workflows/nci60-original-pathway-metabolites.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  real-paired-cell-line-pathway-qc:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/checkout@v5
+        with:
+          repository: mixOmics-org/mixOmics
+          ref: 9f9fd66b69105fdb618b54588b638b567e85c0d6
+          path: upstream/mixomics
+          persist-credentials: false
+      - uses: actions/checkout@v5
+        with:
+          repository: Mathelab/NCI60_GeneMetabolite_Data
+          ref: 4c140708c18c41910458414a626b1a51d3dd2a85
+          path: upstream/nci60-multiomics
+          persist-credentials: false
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          r-version: "release"
+          use-public-rspm: true
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+      - run: python -m pip install -e '.[benchmark]' openpyxl==3.1.5
+      - name: Test fail-closed synthetic-only identity and pathway-label annotations
+        run: python -m unittest discover -s tests -p 'test_nci60_biochemical_coverage.py' -v
+      - name: Export source-identity-checked original RNA, metabolites and measured GI50 in temporary storage
+        run: Rscript scripts/export_public_nci60_twoomics.R upstream/mixomics upstream/nci60-multiomics original_temp_source
+      - name: Qualify original chemical labels and evaluate source-measured pathway panels on identical heldout lines
+        run: python scripts/benchmark_original_nci60_pathway_annotation.py --data original_temp_source --annotation upstream/nci60-multiomics/fData.metab.csv --out nci60_pathways_source_aggregate.json
+      - name: Delete original source observations and omic matrices
+        if: always()
+        run: rm -rf original_temp_source
+      - uses: actions/upload-artifact@v6
+        if: success()
+        with:
+          name: nci60-original-pathway-metadata-and-aggregate-losses-only
+          path: nci60_pathways_source_aggregate.json
+          retention-days: 21

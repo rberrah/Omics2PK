@@ -1,0 +1,19 @@
+name: Rotroff original pre-dose metabolite annotation qualification (no source rows)
+on:
+  pull_request:
+    paths:
+      - "scripts/audit_rotroff33_predose_feature_labels.py"
+      - ".github/workflows/rotroff33-original-metabolite-identity.yml"
+  workflow_dispatch:
+permissions: {contents: read}
+jobs:
+  original-annotation-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with: {python-version: "3.11"}
+      - run: python -m pip install -e .
+      - name: Original published n33 source original chemical label versus 384 predose feature audit
+        run: python -m scripts.audit_rotroff33_predose_feature_labels

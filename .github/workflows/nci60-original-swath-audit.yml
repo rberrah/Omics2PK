@@ -1,0 +1,20 @@
+name: NCI60 original SWATH protein source structure audit
+on:
+  pull_request:
+    paths:
+      - "scripts/audit_original_nci60_swath_proteome.py"
+      - ".github/workflows/nci60-original-swath-audit.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+      - run: pip install openpyxl==3.1.5
+      - run: python scripts/audit_original_nci60_swath_proteome.py

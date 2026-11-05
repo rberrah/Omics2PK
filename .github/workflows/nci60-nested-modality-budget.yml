@@ -1,0 +1,94 @@
+name: Original NCI60 nested 80-90pct minimal RNA-protein-metabolite modality budget
+on:
+  pull_request:
+    paths:
+      - "src/omics2pk/modalities_information_budget.py"
+      - "scripts/benchmark_original_nci60_nested_modality_budget.py"
+      - "tests/test_modalities_information_budget.py"
+      - ".github/workflows/nci60-nested-modality-budget.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  genuine-nci60-three-assay-inner-budget:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/checkout@v5
+        with:
+          repository: mixOmics-org/mixOmics
+          ref: 9f9fd66b69105fdb618b54588b638b567e85c0d6
+          path: upstream/mixomics
+          persist-credentials: false
+      - uses: actions/checkout@v5
+        with:
+          repository: Mathelab/NCI60_GeneMetabolite_Data
+          ref: 4c140708c18c41910458414a626b1a51d3dd2a85
+          path: upstream/nci60-multiomics
+          persist-credentials: false
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          r-version: "release"
+          use-public-rspm: true
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+      - name: Install pinned scientific XGB and original SWATH source parser
+        run: python -m pip install -e . 'numpy==2.2.6' 'scikit-learn==1.7.2' 'xgboost==3.0.5' 'openpyxl==3.1.5' 'matplotlib==3.10.7'
+      - name: Verify cost-selective 80/90 percent methods offline without clinical/source rows
+        run: python -m unittest discover -s tests -p 'test_modalities_information_budget.py' -v
+      - name: Source-original public NCI60 RNA / metabolome and doxorubicin GI50 matched identity export
+        run: Rscript scripts/export_public_nci60_twoomics.R upstream/mixomics upstream/nci60-multiomics private_temp_source
+      - name: Real original Guo2019 3171 protein SWATH source and 47 cell-line nested XGB assay budget
+        run: |
+          set -o pipefail
+          python scripts/benchmark_original_nci60_nested_modality_budget.py \
+            --data private_temp_source --out nci60_threeomics_nested_modalities_aggregate.json \
+            | tee nci60_threeomics_nested_stdout_aggregate.json
+      - name: Source rows must be deleted regardless of success
+        if: always()
+        run: rm -rf private_temp_source
+      - name: Actual biological cohort and 80-90pct selection must be truly nested
+        run: |
+          python - <<'PY'
+          import json
+          r=json.load(open('nci60_threeomics_nested_modalities_aggregate.json'))
+          assert r['n_independent_original_lines']==47
+          assert r['n_correlated_repetition_test_records']==141
+          assert r['three_repetitions_five_outer_folds_four_inner_folds']
+          assert r['clinical_PK_assay_evidence_claimed'] is False
+          assert len(r['all_mono_pair_threeomic_fixed_heldout_XGB_models'])==8
+          for q in ('80','90'):
+              b=r['adaptive_80_90pct_inner_heldout_gain_assay_budget'][q]
+              assert b['no_original_outer_source_cell_line_used_for_choice']
+              assert sum(b['selected_arm_by_outer_fold'].values())==15
+          print('PASS original source 47 three-layer doxorubicin GI50 nested model selection, not human PK')
+          PY
+      - name: Test and audit original ranked human source genes with STRING v12.5 (functional only, no drug causality)
+        run: |
+          python -m unittest discover -s tests -p 'test_nci60_string_shap_mechanistic_network.py' -v
+          python -m unittest discover -s tests -p 'test_physiopharmaco_cascade.py' -v
+          python -m scripts.audit_nci60_string_shap_mechanistic_network | tee nci60_source_shap_STRING12_5_aggregate.json
+      - name: Source-verified STRING 17-gene functional-only graphical cascade
+        run: |
+          python -m scripts.plot_nci60_string_shap_cascade \
+            --input nci60_source_shap_STRING12_5_aggregate.json \
+            --output nci60_source_shap_STRING12_5_functional_network.png
+      - name: Network source uncertainty gate
+        run: |
+          python - <<'PY'
+          import json
+          r=json.load(open('nci60_source_shap_STRING12_5_aggregate.json'))
+          assert r['status'].startswith('ABSTAIN') or r['patient_PK_or_drug_transport_rate_measured'] is False
+          assert r['n_edges'] is None or r['n_edges']>=0
+          print('SOURCE STRING RESULT:',r['status'])
+          PY
+      - uses: actions/upload-artifact@v6
+        with:
+          name: original-NCI60-threeomics-nested-80-90-percent-assay-cost-aggregate-only
+          path: |
+            nci60_threeomics_nested_modalities_aggregate.json
+            nci60_source_shap_STRING12_5_aggregate.json
+            nci60_source_shap_STRING12_5_functional_network.png
+          retention-days: 21

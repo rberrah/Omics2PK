@@ -1,0 +1,53 @@
+name: Original NCI60 protein+RNA+metabolites GI50 benchmark
+on:
+  pull_request:
+    paths:
+      - "scripts/benchmark_original_nci60_threeomics_swath.py"
+      - "tests/test_nci60_threeomics_original.py"
+      - ".github/workflows/nci60-original-threeomics-gi50.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  original-source-threeomics:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/checkout@v5
+        with:
+          repository: mixOmics-org/mixOmics
+          ref: 9f9fd66b69105fdb618b54588b638b567e85c0d6
+          path: upstream/mixomics
+          persist-credentials: false
+      - uses: actions/checkout@v5
+        with:
+          repository: Mathelab/NCI60_GeneMetabolite_Data
+          ref: 4c140708c18c41910458414a626b1a51d3dd2a85
+          path: upstream/nci60-multiomics
+          persist-credentials: false
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          r-version: "release"
+          use-public-rspm: true
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+      - name: Install frozen dependency set
+        run: python -m pip install -e '.[benchmark]' openpyxl==3.1.5
+      - name: Synthetic-only identity and no-leak CV contracts
+        run: python -m unittest discover -s tests -p 'test_nci60_threeomics_original.py' -v
+      - name: Recover original transcriptome, metabolome, drug response by true public cell-line keys
+        run: Rscript scripts/export_public_nci60_twoomics.R upstream/mixomics upstream/nci60-multiomics private_temp_source
+      - name: Verify original 2019 SWATH Table S1E checksum and benchmark exact 3-view intersection
+        run: python scripts/benchmark_original_nci60_threeomics_swath.py --data private_temp_source --out nci60_original_threeomics_aggregate.json
+      - name: Delete source material
+        if: always()
+        run: rm -rf private_temp_source
+      - name: Upload aggregate metrics only
+        if: success()
+        uses: actions/upload-artifact@v6
+        with:
+          name: original-nci60-threeomics-GI50-aggregate-only
+          path: nci60_original_threeomics_aggregate.json
+          retention-days: 30

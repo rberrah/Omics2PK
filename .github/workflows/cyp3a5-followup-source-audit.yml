@@ -1,0 +1,25 @@
+name: Original CYP3A5 article-data structure and genotype-specific probe audit
+# Network-dependent public source availability is audited on demand.
+# Mandatory PR offline CI still runs the synthetic DOI/metadata contracts.
+# Dataset NOT fetched remains explicitly ABSTAIN in the audit JSON.
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  original-source-inventory:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+      - name: Install pure source reader environment
+        run: |
+          python -m pip install -e .
+          python -m pip install 'beautifulsoup4==4.12.3'
+      - name: Contract tests with only synthetic source fixtures
+        run: python -m unittest discover -s tests -p 'test_public_cyp3a5_followup_sources.py' -v
+      - name: Inspect ORIGINAL Grangeon Bissada Topletz study metadata from DOI-pinned primary articles
+        run: python -m scripts.audit_public_cyp3a5_followup_sources

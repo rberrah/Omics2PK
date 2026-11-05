@@ -1,0 +1,62 @@
+name: Prospective assay-aware physiopharmacological omic choice (offline)
+on:
+  pull_request:
+    paths:
+      - "src/omics2pk/assay_aware_physio_triage.py"
+      - "tests/test_assay_aware_physio_triage.py"
+      - "scripts/demo_physio_assay_triage.py"
+      - "src/omics2pk/cyp3a_activity_phenotype.py"
+      - "src/omics2pk/functional_knowledge.py"
+      - "src/omics2pk/physiopharmaco_cascade.py"
+      - ".github/workflows/physiopharmaco-assay-aware-omic-triage.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  no-fabricated-donor-pgx-or-activity:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+      - name: Install only research package (stdlib assay triage)
+        run: python -m pip install -e .
+      - name: Test canonical NMD boundary, CYP3A5 stop/splice, method validity and PK process negative controls
+        run: python -m unittest discover -s tests -p 'test_assay_aware_physio_triage.py' -v
+      - name: Run metadata-only hypothetical tacrolimus and metformin acquisition design
+        run: |
+          python scripts/demo_physio_assay_triage.py > /tmp/assay_aware_demo.json
+          python - <<'PY'
+          import json
+          report=json.load(open("/tmp/assay_aware_demo.json"))
+          assert report["demo_type"]=="HYPOTHETICAL_ASSAY_METADATA_ONLY_NOT_PATIENT_PK"
+          assert report["is_original_patient_study"] is False
+          tac=report["scenario_tacrolimus_CYP3A5_star3_splicing"]
+          met=report["scenario_metformin_renal_transport_not_Pgp"]
+          assert tac["original_outcome_not_used_for_assay_prioritization"]
+          assert tac["variant_source_consequence_interpretations"][0]["canonical_NMD_rule_not_function_proof"]=="UNKNOWN_NO_TRANSCRIPT_RESOLVED_STOP_AND_LAST_JUNCTION"
+          methods={x["assay_id"]:x for x in tac["assay_candidates_by_interpretability_not_expected_model_performance"]}
+          assert methods["total_RNA"]["candidate_explanatory_role"]=="total_rna_proxy"
+          assert methods["isoform_RNA"]["candidate_explanatory_role"]=="variant_or_isoform_resolution"
+          assert methods["CYP3A5_selective_assay"]["candidate_explanatory_role"]=="direct_measured_function"
+          assert methods["shared_midazolam_probe"]["candidate_explanatory_role"]=="pathway_proxy"
+          assert all(not x["eligible_for_outcome_ablation"] for x in methods.values())
+          p={x["assay_id"]:x for x in met["assay_candidates_by_interpretability_not_expected_model_performance"]}
+          assert p["hepatic_OCT1_RNA_for_CLr"]["status"]=="ABSTAIN_WRONG_DRUG_PROCESS_FOR_ENDPOINT"
+          assert p["renal_OCT2_transport_function"]["candidate_explanatory_role"]=="direct_measured_function"
+          rot=report["original_Rotroff_metformin_source_feature_ID_only_no_patient_data"]
+          peak=rot["assay_candidates_by_interpretability_not_expected_model_performance"][0]
+          assert peak["method"]=="METABOLITE_GC_EI_TOF_UNTARGETED"
+          assert peak["status"]=="CANDIDATE_PREDICTIVE_ONLY_NO_CURATED_MECHANISM"
+          assert peak["eligible_for_outcome_ablation"]
+          assert peak["eligible_for_physio_mechanism"] is False
+          assert not rot["prospective_fold_safe_evaluation_plan"]["actual_same_subject_modalities_intersection_verified"]
+          assert not tac["prospective_fold_safe_evaluation_plan"]["actual_same_subject_modalities_intersection_verified"]
+          assert tac["no_quantitative_activity_or_effect_sizes_invented"]
+          print("PASS: no same-donor PK claim, tissue-appropriate drug-specific omic assay design, explicit NMD unknown")
+          PY
+      - name: Delete ephemeral metadata-only design
+        if: always()
+        run: rm -f /tmp/assay_aware_demo.json

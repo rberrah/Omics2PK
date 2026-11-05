@@ -1,0 +1,54 @@
+name: Genetic code reference checked variant consequences and assay interpretability (offline)
+on:
+  pull_request:
+    paths:
+      - "src/omics2pk/genetic_code_variant_effect.py"
+      - "src/omics2pk/assay_aware_physio_triage.py"
+      - "src/omics2pk/functional_knowledge.py"
+      - "tests/test_genetic_code_variant_effect.py"
+      - "tests/test_assay_aware_physio_triage.py"
+      - "scripts/demo_genetic_code_omic_interpretation.py"
+      - ".github/workflows/genetic-code-omic-functional-triage.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  code-stop-missense-splice-without-false-clinical-function:
+    runs-on: ubuntu-latest
+    timeout-minutes: 9
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+      - run: python -m pip install -e .
+      - name: Exon/intron, plus/minus strand, reference codon/stop, no-variant, CYP3A5 *6 tests
+        run: |
+          python -m unittest discover -s tests -p 'test_genetic_code_variant_effect.py' -v
+          python -m unittest discover -s tests -p 'test_assay_aware_physio_triage.py' -v
+      - name: Original synthetic-only, never confused with human CYP3A5 source
+        run: |
+          python scripts/demo_genetic_code_omic_interpretation.py > /tmp/synthetic_code_omics.json
+          python - <<'PY'
+          import json
+          d=json.load(open("/tmp/synthetic_code_omics.json"))
+          assert d["not_original_genotyping_or_pharmacokinetics"]
+          x=d["genetic_code_synthetic_examples"]
+          assert x["missense_ARN_can_be_present_but_function_unproven"]["genetic_code_effect"]["sequence_consequence"]=="missense_variant"
+          assert not x["missense_ARN_can_be_present_but_function_unproven"]["hypotheses_for_omic_measurement"]["mutation_causes_loss_of_function_proven"]
+          assert x["stop_gained_new_termination_and_possible_NMD"]["genetic_code_effect"]["sequence_consequence"]=="stop_gained"
+          assert x["synonymous_same_amino_acid_but_splicing_not_excluded"]["genetic_code_effect"]["sequence_consequence"]=="synonymous_variant"
+          assert x["intron_splice_donor_RNA_needed"]["genetic_code_effect"]["sequence_consequence"]=="splice_donor_variant"
+          assert d["curated_literature_cyp3a5_star6_known_synonymous_splice_override"]["genetic_code_result"]=="synonymous_variant"
+          assert "ABERRANT_SPLICING" in d["curated_literature_cyp3a5_star6_known_synonymous_splice_override"]["independent_literature_mechanism"]
+          p=d["stop_gained_physio_assay_design"]
+          assert p["reference_checked_DNA_transcript_codon_consequences"][0]["consequence_derived_from_supplied_reference_code"]["sequence_consequence"]=="stop_gained"
+          assert not p["prospective_fold_safe_evaluation_plan"]["actual_same_subject_modalities_intersection_verified"]
+          q=d["no_variant_reported_does_not_prove_normal_protein"]
+          assert q["no_reported_variants_not_equivalent_to_functional_wildtype"]
+          assert not q["genomic_assay_background_without_or_with_called_variants"]["star_allele_diplotype_verified"]
+          print("PASS: source-ref allele sequence coherence, cautious genetic-code to omic priorities, no donor/PK functionality invented")
+          PY
+      - name: Remove ephemeral purely synthetic example data
+        if: always()
+        run: rm -f /tmp/synthetic_code_omics.json

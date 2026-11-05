@@ -1,0 +1,64 @@
+name: NCI60 original 3omics XGBoost TreeSHAP cell-line PD not human PK
+on:
+  pull_request:
+    paths:
+      - "scripts/benchmark_original_nci60_threeomics_xgb_shap.py"
+      - "tests/test_nci60_threeomics_xgb_shap.py"
+      - ".github/workflows/nci60-original-threeomics-xgb-shap.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  threeomics-real-original-XGB-SHAP:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/checkout@v5
+        with:
+          repository: mixOmics-org/mixOmics
+          ref: 9f9fd66b69105fdb618b54588b638b567e85c0d6
+          path: upstream/mixomics
+          persist-credentials: false
+      - uses: actions/checkout@v5
+        with:
+          repository: Mathelab/NCI60_GeneMetabolite_Data
+          ref: 4c140708c18c41910458414a626b1a51d3dd2a85
+          path: upstream/nci60-multiomics
+          persist-credentials: false
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          r-version: "release"
+          use-public-rspm: true
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+      - name: Pin research numerical/XGBoost+exact Tree SHAP source dependencies
+        run: python -m pip install -e . 'numpy==2.2.6' 'scikit-learn==1.7.2' 'xgboost==3.0.5' 'openpyxl==3.1.5'
+      - name: Synthetic exact SHAP numerical and source cell line gates
+        run: python -m unittest discover -s tests -p 'test_nci60_threeomics_xgb_shap.py' -v
+      - name: Recover source original three-layer NCI60 cohort by biological line ID
+        run: Rscript scripts/export_public_nci60_twoomics.R upstream/mixomics upstream/nci60-multiomics private_temp_source
+      - name: Source original Guo SWATH proteome hash and 3x5 fold-heldout XGB/SHAP, all mono/pair/three-omics
+        run: python scripts/benchmark_original_nci60_threeomics_xgb_shap.py --data private_temp_source --out nci60_threeomics_xgb_shap_aggregate.json
+      - name: Remove source patient/cell-line-level original data (always)
+        if: always()
+        run: rm -rf private_temp_source
+      - name: Ensure model actually trained on original same-lineage 47 cell lines and did not confuse GI50 with PK
+        run: |
+          python - <<'PY'
+          import json
+          x=json.load(open('nci60_threeomics_xgb_shap_aggregate.json'))
+          assert x['n_independent_cell_lines']==47
+          assert x['n_same_subject_test_records']==141
+          assert x['clinical_pk_claimed'] is False
+          assert x['source_omic_assays_different_studies_and_biological_batches'] is True
+          assert len(x['models_on_identical_original_cell_lines'])==10
+          assert 'ABCB1' in x['predeclared_doxorubicin_gene_candidates']
+          print('PASS original NCI60 3-omics XGB SHAP source gates')
+          PY
+      - uses: actions/upload-artifact@v6
+        with:
+          name: original-nci60-threeomics-xgb-shap-GI50-PD-aggregate-only
+          path: nci60_threeomics_xgb_shap_aggregate.json
+          retention-days: 21

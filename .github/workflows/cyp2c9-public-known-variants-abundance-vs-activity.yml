@@ -1,0 +1,51 @@
+name: Public CYP2C9 variant effects from protein abundance versus direct functional activity
+on:
+  pull_request:
+    paths:
+      - "src/omics2pk/public_cyp2c9_variant_function_benchmark.py"
+      - "scripts/benchmark_public_cyp2c9_variant_activity_abundance.py"
+      - "tests/test_public_cyp2c9_variant_function_benchmark.py"
+      - ".github/workflows/cyp2c9-public-known-variants-abundance-vs-activity.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  original-missense-variant-abundance-versus-activity:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+      - run: python -m pip install -e .
+      - name: Offline source and residue-level CV adversarial tests
+        run: python -m unittest discover -s tests -p 'test_public_cyp2c9_variant_function_benchmark.py' -v
+      - name: Fetch original public CYP2C9 Table S5 Git blob and replay 4421 measured missense variants
+        run: |
+          python -m scripts.benchmark_public_cyp2c9_variant_activity_abundance > /tmp/cyp2c9_public_variant_summary.json
+          python - <<'PY'
+          import json
+          o=json.load(open("/tmp/cyp2c9_public_variant_summary.json"))
+          assert o["status"]=="ORIGINAL_PUBLIC_VARIANT_DMS_OUT_OF_FOLD_FUNCTION_NOT_HUMAN_PK"
+          assert o["n_individual_cyp2c9_missense_variants_with_both_scores"]==4421
+          assert o["n_independent_protein_positions_grouped_for_holdout"]==464
+          assert o["n_original_public_missense_decreased_activity_but_wt_like_abundance"]==400
+          classes=o["source_genetic_code_class_controls_not_human_mRNA_NMD"]
+          assert classes["nonsense"]["n_source_variant_substitutions"]==57
+          assert classes["synonymous"]["n_source_variant_substitutions"]==164
+          assert classes["missense"]["n_source_variant_substitutions"]==4421
+          assert classes["nonsense"]["source_assay_median_activity_score"]<0.02
+          assert classes["synonymous"]["source_assay_median_activity_score"]>0.95
+          assert o["stop_codon_construct_abundance_not_extrapolated_to_real_patient_NMD"]
+          assert o["source_bytes_and_individual_scores_not_committed_or_exported"]
+          assert o["heldout_by_amino_acid_position_not_variant_random_split"]
+          assert o["not_transcriptome_metabolome_or_human_drug_PK"]
+          assert len(o["heldout_metrics"])==4
+          assert o["heldout_metrics"]["protein_abundance_only"]["held_position_out_MAE_activity_score"] < o["heldout_metrics"]["fold_training_mean"]["held_position_out_MAE_activity_score"]
+          assert o["heldout_metrics"]["AA_change_plus_protein_abundance"]["held_position_out_MAE_activity_score"] < .3
+          print(json.dumps(o,sort_keys=True,indent=2))
+          PY
+      - name: Remove transient source-summary report
+        if: always()
+        run: rm -f /tmp/cyp2c9_public_variant_summary.json

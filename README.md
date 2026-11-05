@@ -2,6 +2,8 @@
 
 **General-purpose research framework for evaluating how transcriptomic, proteomic and metabolomic states improve individual pharmacokinetic prediction beyond clinical information and pharmacogenetics.** Tacrolimus/CYP3A is a current flagship validation case, **not a restriction of the framework to one drug or pathway**.
 
+**Public-data-only specimen-aware research programme (draft PR #137):** [where each omic is actually collected, from whom, by which assay and before/after dose](docs/PUBLIC_ONLY_SPECIMEN_ORIGIN_PHYSIOPHARMACO_20261105.md); [original genotype-plus-omic PK metrics and uncertainty](docs/OMIC_INCREMENTAL_PK_ENDPOINT_QUALIFICATION_20261105.md). **Patient liver function cannot be measured from whole-blood RNA by relabeling; plasma metabolites are systemic proxies, and original same-person complete PGx + multiomic tacrolimus PK has not yet been qualified.**
+
 ![General Omics2PK graphical abstract: measured clinical/genetic and single/multiomics data pass through direct-feature, functional-score, RNA-network or latent representations, compared with regression, XGBoost and PopPK on held-out patients and genuine measured PK.](docs/assets/omics2pk-generated-optimized.webp)
 
 [Original generated image (PNG, full resolution)](docs/assets/omics2pk-generated-original.png) · [Optimized WebP](docs/assets/omics2pk-generated-optimized.webp) · [Editable vector adaptation (SVG)](docs/assets/omics2pk-graphical-abstract.svg) · [Scientific tacrolimus protocol](docs/TACROLIMUS_FIRST_CYP3A4_CYP3A5_RESEARCH_PROTOCOL_20261019.md) · [Real-cohort source audit](docs/CYP3A_TACROLIMUS_OMICS_PK_PUBLIC_SOURCE_ACQUISITION_AUDIT_20261019.md) · [MultiOmics producer](https://github.com/rberrah/MultiOmics)
@@ -13,6 +15,91 @@
 For the **same people, measured PK outcomes, prediction landmark and held-out folds**, do individual molecular states improve prediction of drug AUC, CL/F or observed concentrations **beyond the clinical and authentic genotype reference appropriate to that drug**? Tacrolimus with CYP3A4/CYP3A5 is the initial flagship, but the contract permits other medicines and relevant CYP, UGT, transporter or biological pathways.
 
 The comparison is designed to be falsifiable: an omic signal may be redundant, unstable, tissue-inappropriate, or harmful for predictive performance. Links between RNA, enzyme activity and ex-vivo intrinsic clearance are **not** equivalent to predicting in-vivo tacrolimus disposition.
+
+### Original human-donor source replay: genotype, proteins, enzyme function (2026-11-04)
+
+An [independently reproduced published Latham PHH source pilot](docs/LATHAM_PHH_SOURCE_REPLAY_REAL_20261104.md) now reads **original public Table 4 in memory** (14 donor hepatocyte rows; the same 13 protein-complete donors for all four comparison arms). It verifies CYP3A5 *3/*6/*7 genotype classes and compares CYP2C8+CYP3A5 PGx against additional measured CYP proteins and CYP2C8/shared-CYP3A probe activities in fixed donor-heldout Ridge models. Replayed imatinib **in-vitro** source-table MAE: PGx 2.906576, +proteins 3.003704, +probe activities 2.762944, +both 3.262812; [original-source GitHub Actions replay](https://github.com/rberrah/Omics2PK/actions/runs/41804929408) passed. Among CPIC-classified nonexpressers, 9/9 with quantitative CYP3A5 peptide data had a positive signal and 10/10 had positive *shared* CYP3A probe activity—**neither establishes CYP3A5-specific catalytic function**. These are very small in-vitro original data and do **not** demonstrate clinical PK gains, multi-omic benefit, or tacrolimus dose utility. Original donor-level data never enter this repository.
+
+### CYP3A5-selective versus shared CYP3A activities (source audit, 2026-11-04)
+
+A [new published human-evidence and assay-specificity report](docs/CYP3A5_SELECTIVE_PROBE_AND_SUBSTRATE_EVIDENCE_20261104.md) distinguishes validated selective T-5 N-oxidation from shared CYP3A midazolam/testosterone activity, endogenous 4β-hydroxycholesterol and **post-drug-incubation** metabolites. The original-source activity benchmark now refuses an unqualified or shared CYP3A probe as a **CYP3A5-selective** training target. Literature controls include genotyped livers with drug-substrate-specific metabolic outcomes (Topletz vinorelbine, Bissada lapatinib) and Grangeon human-liver protein/genotype source inventory. **No same-donor complete PGx+RNA+protein+metabolomics+selective activity+clinical PK dataset is yet verified.** Live external-source audits can be abstained by remote host availability; offline contracts are the mandatory PR CI.
+
+### Original GEO liver miRNA–CYP3A activity: acquisition PASS, biological source-parity ABSTAIN (2026-11-04)
+
+The [GSE49012 original GEO source-qualification report](docs/GSE49012_ORIGINAL_MIRNA_CYP3A_SOURCE_PARITY_20261104.md) documents **34 same-liver original public microRNA arrays and source-declared CYP3A activities**: 22 cirrhotic and 12 normal, 683 biological miRNA probes, identical subject-heldout partitions and strictly train-only molecular PCA. Although the original GEO sample activities can be reproduced, their **22-cirrhotic-donor activity sum (12.533) is incompatible with the publication's whole n28 cirrhotic activity mean (0.28)** under the same-endpoint-and-subset assumptions. The normal n12 GEO mean (0.4708) matches the published 0.47. Thus any computed miRNA MAEs are **source-data diagnostics only**, not biological performance evidence; no benefit/negative omics claim is qualified. An explicit source-checking gate reports `ABSTAIN_GEO_ACTIVITY_PUBLICATION_GROUP_PARITY_FAILURE`. Provenance resolution is tracked in [issue #138](https://github.com/rberrah/Omics2PK/issues/138). The external source replay can be invoked separately; mandatory offline source tests remain in CI.
+
+### Original NCI-60 metabolite source-identity and biological-cascade audit — 2026-11-04
+
+[Original reproducible 47-cell-line pathway audit, complete tables and molecular gaps](docs/NCI60_BIOLOGICAL_PATHWAY_QC_20261104.md) · [source-executed SUCCESS #41850397076](https://github.com/rberrah/Omics2PK/actions/runs/41850397076). The original 280 IntLIM/Metabolon features contain **111 named chemical candidates, 161 unassigned `X-` features, 7 unresolved isobar mixtures, and 1 separately classified possible artifact**. A name is **not** MSI-level-1 evidence without original authentic-standard documentation. On unchanged 47 original cell-line GI50 targets, fixed tumor-class-adjusted Ridge/PCA MAE: **RNA only 0.334666**, full metabolites 0.355840, **111 named metabolites 0.345659**, RNA+named metabolites 0.344727, RNA+all metabolites 0.351537. Six source-attested named candidate biochemical pathway panels (GSH/redox, PPP, TCA, nucleotides, one-carbon, polyamines) were separately evaluated: **none improves on RNA only** in this narrow exploratory PD test. Direct doxorubicin mechanism crosswalk: RNA for TOP2A/TOP2B, ABCB1/ABCC1, CBR1 etc, but corresponding SWATH protein for TOP2B/ABCB1/CBR1 only; **no doxorubicin/doxorubicinol metabolite**, and GSSG/NADPH NADP+ not annotated for the redox panel. The mapping comprises **manually declared reaction-neighborhood hypotheses, not a verified complete Reactome/KEGG reaction network**; follow-up chemical ID/source timing and biological pathway verification are still required. No original source sample data committed.
+
+### Original NCI-60 measured 3-omics GI50 benchmark — 2026-11-04
+
+**Source-verified original public execution:** [NCI-60 original n47 result](docs/NCI60_THREEOMICS_ORIGINAL_GI50_RESULTS_20261104.md), [successful original-source workflow](https://github.com/rberrah/Omics2PK/actions/runs/41847348137). Same **47 original cell-line identities**, **17,987 genes**, **3,171 SWATH proteins** (original Guo 2019 Table S1E, original SHA pinned) and **280 metabolites**, original observed *in-vitro doxorubicin GI50*, NOT human PK. Fixed 3×5 fold Ridge, each omic 3 train-only PCs: unadjusted RNA-only MAE **0.308916**, protein-only **0.364261**, metabolite-only **0.382598**; cancer-class adjusted **RNA alone 0.334666**, **all 3 omics 0.358124** (3-minus-RNA ΔMAE **+0.023458**, descriptive paired 95% bootstrap **[+0.009865, +0.037185]**). Under these conditions indiscriminate fusion **worsens** GI50 predictive error; all omics were sampled in **different studies/culture batches**, not same specimen and there is no external cohort. Other models/data could behave differently. Never claim multiomics universally inferior or use this PD cell-line endpoint as tacrolimus PK evidence.
+
+### Public E2 same-donor source acquisition — 2026-11-04
+
+An [original-source acquisition decision and author request manifest](docs/PUBLIC_COHORT_SOURCE_ACQUISITION_20261104.md) now tracks **Zhang n100** (RNA+protein+CYP activities), **Liu n55** (CYP3A genotype+miRNA+mRNA+shared CYP3A activities+in-vitro atorvastatin metabolism), **Ohtsuki n17**, and the newly released **PXD085173 n61** human liver S9 DIA proteomics repository (University of Washington, 2026-10-23, [PXD085173](https://www.omicsdi.org/dataset/panorama/PXD085173)). The associated new preprint reports CYP2C9+FABP1 protein relationships with diclofenac/tolbutamide hydroxylation in **61 human livers**. However **neither the 61-donor observed activity crosswalk nor the Zhang/Liu/Ohtsuki complete individual source matrices are currently verified and acquired**. PXD085173 is a **within-proteomics, protein-context-to-function** hypothesis, not a CYP3A5-specific assay or genome/RNA/proteomics/drug-PK matched cohort. No recipient has been contacted automatically and no third-party donor data have been committed. See [existing acquisition issue #63](https://github.com/rberrah/Omics2PK/issues/63).
+
+### Reference-checked genomic sequence → codon / splice context → omic evidence (2026-11-05)
+
+The [genetic-code and variant-aware Omics2PK method](docs/GENETIC_CODE_VARIANT_TO_OMICS_FUNCTIONAL_TRIAGE_20261105.md)
+now checks caller-attested GRCh37/38 SNV coordinates, forward genomic REF/ALT,
+transcript exon intervals and strand, complete reference CDS, nuclear codons,
+**synonymous, missense, stop-gained/lost, start-lost and intron splice-site context**,
+and transcript-oriented frameshift/in-frame edits. Early stop NMD is
+**hypothesis only**, not a measured mRNA/protein loss; missense may preserve
+RNA and total protein while altering catalytic function. The same variant
+can be exonic in one transcript and intronic in another. A local
+codon-synonymous consequence is **not a functional-normality assertion**:
+the curated CYP3A5 *6 splice-disrupting exception is explicitly tested.
+
+`src/omics2pk/genetic_code_variant_effect.py` integrates into
+`plan_physio_omic_acquisition(sequence_variants=..., genome_assay_background=...)`.
+Missing/partially assayed genotype is never presumed WT, nor is one defining
+variant a phased CYP3A5 diplotype. An externally supplied, pinned Ensembl
+VEP Sequence Ontology annotation can be crosschecked, with conflicts
+reported as **ABSTAIN**, not silently assigned to an active enzyme.
+The source reference transcript is caller-attested, **not independently
+retrieved or validated against the genomic FASTA in this offline module**.
+
+[Synthetic sequence-only demo](scripts/demo_genetic_code_omic_interpretation.py)
+and [adversarial tests](tests/test_genetic_code_variant_effect.py) keep all
+mock reference coordinates separate from authentic donor-level PGx/PK.
+Genomic annotation does **not** predict the best-performing omic or an
+individual clearance; same-patient source assays and independent PK
+holdouts are still mandatory.
+### Physio-pharmacology × variant consequence × actual assay methodology (2026-11-05)
+
+The new [assay-aware prospective omic selection pipeline](docs/PIPELINE_PHYSIOPHARMACO_ASSAY_AWARE_OMICS_20261105.md)
+first maps **drug → pharmacokinetic process and target organ → authentic
+gene/variant and transcript → what an actual assay method can see**.
+It explicitly distinguishes bulk and 3′ RNA, exon/junction and
+long-read isoforms, bottom-up N-/C-terminal peptides versus verified
+intact proteoforms, unknown MS1 peaks versus structurally confirmed
+metabolites and selective versus pan-enzyme activity. A premature
+stop is not automatically loss of all mRNA: canonical EJC/NMD
+depends on its **transcript-specific position**, has exceptions, and
+neither residual RNA nor an N-terminal peptide proves active enzyme.
+
+`src/omics2pk/assay_aware_physio_triage.py` implements metadata-only
+rules with **provenance, substrate, tissue, method and predose gates**.
+It returns prospective measurement hypotheses and **cannot infer a
+predictive gain, PK parameter, allele-specific percent of function,
+or drug dose**. It reuses source-curated tacrolimus CYP3A4/5/ABCB1
+and metformin OCT/MATE pathway registries; unsupported drugs abstain
+until their causal context is sourced. Negative controls include
+metformin CLr not attributed to hepatic OCT1 and shared midazolam
+activity not mislabeled CYP3A5-selective.
+
+Run `python scripts/demo_physio_assay_triage.py` for **hypothetical
+method descriptors only** (no patient data), and
+`python -m unittest discover -s tests -p 'test_assay_aware_physio_triage.py' -v`.
+Independent measured patient omics+PGx+PK and donor-heldout CV remain
+**mandatory** before asserting which omic predicts best.
+
+### Biological knowledge reconciliation (research-only prototype, 2026-11-03)
+
+A [CYP3A5 functional-evidence pilot](docs/CYP3A5_FUNCTIONAL_EVIDENCE_PILOT_20261103.md) and [held-donor phenotype-proximity protocol](docs/PHENOTYPE_PROXIMITY_AND_FUNCTIONAL_ACTIVITY_20261103.md) and [split-conformal interval/assay-leakage qualification](docs/CYP3A5_ACTIVITY_UNCERTAINTY_AND_LEAKAGE_20261103.md) now triage potential contradictions between qualified *1/*3/*6/*7 allele calls and transcript/protein/activity/metabolite observations. Total-gene RNA detection is never treated as proof of active protein; ambiguous metabolites and incomplete PGx cause explicit warnings/abstentions. The module assigns **no fixed percent-of-function weights**, does **not** fit a PK model, and has **no demonstrated predictive gain**. MultiOmics V1 producer artifacts remain unchanged. Synthetic rule checks run in the offline Python tests.
 
 ### Research design
 
