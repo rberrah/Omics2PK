@@ -84,24 +84,32 @@ def audit_original_measured_cascade(ids, y, mutations, mutation_labels,
                 else "ABSTAIN_INSUFFICIENT_MUTATION_CARRIERS_FOR_SUBGROUP")
         if found["rna"] is not None:
             rna=np.asarray(assays["rna"][:,found["rna"]],dtype=float)
+            clean=np.isfinite(rna)
+            result["RNA_n_source_observed"]=int(clean.sum())
             result["RNA_vs_GI50_spearman_cross_study_exploratory"]=_r(
-                _rankspearman(rna,y) if np.isfinite(rna).all() else None)
+                _rankspearman(rna[clean],y[clean]) if clean.sum()>=10 else None)
         if found["prot"] is not None:
             protein=np.asarray(assays["prot"][:,found["prot"]],dtype=float)
+            clean=np.isfinite(protein)
+            result["protein_n_source_observed"]=int(clean.sum())
             result["protein_vs_GI50_spearman_cross_study_exploratory"]=_r(
-                _rankspearman(protein,y) if np.isfinite(protein).all() else None)
+                _rankspearman(protein[clean],y[clean]) if clean.sum()>=10 else None)
         if found["rna"] is not None and found["prot"] is not None:
             rna=np.asarray(assays["rna"][:,found["rna"]],dtype=float)
             protein=np.asarray(assays["prot"][:,found["prot"]],dtype=float)
-            if np.isfinite(rna).all() and np.isfinite(protein).all():
-                result["RNA_vs_SWATH_abundance_spearman_all_47_lines"]=_r(
-                    _rankspearman(rna,protein))
+            clean=np.isfinite(rna)&np.isfinite(protein)
+            result["n_original_RNA_and_SWATH_both_observed"]=int(clean.sum())
+            if clean.sum()>=10:
+                result["RNA_vs_SWATH_abundance_spearman_all_source_matched_lines"]=_r(
+                    _rankspearman(rna[clean],protein[clean]))
                 result["RNA_vs_SWATH_abundance_spearman_TP53_strata"]={
-                    str(int(g)):_r(_rankspearman(rna[tp53==g],protein[tp53==g]))
+                    str(int(g)):_r(_rankspearman(rna[clean & (tp53==g)],
+                                                protein[clean & (tp53==g)])
+                                    if np.sum(clean & (tp53==g))>=8 else None)
                     for g in (0,1)}
                 result["RNA_vs_SWATH_cross_lab_correlation_NOT_functional_protein"]=True
             else:
-                result["RNA_vs_SWATH_status"]="ABSTAIN_ORIGINAL_MISSING_ASSAY_MEASUREMENTS"
+                result["RNA_vs_SWATH_status"]="ABSTAIN_FEWER_THAN_10_COOBSERVED_ORIGINAL_LINES"
         gene_results[gene]=result
     original_met=set(source_names["met"])
     present=sorted(set(METS)&original_met)
