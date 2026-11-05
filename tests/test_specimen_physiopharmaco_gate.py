@@ -73,6 +73,17 @@ class SourceTissuePhysioGate(unittest.TestCase):
         self.assertFalse(any(x["original_paired_human_drug_PK_source_present"]
                              for x in (rna,p,m)))
 
+    def test_tacrolimus_immune_PD_blood_cells_can_be_proxy_not_tissue_CYP(self):
+        wbc=q("EATRIS_WHITE_BLOOD_CELLS_RNA","tacrolimus","immune_T_cell_PD")
+        self.assertEqual(wbc["mechanistic_relation_of_sample_to_process"],
+                         "IMMUNE_CELL_MIXTURE_POTENTIAL_PD_PROXY_NOT_TCELL_SPECIFIC_EFFECT")
+        self.assertFalse(wbc["original_paired_human_drug_PK_source_present"])
+        self.assertFalse(wbc["eligible_as_baseline_individual_PK_omic_proxy_under_source_contract"])
+        liver=q("EATRIS_WHITE_BLOOD_CELLS_RNA","tacrolimus",
+                "hepatic_CYP3A_metabolism")
+        self.assertEqual(liver["mechanistic_relation_of_sample_to_process"],
+                         "BLOOD_CELL_RNA_NOT_HEPATIC_OR_RENAL_TARGET_TISSUE")
+
     def test_HLC_liver_native_vs_liver_microsomes(self):
         a=q("HLC_LIVER_RNA","tacrolimus","hepatic_CYP3A_metabolism")
         b=q("HLC_LIVER_MICROSOME_CYP_PROBE","tacrolimus","hepatic_CYP3A_metabolism")
