@@ -1,0 +1,113 @@
+"""Synthetic contracts for provenance; source sample sites are curated facts."""
+import unittest
+from omics2pk.specimen_physiopharmaco_gate import (
+    SOURCES,qualify_public_specimen_for_PK,PhysiopharmacoSpecimenError,
+)
+
+def q(s,drug,process,**kw):
+    return qualify_public_specimen_for_PK(source_id=s,drug=drug,process=process,**kw)
+
+class SourceTissuePhysioGate(unittest.TestCase):
+    def test_curated_public_source_all_explicitly_organ_method_landmark(self):
+        self.assertGreaterEqual(len(SOURCES),15)
+        for source,v in SOURCES.items():
+            with self.subTest(source=source):
+                self.assertTrue(v["original_sample"])
+                self.assertTrue(v["original_organ"])
+                self.assertTrue(v["method"])
+                self.assertTrue(v["collection"])
+                self.assertFalse(v["has_full_PGx_panel"])
+
+    def test_GTex_actual_original_v8_liver_blood_not_a_donor(self):
+        liver=q("GTEX_V8_BULK_LIVER_RNA_MEDIAN","tacrolimus","hepatic_CYP3A_metabolism")
+        blood=q("GTEX_V8_WHOLE_BLOOD_RNA_MEDIAN","tacrolimus","hepatic_CYP3A_metabolism")
+        self.assertEqual(liver["mechanistic_relation_of_sample_to_process"],
+                         "SOURCE_IN_TARGET_ORGAN_BUT_NOT_PROOF_IN_VIVO_FUNCTION")
+        self.assertEqual(blood["mechanistic_relation_of_sample_to_process"],
+                         "BLOOD_CELL_RNA_NOT_HEPATIC_OR_RENAL_TARGET_TISSUE")
+        self.assertEqual(liver["sample_timing_interpretation"],
+                         "REFERENCE_ATLAS_MEDIAN_NOT_INDIVIDUAL_BASELINE")
+        self.assertFalse(liver["eligible_as_baseline_individual_PK_omic_proxy_under_source_contract"])
+        self.assertFalse(blood["eligible_as_baseline_individual_PK_omic_proxy_under_source_contract"])
+
+    def test_rotroff_real_plasma_baseline_vs_postdose_ABC(self):
+        a=q("ROTROFF_PLASMA_GCTOF_A","metformin","renal_transporter_secretion",
+            require_real_human_drug_PK=True)
+        b=q("ROTROFF_PLASMA_GCTOF_B","metformin","renal_transporter_secretion")
+        c=q("ROTROFF_PLASMA_GCTOF_C","metformin","renal_transporter_secretion")
+        self.assertEqual(a["actual_collected_fraction"],"plasma")
+        self.assertEqual(a["actual_anatomical_collection_organ"],"blood")
+        self.assertTrue(a["eligible_as_baseline_individual_PK_omic_proxy_under_source_contract"])
+        self.assertFalse(a["full_PGx_only_model_benchmark_possible_now"])
+        for x in (b,c):
+            self.assertFalse(x["eligible_as_baseline_individual_PK_omic_proxy_under_source_contract"])
+            self.assertEqual(x["sample_timing_interpretation"],
+                             "POSTDOSE_NOT_ELIGIBLE_AS_BASELINE_PREDICTOR")
+        self.assertFalse(q("ROTROFF_PLASMA_GCTOF_B","metformin",
+                           "renal_transporter_secretion",
+                           intended_prediction="on_treatment_future_landmark")
+                         ["eligible_as_baseline_individual_PK_omic_proxy_under_source_contract"])
+        self.assertEqual(a["mechanistic_relation_of_sample_to_process"],
+                         "SYSTEMIC_BIOFLUID_PROXY_NOT_TISSUE_SPECIFIC_ENZYME_FUNCTION")
+
+    def test_Latham_original_pHh_protein_not_function_or_clinical_PK(self):
+        prot=q("LATHAM_PHH_CYP_PROTEIN","imatinib","hepatic_CYP_metabolism")
+        act=q("LATHAM_PHH_SHARED_PROBE","imatinib","hepatic_CYP_metabolism")
+        self.assertEqual(prot["actual_collected_fraction"],"primary_hepatocytes")
+        self.assertEqual(act["actual_collected_fraction"],"primary_hepatocytes")
+        self.assertFalse(prot["source_is_direct_measurement_of_expected_target_organ_function"])
+        self.assertTrue(act["source_is_direct_measurement_of_expected_target_organ_function"])
+        self.assertFalse(act["original_paired_human_drug_PK_source_present"])
+        self.assertFalse(act["eligible_as_baseline_individual_PK_omic_proxy_under_source_contract"])
+
+    def test_EATRIS_blood_cell_transcript_not_plasma_or_liver(self):
+        rna=q("EATRIS_WHITE_BLOOD_CELLS_RNA","tacrolimus","hepatic_CYP3A_metabolism")
+        p=q("EATRIS_PLASMA_PROTEIN","tacrolimus","hepatic_CYP3A_metabolism")
+        m=q("EATRIS_PLASMA_METABOLITES","tacrolimus","hepatic_CYP3A_metabolism")
+        self.assertEqual(rna["mechanistic_relation_of_sample_to_process"],
+                         "BLOOD_CELL_RNA_NOT_HEPATIC_OR_RENAL_TARGET_TISSUE")
+        self.assertEqual(p["mechanistic_relation_of_sample_to_process"],
+                         "SYSTEMIC_BIOFLUID_PROXY_NOT_TISSUE_SPECIFIC_ENZYME_FUNCTION")
+        self.assertEqual(m["actual_collected_fraction"],"plasma")
+        self.assertFalse(any(x["original_paired_human_drug_PK_source_present"]
+                             for x in (rna,p,m)))
+
+    def test_HLC_liver_native_vs_liver_microsomes(self):
+        a=q("HLC_LIVER_RNA","tacrolimus","hepatic_CYP3A_metabolism")
+        b=q("HLC_LIVER_MICROSOME_CYP_PROBE","tacrolimus","hepatic_CYP3A_metabolism")
+        self.assertEqual(a["actual_collected_fraction"],"bulk_liver_tissue")
+        self.assertEqual(b["actual_collected_fraction"],"liver_microsomes")
+        self.assertFalse(a["source_is_direct_measurement_of_expected_target_organ_function"])
+        self.assertTrue(b["source_is_direct_measurement_of_expected_target_organ_function"])
+        self.assertFalse(a["full_PGx_only_model_benchmark_possible_now"])
+
+    def test_NCI60_cross_lab_lines_not_human_tacrolimus_biopsy(self):
+        for assay in ("NCI60_RNA","NCI60_SWATH_PROTEOMICS","NCI60_METABOLITES"):
+            x=q(assay,"doxorubicin","cancer_cellular_PD")
+            self.assertEqual(x["actual_collected_fraction"],"cancer_cell_line")
+            self.assertFalse(x["original_paired_human_drug_PK_source_present"])
+            self.assertFalse(x["eligible_as_baseline_individual_PK_omic_proxy_under_source_contract"])
+        x=q("NCI60_RNA","tacrolimus","hepatic_CYP3A_metabolism")
+        self.assertEqual(x["mechanistic_relation_of_sample_to_process"],
+                         "CANCER_CELL_LINE_ONLY_NOT_PATIENT_ORGAN")
+
+    def test_engineered_cyp2c9_yeast_not_liver_patient(self):
+        for assay in ("CYP2C9_DMS_VAMPSEQ","CYP2C9_DMS_CLICKSEQ",
+                      "NUDT15_DMS_HEK293T_PROTEIN","NUDT15_DMS_HEK293T_TOLERANCE"):
+            x=q(assay,"tacrolimus","hepatic_CYP3A_metabolism")
+            self.assertEqual(x["mechanistic_relation_of_sample_to_process"],
+                             "ENGINEERED_VARIANT_CONSTRUCT_NOT_REAL_PATIENT_ORGAN")
+            self.assertFalse(x["original_paired_human_drug_PK_source_present"])
+            self.assertFalse(x["patient_PK_improvement_vs_complete_genotype_proven"])
+
+    def test_stop_unknown_noncatalogue_and_mismatched_process(self):
+        with self.assertRaises(PhysiopharmacoSpecimenError):
+            q("Unverified_RNA_CYP3A5_from_plasma","tacrolimus","hepatic_CYP3A_metabolism")
+        with self.assertRaises(PhysiopharmacoSpecimenError):
+            q("ROTROFF_PLASMA_GCTOF_A","metformin","hepatic_CYP3A_metabolism")
+        with self.assertRaises(PhysiopharmacoSpecimenError):
+            q("ROTROFF_PLASMA_GCTOF_A","metformin","renal_transporter_secretion",
+              intended_prediction="predose_or_whatever")
+
+if __name__=="__main__":
+    unittest.main()
