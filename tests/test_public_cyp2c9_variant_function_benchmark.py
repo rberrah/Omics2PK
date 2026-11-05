@@ -7,7 +7,7 @@ import unittest
 
 from omics2pk.public_cyp2c9_variant_function_benchmark import (
     PublicVariantDMSUnavailable,parse_public_original,
-    benchmark_public_original,SOURCE_BLOB_SHA,
+    benchmark_public_original,SOURCE_BLOB_SHA,describe_known_class_controls,
 )
 from scripts.benchmark_public_cyp2c9_variant_activity_abundance import (
     qualify_original_public_blob,
@@ -54,6 +54,20 @@ class PublicKnownVariantTests(unittest.TestCase):
                            ["held_position_out_binary_activity_class_AUROC_not_PK_AUC"],.8)
         self.assertNotIn("A1C",str(observed))
         self.assertEqual(benchmark_public_original(rows),observed)
+
+    def test_synthetic_known_nonsense_synonymous_controls_do_not_claim_NMD(self):
+        original=fixture().decode().rstrip("\n")
+        csv_content=(original+"\nA41*,nonsense,41,A,*,nonsense-like,0.01,nonsense-like,0.01\n"
+                    +"A42A,synonymous,42,A,A,wt-like,1.0,wt-like,1.0\n").encode()
+        classes=describe_known_class_controls(csv_content,strict_original=False)
+        self.assertEqual(classes["source_genetic_code_class_controls_not_human_mRNA_NMD"]
+                         ["nonsense"]["n_source_variant_substitutions"],1)
+        self.assertEqual(classes["source_genetic_code_class_controls_not_human_mRNA_NMD"]
+                         ["synonymous"]["source_assay_median_activity_score"],1)
+        self.assertTrue(classes["stop_codon_construct_abundance_not_extrapolated_to_real_patient_NMD"])
+        self.assertFalse(classes["source_only_aggregate_no_original_variant_rows"] is False)
+        with self.assertRaises(PublicVariantDMSUnavailable):
+            describe_known_class_controls(csv_content,strict_original=True)
 
     def test_wrong_original_row_count_cannot_claim_real_replay(self):
         with self.assertRaisesRegex(PublicVariantDMSUnavailable,"source qualified"):
