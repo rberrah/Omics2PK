@@ -18,6 +18,7 @@ from urllib.parse import urlparse
 
 from .physiopharmaco_cascade import KNOWN, PK_SOURCES
 from .functional_knowledge import CYP3A5_ALLELES
+from .cyp3a_activity_phenotype import ASSAY_ROLES
 
 
 class OmicTriageError(ValueError):
@@ -209,7 +210,17 @@ def _method_assay(entry):
         if method == "ACTIVITY_TRANSPORT_SUBSTRATE":
             _nonblank(entry.get("substrate_drug"), "transported substrate drug")
         if method == "ACTIVITY_CYP3A5_SELECTIVE_PROBE":
-            _source_url(entry.get("selectivity_evidence_url"), "selective enzyme assay method evidence")
+            original_ref=_source_url(entry.get("selectivity_evidence_url"), "selective enzyme assay method evidence")
+            if (entry.get("probe_assay_code") != "T5_N_OXIDATION"
+                    or original_ref != "https://doi.org/"+ASSAY_ROLES["T5_N_OXIDATION"]["reference"]):
+                raise OmicTriageError("CYP3A5 selective-probe name/reference must exactly match curated T5 source method")
+        if method == "ACTIVITY_CYP3A_SHARED_PROBE":
+            code=entry.get("probe_assay_code")
+            if code not in {"MIDAZOLAM_1_HYDROXYLATION", "TESTOSTERONE_6B_HYDROXYLATION"}:
+                raise OmicTriageError("Shared CYP3A requires documented substrate-specific probe identity")
+            if (_source_url(entry.get("probe_evidence_url"), "shared CYP3A source")
+                    != "https://doi.org/"+ASSAY_ROLES[code]["reference"]):
+                raise OmicTriageError("Shared CYP3A substrate probe reference not qualified")
     return {
         **entry, "assay_id":name, "method":method, "gene":gene,
         "candidate_genes":candidates,
