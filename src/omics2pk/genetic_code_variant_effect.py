@@ -281,6 +281,9 @@ def annotate_genomic_snv(*, reference_transcript, variant, genome_assay):
     base={
         "gene":r["gene"],"transcript_id":r["transcript_id"],
         "assembly":r["assembly"],"chromosome":r["chromosome"],"strand":r["strand"],
+        "original_forward_genomic_position_1based":p,
+        "original_forward_genomic_ref_allele":first,
+        "original_forward_genomic_alt_allele":alt,
         "original_source_attested_not_live_reference_verified":True,
         "real_patient_germline_or_somatic_status_not_inferred":True,
         "complete_star_allele_haplotype_not_inferred":True,
@@ -363,8 +366,12 @@ def crosscheck_source_vep_terms(*, predicted, vep):
     transcript=_reqstr(vep.get("transcript_id"),"VEP versioned transcript_id")
     if (transcript!=predicted.get("transcript_id") or
             vep.get("assembly")!=predicted.get("assembly") or
-            vep.get("gene")!=predicted.get("gene")):
-        raise GeneticCodeEffectError("VEP transcript/assembly/gene must exactly match source consequence")
+            vep.get("gene")!=predicted.get("gene") or
+            vep.get("chromosome")!=predicted.get("chromosome") or
+            vep.get("genomic_position_1based")!=predicted.get("original_forward_genomic_position_1based") or
+            vep.get("genomic_ref_allele")!=predicted.get("original_forward_genomic_ref_allele") or
+            vep.get("genomic_alt_allele")!=predicted.get("original_forward_genomic_alt_allele")):
+        raise GeneticCodeEffectError("VEP transcript/assembly/genomic position/REF/ALT/gene must match same source SNV")
     release=vep.get("vep_release")
     if not isinstance(release,int) or isinstance(release,bool) or release<100 or release>1000:
         raise GeneticCodeEffectError("Pinned source VEP software/database release required")
