@@ -33,6 +33,14 @@ class MutationConditionalMechanism(unittest.TestCase):
         self.assertTrue(r["mutations_and_all_assay_preprocessing_train_only"])
         self.assertFalse(r["original_human_drug_pharmacokinetics_assayed"])
         self.assertFalse(r["confirmatory_mechanistic_or_genotype_effect_claim"])
+        self.assertEqual(r["predeclared_mechanistic_cascade_evidence"]
+                         ["n_biologically_distinct_cell_lines"],35)
+        self.assertEqual(set(r["multi_metric_heldout_per_prior_model"]),
+                         set(r["fixed_models_MAE_original_in_vitro_GI50"]))
+        for source in ("rna","prot","met"):
+            s=r["matched_random_control_comparison_by_layer"][source]
+            self.assertIn("prior_RMSE_original_processed_GI50",s)
+            self.assertEqual(len(s["matched_source_random_RMSE_q05_q50_q95"]),3)
         self.assertEqual(set(r["exploratory_TP53_stratum_MAE"]),{"0","1"})
 
     def test_missing_real_source_protein_is_not_filled(self):
