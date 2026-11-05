@@ -6,12 +6,6 @@ name: Public PHH genotype proteome enzyme-activity imatinib source replay
 # 42015617333 (multi-metric), 42017839096 rerun (generic E2 evidence).
 
 on:
-  pull_request:
-    paths:
-      - "src/omics2pk/latham_phh_source_gate.py"
-      - "src/omics2pk/specimen_physiopharmaco_gate.py"
-      - "tests/test_latham_phh_source_gate.py"
-      - ".github/workflows/latham-phh-source-replay.yml"
   workflow_dispatch:
 permissions:
   contents: read
