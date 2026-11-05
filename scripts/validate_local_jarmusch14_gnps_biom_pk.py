@@ -60,19 +60,22 @@ def load_original_source(archive):
         raise GNPSOriginalSourceError("Expected intact source archive, not raw clinical records")
     with path.open("rb") as f:
         digest = file_digest(f, "sha256").hexdigest()
-    if digest not in (ARCHIVE_SHA256, OFFICIAL_PUBLIC_REPACK_SHA256):
-        raise GNPSOriginalSourceError("Unrecognized source ZIP: official GNPS/public or prior original required")
+    # DownloadResult POST re-zips the same canonical task members on each call;
+    # the outer ZIP SHA varies, while all three original inner member SHA hashes
+    # stay fixed. Trust only the original 2019 archive OR all three exact
+    # independently source-qualified member hashes and the original schema.
+    source_archive_exact=(digest==ARCHIVE_SHA256)
     try:
         with ZipFile(path) as z:
             if (len(z.namelist()) != 12 or any(
                     item.file_size > 100_000_000 or item.is_dir() or ".." in Path(item.filename).parts
                     for item in z.infolist())):
                 raise GNPSOriginalSourceError("Original GNPS output member inventory changed")
-            if digest == OFFICIAL_PUBLIC_REPACK_SHA256:
+            if not source_archive_exact:
                 from hashlib import sha256
                 for member,expected in REPACK_CANONICAL_MEMBER_SHA256.items():
                     if sha256(z.read(member)).hexdigest()!=expected:
-                        raise GNPSOriginalSourceError("Official repackaged GNPS source member SHA mismatch")
+                        raise GNPSOriginalSourceError("Canonical public GNPS source member SHA mismatch")
             params = z.read("params.xml").decode("utf-8")
             if (GNPS_TASK not in params or "GNPS_quant.csv" not in params
                     or "QUANT_FILE_NORM" not in params):
