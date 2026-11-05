@@ -87,7 +87,7 @@ class PublicKnownVariantTests(unittest.TestCase):
 
     def test_missing_independent_positions_abstains(self):
         rows=parse_public_original(fixture(),strict_original=False)
-        with self.assertRaisesRegex(PublicVariantDMSUnavailable,"positions"):
+        with self.assertRaisesRegex(PublicVariantDMSUnavailable,"residues"):
             benchmark_public_original(rows[:20])
 
 
