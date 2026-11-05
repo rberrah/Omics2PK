@@ -147,6 +147,83 @@ biology provenance (actual patient vs engineered construct)
 and sample pairing proof. It must *not* change frozen
 `DOWNSTREAM_EXCHANGE_V1`.
 
+## EATRIS-Plus: public original cross-fraction analysis now quantitative
+
+[MultiOmics primary original-source evidence](https://github.com/rberrah/MultiOmics/blob/feat/variant-omic-functional-evidence-sidecar-20261105/docs/multiomics/EATRIS_PLUS_V4_PUBLIC_WBC_PLASMA_EVIDENCE_20261105.md)
+now includes a source-verified original MuData benchmark. The
+published Zenodo v4 141.7 MB `EATRIS_PLUS_mudata.h5mu`
+(MD5 `bbf0342797adcbcd6a3c5b242ca64573`)
+contains **125 overall subjects**, but **90** exact original
+persons match all four study assays used for prediction:
+
+- **white blood cell** `mRNA`: 16,386 original quantified
+  gene features;
+- **plasma** acylcarnitines (33) and amino acids (46):
+  79 targeted circulating metabolite features, **not**
+  hepatocyte enzyme flux and not direct hepatic metabolite
+  levels;
+- independently assayed **plasma** `proteins`:
+  1,393 original source feature columns, of which **80**
+  measured protein targets are preselected from training
+  samples alone in each outer fold;
+- all physical specimens belong to the same source person
+  by original index, **not proven same aliquot or
+  simultaneous collection**.
+
+The phenotype is the original **standardized plasma protein
+profile** (cross-omic reconstruction), **not** C0, AUC,
+individual CYP3A function, tacrolimus clinical PK or PGx.
+The earlier n90 repeated subject-heldout benchmark showed
+a mean-only baseline 0.760615 versus a poorly regularized
+RNA+metabolite model at 0.819299 (different original
+PC-per-layer design).
+
+**New independently executed original-source 2×2 model
+sensitivity** [CI SUCCESS #42068596760](https://github.com/rberrah/MultiOmics/actions/runs/42068596760)
+holds the *same total* 3 versus 9 training-only
+omics PCs for each predictive arm, and varies fixed
+Ridge alpha 10 versus 1,000,000:
+
+| WBC and/or plasma molecular predictor | 3 PCs, alpha=10 | 9 PCs, alpha=10 | 3 PCs, alpha=1e6 | 9 PCs, alpha=1e6 |
+|---|---:|---:|---:|---:|
+| None, source train mean | **0.760615** | **0.760615** | **0.760615** | **0.760615** |
+| WBC mRNA alone | 0.783413 | 0.807777 | 0.760637 | 0.760636 |
+| Plasma targeted metabolites alone | 0.773407 | 0.794645 | 0.760611 | 0.760611 |
+| WBC + plasma | 0.777599 | 0.808840 | 0.760627 | 0.760633 |
+
+**Within-model factor isolation:** at alpha 10, adding
+six PCs to the combined WBC/plasma predictor worsened
+the same-person standardized protein MAE by
+**+0.031241** (original-person paired descriptive
+95% bootstrap [+0.022673,+0.039824]). At 9 PCs,
+increasing fixed alpha from 10 to 1e6 reduced
+joint error by **−0.048207**
+[−0.060455,−0.036572], but reduced the molecular
+prediction almost to the constant **no-omics** mean.
+
+**Interpretation:** poor out-of-sample performance in
+n90 is consistent with finite-sample feature/model
+estimation and weak or redundant **cross-compartment
+signal**, not intrinsic information toxicity. Excessive
+shrinkage suppresses usable molecular variation and
+must **not** be interpreted as successful target-organ
+functional inference. The choice of alpha 1e6 was
+motivated by the earlier n90 model behavior, making
+this test **exploratory/post-hoc, not an independent
+confirmatory cohort**. Original-person bootstraps do
+not adjust model-choice multiplicity. The comparison
+cannot demonstrate that WBC RNA, plasma proteins or
+plasma metabolites help human tacrolimus PK **beyond
+true clinical+complete PGx**, because the public
+source has **neither PK exposure nor full public
+germline genotype**.
+
+A critical Omics2PK implication is that **biological
+proximity and assay-method practicality** should be
+recorded as candidate priors for feature selection,
+not a substitute for heldout drug-specific
+incremental predictive gain.
+
 ## No additional human cohorts assumed: what to do using public data
 
 1. **E1: tissue/site mechanism and assay consistency**, already
