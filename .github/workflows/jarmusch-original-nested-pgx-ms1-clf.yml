@@ -6,6 +6,8 @@ on:
       - scripts/validate_local_jarmusch14_gnps_biom_pk.py
       - scripts/download_public_jarmusch_gnps.py
       - tests/test_jarmusch_original_nested_pk.py
+      - scripts/benchmark_authorized_hlc_nested_pgx_rna.py
+      - tests/test_hlc_nested_genotype_rna_contract.py
       - .github/workflows/jarmusch-original-nested-pgx-ms1-clf.yml
   workflow_dispatch:
 permissions:
@@ -25,6 +27,10 @@ jobs:
         env:
           PYTHONPATH: "src:."
         run: python -m unittest discover -s tests -p 'test_jarmusch_original_nested_pk.py' -v
+      - name: Authorized HLC genotype versus biological RNA nested CV contract (synthetic only)
+        env:
+          PYTHONPATH: "src:."
+        run: python -m unittest discover -s tests -p 'test_hlc_nested_genotype_rna_contract.py' -v
       - name: Official GNPS public task output with original/source ZIP SHA verification
         run: |
           python -m scripts.download_public_jarmusch_gnps /tmp/jarmusch_original_public.zip
