@@ -1,0 +1,39 @@
+name: Latham imatinib tucatinib original 21-donor JATS table same-subject audit
+on:
+  pull_request:
+    paths:
+      - scripts/audit_latham_paired_original_hlm_tables_20261106.py
+      - .github/workflows/latham-paired-original-table-crosswalk.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  original-paired-table-qualify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+      - name: Actual original primary article numeric JATS tables and same-donor check
+        env:
+          PYTHONPATH: "src:."
+        run: |
+          python -m scripts.audit_latham_paired_original_hlm_tables_20261106 > /tmp/paired_original_source_check.json
+          python - <<'PY'
+          import json
+          p="/tmp/paired_original_source_check.json"
+          d=json.load(open(p))
+          assert d["status"]=="ORIGINAL_LATHAM_PAIRED_HLM_SOURCE_ACQUISITION_GATE"
+          assert d["these_are_measured_IN_VITRO_metabolism_not_human_patient_PK"]
+          assert d["same_donor_drug_exposures_are_NOT_independent_validation"]
+          for rec in d["original_public_source_tables"].values():
+            assert rec["status"].startswith(("ORIGINAL_PRIMARY_","ABSTAIN_"))
+            assert (rec.get("individual_donor_values_or_source_IDs_not_exported")
+                    or rec.get("no_source_row_or_IDs_printed"))
+          assert d["cross_study_same_donor"]["donor_IDs_not_distributed"]
+          print(json.dumps(d,indent=2,sort_keys=True))
+          PY
+      - if: always()
+        run: rm -f /tmp/paired_original_source_check.json
