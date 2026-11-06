@@ -1,0 +1,260 @@
+{
+  "schema_version": "0.1.0",
+  "status": "RESEARCH_ONLY_MECHANISM_FIRST_PRIORS_NOT_TRAINED_MODEL",
+  "qualification_policy": {
+    "purpose": "Choose which biochemical or molecular assays are mechanistically justified BEFORE any supervised PK feature selection",
+    "eligibility": "A source omic feature becomes a mechanistic biomarker only after specimen/time compatibility AND chemical or isoform identity AND functional pathway validation; model CV error is a separate criterion",
+    "tissue_surrogacy": "Peripheral plasma/urine do not directly measure liver or intestinal CYP3A isoform activity",
+    "independence": "Any selected panel must be prospectively frozen and externally tested; n10 Jarmusch source already explored repeatedly",
+    "zero_features": "k=0 can mean no incremental predictive signal at the present sample size and model, not absence of biochemical causation",
+    "source_ms1_scan_id_is_not_compound_identity": true,
+    "avoid_postdose_PGx_CLF_leakage": true
+  },
+  "hypotheses": [
+    {
+      "id": "cyp3a5_star3_splice",
+      "type": "variant_to_isoform",
+      "gene": "CYP3A5",
+      "variants": [
+        "CYP3A5*3",
+        "rs776746"
+      ],
+      "variant_effect": "intronic splice alteration with abnormal transcript and premature stop; NMD may reduce expression",
+      "upstream": [
+        "genotype"
+      ],
+      "downstream": [
+        "canonical_functional_CYP3A5_transcript",
+        "active_CYP3A5_protein",
+        "CYP3A5_substrate_activity"
+      ],
+      "preferred_specimens": [
+        "human_liver",
+        "human_intestinal_mucosa"
+      ],
+      "allowed_omics": [
+        "isoform_specific_transcriptomics",
+        "targeted_CYP3A5_proteomics",
+        "selective_activity_probe"
+      ],
+      "required_validation": [
+        "confirm original star allele/phase",
+        "junction-specific RNA assay",
+        "protein or selective activity measurement"
+      ],
+      "not_proved_by": [
+        "whole_blood_bulk_CYP3A5_RNA",
+        "plasma_unidentified_MS1",
+        "midazolam_oral_CLF_alone"
+      ],
+      "clinical_pk_direct": false,
+      "source_urls": [
+        "https://pmc.ncbi.nlm.nih.gov/articles/PMC7907328/",
+        "https://pmc.ncbi.nlm.nih.gov/articles/PMC10565868/"
+      ]
+    },
+    {
+      "id": "cyp3a5_functional_selective_T5",
+      "type": "direct_isoform_function",
+      "gene": "CYP3A5",
+      "variants": [
+        "functional CYP3A5 expressor phenotype"
+      ],
+      "upstream": [
+        "CYP3A5_protein"
+      ],
+      "downstream": [
+        "T-5_N_oxide_formation"
+      ],
+      "preferred_specimens": [
+        "liver_microsomes",
+        "primary_hepatocytes"
+      ],
+      "allowed_omics": [
+        "targeted_functional_metabolite_product"
+      ],
+      "required_validation": [
+        "defined T-5 substrate incubation",
+        "CYP3A5 vs CYP3A4 cross-reactivity check",
+        "LCMS targeted standard"
+      ],
+      "not_proved_by": [
+        "spot_plasma_untargeted_features",
+        "urine_untargeted_features"
+      ],
+      "clinical_pk_direct": false,
+      "source_urls": [
+        "https://dmd.aspetjournals.org/article/S0090-9556%2824%2909843-X/fulltext"
+      ]
+    },
+    {
+      "id": "cyp3a4_GCDCA_to_GHCA",
+      "type": "substrate_product",
+      "gene": "CYP3A4",
+      "upstream": [
+        "glycochenodeoxycholate_GCDCA"
+      ],
+      "downstream": [
+        "glycohyocholate_GHCA"
+      ],
+      "predicted_effect": "GHCA and potentially its product-to-parent ratio can decrease during CYP3A4 inhibition; secondary disposition also affects concentrations",
+      "preferred_specimens": [
+        "plasma"
+      ],
+      "allowed_omics": [
+        "targeted_stable_isotope_LCMSMS"
+      ],
+      "required_validation": [
+        "identify both structures with reference standards",
+        "quantify GCDCA and GHCA before PK window",
+        "consider ABC transporters bile acid pool, renal/hepatic status and inhibitor",
+        "show change in direct CYP3A4 probe/IV PK where possible"
+      ],
+      "not_proved_by": [
+        "GNPS_bile_acid_keyword",
+        "CYP3A5_star3_genotype_solely",
+        "source_mz_without_RT_MS2_standard"
+      ],
+      "clinical_pk_direct": false,
+      "source_urls": [
+        "https://doi.org/10.1002/cpt.70489"
+      ]
+    },
+    {
+      "id": "cyp3a1bOH_DCA_DCA",
+      "type": "substrate_product",
+      "gene": "CYP3A4",
+      "upstream": [
+        "deoxycholate_DCA"
+      ],
+      "downstream": [
+        "1beta_hydroxydeoxycholate_and_glyco_tauro_conjugates"
+      ],
+      "preferred_specimens": [
+        "plasma",
+        "urine"
+      ],
+      "allowed_omics": [
+        "targeted_LCMSMS"
+      ],
+      "required_validation": [
+        "standards for hydroxylation regioisomer",
+        "measure matched precursor/product at specified predose time",
+        "adjust gut microbial DCA supply",
+        "adjust hepatic and renal transport and bile acid recycling"
+      ],
+      "not_proved_by": [
+        "generic_cholic_acid_GNPS_hit",
+        "plasma_MS1_scan_id_alone"
+      ],
+      "clinical_pk_direct": false,
+      "source_urls": [
+        "https://doi.org/10.1002/jcph.70165",
+        "https://doi.org/10.1002/cpt.70489"
+      ]
+    },
+    {
+      "id": "cyp3a4_urinary_6bOHF_F",
+      "type": "substrate_product",
+      "gene": "CYP3A4",
+      "upstream": [
+        "cortisol"
+      ],
+      "downstream": [
+        "6beta_hydroxycortisol"
+      ],
+      "preferred_specimens": [
+        "timed_urine"
+      ],
+      "allowed_omics": [
+        "targeted_LCMSMS"
+      ],
+      "required_validation": [
+        "cortisol and 6beta-OHF standards",
+        "timed collection or validated spot design",
+        "renal clearance, dilution and circadian control",
+        "hepatic vs intestinal discrimination"
+      ],
+      "not_proved_by": [
+        "any MS1 peak labeled steroid",
+        "CYP3A5-specific expression"
+      ],
+      "clinical_pk_direct": false,
+      "source_urls": [
+        "https://pmc.ncbi.nlm.nih.gov/articles/PMC13688978/",
+        "https://doi.org/10.1002/jcph.70165"
+      ]
+    },
+    {
+      "id": "cyp3a_plasma_4bOHC_chol",
+      "type": "substrate_product",
+      "gene": "CYP3A_associated",
+      "upstream": [
+        "cholesterol"
+      ],
+      "downstream": [
+        "4beta_hydroxycholesterol"
+      ],
+      "preferred_specimens": [
+        "plasma"
+      ],
+      "allowed_omics": [
+        "targeted_LCMSMS"
+      ],
+      "required_validation": [
+        "standard quantified 4beta-OHC and cholesterol ratio",
+        "interpret slow biomarker half-life, not short-term inflammation/azole pulse",
+        "separate CYP3A5 genotype contributions",
+        "confirm clinical PK increment externally"
+      ],
+      "not_proved_by": [
+        "unverified_cholesterol_ion",
+        "short_term_response_to_antibiotic"
+      ],
+      "clinical_pk_direct": false,
+      "source_urls": [
+        "https://pmc.ncbi.nlm.nih.gov/articles/PMC13688978/",
+        "https://pubmed.ncbi.nlm.nih.gov/42319470/"
+      ]
+    },
+    {
+      "id": "Jarmusch_unknown_selected_ions",
+      "type": "hypothesis_generation_only",
+      "gene": null,
+      "source_dataset": "Jarmusch GNPS original 2020",
+      "source_ids": [
+        "369",
+        "3018",
+        "4321",
+        "6171",
+        "936"
+      ],
+      "preferred_specimens": [
+        "urine_predose",
+        "plasma_predose"
+      ],
+      "allowed_omics": [
+        "exploratory_untargeted_MS1"
+      ],
+      "required_validation": [
+        "source raw LC retention time",
+        "spectral fragmentation, isotope and adduct deconvolution",
+        "signal over batch-matched extraction/analytical blanks",
+        "authentic chemical standards",
+        "bioactivity and independent PK validation"
+      ],
+      "not_proved_by": [
+        "precursor_mz",
+        "spectral network cosinus",
+        "SHAP/feature importance",
+        "n10 original PK model"
+      ],
+      "source_warning": "3018 and 4321 frequent in analytical blanks; 369/936 observed in extraction blanks too",
+      "clinical_pk_direct": false,
+      "source_urls": [
+        "https://github.com/rberrah/Omics2PK/actions/runs/42137033994",
+        "https://github.com/rberrah/Omics2PK/actions/runs/42137390335"
+      ]
+    }
+  ]
+}
