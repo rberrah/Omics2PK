@@ -138,7 +138,11 @@ def _fit_predict(rows,cols,train,test,alpha):
     # Copy-number variation, sex and inhibitor as source categorical effects,
     # not biological surrogate metabolites, and one-hot fit training-only.
     encoder=OneHotEncoder(handle_unknown="ignore")
-    cat=np.array([[r[col] for col in CATEGORICAL] for r in rows],object)
+    # CNV IS GENOMIC INFORMATION: exclude it from the clinical-only and
+    # non-PGx biomarker comparison arms. AS and CNV always travel together
+    # for the genuine clinical+PGx baseline and any incremental PGx+omics arm.
+    categories=CATEGORICAL if "activity_score" in cols else CATEGORICAL[:2]
+    cat=np.array([[r[col] for col in categories] for r in rows],object)
     a=encoder.fit_transform(cat[train]).toarray()
     b=encoder.transform(cat[test]).toarray()
     Xtr=np.column_stack((xt,a))
