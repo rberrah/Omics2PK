@@ -7,9 +7,44 @@
     "strict_original_source": "original DOI study and repository accession, same subject and drug/date, assay tissue and identified identity",
     "source_access_not_result": "a deposited PRIDE raw spectrum is not a donor-level numeric matrix",
     "outcome_leakage": "postdose drug metabolites cannot act as predose biomarker for the same administered dose",
-    "exploratory_vs_confirmatory": "reuse of n10 Jarmusch invalid as independent external validation"
+    "exploratory_vs_confirmatory": "reuse of n10 Jarmusch invalid as independent external validation",
+    "new_independent_nested_source_positive_evidence": "Original author ARIANA n47 CYP2D6+2 named plasma metabolic ratios+actual timed metoprolol concentration nested LOPO; NOT directly equivalent to AUC/CL or external clinical validation",
+    "exploratory_source_with_multiple_drugs": "Latham imatinib and tucatinib have same HLM 21 original donor IDs; must group by donor, do not count as two cohorts"
   },
   "cohorts": [
+    {
+      "id": "ARIANA_Saromba_2026_CYP2D6_metoprolol_solanidine",
+      "priority": 0,
+      "stage": "E3 real human dosing-concentration measured+original CYP2D6 PGx+named dietary metabolic phenotyping",
+      "n_relevant": {
+        "complete_original_patient_rows": 47,
+        "both_omics_and_PGx": 47
+      },
+      "specimens": [
+        "fasted human EDTA plasma drawn BEFORE next oral metoprolol dose after at least one week stable twice-daily therapy"
+      ],
+      "omics": [
+        "identified plasma solanidine and 4-hydroxysolanidine measured LCMS/MS; defined log(OH-solanidine/solanidine)",
+        "structurally annotated 3,4-secosolanidine-3,4-dioic acid (SSDA), no authentic calibration standard; semi-quantitative log(SSDA/solanidine)"
+      ],
+      "genetics": "original patient CYP2D6 star diplotypes, source activity score and genotype copy-number variation included as model inputs; allele1/2 not independently re-encoded into many sparse features",
+      "outcome": "true measured single plasma metoprolol concentration (ng/mL) at pretreatment-next-dose sampling, NOT individual AUC or clearance",
+      "level": "NEW Omics2PK independently replayed donor-heldout nested original author 47: clinical+PGx MAE 47.086152 ng/mL -> +OHsolanidine 41.022264, +SSDA 36.289047, +both 34.873052 (25.94% improvement), paired loss bootstrap CI delta BOTH [-25.033511,-2.131299] ng/mL, descriptive not multiplicity-corrected; SAME original cohort as authors, NOT external population validation",
+      "access": "**FULLY SOURCE QUALIFIED** original author public XLSX pinned git SHA b6814967c0be7eae6f1843d0ec84e1987509bacc and exact XLSX SHA 7397b13e43cd546b93f83a20b2dc84b6d49e97633173d56711c39973beedfe37; original 47x16 dataset and original outcome verified in GitHub CI #42179099625; no raw records redistributed",
+      "requires": [
+        "freeze original chemical panel and replicate in independent center",
+        "SSDA targeted authentic standard and assay calibration",
+        "repeat steady-state concentration with controlled timing/adherence and formulation",
+        "independent AUC or full dose-concentration PK, and generalization across CYP2D6 allele groups",
+        "compare best clinical+PGx including variant structural detection and comedication",
+        "account dietary solanidine source, do not call it endogenous"
+      ],
+      "sources": [
+        "https://doi.org/10.3389/fphar.2026.1812007",
+        "https://github.com/katjajust/Solandine-Metoprolol-Correlations",
+        "https://github.com/rberrah/Omics2PK/actions/runs/42179099625"
+      ]
+    },
     {
       "id": "latham_imatinib_2025",
       "priority": 1,
@@ -40,7 +75,10 @@
       "sources": [
         "https://pmc.ncbi.nlm.nih.gov/articles/PMC12990092/",
         "https://www.omicsdi.org/dataset/pride/PXD066482"
-      ]
+      ],
+      "same_human_liver_cohort_linked_to": "latham_tucatinib_2025",
+      "overlap_caveat": "Same 21 primary HLM donor original IDs and CYP phenotype table as earlier tucatinib study; original imatinib Table1 21 rows only 17 observed numeric imatinib CLint, four ND. Not independent source validation. Separate PHH n14 source different donors.",
+      "original_public_table1_numeric_visible_in_fulltext": true
     },
     {
       "id": "latham_tucatinib_2025",
@@ -68,7 +106,10 @@
       "sources": [
         "https://pmc.ncbi.nlm.nih.gov/articles/PMC13095627/",
         "https://proteomecentral.proteomexchange.org/cgi/GetDataset?ID=PXD057282"
-      ]
+      ],
+      "same_human_liver_cohort_linked_to": "latham_imatinib_2025",
+      "overlap_caveat": "Same exact 21 HLM donors as imatinib Table 1; two drug outcomes, SAME biological people, not two independent cohorts",
+      "original_public_table1_numeric_visible_in_fulltext": true
     },
     {
       "id": "yee_CYP3A_2026",
@@ -344,5 +385,6 @@
       ]
     }
   ],
-  "positive_proof_now_qualified_public_clinical_pk_plus_genotype_plus_identified_predose_metabolite": false
+  "positive_proof_now_qualified_public_clinical_pk_plus_genotype_plus_identified_predose_metabolite": false,
+  "positive_proof_now_qualified_public_real_drug_concentration_plus_genotype_plus_named_contemporaneous_functional_metabolite": true
 }
