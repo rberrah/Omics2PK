@@ -18,7 +18,7 @@
 Modèles préspécifiés à partir de l'étude : covariables cliniques **âge, poids, sexe, dose journalière de métoprolol, inhibition CYP2D6** ; ajout du **score CYP2D6 et de la CNV** ; ajout indépendant de chacun des deux rapports identifiés ou des deux ensemble.
 
 - Même cohorte **47/47** sur tous les bras.
-- Validation **LOPO** (un patient entièrement exclu) × 4 plis internes pour la **pénalisation Ridge** `alpha = {0.1, 1, 10, 100}`, sans sélection de caractéristiques par résultats de test.
+- Validation **LOPO** (un patient entièrement exclu) × 4 plis internes pour la **pénalisation Ridge** `alpha = {0.1, 1, 10, 100}`, sans sélection de caractéristiques par résultats de test. **Contrôle de fuite : le bras clinique seul exclut aussi le CNV génétique** ; seuls les bras PGx comportent score et CNV.
 - Entraînement sur le **log de la concentration observée**, optimisation sur **MAE en log-concentration interne** ; évaluation réelle de la MAE **ng/mL** et de la MAE log sur les sujets exclus, échelle de concentration directe.
 - Standardisation et encodage des covariables catégorielles (sexe, inhibition, CNV) **fittés dans les plis d'entraînement uniquement**. Comparateurs source génétiques et métaboliques ne changent pas de population.
 - Bootstrap apparié **1 999** tirages d'erreurs externes patients ; intervalles descriptifs **non corrigés pour la multiplicité** et **sans réestimation complète du modèle dans chaque bootstrap**. Les comparaisons ayant été motivées par le papier, ce n'est **pas une étude confirmatoire indépendante**.
@@ -27,12 +27,12 @@ Modèles préspécifiés à partir de l'étude : covariables cliniques **âge, p
 
 | Modèle | MAE concentration métoprolol (ng/mL) | MAE log | P20 | Gain de MAE versus clinique+PGx | IC bootstrap descriptif du ΔMAE (ng/mL) |
 |---|---:|---:|---:|---:|---|
-| Clinique seule | 51,644507 | 0,766727 | 10,6 % | — | — |
+| Clinique seule | 51,895829 | 0,778097 | 12,8 % | — | — |
 | Clinique + **CYP2D6 AS + CNV** | **47,086152** | 0,731443 | 14,9 % | référence | — |
 | + **OH-solanidine / solanidine** | **41,022264** | 0,627696 | 21,3 % | **12,88 %** | [−14,553754 ; +1,956251] |
 | + **SSDA / solanidine** | **36,289047** | 0,495339 | 27,7 % | **22,93 %** | [−21,699908 ; −1,187597] |
 | + **deux rapports** | **34,873052** | 0,476897 | 29,8 % | **25,94 %** | [−25,033511 ; −2,131299] |
-| Clinique + OH-solanidine sans PGx | 40,042033 | 0,623203 | 19,1 % | 14,96 % vs clinique+PGx | [−19,837386 ; +3,591875] |
+| Clinique + OH-solanidine sans PGx | 43,362004 | 0,609630 | 23,4 % | 7,91 % vs clinique+PGx | [−11,683562 ; +6,193647] |
 
 **Exécution authentifiée** : [GitHub Actions #42179099625 — SUCCESS](https://github.com/rberrah/Omics2PK/actions/runs/42179099625). Script `scripts/benchmark_ariana_original_cyp2d6_solanidine_vs_pgx_20261106.py`. Original author-supplied source sheet + SHA audit [#42178678974 — SUCCESS](https://github.com/rberrah/Omics2PK/actions/runs/42178678974).
 
