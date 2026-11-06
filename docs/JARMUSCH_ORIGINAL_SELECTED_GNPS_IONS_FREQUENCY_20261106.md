@@ -86,3 +86,42 @@ concentrated and strongly kidney/timing-sensitive matrix; while plasma
 has better clinical applicability, neither directly measures liver
 protein. Original Jarmusch genotype was not sequenced into full allele
 haplotypes and transcript/protein not measured from liver tissue.
+
+
+## Original public MS2 precursor mass lookup (identification preparation)
+
+Additional original source-only audit:
+[GitHub Actions #42135040431](https://github.com/rberrah/Omics2PK/actions/runs/42135040431),
+\`scripts/audit_original_jarmusch_selected_ion_mz_rt.py\`.
+All 11 targeted original GNPS MS1 scan identifiers were matched to original
+GNPS MGF source MS2 spectra, and **original precursor m/z** was recovered.
+The source MGF **does not provide retention time for these 11 features**;
+record it as **unavailable**, not zero. No patient-level original intensity
+values or identifying information are exported.
+
+| Feature/source GNPS ID | Candidate compartment | Original MS2 precursor m/z | GNPS putative identity status |
+|---|---|---:|---|
+| **6171** | J1 plasma untargeted, selected 4/10 | **796.6213** | **Unannotated** |
+| **936** | J1 plasma untargeted, selected 2/10 | **288.1176** | **Unannotated** |
+| **369** | J9 urine untargeted, selected 6/10 | **312.2185** | **Unannotated** |
+| **3018** | J9 urine untargeted, selected 4/10 | **513.3695** | **Unannotated** |
+| **4321** | J9 urine untargeted, selected 3/10 | **293.2105** | **Unannotated** |
+| 6135 | J9 urine untargeted, selected 2/10 | 397.3237 | Unannotated |
+| 740 | J1 urine putative bile panel, selected 4/10 | 357.2784 | Putative chenodeoxycholic acid |
+| 1889 | J1 urine putative bile panel, selected 4/10 | 357.2785 | Putative chenodeoxycholic acid |
+| 2496 | J1 urine putative bile panel, selected 2/10 | 432.3109 | Putative glycoursodeoxycholic acid |
+| 6205 | J1 plasma annotated, selected 7/10 | 786.5998 | Putative dioleoyl-phosphatidylcholine |
+| 454 | J1 plasma putative bile, selected 2/10 | 359.2942 | Putative lithocholic acid |
+
+The nearly equal m/z for ion 740 and 1889 must **not** be
+treated as two independent chemically confirmed metabolic pathways.
+Resolve original retention time, raw MS2 fragmentation, isomers/
+adducts and measured concentration using original MZmine/
+GNPS_quant source and reference standards first. Even an
+accurate precursor m/z alone is **not metabolite identification**.
+
+The primary question remains: do these specific verified molecules
+reflect a reproducible substrate-to-product conversion in a known
+CYP3A4/5, transporter or gut-microbial cascade *after accounting for
+source kidney excretion, liver function and genotype*? This cannot be
+answered from the current GNPS MS1 feature labels alone.
