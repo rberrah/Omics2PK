@@ -21,6 +21,15 @@ import numpy as np
 GNPS_TASK = "b3966445abad4658a3cdc63c8198a666"
 # Exact user-supplied original public output archive; no patient rows are stored.
 ARCHIVE_SHA256 = "2047ea2032d73e3b48e2696fb1f652a7dedaa6f8cd5d40d0926d810bdd46c026"
+# Official GNPS DownloadResult re-export via POST yields new ZIP bytes.
+# Both archives are source authenticated; repack's inner metadata and QZA are
+# separately SHA-pinned, rather than assuming ZIP byte differences mean new assays.
+OFFICIAL_PUBLIC_REPACK_SHA256 = "5dc74f76ebab2ce58b003ad9aa82215ed574418394c70b4dd288947b082292d0"
+REPACK_CANONICAL_MEMBER_SHA256 = {
+    "params.xml": "698c0f01e84f87587919d6d4021fafc12160919bdb3d2e244340eef0c579358a",
+    "qiime2_output/qiime2_metadata.tsv": "5014be9e82f2edef460e306a49f7926d799d4e0811fc12d191581c6fbd045d62",
+    "qiime2_output/qiime2_table.qza": "6f39918b9186fcecbe9fa5a5190f73f9b3e581cf2838fdaac6f13b613f3c6bd3",
+}
 N_FEATURES, N_SAMPLES = 6349, 1198
 RANDOM_SEED = 20261019
 
@@ -51,14 +60,22 @@ def load_original_source(archive):
         raise GNPSOriginalSourceError("Expected intact source archive, not raw clinical records")
     with path.open("rb") as f:
         digest = file_digest(f, "sha256").hexdigest()
-    if digest != ARCHIVE_SHA256:
-        raise GNPSOriginalSourceError("Unrecognized original GNPS archive SHA-256")
+    # DownloadResult POST re-zips the same canonical task members on each call;
+    # the outer ZIP SHA varies, while all three original inner member SHA hashes
+    # stay fixed. Trust only the original 2019 archive OR all three exact
+    # independently source-qualified member hashes and the original schema.
+    source_archive_exact=(digest==ARCHIVE_SHA256)
     try:
         with ZipFile(path) as z:
             if (len(z.namelist()) != 12 or any(
                     item.file_size > 100_000_000 or item.is_dir() or ".." in Path(item.filename).parts
                     for item in z.infolist())):
                 raise GNPSOriginalSourceError("Original GNPS output member inventory changed")
+            if not source_archive_exact:
+                from hashlib import sha256
+                for member,expected in REPACK_CANONICAL_MEMBER_SHA256.items():
+                    if sha256(z.read(member)).hexdigest()!=expected:
+                        raise GNPSOriginalSourceError("Canonical public GNPS source member SHA mismatch")
             params = z.read("params.xml").decode("utf-8")
             if (GNPS_TASK not in params or "GNPS_quant.csv" not in params
                     or "QUANT_FILE_NORM" not in params):

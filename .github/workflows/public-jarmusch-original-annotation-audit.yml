@@ -1,0 +1,29 @@
+name: Public original Jarmusch GNPS source bytes and spectral annotation schema
+on:
+  pull_request:
+    paths:
+      - scripts/probe_original_jarmusch_gnps_endpoints.py
+      - scripts/download_public_jarmusch_gnps.py
+      - scripts/inspect_public_jarmusch_gnps_annotation_schema.py
+      - .github/workflows/public-jarmusch-original-annotation-audit.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  original-public-schema:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+      - name: Probe original public task method availability (metadata only)
+        run: python -m scripts.probe_original_jarmusch_gnps_endpoints
+      - name: Exact published GNPS source archive official download
+        run: python -m scripts.download_public_jarmusch_gnps /tmp/original_public_gnps.zip
+      - name: Source header-only spectral annotation audit
+        run: python -m scripts.inspect_public_jarmusch_gnps_annotation_schema /tmp/original_public_gnps.zip
+      - if: always()
+        name: Delete original volunteer-linked source export, never upload artifacts
+        run: rm -f /tmp/original_public_gnps.zip

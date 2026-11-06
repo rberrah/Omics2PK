@@ -1,0 +1,42 @@
+name: Original Jarmusch selected-ion GNPS graph and chemical audit
+on:
+  pull_request:
+    paths:
+      - scripts/audit_original_jarmusch_ion_graph_context.py
+      - scripts/audit_original_jarmusch_selected_ion_mz_rt.py
+      - .github/workflows/jarmusch-original-selected-ion-graph.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  real-source-selected-ion-network:
+    runs-on: ubuntu-latest
+    timeout-minutes: 16
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+      - run: python -m pip install "numpy>=1.26,<3"
+      - name: Acquire actual original public GNPS dataset, source members verified
+        run: python -m scripts.download_public_jarmusch_gnps /tmp/gnps_original.zip
+      - name: Inspect source molecular network and chemical evidence of selected ions
+        env:
+          PYTHONPATH: "src:."
+        run: |
+          python -m scripts.audit_original_jarmusch_ion_graph_context /tmp/gnps_original.zip > /tmp/gnps_ion_graph.json || {
+            echo "original source chemistry gating failed"
+            exit 2
+          }
+          python - <<'PY'
+          import json
+          d=json.load(open("/tmp/gnps_ion_graph.json"))
+          assert d["status"]=="SOURCE_ORIGINAL_GNPS_SELECTED_ION_MOLECULAR_GRAPH_CONTEXT_ONLY"
+          assert len(d["studied_source_selected_ions"])==11
+          assert d["no_source_individual_patient_samples_printed"]
+          assert d["cluster_graph_built_using_entire_public_multimatrix_study_not_train_frozen"]
+          assert d["original_network_is_not_independent_validation_or_causal_pathway"]
+          print(json.dumps(d,sort_keys=True,indent=2))
+          PY
+      - if: always()
+        run: rm -f /tmp/gnps_original.zip /tmp/gnps_ion_graph.json

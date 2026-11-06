@@ -1,0 +1,42 @@
+name: Jarmusch original n10 selected ion plasma urine source detection and technical QC
+on:
+  pull_request:
+    paths:
+      - scripts/audit_original_jarmusch_selected_ion_quality.py
+      - .github/workflows/jarmusch-original-ion-presence-qc.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  original-ion-detection-QC:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+      - run: python -m pip install "numpy>=1.26,<3" "scipy>=1.11,<2" "scikit-learn>=1.5,<2" "h5py>=3.10,<4"
+      - name: Acquire official public GNPS source
+        run: python -m scripts.download_public_jarmusch_gnps /tmp/original.zip
+      - name: Audit source original 10-person ion presence by urine plasma and possible controls
+        env:
+          PYTHONPATH: "src:."
+        run: |
+          python -m scripts.audit_original_jarmusch_selected_ion_quality /tmp/original.zip > /tmp/ion_qc.json
+          python - <<'PY'
+          import json
+          d=json.load(open("/tmp/ion_qc.json"))
+          assert d["status"]=="ACTUAL_JARMUSCH_N10_ORIGINAL_SELECTED_MS1_SAMPLING_AND_TECHNICAL_QC"
+          assert d["n_persons_with_4_precise_source_predose_specimens_and_day9_CLF"]==10
+          assert d["no_per_person_original_molecular_values_or_identifiers_exported"]
+          assert d["posthoc_reanalysis_is_not_external_clinical_validation"]
+          assert all(
+            all(v["original_source_number_of_people"]==10
+                for v in record["tested_source_specimens"].values())
+            for record in d["selected_original_source_ions"].values()
+          )
+          print(json.dumps(d,indent=2,sort_keys=True))
+          PY
+      - if: always()
+        run: rm -f /tmp/original.zip /tmp/ion_qc.json
