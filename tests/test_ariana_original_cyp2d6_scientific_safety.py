@@ -1,12 +1,19 @@
 """No genotype leakage into pure clinical/null arms; no drug target-derived ratio."""
 from __future__ import annotations
 import unittest
-import numpy as np
+try:
+    import numpy as np
+    from scripts.benchmark_ariana_original_cyp2d6_solanidine_vs_pgx_20261106 import (
+        _fit_predict,ARMS
+    )
+except ModuleNotFoundError as exc:
+    if exc.name not in ("numpy","sklearn","scipy"):
+        raise
+    np=None
+    _fit_predict=None
+    ARMS={}
 
-from scripts.benchmark_ariana_original_cyp2d6_solanidine_vs_pgx_20261106 import (
-    _fit_predict,ARMS
-)
-
+@unittest.skipUnless(_fit_predict is not None, "Optional scientific numpy/sklearn not installed in offline contract CI")
 class ARIANAScientificSourceSafety(unittest.TestCase):
     def source_shape_fixture(self):
         rng=np.random.default_rng(20261106)
