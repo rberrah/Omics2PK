@@ -1,0 +1,41 @@
+name: Verified public identified-omics original-source availability audit
+on:
+  pull_request:
+    paths:
+      - scripts/audit_identified_omics_new_public_sources_20261106.py
+      - .github/workflows/public-identified-omics-source-metadata-audit.yml
+      - tests/test_identified_omics_source_gate.py
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source-discovery-only:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+      - name: Offline original-source discovery safety tests
+        env:
+          PYTHONPATH: "src:."
+        run: python -m unittest discover -s tests -p 'test_identified_omics_source_gate.py' -v
+      - name: Original public source metadata only (PRIDE and Workbench, no volunteers)
+        env:
+          PYTHONPATH: "src:."
+        run: |
+          python -m scripts.audit_identified_omics_new_public_sources_20261106 > /tmp/source_metadata_only.json
+          python - <<'PY'
+          import json
+          p="/tmp/source_metadata_only.json"
+          obj=json.load(open(p))
+          assert obj["status"]=="PUBLIC_IDENTIFIED_OMICS_SOURCE_ACCESS_TRIAGE_ONLY"
+          assert obj["no_original_person_or_raw_sample_data_retrieved"]
+          assert len(obj["source_index"])==4
+          for entry in obj["source_index"].values():
+            assert entry["status"].startswith(("REAL_PUBLIC_","PUBLIC_ORIGINAL_","ABSTAIN_"))
+          print(json.dumps(obj,sort_keys=True,indent=2))
+          PY
+      - if: always()
+        run: rm -f /tmp/source_metadata_only.json
