@@ -1,0 +1,348 @@
+{
+  "schema_version": "1.0.0",
+  "created": "2026-11-06",
+  "purpose": "Original identified omics cohorts for mechanisms before PK; evidence-grade tracking",
+  "global_gates": {
+    "true_PK_proof": "requires individual same-person genotype, identified and timed pretreatment omic, and genuine independently observed drug CL/F or AUC",
+    "strict_original_source": "original DOI study and repository accession, same subject and drug/date, assay tissue and identified identity",
+    "source_access_not_result": "a deposited PRIDE raw spectrum is not a donor-level numeric matrix",
+    "outcome_leakage": "postdose drug metabolites cannot act as predose biomarker for the same administered dose",
+    "exploratory_vs_confirmatory": "reuse of n10 Jarmusch invalid as independent external validation"
+  },
+  "cohorts": [
+    {
+      "id": "latham_imatinib_2025",
+      "priority": 1,
+      "stage": "E2 in-vitro functional drug clearance",
+      "n_relevant": {
+        "HLM": 21,
+        "PHH": 14,
+        "PHH_protein_quantified": 13
+      },
+      "specimens": [
+        "human liver microsomes",
+        "primary human hepatocytes"
+      ],
+      "omics": [
+        "identified CYP2C8 CYP3A4 CYP3A5 targeted proteins",
+        "CYP2C8/CYP3A activities"
+      ],
+      "genetics": "CYP2C8/CYP3A4/CYP3A5 genotypes measured for PHH, row-level access not confirmed; genomics separately dbGaP",
+      "outcome": "measured in-vitro imatinib CLint and N-desmethyl imatinib formation",
+      "level": "source article verified plus original PRIDE file inventory; NO reconstructed donor-level rows or nested MAE",
+      "access": "PRIDE PXD066482 has 11 raw/search vendor files; donor-level phenotype/protein/genotype crosswalk NOT qualified",
+      "requires": [
+        "same-donor numeric PHH table CYP genotype+proteins+activity+imatinib CLint",
+        "stable sample identifiers across genotyping and PRIDE",
+        "source biochemical assay unit",
+        "verify phenotype measurements distinct from drug CLint endpoint"
+      ],
+      "sources": [
+        "https://pmc.ncbi.nlm.nih.gov/articles/PMC12990092/",
+        "https://www.omicsdi.org/dataset/pride/PXD066482"
+      ]
+    },
+    {
+      "id": "latham_tucatinib_2025",
+      "priority": 2,
+      "stage": "E2 in-vitro drug clearance",
+      "n_relevant": {
+        "HLM": 21
+      },
+      "specimens": [
+        "human liver microsomes"
+      ],
+      "omics": [
+        "named absolute proteins CYP2C8 CYP3A4 CYP3A5",
+        "measured CYP2C8 and CYP3A enzymatic activities"
+      ],
+      "genetics": "none established from this PXD as matched original covariates",
+      "outcome": "in-vitro measured tucatinib CLint",
+      "level": "published r values and PRIDE metadata verified; no original re-fitted MAE",
+      "access": "PRIDE PXD057282 has 6 original RAW/SEARCH vendor files, NO qualified donor numeric study table",
+      "requires": [
+        "paired CYP protein concentration and CLint table",
+        "original protein sample-donor crosswalk",
+        "metabolic probe protein activity measured independently"
+      ],
+      "sources": [
+        "https://pmc.ncbi.nlm.nih.gov/articles/PMC13095627/",
+        "https://proteomecentral.proteomexchange.org/cgi/GetDataset?ID=PXD057282"
+      ]
+    },
+    {
+      "id": "yee_CYP3A_2026",
+      "priority": 1,
+      "stage": "E1/E2 pharmacodynamic enzyme perturbation",
+      "n_relevant": {
+        "healthy_volunteers": 11
+      },
+      "specimens": [
+        "human peripheral plasma predose and post itraconazole",
+        "in-vitro human liver microsomes and recombinant CYP proteins for functional confirmation"
+      ],
+      "omics": [
+        "1313 MS1 detected metabolites; 1086 structurally annotated",
+        "5 targeted quantified bile acids GHCA GUDCA 1betaOH-DCA, 1betaOH-GDCA, 1betaOH-TDCA"
+      ],
+      "genetics": "no patient CYP3A diplotypes linked to metabolomics verified",
+      "outcome": "itraconazole-related change in plasma endogenous metabolite exposure; ex-vivo CYP3A4 GCDCA to GHCA kinetics",
+      "level": "authors confirmed GHCA GMR 0.0897, CYP3A4-selective hydroxylation; NOT clinical midazolam PK reanalysis",
+      "access": "journal and supplementary XLSX named; official PMC binary HEAD refused in source audit; no donor-level numeric phenotype crosswalk",
+      "requires": [
+        "verify legal access to supplement and real 11xN targeted individual concentrations",
+        "verify presence/absence of investigational drug exposure/PK records",
+        "only if true PK and genotype original matched, run nested model"
+      ],
+      "sources": [
+        "https://pmc.ncbi.nlm.nih.gov/articles/PMC13601688/",
+        "https://doi.org/10.1002/cpt.70489"
+      ]
+    },
+    {
+      "id": "danish_CYP_protein_2024",
+      "priority": 2,
+      "stage": "E1 genomic to tissue protein",
+      "n_relevant": {
+        "genotyped": 250,
+        "same_liver_protein": 116
+      },
+      "specimens": [
+        "human postmortem liver tissue"
+      ],
+      "omics": [
+        "targeted CYP2C9 CYP2C19 CYP2D6 CYP3A5 proteins"
+      ],
+      "genetics": "real CYP2C9/CYP2C19/CYP2D6/CYP3A5 star alleles",
+      "outcome": "matched liver protein abundance, not drug CLint or patient AUC",
+      "level": "published genotype-protein comparisons; individual source raw table not recovered",
+      "access": "journal publication; no independently qualified 116-row genotype/protein matrix",
+      "requires": [
+        "deidentified same liver genotype-protein concentrations",
+        "protein LLOQ and batch",
+        "multiple outcomes negative controls"
+      ],
+      "sources": [
+        "https://doi.org/10.1124/dmd.124.001692",
+        "https://pubmed.ncbi.nlm.nih.gov/38906700/"
+      ]
+    },
+    {
+      "id": "kurzawski_multilayer_liver_2022",
+      "priority": 2,
+      "stage": "E1 PGx to RNA to protein",
+      "n_relevant": {
+        "organ_donor_livers": 11,
+        "nontumor_metastatic_resection_liver": 13,
+        "total": 24
+      },
+      "specimens": [
+        "human liver frozen tissue from donors and non-tumor metastasis resections"
+      ],
+      "omics": [
+        "named mRNA qPCR and targeted protein CYP1A2 CYP2B6 CYP2C8 CYP2C9 CYP2C19 CYP2D6 CYP2E1 CYP3A4 CYP3A5 UGT1A1 UGT1A3 UGT2B7 UGT2B15"
+      ],
+      "genetics": "TaqMan polymorphisms including CYP3A5*3 and CYP2C19*2",
+      "outcome": "protein levels, not drug metabolism or patient PK",
+      "level": "published CYP3A5 genotype protein P=.001 (only three functional CYP3A5*1 carriers), no CV proof",
+      "access": "open access paper, DOCX supplement with summary, individual 24-donor numeric complete matrix unverified",
+      "requires": [
+        "same-liver RNA protein genotype per donor, censoring of undetectable proteins",
+        "site tissue source confounding n11 vs n13"
+      ],
+      "sources": [
+        "https://doi.org/10.1007/s43440-021-00337-w"
+      ]
+    },
+    {
+      "id": "procak_midazolam_serum_urine_2026",
+      "priority": 3,
+      "stage": "E3 drug PK and named postdose drug metabolites",
+      "n_relevant": {
+        "patients": "n not verified"
+      },
+      "specimens": [
+        "human serum after cardiac surgery",
+        "human urine postdose"
+      ],
+      "omics": [
+        "identified parent midazolam, 1primeOH, 4OH, glucuronide 1primeOH, glucuronide 4OH by targeted LCMSMS"
+      ],
+      "genetics": "none qualified",
+      "outcome": "true serum drug metabolite PK timecourse",
+      "level": "supplementary data public PDF tables, per-subject records not yet verified",
+      "access": "Mendeley CC BY 4.0 version 2 PDF supplements",
+      "requires": [
+        "qualify cohort n and individual serum/urine timecourse numeric",
+        "do not use postdose metabolite as pretreatment predictive omic",
+        "no false PK+genotype+omics claim"
+      ],
+      "sources": [
+        "https://data.mendeley.com/datasets/rfgvzy78p9/2"
+      ]
+    },
+    {
+      "id": "cajka_metformin_plasma_2026",
+      "priority": 3,
+      "stage": "E3 contemporaneous exposure association not true prospective PK",
+      "n_relevant": {
+        "metformin_treated_T2D": 637,
+        "nondiabetic_controls": 143
+      },
+      "specimens": [
+        "peripheral human plasma during treatment"
+      ],
+      "omics": [
+        "614 annotated metabolites; five structurally confirmed N-lactoyl amino acids"
+      ],
+      "genetics": "not an established individual matched PGx comparator",
+      "outcome": "contemporaneous measured plasma metformin concentration and associated metabolites; not timed AUC/CL",
+      "level": "authors metabolite-concentration correlation rho 0.42 to 0.55, exposure-associated not baseline PK",
+      "access": "paper and supplement accessible as published; matched individual matrix not checked",
+      "requires": [
+        "original IDs and numeric metformin+named metabolites if legally open",
+        "label downstream treatment signals not pre-dose predictors"
+      ],
+      "sources": [
+        "https://doi.org/10.1002/cpt.70205"
+      ]
+    },
+    {
+      "id": "transplantlines_metoprolol_yareta",
+      "priority": 2,
+      "stage": "real-world urinary named drug metabolism",
+      "n_relevant": {
+        "living_potential_kidney_donors_with_metoprolol": 18,
+        "kidney_recipients_with_metoprolol": 374
+      },
+      "specimens": [
+        "24-hour urine from donors and transplant recipients"
+      ],
+      "omics": [
+        "identified or putative metoprolol acid, hydroxymetoprolol, conjugates and new metabolites by SWATH LCMS"
+      ],
+      "genetics": "CYP2D6 genotype not linked in open repository",
+      "outcome": "drug/metabolite urinary excretion pattern, not blood drug AUC or CL",
+      "level": "published identification and positive profiles, no independent clinical PK result",
+      "access": "open analytical MS Yareta accession ybdgdynykfe6rkjjxb7d6oynoa; paper says patient-level clinical data restricted",
+      "requires": [
+        "check original Yareta sample IDs and structure-verified metabolite annotations",
+        "avoid inferring patient PK or genotype without explicit crosswalk",
+        "separate parent-drug exposure from a valid pretreatment endogenous biomarker"
+      ],
+      "sources": [
+        "https://doi.org/10.26037/yareta:ybdgdynykfe6rkjjxb7d6oynoa",
+        "https://doi.org/10.1007/s40262-025-01502-7"
+      ]
+    },
+    {
+      "id": "transplantlines_TMP_SMX_yareta",
+      "priority": 3,
+      "stage": "real-world named urinary drug metabolism",
+      "n_relevant": {
+        "kidney_transplant_recipients": 149
+      },
+      "specimens": [
+        "24-hour urine from kidney recipients"
+      ],
+      "omics": [
+        "trimethoprim, sulfamethoxazole, N-acetyl sulfamethoxazole, glucuronides, ring-opened tentative metabolites"
+      ],
+      "genetics": "no source-qualified PGx individual table",
+      "outcome": "urinary excretion profile not systemic observed PK",
+      "level": "published identified/putative metabolite profiles, no independent predictive result",
+      "access": "open Yareta original analytical sub-study 5; no individual clinical PK crosswalk",
+      "requires": [
+        "qualify original SWATH quant feature file and metabolite annotation level",
+        "no unverified systemic CL claims"
+      ],
+      "sources": [
+        "https://doi.org/10.26037/yareta:64ruex2sxff5nenyfyexurzs3m",
+        "https://pmc.ncbi.nlm.nih.gov/articles/PMC12299322/"
+      ]
+    },
+    {
+      "id": "pharmmet_human_liver_S9_library",
+      "priority": 3,
+      "stage": "in-vitro metabolite structure reference source",
+      "n_relevant": {
+        "reported_analytical_samples": 6118
+      },
+      "specimens": [
+        "human liver S9 enzymatic incubation"
+      ],
+      "omics": [
+        "drug xenobiotic metabolite spectra library with annotated transformations"
+      ],
+      "genetics": "none",
+      "outcome": "drug metabolite identification, not individual systemic PK or interdonor CL",
+      "level": "original Workbench project summary publicly verified",
+      "access": "Metabolomics Workbench PR002497 / ST003991 original study metadata confirmed; raw 149.6GB, targeted processed table pending",
+      "requires": [
+        "check processed metabolite IDs, standards, spectral quality",
+        "use only source compound reference and ontology, not matched patient data"
+      ],
+      "sources": [
+        "https://doi.org/10.21228/M8W55K"
+      ]
+    },
+    {
+      "id": "metabolomics_workbench_2026_meta",
+      "priority": 4,
+      "stage": "external multi-study metabolite reference and QC negative controls",
+      "n_relevant": {
+        "blood_analytical_samples": 44165,
+        "eligible_named_drug_exposure_studies": 24
+      },
+      "specimens": [
+        "human blood from multiple original Metabolomics Workbench studies"
+      ],
+      "omics": [
+        "6752 normalized blood metabolite labels using PubChem and SMILES"
+      ],
+      "genetics": "not a common patient-level PGx",
+      "outcome": "metabolite-drug exposure associations, not individual drug PK",
+      "level": "published original curated meta-analysis; multi-study confounding and false-positive drug background possible",
+      "access": "authors cited code and sources, row-level original study heterogeneous",
+      "requires": [
+        "keep original person and sample counts distinct",
+        "QC exogenous drug detection in blanks",
+        "do not map studies into one patient cohort"
+      ],
+      "sources": [
+        "https://doi.org/10.1093/bib/bbag576"
+      ]
+    },
+    {
+      "id": "K_PREDICT_controlled_multiview",
+      "priority": 4,
+      "stage": "possible application-controlled future multiomics",
+      "n_relevant": {
+        "public_portal_clinical": 5434,
+        "genomics": 2739,
+        "proteomics": 1310,
+        "metabolomics": 4706
+      },
+      "specimens": [
+        "Olink plasma proteomics",
+        "targeted and untargeted serum/urine metabolomics"
+      ],
+      "omics": [
+        "named Olink Explore proteins and targeted MS analytes; overlap undocumented"
+      ],
+      "genetics": "some WES, not necessarily CYP3A full star allele",
+      "outcome": "EHR drug response phenotypes; complete individual drug AUC/C(t) not verified",
+      "level": "public portal headline counts only, no patient row access or PK",
+      "access": "portal describes data and access by request; no unverified per-person multimodal join",
+      "requires": [
+        "verify signed-access policy",
+        "check same patient overlap and actual time-stamped drug PK",
+        "do not treat portal totals as matched cohort n"
+      ],
+      "sources": [
+        "https://k-predict.org/"
+      ]
+    }
+  ],
+  "positive_proof_now_qualified_public_clinical_pk_plus_genotype_plus_identified_predose_metabolite": false
+}
