@@ -1,0 +1,20 @@
+name: ARIANA anonymized original study package transfer
+on:
+  pull_request:
+    paths:
+      - scripts/export_ariana_public_deidentified_research_csv.py
+      - .github/workflows/ariana-deidentified-package-transfer.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  package-original-only:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+      - name: Make source-audited no-identifiers CSV as encoded response
+        run: python -m scripts.export_ariana_public_deidentified_research_csv
