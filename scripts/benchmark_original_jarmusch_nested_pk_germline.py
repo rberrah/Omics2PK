@@ -65,6 +65,7 @@ def _original_spectral_features(archive):
     eligible=set()
     steroid=set()
     uncertain=[]
+    best_library_by_source_idx={}
     for row in hits:
         scan=str(row.get("#Scan#","")).strip()
         if scan not in id_to_col:
@@ -82,6 +83,14 @@ def _original_spectral_features(archive):
         feature=id_to_col[scan]
         name=str(row.get("Compound_Name","")).casefold()
         eligible.add(feature)
+        # The GNPS MS2 library annotation is *putative*. Never assume that
+        # library membership proves exact metabolite identity or CYP3A flux.
+        current=best_library_by_source_idx.get(int(feature))
+        if current is None or mq>current["library_MQScore"]:
+            best_library_by_source_idx[int(feature)]={
+                "putative_GNPS_compound_name":str(row.get("Compound_Name",""))[:180],
+                "library_MQScore":round(float(mq),4),
+            }
         if any(t in name for t in STEROID_SIGNATURES):
             steroid.add(feature)
             uncertain.append(name)
@@ -89,11 +98,32 @@ def _original_spectral_features(archive):
         "spectrally_annotated_qc_feature_indices":np.array(sorted(eligible),int),
         "putative_steroid_bile_feature_indices":np.array(sorted(steroid),int),
         "source_biom_n_features":len(source_ids),
+        "source_public_MS1_scan_ids":source_ids,
+        "putative_MS2_annotation_by_source_index":best_library_by_source_idx,
         "n_spectral_library_rows":len(hits),
         "annotation_quality_gate":"MQScore>=0.7; shared peaks>=6; |ppm|<=20, putative MS2, not reference-validated",
         "n_putative_steroid_or_bile_features":len(steroid),
         "no_claim_of_unique_identity_or_CYP3A_specificity":True,
     }
+
+
+def _rank_source_features_inside_train(x,log_target,train,allowed,k):
+    """Actual source public ion index; only original TRAIN outcomes enter ranking."""
+    if k not in OMIC_K or k<1:
+        raise NestedPKValidationError("No nonzero source feature rank requested")
+    allowed_idx=np.asarray(allowed,dtype=int)
+    if len(allowed_idx)<k:
+        raise NestedPKValidationError("No sufficient independent assigned spectral feature")
+    valid=allowed_idx[np.mean(x[train][:,allowed_idx]>0,axis=0)>=0.5]
+    if len(valid)<k:
+        raise NestedPKValidationError("No enough training-only measurable molecular features")
+    ztr=x[train][:,valid]
+    yd=log_target[train]-log_target[train].mean()
+    centered=ztr-ztr.mean(axis=0)
+    norms=np.sqrt(np.square(centered).sum(axis=0))
+    val=np.abs(np.dot(yd,centered))/np.maximum(norms,1e-12)
+    # Stable source feature-index tie break; no heldout person outcome.
+    return valid[np.argsort(-val,kind="stable")[:k]]
 
 
 def _nested_predict_once(x,clinical,geno,log_target,train,test,*,alpha,k,allowed):
@@ -112,19 +142,7 @@ def _nested_predict_once(x,clinical,geno,log_target,train,test,*,alpha,k,allowed
     train_base=np.column_stack((ct,gt))
     test_base=np.column_stack((cs,gs))
     if k>0:
-        allowed_idx=np.asarray(allowed,dtype=int)
-        if len(allowed_idx)<k:
-            raise NestedPKValidationError("No sufficient independent assigned spectral feature")
-        valid=allowed_idx[np.mean(x[train][:,allowed_idx]>0,axis=0)>=0.5]
-        if len(valid)<k:
-            raise NestedPKValidationError("No enough training-only measurable molecular features")
-        ztr=x[train][:,valid]
-        yd=log_target[train]-log_target[train].mean()
-        centered=ztr-ztr.mean(axis=0)
-        norms=np.sqrt(np.square(centered).sum(axis=0))
-        val=np.abs(np.dot(yd,centered))/np.maximum(norms,1e-12)
-        # Stable tie-break by source spectral index, never test outcomes.
-        select=valid[np.argsort(-val,kind="stable")[:k]]
+        select=_rank_source_features_inside_train(x,log_target,train,allowed,k)
         sc=StandardScaler()
         train_base=np.column_stack((train_base,sc.fit_transform(x[train][:,select])))
         test_base=np.column_stack((test_base,sc.transform(x[test][:,select])))
@@ -164,6 +182,7 @@ def _nested_cv(original_x,clinical,genotypes,observed,
             continue
         predictions=np.empty(len(y))
         selected=[]
+        ranked_feature_counts=Counter()
         inner_margins_nonzero_minus_zero=[]
         for held in range(len(y)):
             outer_train=np.array([i for i in range(len(y)) if i!=held],int)
@@ -213,6 +232,13 @@ def _nested_cv(original_x,clinical,genotypes,observed,
                 alpha=alpha,k=k,allowed=allowed)[0]
             predictions[held]=pred
             selected.append((k,alpha))
+            if k>0:
+                # Report which publicly identified ion *features* were
+                # selected across independently fitted original outer folds.
+                # Do not export anything from the heldout person's sample.
+                ranked_feature_counts.update(
+                    int(v) for v in _rank_source_features_inside_train(
+                        xx,logy,outer_train,allowed,k))
         losses=np.abs(predictions-y)
         results[name]={
             "status":"MEASURED_ORIGINAL_PATIENT_HELDOUT_NESTED",
@@ -224,6 +250,25 @@ def _nested_cv(original_x,clinical,genotypes,observed,
             "mean_absolute_log_error":round(float(np.mean(abs(np.log(predictions)-logy))),6),
             "p20":round(float(np.mean(losses/y<=.2)),6),
             "k_selected_counts":{str(k):int(sum(q[0]==k for q in selected)) for k in OMIC_K},
+            "selected_original_MS1_ion_feature_frequency_top10":[
+                {
+                    "original_public_scan_id":str(
+                        candidates.get("source_public_MS1_scan_ids",[])[int(idx)]
+                        if int(idx)<len(candidates.get("source_public_MS1_scan_ids",[]))
+                        else idx),
+                    "n_outer_training_models_that_selected_ion":int(frequency),
+                    "n_total_outer_training_models":len(y),
+                    "putative_MS2_library_hit":candidates.get(
+                        "putative_MS2_annotation_by_source_index",{}
+                    ).get(int(idx)),
+                    "identity_standard_verified":False,
+                    "biological_pathway_fully_qualified":False,
+                }
+                for idx,frequency in sorted(
+                    ranked_feature_counts.items(),key=lambda z:(-z[1],z[0])
+                )[:10]
+            ],
+            "selection_frequency_is_model_training_stability_not_biological_validity":True,
             "alpha_selected_counts":{str(a):int(sum(q[1]==a for q in selected)) for a in ALPHAS},
             "selection_rule":{
                 "objective":"minimum inner fourfold mean absolute log(CL/F) prediction error",
