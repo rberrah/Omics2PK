@@ -1,12 +1,12 @@
 {
   "registry_name": "PUBLIC_DATA_EVIDENCE_REGISTRY",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "frozen_at": "2026-11-07",
   "scope": "Datasets admissible for the Omics2PK five-objective validation (H1-H5). A published article is not by itself an exploitable dataset.",
   "access_policy": {
     "rule": "Only data effectively retrievable without an authorization request or a collaboration agreement may enter a confirmatory analysis.",
     "open_public": "Retrievable by URL with no account. Admissible for confirmatory analysis.",
-    "public_registered": "Retrievable by anyone who creates an account and accepts data-use terms; no committee reviews the request. Admissible only if the user rules it admissible; flagged for ruling.",
+    "public_registered": "Retrievable by anyone who creates an account and satisfies a gate they can satisfy unilaterally (accepting data-use terms, or a platform certification quiz). No committee reviews the request and no author is contacted. Admissible for confirmatory analysis since the ruling of 2026-11-07, but every entry must declare its access_requirement and the evidence for its type; a committee-reviewed gate belongs to governed_application.",
     "author_request": "Requires contacting an author. NOT admissible in this phase.",
     "governed_application": "Requires an ethics/registry committee decision. NOT admissible in this phase.",
     "unavailable": "No individual-level data released in any form.",
@@ -15,7 +15,8 @@
       "presenting simulated values as biological results",
       "merging unrelated cohorts into a pseudo-subject",
       "counting two drugs measured in the same donors as two independent biological cohorts"
-    ]
+    ],
+    "gate_rule": "Admissibility is decided by the access_requirement type, never by the tier name alone. Self-service gates (none, self_sign, certified_user) are admissible; managed_act is not."
   },
   "status_definitions": {
     "ACQUIRED": "Source bytes in hand with a recorded SHA-256; identity/endpoint qualification not yet asserted.",
@@ -60,7 +61,11 @@
       "omics_layers": [
         {
           "layer": "metabolomics_targeted",
-          "analytes": ["solanidine", "4-OH-solanidine", "SSDA (3,4-seco-solanidine-3,4-dioic acid)"],
+          "analytes": [
+            "solanidine",
+            "4-OH-solanidine",
+            "SSDA (3,4-seco-solanidine-3,4-dioic acid)"
+          ],
           "method": "LC-MS",
           "identification_quality": "solanidine and 4-OH-solanidine quantified; SSDA semi-quantitative, no authentic analytical standard"
         }
@@ -72,11 +77,21 @@
         "endpoint_class": "pk_clinical",
         "units": "ng/mL",
         "observations_per_subject": 1,
-        "must_not_be_called": ["AUC", "clearance", "CL/F"]
+        "must_not_be_called": [
+          "AUC",
+          "clearance",
+          "CL/F"
+        ]
       },
       "dose_regimen": "metoprolol twice daily in equal doses; 23 patients at 95 mg/day and 24 at 190 mg/day",
       "formulation": "NOT documented in the source. Succinate extended-release inferred from the 47.5/95/190 mg German strengths; immediate-release tartrate retained as a sensitivity analysis. Formulation must not be chosen on observed MAE.",
-      "objectives_supported": ["H1", "H2", "H3", "H4", "H5"],
+      "objectives_supported": [
+        "H1",
+        "H2",
+        "H3",
+        "H4",
+        "H5"
+      ],
       "status": "QUALIFIED",
       "verified_this_session": true,
       "verification_method": "Downloaded from the repository named in the data availability statement; SHA-256 recomputed and found identical to the file already used in the local ARIANA analysis.",
@@ -164,14 +179,30 @@
       "citation": "Schadt EE et al. PLoS Biol. 2008 (PMID 18462017); Yang X et al. Genome Res. 2010, doi 10.1101/gr.103341.109.",
       "original_repository": "Sage Bionetworks Synapse (Human Liver Cohort)",
       "access_tier": "public_registered",
-      "access_note": "Open to anyone who registers a Synapse account and accepts the data-use terms. No committee reviews the request, which distinguishes it from a governed application. REQUIRES A USER RULING on admissibility under the strict public-only rule.",
+      "access_note": "Download requires a Synapse account plus acceptance of the data-use terms attached to syn4499. Ruled admissible on 2026-11-07: the gate is self-signed, so no authorization is requested from anyone. Redistribution remains prohibited, so the files stay out of this repository and only aggregates are committed.",
       "individual_level_data_released": true,
       "redistribution_permitted": false,
       "local_artifacts": [
-        {"filename": "curatedExpressionLiver.zip", "bytes": 49745702, "sha256": "35a80d532b967fdfbc73eaff571ddade17b90b30121ebe48465870245fe5e376"},
-        {"filename": "curatedGenotype.zip", "bytes": 33671137, "sha256": "9add3449638a64b5db7ddb01ca85d8ae03d441679447cc133b9233dd91981690"},
-        {"filename": "curatedPhenotypesynapse.zip", "bytes": 38770, "sha256": "141187cd0e226ba43389bd10ab6973661ad935fa8bad51f9984f1833a2cf15a7"},
-        {"filename": "human_liver_cohort.zip", "bytes": 52626143, "sha256": "498dd06d106779adb4cc833a51a49be8f4e00cad1d07791cabc06d6c1b090c37"}
+        {
+          "filename": "curatedExpressionLiver.zip",
+          "bytes": 49745702,
+          "sha256": "35a80d532b967fdfbc73eaff571ddade17b90b30121ebe48465870245fe5e376"
+        },
+        {
+          "filename": "curatedGenotype.zip",
+          "bytes": 33671137,
+          "sha256": "9add3449638a64b5db7ddb01ca85d8ae03d441679447cc133b9233dd91981690"
+        },
+        {
+          "filename": "curatedPhenotypesynapse.zip",
+          "bytes": 38770,
+          "sha256": "141187cd0e226ba43389bd10ab6973661ad935fa8bad51f9984f1833a2cf15a7"
+        },
+        {
+          "filename": "human_liver_cohort.zip",
+          "bytes": 52626143,
+          "sha256": "498dd06d106779adb4cc833a51a49be8f4e00cad1d07791cabc06d6c1b090c37"
+        }
       ],
       "biological_unit": "liver donor",
       "matrix": "liver tissue and human liver microsomes",
@@ -185,35 +216,104 @@
         "activity_endpoints_analysed": "387-397 per endpoint"
       },
       "omics_layers": [
-        {"layer": "transcriptomics", "analytes": "Agilent microarray, 40638 probes including CYP1A2/2A6/2B6/2C8/2C9/2C19/2D6/2E1/3A4/3A5, POR, transporters", "identification_quality": "platform probe annotation only; not orthogonally confirmed by qPCR or protein"},
-        {"layer": "genotype", "analytes": "449699 SNP rows; only rs776746 (CYP3A5) and rs1799853 (CYP2C9) usable pharmacogenetically", "identification_quality": "array calls, reference allele orientation not independently confirmed"}
+        {
+          "layer": "transcriptomics",
+          "analytes": "Agilent microarray, 40638 probes including CYP1A2/2A6/2B6/2C8/2C9/2C19/2D6/2E1/3A4/3A5, POR, transporters",
+          "identification_quality": "platform probe annotation only; not orthogonally confirmed by qPCR or protein"
+        },
+        {
+          "layer": "genotype",
+          "analytes": "449699 SNP rows; only rs776746 (CYP3A5) and rs1799853 (CYP2C9) usable pharmacogenetically",
+          "identification_quality": "array calls, reference allele orientation not independently confirmed"
+        }
       ],
       "endpoint": {
         "name": "CYP substrate turnover activity in human liver microsomes",
         "endpoint_class": "functional_in_vitro",
         "units": "nmol/min/mg protein",
-        "must_not_be_called": ["human PK", "clinical AUC", "apparent clearance"]
+        "must_not_be_called": [
+          "human PK",
+          "clinical AUC",
+          "apparent clearance"
+        ]
       },
-      "objectives_supported": ["H3", "H4", "H5"],
+      "objectives_supported": [
+        "H3",
+        "H4",
+        "H5"
+      ],
       "h1_functional_analogue": true,
       "h1_functional_analogue_note": "Incremental value of CYP transcript over a clinical baseline is measurable here, but on microsomal enzyme activity. It is the functional analogue of H1 and must never be reported as H1, which is defined on clinical pharmacokinetics.",
       "status": "QUALIFIED",
-      "qualified_for": "H3/H4/H5 directly, plus the functional analogue of H1, on an in vitro endpoint only. It can never satisfy the H1 criterion, which is stated on clinical PK.",
+      "qualified_for": "H3/H4/H5 directly, plus the functional analogue of H1, on an in vitro endpoint only. Confirmatory-admissible since the 2026-11-07 gate ruling. It can never satisfy the H1 criterion, which is stated on clinical PK.",
       "verified_this_session": true,
-      "verification_method": "All four local archive SHA-256 values recomputed on 2026-11-07 and found identical to those recorded in docs/HLC_ORIGINAL_400_LIVER_CYP_RNA_GENOTYPE_RESULTS_20261018.md.",
+      "verification_method": "All four local archive SHA-256 values recomputed on 2026-11-07 and found identical to those recorded in docs/HLC_ORIGINAL_400_LIVER_CYP_RNA_GENOTYPE_RESULTS_20261018.md. The access gate and the four source entity IDs were independently re-verified the same day against the Synapse public REST API without authentication.",
       "caveats": [
         "No matched quantitative CYP protein, so the RNA -> protein -> activity chain cannot be completed in this cohort.",
         "Body weight is missing for most donors and must not be imputed as if observed.",
         "Source terms prohibit redistribution and any attempt to identify donors; only aggregates may be committed.",
         "Absolute MAE magnitudes are in source assay units and should be reported as within-endpoint relative changes."
-      ]
+      ],
+      "access_requirement": {
+        "type": "self_sign",
+        "verified_on": "2026-11-07",
+        "synapse_access_requirement_id": 9604913,
+        "synapse_concrete_type": "org.sagebionetworks.repo.model.SelfSignAccessRequirement",
+        "gated_access_type": "DOWNLOAD",
+        "applies_to_subject": "syn4499",
+        "is_certified_user_required": false,
+        "is_validated_profile_required": false,
+        "committee_review": false,
+        "author_contact_required": false,
+        "evidence": "Unauthenticated GET /repo/v1/entity/syn4629/accessRequirement on 2026-11-07 returned exactly one requirement, id 9604913, concreteType SelfSignAccessRequirement, accessType DOWNLOAD, subject syn4499, with isCertifiedUserRequired=false and isValidatedProfileRequired=false. The ACL at benefactor syn4492 grants READ+DOWNLOAD to principal 273948 (AUTHENTICATED_USERS) and READ only to 273949 (PUBLIC), confirming that an account plus the self-signed terms is the whole of the gate.",
+        "anonymous_download_refusal": "An unauthenticated presigned-URL request returns HTTP 403 with reason 'There are unmet access requirements that must be met to read content in the requested container.' Entity metadata is readable anonymously; the file bytes are not."
+      },
+      "retrieval": {
+        "landing_page": "https://www.synapse.org/Synapse:syn4499",
+        "parent_project": "https://www.synapse.org/Synapse:syn4492",
+        "parent_project_name": "SageBioCuration",
+        "verified_on": "2026-11-07",
+        "verification_method": "Unauthenticated POST /repo/v1/entity/children on parent syn4499 returned exactly these four file entities; their names match the four local archives one to one.",
+        "files": [
+          {
+            "synapse_id": "syn3275753",
+            "entity_name": "Human Liver Cohort",
+            "url": "https://www.synapse.org/Synapse:syn3275753",
+            "local_filename": "human_liver_cohort.zip"
+          },
+          {
+            "synapse_id": "syn88644",
+            "entity_name": "curatedExpressionLiver",
+            "url": "https://www.synapse.org/Synapse:syn88644",
+            "local_filename": "curatedExpressionLiver.zip"
+          },
+          {
+            "synapse_id": "syn89614",
+            "entity_name": "curatedGenotype",
+            "url": "https://www.synapse.org/Synapse:syn89614",
+            "local_filename": "curatedGenotype.zip"
+          },
+          {
+            "synapse_id": "syn4629",
+            "entity_name": "curatedPhenotype",
+            "url": "https://www.synapse.org/Synapse:syn4629",
+            "local_filename": "curatedPhenotypesynapse.zip"
+          }
+        ]
+      }
     },
     {
       "key": "epa_liver_100",
       "label": "EPA liver donor transcript and CYP activity panel n=100",
       "access_tier": "open_public",
-      "endpoint": {"name": "targeted CYP activity", "endpoint_class": "functional_in_vitro"},
-      "objectives_supported": ["H3", "H4"],
+      "endpoint": {
+        "name": "targeted CYP activity",
+        "endpoint_class": "functional_in_vitro"
+      },
+      "objectives_supported": [
+        "H3",
+        "H4"
+      ],
       "h1_functional_analogue": true,
       "status": "PARTIAL",
       "open_requirement": "Source URL, accession and SHA-256 were not re-verified in this session. The registry must not assert provenance that was not checked.",
@@ -232,26 +332,56 @@
       "access_tier": "open_public",
       "access_note": "Published supplement (Data S1/S2) is the stated source of donor-level values.",
       "n_analysed": 15,
-      "omics_layers": [{"layer": "proteomics", "analytes": "liver CYP and transporter protein quantities", "identification_quality": "targeted quantitative proteomics"}],
-      "endpoint": {"name": "measured in vitro hepatic intrinsic clearance for five drugs", "endpoint_class": "functional_in_vitro"},
-      "objectives_supported": ["H2", "H5"],
+      "omics_layers": [
+        {
+          "layer": "proteomics",
+          "analytes": "liver CYP and transporter protein quantities",
+          "identification_quality": "targeted quantitative proteomics"
+        }
+      ],
+      "endpoint": {
+        "name": "measured in vitro hepatic intrinsic clearance for five drugs",
+        "endpoint_class": "functional_in_vitro"
+      },
+      "objectives_supported": [
+        "H2",
+        "H5"
+      ],
       "status": "PARTIAL",
       "open_requirement": "Donor-level table extraction, units and SHA-256 not re-verified in this session.",
       "verified_this_session": false,
-      "inherited_from": ["docs/WEGLER_SOURCE_STRUCTURE_RESULTS_20261016.md", "docs/E3_PUBLIC_DATA_PIVOT_SILVEIRA_CLOSED_TO_WEGLER54_20261018.md"],
-      "caveats": ["15 donors cannot support high-dimensional selection; parsimony budgets must stay very small.", "No measured RNA, so no transcript-to-protein comparison inside this cohort."]
+      "inherited_from": [
+        "docs/WEGLER_SOURCE_STRUCTURE_RESULTS_20261016.md",
+        "docs/E3_PUBLIC_DATA_PIVOT_SILVEIRA_CLOSED_TO_WEGLER54_20261018.md"
+      ],
+      "caveats": [
+        "15 donors cannot support high-dimensional selection; parsimony budgets must stay very small.",
+        "No measured RNA, so no transcript-to-protein comparison inside this cohort."
+      ]
     },
     {
       "key": "latham_tki_donors",
       "label": "Latham / TKI imatinib and tucatinib donor panel",
       "access_tier": "open_public",
-      "endpoint": {"name": "CYP protein, activity and intrinsic clearance for imatinib and tucatinib", "endpoint_class": "functional_in_vitro"},
-      "objectives_supported": ["H2", "H5"],
+      "endpoint": {
+        "name": "CYP protein, activity and intrinsic clearance for imatinib and tucatinib",
+        "endpoint_class": "functional_in_vitro"
+      },
+      "objectives_supported": [
+        "H2",
+        "H5"
+      ],
       "status": "PARTIAL",
       "open_requirement": "Donor identity overlap with other hepatic panels must be resolved before any cross-drug transfer claim.",
       "verified_this_session": false,
-      "inherited_from": ["docs/TUCATINIB_21_DONOR_MEASURED_VALIDATION_20261016.md", "docs/MEASURED_TKI_TWO_DRUG_ORIGINAL_RESULTS_20261017.md", "docs/HEPATIC_TWO_DRUG_CYP_PROTEIN_ACTIVITY_FUSION_REAL_20261018.md"],
-      "caveats": ["Two drugs measured in the same donors are ONE biological cohort, not two independent replications."]
+      "inherited_from": [
+        "docs/TUCATINIB_21_DONOR_MEASURED_VALIDATION_20261016.md",
+        "docs/MEASURED_TKI_TWO_DRUG_ORIGINAL_RESULTS_20261017.md",
+        "docs/HEPATIC_TWO_DRUG_CYP_PROTEIN_ACTIVITY_FUSION_REAL_20261018.md"
+      ],
+      "caveats": [
+        "Two drugs measured in the same donors are ONE biological cohort, not two independent replications."
+      ]
     },
     {
       "key": "jarmusch_midazolam",
@@ -265,38 +395,77 @@
           "sha256": "2047ea2032d73e3b48e2696fb1f652a7dedaa6f8cd5d40d0926d810bdd46c026"
         }
       ],
-      "omics_layers": [{"layer": "metabolomics_untargeted", "analytes": "MS1/MS2 features, plasma and urine", "identification_quality": "GNPS library annotation; a GNPS name is NOT a standard-confirmed structure"}],
-      "endpoint": {"name": "midazolam apparent clearance CL/F", "endpoint_class": "pk_clinical"},
-      "objectives_supported": ["H2", "H4", "H5"],
+      "omics_layers": [
+        {
+          "layer": "metabolomics_untargeted",
+          "analytes": "MS1/MS2 features, plasma and urine",
+          "identification_quality": "GNPS library annotation; a GNPS name is NOT a standard-confirmed structure"
+        }
+      ],
+      "endpoint": {
+        "name": "midazolam apparent clearance CL/F",
+        "endpoint_class": "pk_clinical"
+      },
+      "objectives_supported": [
+        "H2",
+        "H4",
+        "H5"
+      ],
       "status": "ACQUIRED",
       "open_requirement": "Subject crosswalk between the GNPS feature table and the clinical PK/PGx table, plus plasma-versus-urine and day-1-versus-day-9 separation, must be established before any H1 claim.",
       "verified_this_session": true,
       "verification_method": "Local archive SHA-256 computed on 2026-11-07; member list inspected (graphml, clusterinfo, DB_result, qiime2 metadata and table).",
-      "caveats": ["Blank-detected features must be excluded.", "Low sample size with very high feature dimension makes this the designated hard-selection stress test, not a primary H1 cohort."]
+      "caveats": [
+        "Blank-detected features must be excluded.",
+        "Low sample size with very high feature dimension makes this the designated hard-selection stress test, not a primary H1 cohort."
+      ]
     },
     {
       "key": "rotroff_metformin_33",
       "label": "Rotroff metformin pharmacometabolomics n=33",
       "access_tier": "open_public",
-      "endpoint": {"name": "metformin AUC and renal clearance", "endpoint_class": "pk_clinical"},
-      "objectives_supported": ["H1", "H3", "H4"],
+      "endpoint": {
+        "name": "metformin AUC and renal clearance",
+        "endpoint_class": "pk_clinical"
+      },
+      "objectives_supported": [
+        "H1",
+        "H3",
+        "H4"
+      ],
       "status": "PARTIAL",
       "open_requirement": "Pre-dose versus post-dose feature separation and the subject key were not re-verified in this session.",
       "verified_this_session": false,
-      "inherited_from": ["docs/E3_ROTROFF33_METFORMIN_ORIGINAL_OMICS_PK_SOURCE_20261018.md", "docs/E3_REAL_METFORMIN33_PREDOSE_384_OMICS_AUC_CLR_HELDOUT_20261018.md"],
-      "caveats": ["Metformin is not a CYP substrate; it tests the method, not the CYP2D6 mechanism."]
+      "inherited_from": [
+        "docs/E3_ROTROFF33_METFORMIN_ORIGINAL_OMICS_PK_SOURCE_20261018.md",
+        "docs/E3_REAL_METFORMIN33_PREDOSE_384_OMICS_AUC_CLR_HELDOUT_20261018.md"
+      ],
+      "caveats": [
+        "Metformin is not a CYP substrate; it tests the method, not the CYP2D6 mechanism."
+      ]
     },
     {
       "key": "nci60",
       "label": "NCI-60 cell lines",
       "access_tier": "open_public",
-      "endpoint": {"name": "doxorubicin and other compound GI50/IC50", "endpoint_class": "pd_cell_line"},
-      "objectives_supported": ["H4"],
+      "endpoint": {
+        "name": "doxorubicin and other compound GI50/IC50",
+        "endpoint_class": "pd_cell_line"
+      },
+      "objectives_supported": [
+        "H4"
+      ],
       "status": "QUALIFIED",
       "qualified_for": "A dimension/selection stress test on a non-PK endpoint only.",
       "verified_this_session": false,
-      "inherited_from": ["docs/NCI60_MULTIOMICS_FEASIBILITY.md", "docs/RESULTS_NCI60_DOXORUBICIN_20261016.md", "docs/NCI60_TWOOMICS_BENCHMARK.md"],
-      "caveats": ["A cell-line response is neither human PK nor human PD. It can never satisfy H1."]
+      "inherited_from": [
+        "docs/NCI60_MULTIOMICS_FEASIBILITY.md",
+        "docs/RESULTS_NCI60_DOXORUBICIN_20261016.md",
+        "docs/NCI60_TWOOMICS_BENCHMARK.md"
+      ],
+      "caveats": [
+        "A cell-line response is neither human PK nor human PD. It can never satisfy H1."
+      ]
     },
     {
       "key": "estonian_biobank_pk_recall",
@@ -349,9 +518,29 @@
     "only_public_clinical_pk_with_matched_omics_and_pgx": "ariana_metoprolol_47",
     "no_public_replication_cohort_for_the_solanidine_axis": {
       "statement": "No publicly available dataset pairs solanidine-derived metabolic ratios with an individual drug exposure measurement other than ARIANA itself.",
-      "checked_and_abstained": ["muller_cocktail_20", "wollmann_839", "kiiski_314", "estonian_biobank_pk_recall"],
+      "checked_and_abstained": [
+        "muller_cocktail_20",
+        "wollmann_839",
+        "kiiski_314",
+        "estonian_biobank_pk_recall"
+      ],
       "consequence": "The H1 replication criterion cannot be met for the CYP2D6/solanidine axis with public data. Replication must therefore be sought on a different biological axis and on a functional endpoint, which is a weaker form of evidence and must be labelled as such."
     },
     "endpoint_class_separation": "Only ariana_metoprolol_47, jarmusch_midazolam and rotroff_metformin_33 carry a clinical PK endpoint. HLC, EPA, Wegler and the TKI panel carry functional in vitro endpoints. NCI-60 carries a cell-line endpoint. These must never be pooled into a common effect estimate."
-  }
+  },
+  "amendments": [
+    {
+      "version": "1.1.0",
+      "date": "2026-11-07",
+      "ruling": "public_registered is confirmatory-admissible when, and only when, the download gate is one the requester satisfies unilaterally.",
+      "requested_by": "repository owner",
+      "rationale": "The public-only rule forbids data whose access needs an authorization request or a collaboration. A Synapse SelfSignAccessRequirement is neither: acceptance of the data-use terms grants access by itself, nobody reviews or decides, and no author is contacted. A ManagedACTAccessRequirement is a committee decision and stays excluded.",
+      "made_before_any_run_on_the_affected_data": true,
+      "why_that_matters": "The ruling was recorded before any HLC model was fitted under this protocol, so it cannot have been influenced by an observed result. No HLC performance figure existed under this protocol at the time of the ruling.",
+      "affected_datasets": [
+        "hlc_syn4499"
+      ],
+      "does_not_change": "HLC's endpoint remains functional_in_vitro. It is admissible for H3/H4/H5 and the functional analogue of H1. It still cannot satisfy H1, and ARIANA remains the only H1-eligible dataset."
+    }
+  ]
 }

@@ -1,8 +1,10 @@
 # Omics2PK — five-objective validation protocol
 
-**Version:** 1.0.0
+**Version:** 1.1.0
 **Frozen:** 2026-11-07
 **Status:** frozen before execution of the Phase 2–5 runs. Any later change requires a new version number, a date, and a statement of what was changed and why. Thresholds must not be revised after seeing a result.
+
+No threshold, criterion, comparator or primary contrast has been changed since the initial freeze. Version 1.1.0 changes only which sources are admissible, and does so before any run on the affected source — see §12.
 
 ## 0. Question and standard of proof
 
@@ -24,7 +26,21 @@ A hypothesis is reported with exactly one of:
 
 ## 1. Admissible data
 
-Governed by `registry/PUBLIC_DATA_EVIDENCE_REGISTRY.json`, validated by `src/omics2pk/public_data_evidence_registry.py`. Only `open_public` sources may enter a confirmatory analysis in this phase.
+Governed by `registry/PUBLIC_DATA_EVIDENCE_REGISTRY.json`, validated by `src/omics2pk/public_data_evidence_registry.py`.
+
+A source is admissible for confirmatory analysis when its download gate is one the requester satisfies **unilaterally**. What decides this is the gate, not the tier label:
+
+| Gate | Example | Admissible |
+|---|---|---|
+| none | file served from a public URL | yes |
+| self-signed terms of use | Synapse `SelfSignAccessRequirement` | yes, since v1.1.0 |
+| platform certification quiz | Synapse certified-user requirement | yes, in principle; none in use |
+| committee decision on an application | Synapse `ManagedACTAccessRequirement`, Estonian Biobank | **no** |
+| contacting an author | "data available on reasonable request" | **no** |
+
+The admitted gates involve no third party reviewing, deciding or being contacted, which is what the public-only rule forbids. Accepting data-use terms is a unilateral act that grants access by itself; it is not an authorization request.
+
+**Admissible sources are still reported as gated when they are.** The registry summary field `gated_but_admissible` lists them, and a reader must be able to see which conclusions rest on a source retrievable only after registration. Redistribution restrictions are unaffected: HLC files stay out of this repository and only aggregates are committed.
 
 **Consequence recorded at freeze time:** exactly one public dataset carries a clinical PK endpoint with matched omics *and* pharmacogenetics — ARIANA n=47. Jarmusch (midazolam CL/F) and Rotroff (metformin AUC/CLr) carry clinical PK but are not CYP2D6/solanidine cohorts. HLC, EPA, Wegler and the TKI donor panel carry **functional in vitro** endpoints. NCI-60 carries a **cell-line** endpoint.
 
@@ -223,3 +239,14 @@ A result obtained on a functional or cell-line endpoint is never presented in th
 | Version | Date | Change |
 |---|---|---|
 | 1.0.0 | 2026-11-07 | Initial freeze. Primary contrast, loss hierarchy, reversal rule, multiplicity plan, MAP-BE exclusion, public-only admissibility and the recorded impossibility of CYP2D6-axis replication on public data. |
+| 1.1.0 | 2026-11-07 | §1 rewritten: admissibility is decided by the download gate rather than the tier label, and self-signed terms of use are admitted. Requested by the repository owner. Grounds: the HLC gate was inspected against the Synapse public API and is a `SelfSignAccessRequirement` on `syn4499` (id 9604913, `isCertifiedUserRequired=false`, `isValidatedProfileRequired=false`), i.e. no committee and no author contact. Committee-reviewed gates remain excluded. |
+
+### Validity of the 1.1.0 amendment
+
+A change to admissibility is only legitimate if it cannot have been chosen for the result it produces. Three facts are recorded, and the first is enforced by a test:
+
+1. **No HLC model had been fitted under this protocol when the ruling was made.** No HLC performance figure existed under these rules, so the ruling could not have been selected on one. `tests/test_public_data_evidence_registry.py::test_amendment_records_that_the_ruling_preceded_the_runs` fails if that claim is removed from the registry.
+2. **No criterion moved.** Every threshold, margin, comparator and the primary contrast are byte-identical to 1.0.0. The amendment widens the input set; it does not lower a bar.
+3. **No hypothesis changed class.** HLC's endpoint is still `functional_in_vitro`. It gains H3/H4/H5 and the functional analogue of H1; it still cannot satisfy H1, and ARIANA remains the only H1-eligible dataset. Becoming retrievable does not turn an in vitro measurement into clinical pharmacokinetics.
+
+The direction of this amendment is worth stating plainly: it **enlarges** the evidence base in which the hypotheses can fail. HLC is the cohort where the existing finding is *unfavourable* to broad panels — a targeted CYP panel beats the broad multi-CYP/POR/transporter panel in 9 of 10 endpoints — so admitting it adds opportunities for refutation, not for confirmation.

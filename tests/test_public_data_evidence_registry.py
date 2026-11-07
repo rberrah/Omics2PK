@@ -13,6 +13,7 @@ import pytest
 
 from omics2pk.public_data_evidence_registry import (
     CONFIRMATORY_TIERS,
+    SELF_SERVICE_REQUIREMENT_TYPES,
     RegistryError,
     load_registry,
     validate_entry,
@@ -74,9 +75,91 @@ def test_hlc_is_functional_not_pk_and_cannot_claim_h1(registry):
     assert entry["endpoint"]["endpoint_class"] == "functional_in_vitro"
     assert "H1" not in entry["objectives_supported"]
     assert entry["access_tier"] == "public_registered"
-    # A tier that is not confirmatory-admissible must explain the ruling needed.
-    assert "public_registered" not in CONFIRMATORY_TIERS
     assert entry["access_note"]
+    # Admitted on 2026-11-07, but the endpoint ruling is untouched by that:
+    # becoming retrievable never turns an in vitro endpoint into clinical PK.
+    assert entry["h1_functional_analogue"] is True
+
+
+def test_hlc_gate_is_self_service_and_evidenced(registry):
+    """The ruling rests on the gate being self-signed, so the entry must prove it."""
+    entry = next(d for d in registry["datasets"] if d["key"] == "hlc_syn4499")
+    requirement = entry["access_requirement"]
+    assert requirement["type"] == "self_sign"
+    assert requirement["type"] in SELF_SERVICE_REQUIREMENT_TYPES
+    assert requirement["committee_review"] is False
+    assert requirement["author_contact_required"] is False
+    assert requirement["is_certified_user_required"] is False
+    assert requirement["verified_on"] == "2026-11-07"
+    # The evidence must name the inspected object, not merely assert the type.
+    assert "SelfSignAccessRequirement" in requirement["evidence"]
+    assert requirement["synapse_access_requirement_id"] == 9604913
+
+
+def test_registered_tier_is_admissible_but_reported_as_gated(summary):
+    """Admissible and ungated are different claims and must stay distinguishable."""
+    assert "public_registered" in CONFIRMATORY_TIERS
+    assert "hlc_syn4499" in summary["confirmatory_admissible"]
+    assert summary["gated_but_admissible"] == ["hlc_syn4499"]
+    # ARIANA is retrievable by URL, so it must never appear as gated.
+    assert "ariana_metoprolol_47" not in summary["gated_but_admissible"]
+
+
+def test_amendment_records_that_the_ruling_preceded_the_runs(registry):
+    """A threshold or admissibility change made after seeing a result is invalid."""
+    amendment = next(a for a in registry["amendments"] if a["version"] == "1.1.0")
+    assert amendment["made_before_any_run_on_the_affected_data"] is True
+    assert amendment["affected_datasets"] == ["hlc_syn4499"]
+    assert "H1" in amendment["does_not_change"]
+
+
+def test_a_committee_gate_cannot_be_filed_as_registered_access(registry):
+    """The rule that keeps the ruling narrow: managed review stays excluded."""
+    entry = copy.deepcopy(
+        next(d for d in registry["datasets"] if d["key"] == "hlc_syn4499")
+    )
+    entry["access_requirement"]["type"] = "managed_act"
+    with pytest.raises(RegistryError, match="third-party decision"):
+        validate_entry(entry)
+
+
+def test_registered_access_must_declare_its_gate(registry):
+    entry = copy.deepcopy(
+        next(d for d in registry["datasets"] if d["key"] == "hlc_syn4499")
+    )
+    del entry["access_requirement"]
+    with pytest.raises(RegistryError, match="must declare an access_requirement"):
+        validate_entry(entry)
+
+
+def test_gate_type_must_be_evidenced_not_merely_asserted(registry):
+    entry = copy.deepcopy(
+        next(d for d in registry["datasets"] if d["key"] == "hlc_syn4499")
+    )
+    entry["access_requirement"]["evidence"] = "   "
+    with pytest.raises(RegistryError, match="must record evidence"):
+        validate_entry(entry)
+
+
+def test_open_public_cannot_also_declare_a_gate(registry):
+    entry = copy.deepcopy(
+        next(d for d in registry["datasets"] if d["key"] == "ariana_metoprolol_47")
+    )
+    entry["access_requirement"] = {"type": "self_sign"}
+    with pytest.raises(RegistryError, match="means no gate at all"):
+        validate_entry(entry)
+
+
+def test_hlc_retrieval_links_cover_every_local_archive(registry):
+    """Provenance is only reproducible if each local file names its source entity."""
+    entry = next(d for d in registry["datasets"] if d["key"] == "hlc_syn4499")
+    files = entry["retrieval"]["files"]
+    assert {f["local_filename"] for f in files} == {
+        a["filename"] for a in entry["local_artifacts"]
+    }
+    for record in files:
+        assert record["synapse_id"].startswith("syn")
+        assert record["synapse_id"] in record["url"]
 
 
 def test_abstained_sources_claim_no_objectives(registry):

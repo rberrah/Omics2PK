@@ -26,9 +26,25 @@ ACCESS_TIERS = (
 )
 
 #: Tiers from which data may enter a confirmatory analysis in this phase.
-#: ``public_registered`` is deliberately absent: it needs an explicit user
-#: ruling, recorded in the entry, before it can be treated as admissible.
-CONFIRMATORY_TIERS = ("open_public",)
+#: ``public_registered`` was admitted by the ruling of 2026-11-07, recorded in
+#: the registry ``amendments`` block, but only under the access-requirement
+#: rule below: the tier name alone never settles admissibility.
+CONFIRMATORY_TIERS = ("open_public", "public_registered")
+
+#: How a repository gates a download, which is what actually decides
+#: admissibility under the public-only rule. ``self_sign`` is a click-through
+#: acceptance of data-use terms: it is granted by the act of accepting, with no
+#: human deciding, so it is not an authorization request. ``managed_act`` is a
+#: committee decision on a submitted application, which is.
+ACCESS_REQUIREMENT_TYPES = ("none", "self_sign", "certified_user", "managed_act")
+
+#: Requirement types a requester can satisfy unilaterally, with no third party
+#: reviewing, deciding or being contacted.
+SELF_SERVICE_REQUIREMENT_TYPES = ("none", "self_sign", "certified_user")
+
+#: Tiers that must declare how the download is gated, because for them the
+#: answer is not implied by the tier name.
+TIERS_REQUIRING_ACCESS_REQUIREMENT = ("public_registered",)
 
 ENDPOINT_CLASSES = (
     "pk_clinical",
@@ -166,6 +182,52 @@ def validate_entry(entry):
             "explaining the ruling required is mandatory",
         )
 
+    # How the download is gated decides admissibility, not the tier name. A
+    # registered-access source must state the gate and prove it was inspected,
+    # so that a committee-reviewed source can never be filed as self-service.
+    requirement = entry.get("access_requirement")
+    if tier in TIERS_REQUIRING_ACCESS_REQUIREMENT:
+        _require(
+            isinstance(requirement, dict),
+            f"{key}: tier {tier!r} must declare an access_requirement object "
+            "stating how the download is gated",
+        )
+        req_type = requirement.get("type")
+        _require(
+            req_type in ACCESS_REQUIREMENT_TYPES,
+            f"{key}: access_requirement.type must be one of "
+            f"{ACCESS_REQUIREMENT_TYPES}, got {req_type!r}",
+        )
+        _require(
+            req_type in SELF_SERVICE_REQUIREMENT_TYPES,
+            f"{key}: access_requirement.type {req_type!r} is a third-party decision, "
+            f"so the tier must be 'governed_application', not {tier!r}",
+        )
+        _require(
+            isinstance(requirement.get("verified_on"), str)
+            and requirement["verified_on"].strip(),
+            f"{key}: access_requirement must record verified_on, the date the gate "
+            "was actually inspected",
+        )
+        _require(
+            isinstance(requirement.get("evidence"), str) and requirement["evidence"].strip(),
+            f"{key}: access_requirement must record evidence, how the gate type was "
+            "established, since the admissibility ruling rests on it",
+        )
+    elif isinstance(requirement, dict):
+        req_type = requirement.get("type")
+        _require(
+            req_type in ACCESS_REQUIREMENT_TYPES,
+            f"{key}: access_requirement.type must be one of "
+            f"{ACCESS_REQUIREMENT_TYPES}, got {req_type!r}",
+        )
+        if tier == "open_public":
+            _require(
+                req_type == "none",
+                f"{key}: tier 'open_public' means no gate at all, so "
+                f"access_requirement.type {req_type!r} contradicts it",
+            )
+
     # A functional analogue of H1 must be labelled as such, never as H1.
     if entry.get("h1_functional_analogue"):
         endpoint_class = (entry.get("endpoint") or {}).get("endpoint_class")
@@ -182,7 +244,8 @@ def validate_entry(entry):
     if status in ("ACQUIRED", "QUALIFIED") and tier in CONFIRMATORY_TIERS:
         _require(
             artifacts or entry.get("inherited_from") or not entry.get("verified_this_session"),
-            f"{key}: {status} on an open_public source verified here must record local_artifacts",
+            f"{key}: {status} on a confirmatory-admissible source verified here "
+            "must record local_artifacts",
         )
 
     return key
@@ -233,6 +296,15 @@ def validate_registry(path=None):
         and e["access_tier"] in CONFIRMATORY_TIERS
         and e["status"] == "QUALIFIED"
     )
+    # Admissible sources that are nonetheless gated. Reported separately so a
+    # reader can see at a glance which conclusions depend on a source the
+    # reviewer must accept terms to retrieve, rather than fetch by URL.
+    gated_admissible = sorted(
+        e["key"]
+        for e in datasets
+        if e["key"] in confirmatory
+        and (e.get("access_requirement") or {}).get("type", "none") != "none"
+    )
 
     return {
         "registry_name": registry["registry_name"],
@@ -242,6 +314,7 @@ def validate_registry(path=None):
         "by_status": by_status,
         "by_access_tier": by_tier,
         "confirmatory_admissible": confirmatory,
+        "gated_but_admissible": gated_admissible,
         "clinical_pk_endpoint_datasets": pk_clinical,
         "h1_eligible_datasets": h1_eligible,
         "verified_this_session": sorted(e["key"] for e in datasets if e.get("verified_this_session")),
