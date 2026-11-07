@@ -147,6 +147,87 @@ def test_icc_attribution_separates_subject_set_from_censoring(mod):
     assert abs(attribution["censoring_only_delta_icc"]) < 0.1
 
 
+def test_power_value_is_not_presented_as_an_upper_bound(mod):
+    """The correlation with 80% power is not a ceiling on the true value.
+
+    Revision 1.1 misused it as one. The script must say so explicitly, and the
+    discredited phrasing must not return.
+    """
+    source = SCRIPT.read_text(encoding="utf-8")
+    assert "NOT an upper bound" in source
+    assert "not established with the available\n            precision" in source or (
+        "not established with the available" in source
+    )
+    assert "any association there is smaller than the minimum detectable" not in source
+
+
+def test_marker_icc_difference_uses_the_exact_intersection(mod):
+    """Both markers must be compared on identical subjects, with uncertainty."""
+    rng = np.random.default_rng(5)
+    shape = (mod.N_PARTICIPANTS, len(mod.TIMEPOINTS_H))
+    subject_effect = np.linspace(0.0, 3.0, mod.N_PARTICIPANTS).reshape(-1, 1)
+
+    # Marker A: mostly within-subject noise, so a low ICC.
+    a = subject_effect * 0.1 + rng.normal(scale=1.0, size=shape)
+    # Marker B: strong subject separation, so a high ICC.
+    b = subject_effect + rng.normal(scale=0.1, size=shape)
+
+    mask_a = np.zeros(shape, dtype=bool)
+    mask_b = np.zeros(shape, dtype=bool)
+    mask_a[0, :] = True   # subject 0 unusable for A only
+    mask_b[1, :] = True   # subject 1 unusable for B only
+
+    out = mod.icc_difference_on_exact_intersection(
+        {"marker_a": a, "marker_b": b},
+        {"marker_a": mask_a, "marker_b": mask_b},
+        n_boot=200,
+        seed=1,
+    )
+    # The intersection drops both partially-unusable subjects.
+    assert out["n_intersection"] == mod.N_PARTICIPANTS - 2
+    assert out["subjects_excluded_from_either_marker"] == 2
+    assert out["difference_is"] == "marker_b minus marker_a"
+    # B separates subjects better, so the difference must be positive.
+    assert out["point_estimates"]["raw"]["difference"] > 0
+    interval = out["bootstrap_raw"]["percentile_95_interval"]
+    assert interval[0] < out["bootstrap_raw"]["median_difference"] < interval[1]
+
+
+def test_marker_difference_bootstrap_is_reproducible(mod):
+    rng = np.random.default_rng(9)
+    shape = (mod.N_PARTICIPANTS, len(mod.TIMEPOINTS_H))
+    ratios = {
+        "one": rng.normal(size=shape),
+        "two": np.linspace(0, 2, mod.N_PARTICIPANTS).reshape(-1, 1)
+        + rng.normal(scale=0.2, size=shape),
+    }
+    masks = {name: np.zeros(shape, dtype=bool) for name in ratios}
+    first = mod.icc_difference_on_exact_intersection(ratios, masks, n_boot=150, seed=42)
+    second = mod.icc_difference_on_exact_intersection(ratios, masks, n_boot=150, seed=42)
+    assert (
+        first["bootstrap_raw"]["percentile_95_interval"]
+        == second["bootstrap_raw"]["percentile_95_interval"]
+    )
+
+
+def test_marker_difference_requires_exactly_two_markers(mod):
+    shape = (mod.N_PARTICIPANTS, len(mod.TIMEPOINTS_H))
+    ratios = {name: np.zeros(shape) for name in ("a", "b", "c")}
+    masks = {name: np.zeros(shape, dtype=bool) for name in ratios}
+    with pytest.raises(mod.AnalysisError, match="exactly two ratios"):
+        mod.icc_difference_on_exact_intersection(ratios, masks, n_boot=10)
+
+
+def test_marker_difference_abstains_on_a_tiny_intersection(mod):
+    shape = (mod.N_PARTICIPANTS, len(mod.TIMEPOINTS_H))
+    ratios = {"a": np.zeros(shape), "b": np.zeros(shape)}
+    masks = {name: np.ones(shape, dtype=bool) for name in ratios}
+    masks["a"][:2, :] = False
+    masks["b"][:2, :] = False
+    out = mod.icc_difference_on_exact_intersection(ratios, masks, n_boot=10)
+    assert out["insufficient"] is True
+
+
 def test_icc_attribution_abstains_when_too_few_subjects_remain(mod):
     matrix = np.zeros((mod.N_PARTICIPANTS, len(mod.TIMEPOINTS_H)))
     mask = np.ones_like(matrix, dtype=bool)

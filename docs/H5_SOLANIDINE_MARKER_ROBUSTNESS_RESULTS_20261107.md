@@ -28,7 +28,12 @@ So the accurate formulation is: **objectives and criterion families prespecified
 
 **The activity-score association is detected only in the late sample.** The association is significant at 29 h for both markers and in both censoring scenarios; no timepoint in the 0–5 h window reaches significance after correction.
 
-**What this does not establish.** With n≈19 per timepoint, the smallest rank correlation this design could detect at 80 % power under Bonferroni correction is **ρ ≈ 0.76**. The early-window point estimates (+0.23 to +0.47 for SSDA) are far below that, and their confidence intervals overlap the 29 h estimate. So the early-window nulls establish only that **any association there is smaller than about 0.76** — not that the marker is biologically uninformative in that window. Claiming otherwise would be the "difference in significance is not significance of difference" error, and the first version of this document came close to it.
+**What this does not establish.** The early-window associations are **not established with the available precision** — that is the whole of what can be said. Two things must not be read into it:
+
+- **The 80 %-power correlation is not an upper bound.** At n≈19 under Bonferroni correction the test would have 80 % power at ρ ≈ 0.76, but a non-significant result does not imply the true correlation lies below that. The first revision of this document made exactly that error.
+- **The genuine compatibility bounds are the confidence intervals.** Across 0–5 h the widest upper limit is **+0.69** for OH-solanidine and **+0.79** for SSDA. The data are compatible with early associations up to those values — which **overlap the 29 h estimates** (+0.709 and +0.658). So this design does not distinguish the early window from the late sample on association strength at all.
+
+Claiming otherwise would be the "difference in significance is not significance of difference" error.
 
 Multiplicity is handled over the **primary family of 18 comparisons** (2 markers × 9 timepoints), threshold 0.002778. The three censoring scenarios are sensitivity analyses of the same comparison, not additional hypotheses; the most conservative count (54) is also reported.
 
@@ -95,6 +100,19 @@ The real mechanism: **three subjects wholly pinned at the imputed floor**, parti
 Removing the fixed time effect raises the ICC in every cell (0.349 → 0.393; 0.705 → 0.779), confirming that the postprandial trajectory was inflating the within-subject term, exactly as the review predicted.
 
 **What survives, and is now better supported than before.** On a common subject set, with and without the time effect removed, OH-solanidine's ICC is **0.35–0.43** while SSDA's is **0.71–0.80**. The marker difference is not an artefact of differing subject sets or of the time trend. It holds in all four cells.
+
+### The marker difference on the exact intersection, with uncertainty
+
+The per-marker attribution above still uses each marker's *own* retained subjects — 17 for OH-solanidine, 18 for SSDA — so a difference between them was partly a difference of population. Restricting both to the **exact intersection** (n=17) and bootstrapping over subjects (2,000 resamples, subjects as the independent unit, timepoints not resampled):
+
+| | OH-solanidine | SSDA | difference | bootstrap 95 % |
+|---|--:|--:|--:|---|
+| raw | 0.400 | 0.762 | **+0.362** | [+0.084, +0.596] — excludes zero |
+| time effect removed | 0.430 | 0.811 | **+0.381** | [+0.135, +0.605] — excludes zero |
+
+The difference is positive in favour of SSDA in both specifications, on identical subjects, with an interval excluding zero. **This is the strongest single result of the H5 analysis**: the semi-quantitative, counts-based analyte is the more reliable of the two, and that conclusion now survives population matching, removal of the postprandial trend, and explicit uncertainty quantification.
+
+Three subjects are excluded from the intersection; they are the floor-pinned subjects, so this comparison is deliberately made in the population where neither marker is at the assay floor.
 
 **What still stands about reading the font.** A value-only pipeline would have reported ICC 0.942 for OH-solanidine and called the marker highly reliable, when a comparable-population estimate is near 0.4. The headline figure is misleading; the reason is floor-pinned subjects rather than imputation per se.
 
@@ -164,9 +182,9 @@ Same sign, overlapping intervals, and the same ordering between the two markers.
 
 | H5 item | Status | Basis |
 |---|---|---|
-| Sampling-time effect | **`PARTIALLY_SUPPORTED`** *(downgraded from `SUPPORTED`)* | Rank instability across timepoints is directly measured and robust. But the claim that the marker is uninformative in the early window is **not** established: at n≈19 the minimum detectable ρ is ≈0.76, and early-window intervals overlap the 29 h estimate. |
-| Intra-individual temporal stability | **`PARTIALLY_SUPPORTED`** | Marker-dependent, not a property of "the solanidine axis". On a common subject set with the time effect removed, SSDA ICC ≈0.80 versus OH-solanidine ≈0.43. |
-| Quantified versus semi-quantitative identification | **`SUPPORTED`**, direction opposite to expectation | The counts-based analyte is more robust, and this now survives a common subject set and removal of the fixed time effect in all four cells. |
+| Sampling-time effect | **`PARTIALLY_SUPPORTED`** *(downgraded from `SUPPORTED`)* | Rank instability across timepoints is directly measured and robust. The association-strength comparison is **not** established: early-window intervals reach +0.69 and +0.79, overlapping the 29 h estimates, so this design does not separate the windows. |
+| Intra-individual temporal stability | **`PARTIALLY_SUPPORTED`** | Marker-dependent, not a property of "the solanidine axis". On the exact intersection with the time effect removed, SSDA ICC 0.811 versus OH-solanidine 0.430. |
+| Quantified versus semi-quantitative identification | **`SUPPORTED`**, direction opposite to expectation | On the exact intersection of subjects, ICC difference +0.362 raw and +0.381 time-adjusted, bootstrap 95 % [+0.084, +0.596] and [+0.135, +0.605], both excluding zero. The strongest single H5 result. |
 | Sensitivity to censoring handling | **`SUPPORTED`** | The headline ICC moves from 0.942 to ≈0.40 depending on whether floor-pinned subjects are included. The attribution is subject inclusion, not cell-level imputation. |
 | Food effect | **`INCONCLUSIVE`** | All intervals cover zero with n=5 in the comparison group. |
 | Poor-metaboliser discrimination | **`ABSTAIN`** | The cohort's only poor metaboliser is below the limit of quantification at all 9 timepoints for both metabolites. |
@@ -178,6 +196,7 @@ Same sign, overlapping intervals, and the same ordering between the two markers.
 | Version | Date | Change |
 |---|---|---|
 | 1.0 | 2026-11-07 | First version. |
+| 1.2 | 2026-11-07 | Two final statistical precisions after review. (a) The 80 %-power correlation ρ ≈ 0.76 was misused as an upper bound; it is not one. Replaced by the genuine compatibility bounds, the per-timepoint confidence intervals, whose widest early-window upper limits are +0.69 and +0.79 — overlapping the 29 h estimates, so the design does not separate the windows on association strength. (b) The marker ICC comparison used 17 versus 18 subjects. Recomputed on the **exact intersection** (n=17) with a 2,000-resample subject bootstrap: difference +0.362 raw and +0.381 time-adjusted, intervals [+0.084, +0.596] and [+0.135, +0.605], both excluding zero. The marker conclusion is strengthened, not weakened. |
 | 1.1 | 2026-11-07 | Revised after external review. (a) The prespecification claim is corrected: objectives and criterion families were frozen in v1.0.0, the statistics were not, and the 29 h reference time was chosen after seeing a result. (b) **The ICC attribution is reversed**: on a common subject set with the fixed time effect removed, censoring *raises* the ICC slightly (Δ −0.037 and −0.020); the headline drop is caused by including three floor-pinned subjects. The marker-difference conclusion survives and is strengthened. (c) The sampling-time status is downgraded to `PARTIALLY_SUPPORTED` and a minimum-detectable-effect calculation added: the early-window nulls bound any association below ≈0.76 rather than excluding one. (d) Multiplicity restated over the correct primary family of 18. |
 
 ---
@@ -186,7 +205,7 @@ Same sign, overlapping intervals, and the same ordering between the two markers.
 
 The mission asks where mechanism-guided omics adds value and where it fails. This is a **where it fails** result, and a useful one for the manuscript's argument:
 
-A biomarker can be mechanistically correct, strongly correlated with genotype under favourable conditions, and still behave unreliably when an external variable the mechanism itself predicts is left uncontrolled — here, recent dietary precursor intake. **Stated at the strength the data support:** which patient looks like a poor metaboliser changes with sampling time (rank agreement with the 29 h ranking as low as +0.00 for OH-solanidine), and the association with genotype is demonstrable only in the late sample. Whether the marker is genuinely uninformative soon after a meal is *not* settled — n=20 cannot exclude associations below ρ ≈ 0.76. The weaker claim is enough for the argument, and the stronger one is not made.
+A biomarker can be mechanistically correct, strongly correlated with genotype under favourable conditions, and still behave unreliably when an external variable the mechanism itself predicts is left uncontrolled — here, recent dietary precursor intake. **Stated at the strength the data support:** which patient looks like a poor metaboliser changes with sampling time (rank agreement with the 29 h ranking as low as +0.00 for OH-solanidine), and the association with genotype is demonstrable only in the late sample. Whether the marker is genuinely less informative soon after a meal is *not* settled: the early-window intervals reach +0.69 and +0.79 and overlap the late-sample estimates, so n=20 cannot separate the two windows on association strength at all. The weaker claim — rank instability, demonstrated directly — is enough for the argument, and the stronger one is not made.
 
 The source's own stool incubations support the same reading: solanidine is formed only with an active microbial community, so precursor supply is both diet- and microbiota-dependent, a variance source upstream of CYP2D6 that genotype cannot capture.
 

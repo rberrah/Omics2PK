@@ -1,6 +1,6 @@
 {
   "registry_name": "PUBLIC_DATA_EVIDENCE_REGISTRY",
-  "version": "1.5.0",
+  "version": "1.6.0",
   "frozen_at": "2026-11-07",
   "scope": "Datasets admissible for the Omics2PK five-objective validation (H1-H5). A published article is not by itself an exploitable dataset.",
   "access_policy": {
@@ -295,7 +295,7 @@
           },
           "early_window_0_to_5h": "OH-solanidine rho -0.14 to +0.28, all p >= 0.32; SSDA rho +0.23 to +0.47, all p >= 0.066. None survives correction.",
           "reproducible_but_not_valid": "Early timepoints agree strongly with each other (rank agreement with the 3 h ranking +0.46 to +0.90 for OH-solanidine, +0.75 to +0.96 for SSDA) while agreeing poorly with the informative 29 h ranking (+0.00 to +0.55 and +0.43 to +0.75). A reproducibility study confined to the early window would have been falsely reassuring.",
-          "status_change": "Downgraded from SUPPORTED in revision 1.1. The measured rank instability across timepoints is robust; the inference that the marker carries no early-window information is not supported at this sample size.",
+          "status_change": "Downgraded from SUPPORTED in revision 1.1 and held there in 1.2. The measured rank instability across timepoints is robust. The association-strength comparison between windows is not established: early-window intervals reach +0.69 and +0.79 and overlap the 29 h estimates.",
           "multiplicity": {
             "primary_family_size": 18,
             "primary_alpha": 0.002778,
@@ -367,9 +367,9 @@
         },
         "consequence_for_h1": "ARIANA sampled at trough but documents neither absolute sampling time nor time since the last meal. Its exposure-prediction result therefore rests on the unverifiable assumption that its samples sit in the informative regime. This must be stated as a limitation of the H1 result rather than discovered afterwards.",
         "revision": {
-          "version": "1.1",
+          "version": "1.2",
           "date": "2026-11-07",
-          "reason": "External review of the first version; see the document change log."
+          "reason": "Two final statistical precisions; see the document change log."
         },
         "prespecification": {
           "frozen_in_protocol_v1_0_0": "H5 objectives and criterion families: intra-individual coefficients of variation, ranking stability, robustness to matrix and time, 95 percent intervals, quantified versus semi-quantitative identification.",
@@ -379,8 +379,42 @@
         },
         "detectability": {
           "n_per_timepoint": 19,
-          "min_detectable_spearman_80pct_power_bonferroni_18": 0.76,
-          "consequence": "Early-window point estimates (+0.23 to +0.47 for SSDA) are far below the detectable threshold and their intervals overlap the 29 h estimate. The nulls bound any early association below about 0.76; they do not exclude one. Treating a difference in significance as significance of a difference is prohibited."
+          "spearman_with_80pct_power_bonferroni_18": 0.76,
+          "this_is_not_an_upper_bound": "It is the correlation at which the test would have 80 percent power. A non-significant result does NOT imply the true correlation lies below it.",
+          "genuine_compatibility_bounds": {
+            "widest_upper_ci_0_to_5h_oh4_solanidine": 0.692,
+            "widest_upper_ci_0_to_5h_ssda": 0.794,
+            "consequence": "These overlap the 29 h estimates (+0.709 and +0.658), so this design does not separate the early window from the late sample on association strength. The only admissible statement is that early-window associations are not established with the available precision."
+          },
+          "prohibited_inference": "Treating a difference in significance as significance of a difference."
+        },
+        "marker_difference_on_exact_intersection": {
+          "why": "The per-marker attribution uses each marker's own retained subjects (17 and 18), so a difference between markers was partly a difference of population.",
+          "n_intersection": 17,
+          "subjects_excluded": 3,
+          "excluded_subjects_are": "the floor-pinned subjects, so neither marker is at the assay floor in this comparison",
+          "bootstrap": "2000 resamples, subjects as the independent unit; timepoints within a subject are not resampled.",
+          "raw": {
+            "oh4_solanidine_icc": 0.4,
+            "ssda_icc": 0.762,
+            "difference_ssda_minus_oh4": 0.362,
+            "bootstrap_95_interval": [
+              0.084,
+              0.596
+            ],
+            "interval_excludes_zero": true
+          },
+          "time_effect_removed": {
+            "oh4_solanidine_icc": 0.43,
+            "ssda_icc": 0.811,
+            "difference_ssda_minus_oh4": 0.381,
+            "bootstrap_95_interval": [
+              0.135,
+              0.605
+            ],
+            "interval_excludes_zero": true
+          },
+          "conclusion": "The semi-quantitative counts-based analyte is the more reliable of the two. This survives population matching, removal of the postprandial trend, and explicit uncertainty quantification. It is the strongest single result of the H5 analysis."
         }
       }
     },
@@ -936,6 +970,21 @@
         "muller_potato_meal_20"
       ],
       "does_not_change": "The marker-difference conclusion survives and is strengthened: on a common subject set, with and without the time effect removed, SSDA ICC is 0.71-0.80 against 0.35-0.43 for OH-solanidine. Still no pharmacokinetic claim: no drug was administered."
+    },
+    {
+      "version": "1.6.0",
+      "date": "2026-11-07",
+      "ruling": "Two final statistical precisions on the H5 result. No status changes.",
+      "requested_by": "repository owner, relaying an external review",
+      "corrections": [
+        "The 80 percent power correlation of 0.76 was misused as an upper bound. It is the correlation at which the test would have 80 percent power; a non-significant result does not imply the true correlation is below it. The genuine compatibility bounds are the per-timepoint confidence intervals, whose widest early-window upper limits are +0.69 for OH-solanidine and +0.79 for SSDA. Those overlap the 29 h estimates, so the design does not separate the early and late windows on association strength.",
+        "The marker ICC comparison used each marker's own retained subjects, 17 against 18, so part of the difference was a difference of population. Recomputed on the exact intersection with a subject bootstrap; the conclusion is strengthened."
+      ],
+      "made_before_any_run_on_the_affected_data": false,
+      "affected_datasets": [
+        "muller_potato_meal_20"
+      ],
+      "does_not_change": "No status changes. The sampling-time item stays PARTIALLY_SUPPORTED and the marker difference stays SUPPORTED, now with an interval."
     }
   ]
 }

@@ -327,6 +327,92 @@ def icc_attribution(ln_matrix, mask):
     }
 
 
+def icc_difference_on_exact_intersection(
+    ln_ratios, ratio_imputed, n_boot=2000, seed=20261107
+):
+    """Compare the two markers' ICC on the EXACT same subjects, with uncertainty.
+
+    The per-marker attribution above uses each marker's own retained subjects
+    (17 for OH-solanidine, 18 for SSDA), so a difference between them is partly
+    a difference of population. This restricts both markers to the intersection
+    and bootstraps subjects to put an interval on the ICC difference.
+    """
+    import numpy as np
+
+    names = list(ln_ratios)
+    if len(names) != 2:
+        raise AnalysisError("expected exactly two ratios")
+
+    usable = {
+        name: (np.isfinite(ln_ratios[name]) & ~ratio_imputed[name]).sum(axis=1) >= 2
+        for name in names
+    }
+    intersection = usable[names[0]] & usable[names[1]]
+    if intersection.sum() < 4:
+        return {"insufficient": True, "n_intersection": int(intersection.sum())}
+
+    def icc_for(name, rows, remove_time):
+        matrix = ln_ratios[name][rows]
+        mask = ratio_imputed[name][rows]
+        if remove_time:
+            matrix = remove_time_effect(matrix, mask)
+        return within_subject_stability(matrix, mask).get("icc_between_share")
+
+    rows = np.flatnonzero(intersection)
+    point = {}
+    for remove_time in (False, True):
+        key = "time_effect_removed" if remove_time else "raw"
+        values = {name: icc_for(name, rows, remove_time) for name in names}
+        point[key] = {
+            **values,
+            "difference": (
+                None
+                if any(v is None for v in values.values())
+                else float(values[names[1]] - values[names[0]])
+            ),
+        }
+
+    # Bootstrap over subjects. Subjects are the independent unit; timepoints
+    # within a subject are not resampled.
+    rng = np.random.default_rng(seed)
+    draws = {"raw": [], "time_effect_removed": []}
+    for _ in range(n_boot):
+        picked = rng.choice(rows, size=rows.size, replace=True)
+        for remove_time in (False, True):
+            key = "time_effect_removed" if remove_time else "raw"
+            try:
+                first = icc_for(names[0], picked, remove_time)
+                second = icc_for(names[1], picked, remove_time)
+            except Exception:  # pragma: no cover - degenerate resample
+                continue
+            if first is not None and second is not None:
+                draws[key].append(second - first)
+
+    out = {
+        "n_intersection": int(intersection.sum()),
+        "subjects_excluded_from_either_marker": int(
+            ln_ratios[names[0]].shape[0] - intersection.sum()
+        ),
+        "markers": names,
+        "n_bootstrap": int(n_boot),
+        "point_estimates": point,
+        "difference_is": f"{names[1]} minus {names[0]}",
+    }
+    for key, values in draws.items():
+        if len(values) < 100:
+            out[f"bootstrap_{key}"] = {"insufficient": True, "n_draws": len(values)}
+            continue
+        array = np.asarray(values, dtype=float)
+        low, high = np.percentile(array, [2.5, 97.5])
+        out[f"bootstrap_{key}"] = {
+            "n_draws": int(array.size),
+            "median_difference": float(np.median(array)),
+            "percentile_95_interval": [float(low), float(high)],
+            "interval_excludes_zero": bool(low * high > 0),
+        }
+    return out
+
+
 def kendalls_w(ln_matrix, mask=None):
     """Concordance of subject rankings across timepoints.
 
@@ -592,19 +678,52 @@ def run(muller_path, ariana_path=None):
             "n_subjects_censored_arm": n_censored,
             "primary_family_size": PRIMARY_FAMILY_SIZE,
             "bonferroni_alpha_primary": 0.05 / PRIMARY_FAMILY_SIZE,
-            "min_detectable_spearman_at_80pct_power": minimum_detectable_spearman(
+            "spearman_with_80pct_power": minimum_detectable_spearman(
                 n_censored, 0.05 / PRIMARY_FAMILY_SIZE
             ),
             "conservative_family_size": CONSERVATIVE_FAMILY_SIZE,
             "bonferroni_alpha_conservative": 0.05 / CONSERVATIVE_FAMILY_SIZE,
+            "how_to_read_the_power_value": (
+                "This is the correlation at which the test would have 80% power. "
+                "It is NOT an upper bound: a non-significant result does not imply "
+                "the true correlation is below it. The only compatibility bounds "
+                "are the per-timepoint confidence intervals reported above."
+            ),
             "warning": (
                 "A non-significant association in the early window does NOT "
-                "establish absence of association. It establishes only that any "
-                "association there is smaller than the minimum detectable value "
-                "above."
+                "establish absence of association. The correct statement is that "
+                "early-window associations are not established with the available "
+                "precision."
             ),
         }
         report["analyses"][name] = entry
+
+    # Marker comparison on the exact intersection, so a difference between the
+    # two cannot be a difference of population.
+    report["marker_difference_on_exact_intersection"] = (
+        icc_difference_on_exact_intersection(ln_ratio, ratio_imputed)
+    )
+
+    # The genuine compatibility bounds for the early window: the widest upper
+    # confidence limit observed between 0 and 5 h, per marker.
+    early = {}
+    for name, matrix in ln_ratio.items():
+        associations = association_by_time(
+            matrix, activity_score, mask=ratio_imputed[name]
+        )
+        uppers = [
+            record["ci_high"]
+            for key, record in associations.items()
+            if not record.get("insufficient") and key != "29h"
+        ]
+        early[name] = {
+            "widest_upper_confidence_limit_0_to_5h": max(uppers) if uppers else None,
+            "reading": (
+                "The data in the early window are compatible with associations up "
+                "to this value. That is the bound, not the 80%-power correlation."
+            ),
+        }
+    report["early_window_compatibility_bounds"] = early
 
     if ariana_path:
         report["ariana_direction_check"] = ariana_direction(ariana_path)
