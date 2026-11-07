@@ -1,0 +1,46 @@
+name: Real ARIANA 47 human CYP2D6 identified plasma solanidine vs genotype original PK exposure
+on:
+  pull_request:
+    paths:
+      - scripts/audit_ariana_original_source.py
+      - scripts/benchmark_ariana_original_cyp2d6_solanidine_vs_pgx_20261106.py
+      - .github/workflows/ariana-original-real-nested-pgx-metabolomics.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  original-47-person-nested-replay:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+      - name: Scientific packages
+        run: python -m pip install "numpy>=1.26,<3" "scikit-learn>=1.5,<2" "scipy>=1.11,<2"
+      - name: Real original author XLSX source SHA+genotype+chemical original-dose replay
+        env:
+          PYTHONPATH: "src:."
+        run: |
+          python -m scripts.benchmark_ariana_original_cyp2d6_solanidine_vs_pgx_20261106 > /tmp/original_ariana_47_nested.json || {
+            cat /tmp/original_ariana_47_nested.json
+            exit 2
+          }
+          python - <<'PY'
+          import json
+          d=json.load(open("/tmp/original_ariana_47_nested.json"))
+          assert d["status"]=="ACTUAL_PUBLIC_ARIANA_ORIGINAL_CYP2D6_GENOTYPE_VS_IDENTIFIED_SOLANIDINE_PATIENT_HELDOUT"
+          assert d["original_patient_identifiers_and_records_not_printed_or_committed"]
+          assert d["source_qualification"]["n_original_source_rows"]==47
+          assert 30<=d["source_qualification"]["n_complete_case_human_patients"]<=47
+          assert len(d["nested_independent_patient_validation_results"])==6
+          for v in d["nested_independent_patient_validation_results"].values():
+            assert v["all_variants_same_complete_cases"]
+            assert v["original_individual_patient_values_never_exported"]
+          assert d["solanidine_is_plant_derived_dietary_alkaloid_not_endogenous"]
+          assert d["source_qualification"]["drug_derived_OH_metoprolol_ratio_excluded_to_avoid_outcome_leakage"]
+          print(json.dumps(d,sort_keys=True,indent=2))
+          PY
+      - if: always()
+        run: rm -f /tmp/original_ariana_47_nested.json

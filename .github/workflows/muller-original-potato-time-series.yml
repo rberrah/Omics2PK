@@ -1,0 +1,36 @@
+name: Original 2026 twenty-human potato meal CYP2D6 genotyped metabolomic time series source audit
+on:
+  pull_request:
+    paths:
+      - scripts/audit_muller_potato_2026_original_source.py
+      - .github/workflows/muller-original-potato-time-series.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  authentic-independent-source:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+      - name: Independent original author GitHub xlsx source and sample time provenance
+        env:
+          PYTHONPATH: "src:."
+        run: |
+          python -m scripts.audit_muller_potato_2026_original_source > /tmp/real_20_source_schema.json
+          python - <<'PY'
+          import json
+          d=json.load(open("/tmp/real_20_source_schema.json"))
+          assert d["status"]=="ORIGINAL_MULLER_2026_CONTROLLED_POTATO_CYP2D6_TIME_SERIES_SOURCE_SCHEMA"
+          assert d["original_n_sampling_timepoints_reported"]==9
+          assert d["no_actual_medicine_PK_AUC_or_CL_dataset"]
+          assert d["source_XLSX_SHA256"] and len(d["source_XLSX_SHA256"])==64
+          for v in d["source_sheet_schemas"].values():
+              assert v["source_patient_data_cells_never_logged_or_exported"]
+          print(json.dumps(d,sort_keys=True,indent=2))
+          PY
+      - if: always()
+        run: rm -f /tmp/real_20_source_schema.json
