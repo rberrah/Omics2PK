@@ -196,6 +196,68 @@ ggplot(forest, aes(x = estimate, y = contrast, colour = excludes)) +
   theme(legend.position = "top")
 ```
 
+## Pharmacogenetics, decomposed
+
+The `M1`/`M3` PGx block bundles the genotype-derived activity score with the
+comedication flag, so an effect could not be attributed to either. These arms
+separate them. Secondary and exploratory by construction.
+
+```{r h1-pgx-split}
+split_arms <- c("M0_clinical", "M1a_clinical_genotype", "M1b_clinical_comedication",
+                "M1_clinical_pgx", "M2_clinical_omic", "M3a_clinical_genotype_omic",
+                "M3b_clinical_comedication_omic", "M3_clinical_pgx_omic")
+have_split <- all(split_arms %in% names(h1$results$ridge))
+if (have_split) {
+  pgx <- do.call(rbind, lapply(names(h1$results), function(model) {
+    arms <- h1$results[[model]]
+    data.frame(
+      Model = model,
+      `clinical` = arms$M0_clinical$mae,
+      `+ genotype` = arms$M1a_clinical_genotype$mae,
+      `+ comedication` = arms$M1b_clinical_comedication$mae,
+      `+ both` = arms$M1_clinical_pgx$mae,
+      `+ omic` = arms$M2_clinical_omic$mae,
+      `+ omic + genotype` = arms$M3a_clinical_genotype_omic$mae,
+      `+ omic + both` = arms$M3_clinical_pgx_omic$mae,
+      check.names = FALSE)
+  }))
+  pgx |> mutate(across(where(is.numeric), \(x) round(x, 2))) |>
+    kable(caption = "MAE (ng/mL). The step down happens when the omic enters, in every model family.")
+} else {
+  cat("PGx decomposition not present in this report version.\n")
+}
+```
+
+## Detected versus excluded
+
+A zero-crossing interval means an effect was **not detected**, never that there
+is none. The table separates that from the stronger statement: whether a
+benefit of the **prespecified size** (10 % relative MAE) is incompatible with
+the interval.
+
+```{r h1-detected-excluded}
+rows <- do.call(rbind, lapply(names(h1$secondary_contrasts), function(model) {
+  cs <- h1$secondary_contrasts[[model]]
+  do.call(rbind, lapply(names(cs), function(label) {
+    v <- cs[[label]]
+    data.frame(
+      Model = model,
+      Contrast = gsub("_vs_", " vs ", gsub("_clinical", "", label)),
+      `ΔMAE` = round(v$mean_difference, 2),
+      `95% interval` = sprintf("[%.2f, %.2f]", v$descriptive_95_interval[1],
+                               v$descriptive_95_interval[2]),
+      `Effect detected` = v$interval_excludes_zero,
+      `≥10% benefit excluded` = if (is.null(v$excludes_a_prespecified_size_benefit)) NA
+                                else v$excludes_a_prespecified_size_benefit,
+      check.names = FALSE)
+  }))
+}))
+rows$Verdict <- with(rows, ifelse(`Effect detected`, "effect detected",
+                           ifelse(`≥10% benefit excluded` %in% TRUE,
+                                  "NOT_SUPPORTED at the margin", "INCONCLUSIVE")))
+kable(rows, caption = "Only an excluded prespecified-size benefit licenses NOT_SUPPORTED; failing both is INCONCLUSIVE.")
+```
+
 ## Influence — where the gain comes from
 
 ```{r h1-influence}

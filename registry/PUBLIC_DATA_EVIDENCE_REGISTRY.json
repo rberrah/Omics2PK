@@ -1,6 +1,6 @@
 {
   "registry_name": "PUBLIC_DATA_EVIDENCE_REGISTRY",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "frozen_at": "2026-11-07",
   "scope": "Datasets admissible for the Omics2PK five-objective validation (H1-H5). A published article is not by itself an exploitable dataset.",
   "access_policy": {
@@ -148,29 +148,78 @@
         },
         "arm_table_mae_ng_ml": {
           "ridge": {
-            "M0": 55.64,
-            "M1": 52.81,
-            "M2": 34.32,
-            "M3": 35.84
+            "M0_clinical": 55.64,
+            "M1a_genotype": 53.5,
+            "M1b_comedication": 55.19,
+            "M1_both": 52.81,
+            "M2_omic": 34.32,
+            "M3a_omic_genotype": 36.27,
+            "M3b_omic_comedication": 34.45,
+            "M3_omic_both": 35.84
           },
           "elastic_net": {
-            "M0": 56.71,
-            "M1": 54.23,
-            "M2": 35.12,
-            "M3": 35.05
+            "M0_clinical": 56.71,
+            "M1a_genotype": 53.62,
+            "M1b_comedication": 56.52,
+            "M1_both": 54.23,
+            "M2_omic": 35.12,
+            "M3a_omic_genotype": 36.25,
+            "M3b_omic_comedication": 34.47,
+            "M3_omic_both": 35.05
           },
           "xgboost": {
-            "M0": 57.48,
-            "M1": 58.25,
-            "M2": 37.53,
-            "M3": 38.6
+            "M0_clinical": 57.48,
+            "M1a_genotype": 59.41,
+            "M1b_comedication": 57.07,
+            "M1_both": 58.25,
+            "M2_omic": 37.53,
+            "M3a_omic_genotype": 38.37,
+            "M3b_omic_comedication": 37.53,
+            "M3_omic_both": 38.6
           }
         },
         "key_secondary_observation": {
-          "finding": "The omic SUBSTITUTES for the genotype rather than complementing it. M2 (clinical+omic, no PGx) beats M3 for Ridge (34.32 vs 35.84) and XGBoost (37.53 vs 38.60) and is level for Elastic Net. Genotype over clinical alone is marginal (55.64 to 52.81 for Ridge) and absent for XGBoost (57.48 to 58.25).",
-          "interpretation": "The measured ratio is a functional read-out already integrating genotype, phenoconversion and other modulation, so the activity score becomes redundant and costs a degree of freedom.",
-          "same_direction_as_jarmusch": "In Jarmusch a prior functional probe beat the CYP3A genotype and adding genotype on top of the functional measure worsened MAE. Two public cohorts, two enzymes, same ordering: measured function beats genotype, and genotype adds nothing on top.",
-          "status": "secondary and exploratory within the H1 family; Holm adjustment required before any claim"
+          "corrected_claim": "No additional benefit from pharmacogenetics was DETECTED once the omic ratios were included. The earlier phrasing, that the omic substitutes for the genotype, is withdrawn: every PGx contrast has an interval covering zero, and not detected is not absent.",
+          "pgx_contrasts_all_cover_zero": {
+            "m3_vs_m2_ridge": [
+              1.52,
+              -2.14,
+              5.04
+            ],
+            "m3_vs_m2_elastic_net": [
+              -0.08,
+              -3.19,
+              2.8
+            ],
+            "m3_vs_m2_xgboost": [
+              1.07,
+              -0.3,
+              2.72
+            ],
+            "m1_vs_m0_ridge": [
+              -2.83,
+              -6.46,
+              0.75
+            ],
+            "m1_vs_m0_elastic_net": [
+              -2.48,
+              -6.02,
+              0.92
+            ],
+            "m1_vs_m0_xgboost": [
+              0.77,
+              -1.23,
+              3.15
+            ]
+          },
+          "decomposition_findings": [
+            "The comedication flag contributes essentially nothing: added to clinical it gives -0.45 [-1.87, +0.98] Ridge, -0.18 [-1.58, +1.22] Elastic Net, -0.42 [-1.80, +0.52] XGBoost, and a 10 percent benefit is excluded in all three. On top of the omic, likewise excluded in all three. XGBoost never used the variable at all: the contrast is exactly 0.00 [0.00, 0.00], because at depth 1-2 with the omic present the binary flag was never chosen as a split.",
+            "Whatever small signal the bundled block carried came from the activity score, not the comedication flag: genotype alone gives -2.14 [-5.67, +1.51] Ridge and -3.09 [-7.12, +0.97] Elastic Net, close to the bundled -2.83 and -2.48.",
+            "The genotype's own contribution over clinical is INCONCLUSIVE for the linear models: not detected, but the intervals reach about -10 to -13 percent relative, so a benefit of the prespecified size cannot be ruled out at n=47.",
+            "Adding the genotype on top of the omic is NOT_SUPPORTED at the frozen margin in all three families: +1.95 [-1.07, +4.96] Ridge, +1.13 [-1.13, +3.25] Elastic Net, +0.84 [-0.25, +1.97] XGBoost. Not detected AND a 10 percent benefit is incompatible with every interval. This is the one genuinely negative statement in the decomposition."
+          ],
+          "jarmusch_parallel_withdrawn": "The earlier claim of two public cohorts with the same ordering does not hold. Jarmusch's functional probe is a prior administered-probe PK measurement of the same drug, not an independent omic biomarker, and its panels and sample sizes differ. Jarmusch is a separate negative H1 test on untargeted metabolomics and corroborates nothing here.",
+          "status": "secondary and exploratory within the H1 family; Holm adjustment required"
         },
         "influence": {
           "n_improved": 34,
@@ -197,10 +246,20 @@
         "sub_statuses": {
           "incremental_value_of_omics_over_clinical_pgx": "SUPPORTED (exploratory)",
           "independent_confirmation": "ABSTAIN",
-          "incremental_value_of_genotype_over_clinical": "NOT_SUPPORTED",
-          "incremental_value_of_genotype_on_top_of_omic": "NOT_SUPPORTED"
+          "pgx_block_over_clinical": "INCONCLUSIVE",
+          "genotype_alone_over_clinical": "INCONCLUSIVE for Ridge and Elastic Net; NOT_SUPPORTED at the margin for XGBoost",
+          "comedication_alone_over_clinical": "NOT_SUPPORTED at the margin in all three families",
+          "genotype_on_top_of_omic": "NOT_SUPPORTED at the margin in all three families",
+          "comedication_on_top_of_omic": "NOT_SUPPORTED at the margin in all three families"
         },
-        "what_follows": "H2 is now decisive and sharper: two variables produced the gain, so H2 must establish whether a mechanism-guided selection finds them for better reasons than a statistical selector at equal panel dimension, including against a deliberately wrong mechanistic panel, and whether any NetPK advantage comes from its selection rather than from literature-fixed coefficients. The primary contrast was placed on Ridge precisely so that this cannot be answered by borrowed strength."
+        "what_follows": "Two distinct H2 experiments. First, does NetPK SELECT better: same model, same number of variables, NetPK selection against SHAP, Elastic Net, nested univariate, repeated random panel, a deliberately wrong mechanistic panel, and no selection. Second, does mechanistic INTEGRATION then help: identical NetPK variables, statistical integration against parameterisation as an enzyme-activity score feeding a PopPK structure. Separating them isolates the value of the selection from the value of the borrowed pharmacological coefficients. Throughout, verify the selection is actually produced by the algorithm and not written into the code after inspecting results.",
+        "revision": {
+          "version": "1.1",
+          "date": "2026-11-07",
+          "reason": "External review; see the document revision log."
+        },
+        "status_assignment_rule": "Two distinct questions. Was an effect DETECTED: does the interval exclude zero. Can a benefit of the PRESPECIFIED size be EXCLUDED: is the most favourable value in the interval short of -10 percent. Only the second licenses NOT_SUPPORTED; failing both is INCONCLUSIVE. Protocol section 10 forbids reading a zero-crossing interval as evidence of equivalence.",
+        "why_ariana_cannot_carry_h2": "ARIANA has exactly two candidate omic variables. It demonstrates that those two carry predictive information; it is not a demanding test of selection. Choosing 2 of 2 is not selection, and no selector can distinguish itself on a panel that size, so running the H2 comparator set on ARIANA alone would produce a near-tie by construction. H2 needs the wide panels: HLC, EPA, Wegler and the public metabolomic sets, whose endpoints are functional in vitro and are therefore reported as the functional analogue of H2, never in the same effect column as a clinical PK result."
       }
     },
     {
@@ -1091,6 +1150,22 @@
         "ariana_metoprolol_47"
       ],
       "does_not_change": "The status ceiling. ARIANA carries prior_analysis_exposure with max_claimable_status exploratory, so this is an exploratory success and not a confirmatory validation."
+    },
+    {
+      "version": "1.8.0",
+      "date": "2026-11-07",
+      "ruling": "Three corrections to the H1 record after external review. One claim withdrawn.",
+      "requested_by": "repository owner, relaying an external review",
+      "corrections": [
+        "WITHDRAWN: the claim that the omic substitutes for the genotype. Every contrast involving the PGx block has a 95 percent interval covering zero, including PGx added to clinical alone. The admissible statement is that no additional PGx benefit was DETECTED once the omic ratios were included. Each contrast now also reports whether a benefit of the prespecified size can be excluded, so NOT_SUPPORTED is distinguished from INCONCLUSIVE rather than conflated.",
+        "The PGx block bundled the genotype-derived activity score with the comedication flag, so an effect could not be attributed to either. Decomposed into M1a/M1b genotype and comedication alone and M3a/M3b the same on top of the omic.",
+        "WITHDRAWN: the parallel with Jarmusch. Jarmusch's functional probe is a prior administered-probe PK measurement of the same drug, close to a direct measurement of the outcome process, not an independent omic biomarker. Its panels, sample sizes and predictor type all differ, so it does not corroborate anything about genotype versus measured function."
+      ],
+      "made_before_any_run_on_the_affected_data": false,
+      "affected_datasets": [
+        "ariana_metoprolol_47"
+      ],
+      "does_not_change": "The primary contrast and its result are untouched: Ridge M3 versus M1, delta MAE -16.97, 95 percent [-33.76, -4.69], criterion met at 32.1 percent, both robustness co-criteria agreeing. Only the secondary interpretation is corrected."
     }
   ]
 }

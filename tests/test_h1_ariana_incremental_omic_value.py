@@ -97,6 +97,56 @@ def test_arms_are_nested_as_the_protocol_defines(mod):
     assert set(arms["M2_clinical_omic"]) < set(arms["M3_clinical_pgx_omic"])
 
 
+def test_pgx_block_is_decomposed_into_genotype_and_comedication(mod):
+    """Bundled, an effect cannot be attributed to either component."""
+    arms = mod.ARMS
+    assert mod.COL_AS in arms["M1a_clinical_genotype"]
+    assert mod.COL_INHIBITOR not in arms["M1a_clinical_genotype"]
+    assert mod.COL_INHIBITOR in arms["M1b_clinical_comedication"]
+    assert mod.COL_AS not in arms["M1b_clinical_comedication"]
+    # The bundled arm is exactly the union of the two decomposed ones.
+    assert set(arms["M1_clinical_pgx"]) == (
+        set(arms["M1a_clinical_genotype"]) | set(arms["M1b_clinical_comedication"])
+    )
+    assert set(arms["M3_clinical_pgx_omic"]) == (
+        set(arms["M3a_clinical_genotype_omic"])
+        | set(arms["M3b_clinical_comedication_omic"])
+    )
+    # Decomposed arms must still carry the omic where their name says so.
+    for arm in ("M3a_clinical_genotype_omic", "M3b_clinical_comedication_omic"):
+        assert set(mod.OMIC) <= set(arms[arm])
+
+
+def test_prespecified_margin_distinguishes_negative_from_inconclusive(mod):
+    """A zero-crossing interval is not evidence of no effect.
+
+    NOT_SUPPORTED requires the interval to exclude a benefit of the frozen
+    size; otherwise the verdict is INCONCLUSIVE.
+    """
+    baseline = np.full(47, 100.0)
+
+    # Tight interval around no difference: a 10% benefit is excluded.
+    tight = baseline + np.linspace(-0.5, 0.5, 47)
+    out = mod.paired_contrast(tight, baseline, n_boot=400, seed=1)
+    assert out["interval_excludes_zero"] is False
+    assert out["excludes_a_prespecified_size_benefit"] is True
+
+    # Wide interval: a 10% benefit cannot be ruled out, so INCONCLUSIVE.
+    rng = np.random.default_rng(4)
+    wide = baseline + rng.normal(scale=60.0, size=47)
+    out = mod.paired_contrast(wide, baseline, n_boot=400, seed=1)
+    assert out["excludes_a_prespecified_size_benefit"] is False
+    assert "INCONCLUSIVE rather than NOT_SUPPORTED" in out["how_to_read"]
+
+
+def test_best_case_relative_is_the_interval_lower_bound(mod):
+    baseline = np.full(47, 50.0)
+    better = baseline - 5.0
+    out = mod.paired_contrast(better, baseline, n_boot=300, seed=2)
+    expected = out["descriptive_95_interval"][0] / 50.0
+    assert out["best_case_relative_in_interval"] == pytest.approx(expected)
+
+
 def test_validation_scheme_is_the_frozen_one(mod):
     assert mod.OUTER_FOLDS == 5
     assert mod.OUTER_REPEATS == 2

@@ -73,6 +73,14 @@ ARMS = {
     "M1_clinical_pgx": CLINICAL + PGX,
     "M2_clinical_omic": CLINICAL + OMIC,
     "M3_clinical_pgx_omic": CLINICAL + PGX + OMIC,
+    # --- PGx decomposition, added 2026-11-07 as a secondary analysis -------
+    # The M1/M3 PGx block bundles the genotype-derived activity score with the
+    # comedication flag. Bundled, an effect cannot be attributed to either, so
+    # these arms separate them. Secondary and exploratory by construction.
+    "M1a_clinical_genotype": CLINICAL + [COL_AS],
+    "M1b_clinical_comedication": CLINICAL + [COL_INHIBITOR],
+    "M3a_clinical_genotype_omic": CLINICAL + [COL_AS] + OMIC,
+    "M3b_clinical_comedication_omic": CLINICAL + [COL_INHIBITOR] + OMIC,
 }
 PRIMARY_CONTRAST = ("M3_clinical_pgx_omic", "M1_clinical_pgx")
 PRIMARY_MODEL = "ridge"
@@ -305,6 +313,16 @@ def paired_contrast(errors_a, errors_b, n_boot=N_BOOTSTRAP, seed=SEED):
         draws[index] = difference[picked].mean()
     low, high = np.percentile(draws, [2.5, 97.5])
     baseline = float(errors_b.mean())
+
+    # Non-significant is not equivalent. Protocol section 10 forbids reading a
+    # zero-crossing interval as evidence of no effect, so the honest statement
+    # is whether the interval can exclude a benefit of the PRESPECIFIED size.
+    best_case_relative = low / baseline if baseline else None
+    excludes_prespecified_benefit = (
+        None
+        if best_case_relative is None
+        else bool(best_case_relative > -RELATIVE_IMPROVEMENT_THRESHOLD)
+    )
     return {
         "n_independent_patients": int(n),
         "mean_difference": point,
@@ -312,6 +330,15 @@ def paired_contrast(errors_a, errors_b, n_boot=N_BOOTSTRAP, seed=SEED):
         "descriptive_95_interval": [float(low), float(high)],
         "interval_excludes_zero": bool(low * high > 0),
         "direction": "improvement" if point < 0 else "degradation",
+        "best_case_relative_in_interval": best_case_relative,
+        "excludes_a_prespecified_size_benefit": excludes_prespecified_benefit,
+        "how_to_read": (
+            "interval_excludes_zero false means no effect was DETECTED, never "
+            "that there is none. excludes_a_prespecified_size_benefit true "
+            f"means a benefit of at least {RELATIVE_IMPROVEMENT_THRESHOLD:.0%} "
+            "is incompatible with the interval; false means the design cannot "
+            "rule one out, which is INCONCLUSIVE rather than NOT_SUPPORTED."
+        ),
         "n_bootstrap": int(n_boot),
     }
 
@@ -491,6 +518,12 @@ def run(source, target_column=COL_TROUGH, n_boot=N_BOOTSTRAP):
             ("M2_clinical_omic", "M0_clinical"),
             ("M1_clinical_pgx", "M0_clinical"),
             ("M3_clinical_pgx_omic", "M2_clinical_omic"),
+            # PGx decomposition: genotype and comedication separately.
+            ("M1a_clinical_genotype", "M0_clinical"),
+            ("M1b_clinical_comedication", "M0_clinical"),
+            ("M3a_clinical_genotype_omic", "M2_clinical_omic"),
+            ("M3b_clinical_comedication_omic", "M2_clinical_omic"),
+            ("M3_clinical_pgx_omic", "M3a_clinical_genotype_omic"),
         ):
             report["secondary_contrasts"][model_name][f"{new_name}_vs_{base_name}"] = (
                 paired_contrast(
