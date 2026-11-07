@@ -1,6 +1,6 @@
 {
   "registry_name": "PUBLIC_DATA_EVIDENCE_REGISTRY",
-  "version": "1.6.0",
+  "version": "1.7.0",
   "frozen_at": "2026-11-07",
   "scope": "Datasets admissible for the Omics2PK five-objective validation (H1-H5). A published article is not by itself an exploitable dataset.",
   "access_policy": {
@@ -106,6 +106,101 @@
         "previously_analysed_by_this_project": true,
         "implication": "This cohort has already been analysed repeatedly under earlier internal versions, with model choices made while results were visible. Freezing the protocol prevents further result-guided decisions; it cannot retroactively make this an independent confirmatory validation. Every ARIANA conclusion is reported as an exploratory re-analysis.",
         "max_claimable_status": "exploratory"
+      },
+      "executed_h1_result": {
+        "document": "docs/H1_ARIANA_INCREMENTAL_OMIC_VALUE_RESULTS_20261107.md",
+        "script": "scripts/run_h1_ariana_incremental_omic_value.py",
+        "report_json": "reports/data/h1_ariana_trough.json",
+        "date": "2026-11-07",
+        "status": "SUPPORTED as an exploratory success",
+        "prespecification": {
+          "frozen_in_v1_0_0": "arm definitions, the primary contrast and its loss, the loss hierarchy and reversal rule, the CV scheme, influence reporting, the prohibited predictor, the MAP-BE exclusion, and the 10 percent exploratory success threshold.",
+          "operationalised_at_analysis_time": "log-target fitting with back-transformation, penalty grids, feature encodings, bootstrap count."
+        },
+        "primary_contrast": {
+          "definition": "Ridge M3 (clinical+PGx+omic) versus Ridge M1 (clinical+PGx), MAE",
+          "delta_mae_ng_ml": -16.966,
+          "relative_change": -0.321,
+          "descriptive_95_interval": [
+            -33.764,
+            -4.686
+          ],
+          "interval_excludes_zero": true,
+          "n_independent_patients": 47,
+          "delta_log_mae": -0.2858,
+          "delta_log_mae_interval": [
+            -0.4152,
+            -0.1533
+          ],
+          "delta_trimmed_mae_10pct": -8.861,
+          "reversal_rule_triggered": false,
+          "frozen_criterion_met": true,
+          "criterion": "at least 10 percent relative MAE improvement with a descriptive interval excluding zero; observed 32.1 percent"
+        },
+        "secondary_target_dose_weighted": {
+          "delta_mae": -10.795,
+          "relative_change": -0.315,
+          "descriptive_95_interval": [
+            -20.147,
+            -2.887
+          ],
+          "note": "Prespecified secondary. Post-hoc switching between targets is prohibited."
+        },
+        "arm_table_mae_ng_ml": {
+          "ridge": {
+            "M0": 55.64,
+            "M1": 52.81,
+            "M2": 34.32,
+            "M3": 35.84
+          },
+          "elastic_net": {
+            "M0": 56.71,
+            "M1": 54.23,
+            "M2": 35.12,
+            "M3": 35.05
+          },
+          "xgboost": {
+            "M0": 57.48,
+            "M1": 58.25,
+            "M2": 37.53,
+            "M3": 38.6
+          }
+        },
+        "key_secondary_observation": {
+          "finding": "The omic SUBSTITUTES for the genotype rather than complementing it. M2 (clinical+omic, no PGx) beats M3 for Ridge (34.32 vs 35.84) and XGBoost (37.53 vs 38.60) and is level for Elastic Net. Genotype over clinical alone is marginal (55.64 to 52.81 for Ridge) and absent for XGBoost (57.48 to 58.25).",
+          "interpretation": "The measured ratio is a functional read-out already integrating genotype, phenoconversion and other modulation, so the activity score becomes redundant and costs a degree of freedom.",
+          "same_direction_as_jarmusch": "In Jarmusch a prior functional probe beat the CYP3A genotype and adding genotype on top of the functional measure worsened MAE. Two public cohorts, two enzymes, same ordering: measured function beats genotype, and genotype adds nothing on top.",
+          "status": "secondary and exploratory within the H1 family; Holm adjustment required before any claim"
+        },
+        "influence": {
+          "n_improved": 34,
+          "n_worsened": 13,
+          "net_gain_summed_ng_ml": 797.4,
+          "share_of_net_gain_from_five_most_improved": 0.737,
+          "mean_gain_by_endpoint_quartile": {
+            "Q1": 19.52,
+            "Q2": 4.48,
+            "Q3": 11.28,
+            "Q4": 31.55
+          },
+          "reading": "The gain is heavily concentrated: five of 47 patients carry about three quarters of it, and that is reported next to the headline. It is nevertheless positive in all four endpoint quartiles and 34 of 47 patients improve individually, which distinguishes it from a pure outlier artefact. Absolute errors scale with concentration over a 7 to 572 ng/mL range, which is why the log and trimmed losses are mandatory co-criteria; both agree."
+        },
+        "non_circularity": "The predictor is a solanidine-derived ratio from a dietary precursor; the target is the metoprolol concentration. They share no analyte and no denominator. The lnMR OH-metoprolol/metoprolol column, which does share a denominator with the target, is absent from every arm and a test enforces it.",
+        "limitations": [
+          "Exploratory only: prior analysis exposure caps the claim.",
+          "No public replication cohort exists for this axis, so it cannot be upgraded.",
+          "H5 showed the marker's subject ranking changes with sampling time, and ARIANA documents neither absolute sampling time nor time since last meal. This result therefore rests on the unverifiable assumption that ARIANA's samples sit in the informative regime.",
+          "Gain concentrated in five of 47 patients.",
+          "n=47, single centre, single laboratory, single assay.",
+          "One primary contrast unadjusted; every other contrast requires Holm adjustment."
+        ],
+        "sub_statuses": {
+          "incremental_value_of_omics_over_clinical_pgx": "SUPPORTED (exploratory)",
+          "independent_confirmation": "ABSTAIN",
+          "incremental_value_of_genotype_over_clinical": "NOT_SUPPORTED",
+          "incremental_value_of_genotype_on_top_of_omic": "NOT_SUPPORTED"
+        },
+        "what_follows": "H2 is now decisive and sharper: two variables produced the gain, so H2 must establish whether a mechanism-guided selection finds them for better reasons than a statistical selector at equal panel dimension, including against a deliberately wrong mechanistic panel, and whether any NetPK advantage comes from its selection rather than from literature-fixed coefficients. The primary contrast was placed on Ridge precisely so that this cannot be answered by borrowed strength."
       }
     },
     {
@@ -985,6 +1080,17 @@
         "muller_potato_meal_20"
       ],
       "does_not_change": "No status changes. The sampling-time item stays PARTIALLY_SUPPORTED and the marker difference stays SUPPORTED, now with an interval."
+    },
+    {
+      "version": "1.7.0",
+      "date": "2026-11-07",
+      "ruling": "Records the executed H1 result on ARIANA, the programme's primary contrast.",
+      "made_before_any_run_on_the_affected_data": false,
+      "why_that_matters": "This records an outcome. The primary contrast, its loss, the loss hierarchy, the CV scheme, the influence reporting and the 10 percent success threshold were all frozen in protocol v1.0.0 before the run.",
+      "affected_datasets": [
+        "ariana_metoprolol_47"
+      ],
+      "does_not_change": "The status ceiling. ARIANA carries prior_analysis_exposure with max_claimable_status exploratory, so this is an exploratory success and not a confirmatory validation."
     }
   ]
 }

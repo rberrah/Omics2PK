@@ -29,7 +29,7 @@ jobs:
         with:
           python-version: '3.11'
       - run: python -m pip install -e .
-      - run: python -m pip install pytest numpy pandas scipy openpyxl
+      - run: python -m pip install pytest numpy pandas scipy openpyxl scikit-learn xgboost
       - name: Run the pytest-based contract modules
         run: >-
           python -m pytest -q
@@ -37,6 +37,7 @@ jobs:
           tests/test_ariana_published_reconciliation.py
           tests/test_muller2026_potato_meal_qualification.py
           tests/test_h5_solanidine_marker_robustness.py
+          tests/test_h1_ariana_incremental_omic_value.py
       - name: Fail if a pytest module was collected but ran nothing
         run: |
           set -euo pipefail
@@ -47,9 +48,10 @@ jobs:
             tests/test_ariana_published_reconciliation.py \
             tests/test_muller2026_potato_meal_qualification.py \
             tests/test_h5_solanidine_marker_robustness.py \
+            tests/test_h1_ariana_incremental_omic_value.py \
             | grep -c '::' || true)
           echo "collected $count pytest tests"
-          if [ "$count" -lt 55 ]; then
-            echo "ERROR: expected at least 55 collected tests, got $count." >&2
+          if [ "$count" -lt 90 ]; then
+            echo "ERROR: expected at least 90 collected tests, got $count." >&2
             exit 1
           fi

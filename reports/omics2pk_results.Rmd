@@ -1,0 +1,350 @@
+---
+title: "Omics2PK — executed results"
+subtitle: "H1 incremental omic value (ARIANA) and H5 marker robustness (Müller 2026)"
+date: "`r format(Sys.Date(), '%d %B %Y')`"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+    df_print: kable
+    theme: flatly
+params:
+  h1_json: "../reports/data/h1_ariana_trough.json"
+  h1_weighted_json: "../reports/data/h1_ariana_dose_weighted.json"
+  h5_json: "../reports/data/h5_muller_robustness.json"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = FALSE, warning = FALSE, message = FALSE,
+  fig.width = 8, fig.height = 5, dpi = 150
+)
+library(jsonlite)
+library(ggplot2)
+library(dplyr)
+library(knitr)
+
+# Every number in this report is read from the JSON emitted by the Python
+# analysis scripts. Nothing is retyped, so the report cannot drift from the
+# computation that produced it.
+read_report <- function(path) {
+  if (!file.exists(path)) {
+    stop(sprintf(
+      "Missing %s. Generate it first:\n  python scripts/run_h1_ariana_incremental_omic_value.py --source <workbook> > %s",
+      path, path), call. = FALSE)
+  }
+  fromJSON(path, simplifyVector = TRUE)
+}
+
+h1  <- read_report(params$h1_json)
+h1w <- read_report(params$h1_weighted_json)
+h5  <- read_report(params$h5_json)
+
+# House palette. Deliberately colour-blind safe and theme-neutral.
+PAL <- c(real = "#1b6ca8", caution = "#d08c00", negative = "#9c3d3d",
+         neutral = "#5c6b73")
+theme_o2pk <- function() {
+  theme_minimal(base_size = 12) +
+    theme(
+      panel.grid.minor = element_blank(),
+      panel.grid.major.y = element_line(colour = "grey90"),
+      plot.title.position = "plot",
+      plot.caption = element_text(colour = "grey35", hjust = 0)
+    )
+}
+```
+
+# Provenance and standing
+
+All figures below are **measured results on public individual-level data**. No
+simulated value and no unverified hypothesis appears in any panel; where a
+quantity could not be estimated the objective is reported as `ABSTAIN` rather
+than filled in.
+
+```{r provenance}
+data.frame(
+  Objective = c("H1", "H5"),
+  Cohort = c(h1$cohort, h5$cohort),
+  Endpoint = c(h1$target, h5$endpoint_class),
+  `Source SHA-256` = c(substr(h1$source_sha256, 1, 16), substr(h5$source_sha256, 1, 16)),
+  `Status ceiling` = c("exploratory", "exploratory"),
+  check.names = FALSE
+) |> kable(caption = "Sources, verified by checksum at run time. Neither workbook is committed to the repository.")
+```
+
+> **`r h1$target_is`**
+>
+> MAP-BE is `r h1$map_be`. The column `r h1$prohibited_predictor_absent`
+> shares a denominator with the target and is excluded from every arm.
+
+# H1 — incremental value of omics
+
+## Prespecification
+
+```{r h1-prespec}
+data.frame(
+  Element = c("Frozen in protocol v1.0.0", "Operationalised at analysis time", "Comparators"),
+  Content = c(h1$prespecification$frozen_in_v1_0_0,
+              h1$prespecification$operationalised_at_analysis_time,
+              h1$prespecification$comparators),
+  check.names = FALSE
+) |> kable(caption = "What was frozen in advance and what was not. Stated separately on purpose.")
+```
+
+Validation: `r h1$validation$outer_folds` outer folds x
+`r h1$validation$outer_repeats` repeats, `r h1$validation$inner_folds` inner
+folds, identical folds across every arm and model.
+`r h1$validation$preprocessing`; `r h1$validation$hyperparameters`.
+
+## Arm performance
+
+```{r h1-arms}
+arm_rows <- do.call(rbind, lapply(names(h1$results), function(model) {
+  arms <- h1$results[[model]]
+  do.call(rbind, lapply(names(arms), function(arm) {
+    s <- arms[[arm]]
+    data.frame(model = model, arm = arm, mae = s$mae,
+               trimmed_mae = s$trimmed_mae_10pct, log_mae = s$log_mae,
+               rmse = s$rmse, p20 = 100 * s$p20_fraction_within_20pct)
+  }))
+}))
+arm_rows$arm <- factor(arm_rows$arm, levels = names(h1$arms))
+
+arm_rows |>
+  mutate(across(c(mae, trimmed_mae, rmse, p20), \(x) round(x, 2)),
+         log_mae = round(log_mae, 3)) |>
+  arrange(model, arm) |>
+  kable(col.names = c("Model", "Arm", "MAE", "Trimmed MAE 10%", "log MAE", "RMSE", "P20 %"),
+        caption = "Out-of-fold losses, ng/mL. Identical folds throughout.")
+```
+
+```{r h1-arm-figure, fig.cap="Mean absolute error by arm. The step down occurs when the omic variables enter, not when the genotype does."}
+ggplot(arm_rows, aes(x = arm, y = mae, group = model, colour = model)) +
+  geom_line(linewidth = 0.7) +
+  geom_point(size = 2.6) +
+  scale_colour_manual(values = unname(PAL[c(1, 2, 4)]), name = NULL) +
+  scale_x_discrete(labels = c("M0\nclinical", "M1\n+PGx", "M2\n+omic", "M3\n+PGx+omic")) +
+  labs(x = NULL, y = "MAE (ng/mL)",
+       caption = "Lower is better. Note M2 versus M3: adding the genotype on top of the omic does not help.") +
+  theme_o2pk()
+```
+
+## The primary contrast
+
+```{r h1-primary}
+pc <- h1$primary_contrast
+pl <- pc$primary_loss
+lg <- pc$robustness_co_criteria$log_mae
+tr <- pc$robustness_co_criteria$trimmed_mae_10pct
+
+data.frame(
+  Criterion = c("MAE (primary)", "log MAE (robustness)", "Trimmed MAE 10% (robustness)"),
+  Difference = c(round(pl$mean_difference, 3), round(lg$mean_difference, 4),
+                 round(tr$mean_difference, 3)),
+  `95% interval` = c(
+    sprintf("[%.2f, %.2f]", pl$descriptive_95_interval[1], pl$descriptive_95_interval[2]),
+    sprintf("[%.3f, %.3f]", lg$descriptive_95_interval[1], lg$descriptive_95_interval[2]),
+    "-"),
+  `Excludes zero` = c(pl$interval_excludes_zero, lg$interval_excludes_zero, NA),
+  check.names = FALSE
+) |> kable(caption = sprintf("Primary contrast: %s. Negative favours the omic arm.", pc$definition))
+```
+
+**`r pc$definition`** gives ΔMAE
+**`r sprintf('%+.2f', pl$mean_difference)` ng/mL**
+(`r sprintf('%.1f%%', 100 * pl$relative_change_vs_baseline)` versus baseline),
+95 % `r sprintf('[%.2f, %.2f]', pl$descriptive_95_interval[1], pl$descriptive_95_interval[2])`,
+on `r pl$n_independent_patients` independent patients.
+
+The frozen exploratory success criterion is
+**`r if (isTRUE(pc$exploratory_success_criterion$threshold_met)) "MET" else "NOT met"`**:
+`r pc$exploratory_success_criterion$threshold`, observed
+`r sprintf('%.1f%%', 100 * pc$exploratory_success_criterion$relative_improvement)`.
+
+Reversal rule: primary improved = `r pc$reversal_rule$primary_improved`,
+trimmed reversed = `r pc$reversal_rule$trimmed_mae_reversed`,
+log reversed = `r pc$reversal_rule$log_mae_reversed`, so the status is
+`r if (isTRUE(pc$reversal_rule$status_capped_at_partially_supported)) "CAPPED at PARTIALLY_SUPPORTED" else "not capped"`.
+
+## Forest plot of incremental gains
+
+```{r h1-forest, fig.height=5.5, fig.cap="Paired ΔMAE for each secondary contrast, by model, bootstrapped over patients. Intervals crossing the dashed line are compatible with no effect."}
+forest <- do.call(rbind, lapply(names(h1$secondary_contrasts), function(model) {
+  contrasts <- h1$secondary_contrasts[[model]]
+  do.call(rbind, lapply(names(contrasts), function(label) {
+    c0 <- contrasts[[label]]
+    data.frame(model = model, contrast = label, estimate = c0$mean_difference,
+               low = c0$descriptive_95_interval[1], high = c0$descriptive_95_interval[2],
+               excludes = c0$interval_excludes_zero)
+  }))
+}))
+forest$contrast <- gsub("_clinical_pgx_omic|_clinical_omic|_clinical_pgx|_clinical", "", forest$contrast)
+forest$contrast <- gsub("_vs_", " vs ", forest$contrast)
+
+ggplot(forest, aes(x = estimate, y = contrast, colour = excludes)) +
+  geom_vline(xintercept = 0, linetype = "dashed", colour = "grey45") +
+  geom_errorbarh(aes(xmin = low, xmax = high), height = 0.18, linewidth = 0.6) +
+  geom_point(size = 2.4) +
+  facet_wrap(~model, ncol = 1, scales = "free_y") +
+  scale_colour_manual(values = c(`TRUE` = PAL[["real"]], `FALSE` = PAL[["neutral"]]),
+                      labels = c(`TRUE` = "interval excludes 0", `FALSE` = "compatible with 0"),
+                      name = NULL) +
+  labs(x = "ΔMAE (ng/mL), negative favours the richer arm", y = NULL,
+       caption = "One primary contrast only (Ridge M3 vs M1) is unadjusted; all others are secondary within the H1 family.") +
+  theme_o2pk() +
+  theme(legend.position = "top")
+```
+
+## Influence — where the gain comes from
+
+```{r h1-influence}
+inf <- pc$influence
+data.frame(
+  Quantity = c("Patients improved", "Patients worsened", "Net gain (ng/mL, summed)",
+               "Share of net gain from the five most-improved"),
+  Value = c(inf$n_improved, inf$n_worsened, round(inf$net_gain, 1),
+            sprintf("%.1f%%", 100 * inf$share_of_net_gain_from_five_most_improved))
+) |> kable(caption = "Mandatory influence reporting, protocol section 2.2.")
+```
+
+```{r h1-quartiles, fig.height=3.4, fig.cap="Mean gain within endpoint quartiles. The gain is positive in every quartile, so it is not confined to one end of the concentration range."}
+q <- inf$mean_gain_by_endpoint_quartile
+qdf <- data.frame(quartile = names(q), gain = as.numeric(unlist(q)))
+ggplot(qdf, aes(x = quartile, y = gain)) +
+  geom_col(fill = PAL[["real"]], width = 0.6) +
+  geom_hline(yintercept = 0, colour = "grey40") +
+  labs(x = "Endpoint quartile (lowest to highest concentration)", y = "Mean gain (ng/mL)",
+       caption = sprintf("Five of 47 patients carry %.0f%% of the net gain; read this panel together with that.",
+                         100 * inf$share_of_net_gain_from_five_most_improved)) +
+  theme_o2pk()
+```
+
+## Prespecified dose-weighted secondary target
+
+```{r h1-weighted}
+plw <- h1w$primary_contrast$primary_loss
+data.frame(
+  Target = c(h1$target, h1w$target),
+  `ΔMAE` = round(c(pl$mean_difference, plw$mean_difference), 2),
+  `Relative` = sprintf("%.1f%%", 100 * c(pl$relative_change_vs_baseline,
+                                         plw$relative_change_vs_baseline)),
+  `95% interval` = c(
+    sprintf("[%.2f, %.2f]", pl$descriptive_95_interval[1], pl$descriptive_95_interval[2]),
+    sprintf("[%.2f, %.2f]", plw$descriptive_95_interval[1], plw$descriptive_95_interval[2])),
+  check.names = FALSE
+) |> kable(caption = "The dose-weighted target was prespecified as a secondary. Post-hoc switching between them is prohibited.")
+```
+
+# H5 — marker robustness
+
+## Prespecification, and one declared post-hoc choice
+
+```{r h5-prespec}
+p5 <- h5$prespecification
+data.frame(
+  Element = c("Frozen in v1.0.0", "Operationalised later", "Post-hoc choice declared", "Not selective"),
+  Content = c(p5$frozen_in_v1_0_0, p5$not_frozen_operationalised_at_analysis_time,
+              p5$post_hoc_choice_declared, p5$not_selective),
+  check.names = FALSE
+) |> kable()
+```
+
+## Association with the activity score, by sampling time
+
+```{r h5-time, fig.height=5, fig.cap="Spearman association between each ln ratio and the CYP2D6 activity score at each sampling time, below-LOQ values excluded. Only the 29 h sample reaches significance after correction."}
+assoc <- do.call(rbind, lapply(names(h5$analyses), function(marker) {
+  a <- h5$analyses[[marker]]$scenarios$excluding_below_loq$association_with_activity_score
+  do.call(rbind, lapply(names(a), function(tp) {
+    v <- a[[tp]]
+    if (isTRUE(v$insufficient)) return(NULL)
+    data.frame(marker = marker, time = as.numeric(sub("h$", "", tp)),
+               rho = v$rho, low = v$ci_low, high = v$ci_high, p = v$p)
+  }))
+}))
+alpha <- 0.05 / 18
+assoc$significant <- assoc$p < alpha
+
+ggplot(assoc, aes(x = time, y = rho)) +
+  geom_hline(yintercept = 0, linetype = "dashed", colour = "grey45") +
+  geom_ribbon(aes(ymin = low, ymax = high), fill = PAL[["neutral"]], alpha = 0.16) +
+  geom_line(colour = PAL[["neutral"]], linewidth = 0.6) +
+  geom_point(aes(colour = significant), size = 2.8) +
+  facet_wrap(~marker, ncol = 1) +
+  scale_x_continuous(breaks = c(0, 1, 2, 3, 4, 5, 29)) +
+  scale_colour_manual(values = c(`TRUE` = PAL[["real"]], `FALSE` = PAL[["caution"]]),
+                      labels = c(`TRUE` = sprintf("p < %.4f (Bonferroni x18)", alpha),
+                                 `FALSE` = "not significant"), name = NULL) +
+  labs(x = "Sampling time (hours after the meal)", y = "Spearman rho vs activity score",
+       caption = "Shaded band is the 95% interval. Early-window intervals overlap the 29 h estimate, so this design does not separate the windows on association strength.") +
+  theme_o2pk() +
+  theme(legend.position = "top")
+```
+
+Early-window compatibility bounds — the widest upper confidence limit between
+0 and 5 h:
+
+```{r h5-bounds}
+eb <- h5$early_window_compatibility_bounds
+data.frame(
+  Marker = names(eb),
+  `Compatible up to` = round(as.numeric(sapply(eb, \(x) x$widest_upper_confidence_limit_0_to_5h)), 3),
+  check.names = FALSE
+) |> kable(caption = "These are the bounds, not the 80%-power correlation. They overlap the 29 h estimates.")
+```
+
+## Marker reliability on the exact intersection of subjects
+
+```{r h5-icc}
+mi <- h5$marker_difference_on_exact_intersection
+rows <- do.call(rbind, lapply(c("raw", "time_effect_removed"), function(key) {
+  pt <- mi$point_estimates[[key]]
+  bs <- mi[[paste0("bootstrap_", key)]]
+  data.frame(
+    Specification = if (key == "raw") "raw" else "fixed time effect removed",
+    `OH-solanidine ICC` = round(pt[["oh4_solanidine_over_solanidine"]], 3),
+    `SSDA ICC` = round(pt[["ssda_over_solanidine"]], 3),
+    Difference = round(pt$difference, 3),
+    `Bootstrap 95%` = sprintf("[%.3f, %.3f]", bs$percentile_95_interval[1],
+                              bs$percentile_95_interval[2]),
+    `Excludes zero` = bs$interval_excludes_zero,
+    check.names = FALSE)
+}))
+kable(rows, caption = sprintf(
+  "Both markers on the same %d subjects, %d bootstrap resamples over subjects. Difference is SSDA minus OH-solanidine.",
+  mi$n_intersection, mi$n_bootstrap))
+```
+
+The semi-quantitative, counts-based analyte is the more reliable of the two,
+and that survives population matching, removal of the postprandial trend and
+explicit uncertainty quantification.
+
+# Conclusions actually licensed
+
+```{r status}
+data.frame(
+  Objective = c("H1 ARIANA", "H1 replication", "H1 genotype over clinical",
+                "H1 genotype on top of omic", "H5 sampling-time effect",
+                "H5 marker stability", "H5 quantified vs semi-quantitative",
+                "H5 food effect", "H5 poor-metaboliser discrimination",
+                "H5 between-day reproducibility"),
+  Status = c("SUPPORTED (exploratory)", "ABSTAIN", "NOT_SUPPORTED",
+             "NOT_SUPPORTED", "PARTIALLY_SUPPORTED", "PARTIALLY_SUPPORTED",
+             "SUPPORTED", "INCONCLUSIVE", "ABSTAIN", "ABSTAIN")
+) |> kable(caption = "SUPPORTED means a prespecified criterion was actually met, never a qualitative impression.")
+```
+
+**What must not be concluded from H5:**
+
+```{r h5-forbidden}
+data.frame(Prohibited = h5$must_not_be_concluded) |> kable()
+```
+
+```{r session, results='asis'}
+cat("\n# Session\n\n```\n")
+cat(R.version.string, "\n")
+cat(sprintf("%-12s %s\n", c("rmarkdown", "knitr", "jsonlite", "ggplot2", "dplyr"),
+            sapply(c("rmarkdown", "knitr", "jsonlite", "ggplot2", "dplyr"),
+                   \(p) as.character(packageVersion(p)))))
+cat("```\n")
+```
