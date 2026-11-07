@@ -1,0 +1,357 @@
+{
+  "registry_name": "PUBLIC_DATA_EVIDENCE_REGISTRY",
+  "version": "1.0.0",
+  "frozen_at": "2026-11-07",
+  "scope": "Datasets admissible for the Omics2PK five-objective validation (H1-H5). A published article is not by itself an exploitable dataset.",
+  "access_policy": {
+    "rule": "Only data effectively retrievable without an authorization request or a collaboration agreement may enter a confirmatory analysis.",
+    "open_public": "Retrievable by URL with no account. Admissible for confirmatory analysis.",
+    "public_registered": "Retrievable by anyone who creates an account and accepts data-use terms; no committee reviews the request. Admissible only if the user rules it admissible; flagged for ruling.",
+    "author_request": "Requires contacting an author. NOT admissible in this phase.",
+    "governed_application": "Requires an ethics/registry committee decision. NOT admissible in this phase.",
+    "unavailable": "No individual-level data released in any form.",
+    "forbidden_practices": [
+      "reconstructing individual rows from published means, figures or ranges",
+      "presenting simulated values as biological results",
+      "merging unrelated cohorts into a pseudo-subject",
+      "counting two drugs measured in the same donors as two independent biological cohorts"
+    ]
+  },
+  "status_definitions": {
+    "ACQUIRED": "Source bytes in hand with a recorded SHA-256; identity/endpoint qualification not yet asserted.",
+    "QUALIFIED": "Acquired AND the biological unit, endpoint, matrix, timing and omics identity have been checked against a named objective.",
+    "PARTIAL": "Some qualification requirements met; a named requirement is still open.",
+    "ABSTAIN": "Cannot be used in this phase; reason recorded."
+  },
+  "endpoint_classes": {
+    "pk_clinical": "A pharmacokinetic observation in a treated human (concentration, AUC, CL/F).",
+    "functional_in_vitro": "An enzyme activity or intrinsic clearance measured in tissue/microsomes. NOT human PK.",
+    "pd_cell_line": "A cell-line drug-response endpoint. Neither PK nor human PD.",
+    "biomarker_only": "Molecular ratios with a genotype reference but no drug exposure measurement."
+  },
+  "verification_legend": {
+    "verified_this_session": "true = the stated provenance facts were checked on 2026-11-07 by retrieving the source and/or recomputing the checksum. false = inherited from a prior repository document and NOT re-verified here."
+  },
+  "datasets": [
+    {
+      "key": "ariana_metoprolol_47",
+      "label": "ARIANA metoprolol n=47",
+      "citation": "Saromba JA, Kurt B, Antwerpen A, Rex K, Giacin A, Bornemann J, Aygar K, Mertens M, Mueller-Wieland D, Dahl E, Marx N, Kahles F, Wozniak J, Neiss J, Krzoska D, Stingl JC, Mueller JP, Just KS. Front Pharmacol. 2026 May 29;17:1812007.",
+      "doi": "10.3389/fphar.2026.1812007",
+      "pmid": "42292851",
+      "pmcid": "PMC13260174",
+      "trial_registration": "DRKS00025716",
+      "original_repository": "https://github.com/katjajust/Solandine-Metoprolol-Correlations",
+      "data_availability_statement": "Original data were uploaded to a repository accessible under the following link: https://github.com/katjajust/Solandine-Metoprolol-Correlations",
+      "access_tier": "open_public",
+      "individual_level_data_released": true,
+      "local_artifacts": [
+        {
+          "filename": "Solanidine_metoprolol_ratios_PGx.xlsx",
+          "bytes": 13997,
+          "sha256": "7397b13e43cd546b93f83a20b2dc84b6d49e97633173d56711c39973beedfe37"
+        }
+      ],
+      "n_enrolled": 48,
+      "n_analysed": 47,
+      "biological_unit": "patient",
+      "matrix": "plasma",
+      "sampling_time": "fasting pre-dose trough; absolute clock time and time since last dose NOT documented in the source",
+      "omics_layers": [
+        {
+          "layer": "metabolomics_targeted",
+          "analytes": ["solanidine", "4-OH-solanidine", "SSDA (3,4-seco-solanidine-3,4-dioic acid)"],
+          "method": "LC-MS",
+          "identification_quality": "solanidine and 4-OH-solanidine quantified; SSDA semi-quantitative, no authentic analytical standard"
+        }
+      ],
+      "genotypes": "CYP2D6 SNP panel with copy number; activity score derived (source supplementary S2)",
+      "comedication": "CYP2D6 substrate/inhibitor list recorded (source supplementary S3)",
+      "endpoint": {
+        "name": "metoprolol pre-dose trough plasma concentration",
+        "endpoint_class": "pk_clinical",
+        "units": "ng/mL",
+        "observations_per_subject": 1,
+        "must_not_be_called": ["AUC", "clearance", "CL/F"]
+      },
+      "dose_regimen": "metoprolol twice daily in equal doses; 23 patients at 95 mg/day and 24 at 190 mg/day",
+      "formulation": "NOT documented in the source. Succinate extended-release inferred from the 47.5/95/190 mg German strengths; immediate-release tartrate retained as a sensitivity analysis. Formulation must not be chosen on observed MAE.",
+      "objectives_supported": ["H1", "H2", "H3", "H4", "H5"],
+      "status": "QUALIFIED",
+      "verified_this_session": true,
+      "verification_method": "Downloaded from the repository named in the data availability statement; SHA-256 recomputed and found identical to the file already used in the local ARIANA analysis.",
+      "caveats": [
+        "One concentration per patient. MAP-Bayesian estimation conditioned on that concentration and then predicting it is circular (measured optimism factor 3.6) and is excluded by construction.",
+        "An NLME likelihood is not identifiable from a single observation per subject.",
+        "The OH-metoprolol/metoprolol metabolic ratio is present in the source but shares its denominator with the target concentration. It may be used ONLY as a validation target, never as a predictor.",
+        "The source publication's own primary result is the correlation between solanidine-derived and metoprolol-derived metabolic ratios. Reproducing it is a positive control on the implementation, NOT a new finding of this project.",
+        "Single centre, single laboratory, single assay."
+      ]
+    },
+    {
+      "key": "muller_cocktail_20",
+      "label": "Mueller phenotyping cocktail n=20",
+      "citation": "Mueller JP, Saromba J, Ziegler P, Tremmel R, Rengelshausen J, Schaeffeler E, Just KS, Schwab M, Kraus T, Stingl JC. Clin Pharmacol Ther. 2024 Feb;115(2):309-317.",
+      "doi": "10.1002/cpt.3106",
+      "pmid": "37971251",
+      "pmcid": null,
+      "trial_registration": "DRKS00028922",
+      "access_tier": "unavailable",
+      "individual_level_data_released": false,
+      "n_analysed": 20,
+      "design": "phenotyping cocktail in healthy volunteers; 12.5 mg oral metoprolol; 15 plasma sampling points over 24 h; solanidine, 4-OH-solanidine and SSDA by LC-MS; all participants CYP2D6 genotyped",
+      "endpoint": {
+        "name": "AUC metabolic ratio alpha-OH-metoprolol/metoprolol and solanidine-derived ratios",
+        "endpoint_class": "biomarker_only",
+        "observations_per_subject": 15
+      },
+      "objectives_supported": [],
+      "status": "ABSTAIN",
+      "abstain_reason": "No individual-level data released. Europe PMC core record reports hasData=N, hasSuppl=N, no PMCID; the publisher page returns HTTP 403. Published aggregate values must not be converted into reconstructed individual rows.",
+      "verified_this_session": true,
+      "verification_method": "Europe PMC REST core record for DOI 10.1002/cpt.3106 retrieved and inspected; publisher full text attempted and refused.",
+      "consequence": "This was the designated independent biological and temporal validation for the solanidine module (intra-individual stability, effect of sampling time). Its loss means no public dataset can currently test within-subject temporal stability of the solanidine ratios."
+    },
+    {
+      "key": "wollmann_839",
+      "label": "Wollmann TDM cohort n=839",
+      "citation": "Wollmann BM, Storset E, Kringen MK, Molden E, Smith RL. Eur J Clin Pharmacol. 2023;79(4):523-531.",
+      "doi": "10.1007/s00228-023-03462-y",
+      "pmid": "36806969",
+      "pmcid": "PMC10038974",
+      "access_tier": "author_request",
+      "individual_level_data_released": false,
+      "n_analysed": 839,
+      "design": "retrospective routine TDM serum samples, Diakonhjemmet Hospital Oslo, 2019-2022; solanidine plus seven metabolites (M402, M412, M414, M416, M432, M440, M444=SSDA); CYP2D6 panel *3/*4/*6/*9/*10/*41/*5 with copy number",
+      "endpoint": {
+        "name": "metabolite-to-solanidine ratios versus CYP2D6 genotype group",
+        "endpoint_class": "biomarker_only",
+        "drug_concentration_measured": false
+      },
+      "objectives_supported": [],
+      "status": "ABSTAIN",
+      "abstain_reason": "Data availability statement: 'The data that support the findings of this study are available from the corresponding author, BMW, upon reasonable request.' No repository, accession or URL.",
+      "verified_this_session": true,
+      "verification_method": "PMC full text retrieved; data availability statement and supplementary file list inspected.",
+      "note": "Even if obtained, no drug exposure is measured, so this cohort could serve objective H5 (biological validity of the marker) but never H1 (incremental PK prediction)."
+    },
+    {
+      "key": "kiiski_314",
+      "label": "Kiiski Finnish volunteers n=314 analysed",
+      "citation": "Kiiski JI, Neuvonen M, Kurkela M, Hirvensalo P, Haemaelaeinen K, Tarkiainen EK, Sistonen J, Korhonen M, Khan S, Orpana A, Filppula AM, Lehtonen M, Niemi M. Hum Genomics. 2024;18:11.",
+      "doi": "10.1186/s40246-024-00579-8",
+      "pmid": "38303026",
+      "pmcid": "PMC10835938",
+      "access_tier": "author_request",
+      "individual_level_data_released": false,
+      "n_included": 356,
+      "n_analysed": 314,
+      "design": "healthy Finnish volunteers, overnight-fasting plasma, non-targeted metabolomics, CYP2D6 genotype reference, in vitro work and GWAS",
+      "endpoint": {
+        "name": "solanidine and metabolite levels versus CYP2D6 genotype",
+        "endpoint_class": "biomarker_only",
+        "drug_concentration_measured": false
+      },
+      "objectives_supported": [],
+      "status": "ABSTAIN",
+      "abstain_reason": "Available from the corresponding author on reasonable request, and further limited by informed consent and the EU GDPR. No repository or accession.",
+      "verified_this_session": true,
+      "verification_method": "PMC full text retrieved; data availability statement inspected."
+    },
+    {
+      "key": "hlc_syn4499",
+      "label": "Sage Bionetworks Human Liver Cohort",
+      "citation": "Schadt EE et al. PLoS Biol. 2008 (PMID 18462017); Yang X et al. Genome Res. 2010, doi 10.1101/gr.103341.109.",
+      "original_repository": "Sage Bionetworks Synapse (Human Liver Cohort)",
+      "access_tier": "public_registered",
+      "access_note": "Open to anyone who registers a Synapse account and accepts the data-use terms. No committee reviews the request, which distinguishes it from a governed application. REQUIRES A USER RULING on admissibility under the strict public-only rule.",
+      "individual_level_data_released": true,
+      "redistribution_permitted": false,
+      "local_artifacts": [
+        {"filename": "curatedExpressionLiver.zip", "bytes": 49745702, "sha256": "35a80d532b967fdfbc73eaff571ddade17b90b30121ebe48465870245fe5e376"},
+        {"filename": "curatedGenotype.zip", "bytes": 33671137, "sha256": "9add3449638a64b5db7ddb01ca85d8ae03d441679447cc133b9233dd91981690"},
+        {"filename": "curatedPhenotypesynapse.zip", "bytes": 38770, "sha256": "141187cd0e226ba43389bd10ab6973661ad935fa8bad51f9984f1833a2cf15a7"},
+        {"filename": "human_liver_cohort.zip", "bytes": 52626143, "sha256": "498dd06d106779adb4cc833a51a49be8f4e00cad1d07791cabc06d6c1b090c37"}
+      ],
+      "biological_unit": "liver donor",
+      "matrix": "liver tissue and human liver microsomes",
+      "counts": {
+        "expression_samples": 466,
+        "expression_probes": 40638,
+        "phenotype_donors": 836,
+        "genotyped_people": 195,
+        "genotype_intersect_expression": 178,
+        "with_activity_and_clinical_baseline": "171-172 depending on endpoint",
+        "activity_endpoints_analysed": "387-397 per endpoint"
+      },
+      "omics_layers": [
+        {"layer": "transcriptomics", "analytes": "Agilent microarray, 40638 probes including CYP1A2/2A6/2B6/2C8/2C9/2C19/2D6/2E1/3A4/3A5, POR, transporters", "identification_quality": "platform probe annotation only; not orthogonally confirmed by qPCR or protein"},
+        {"layer": "genotype", "analytes": "449699 SNP rows; only rs776746 (CYP3A5) and rs1799853 (CYP2C9) usable pharmacogenetically", "identification_quality": "array calls, reference allele orientation not independently confirmed"}
+      ],
+      "endpoint": {
+        "name": "CYP substrate turnover activity in human liver microsomes",
+        "endpoint_class": "functional_in_vitro",
+        "units": "nmol/min/mg protein",
+        "must_not_be_called": ["human PK", "clinical AUC", "apparent clearance"]
+      },
+      "objectives_supported": ["H3", "H4", "H5"],
+      "h1_functional_analogue": true,
+      "h1_functional_analogue_note": "Incremental value of CYP transcript over a clinical baseline is measurable here, but on microsomal enzyme activity. It is the functional analogue of H1 and must never be reported as H1, which is defined on clinical pharmacokinetics.",
+      "status": "QUALIFIED",
+      "qualified_for": "H3/H4/H5 directly, plus the functional analogue of H1, on an in vitro endpoint only. It can never satisfy the H1 criterion, which is stated on clinical PK.",
+      "verified_this_session": true,
+      "verification_method": "All four local archive SHA-256 values recomputed on 2026-11-07 and found identical to those recorded in docs/HLC_ORIGINAL_400_LIVER_CYP_RNA_GENOTYPE_RESULTS_20261018.md.",
+      "caveats": [
+        "No matched quantitative CYP protein, so the RNA -> protein -> activity chain cannot be completed in this cohort.",
+        "Body weight is missing for most donors and must not be imputed as if observed.",
+        "Source terms prohibit redistribution and any attempt to identify donors; only aggregates may be committed.",
+        "Absolute MAE magnitudes are in source assay units and should be reported as within-endpoint relative changes."
+      ]
+    },
+    {
+      "key": "epa_liver_100",
+      "label": "EPA liver donor transcript and CYP activity panel n=100",
+      "access_tier": "open_public",
+      "endpoint": {"name": "targeted CYP activity", "endpoint_class": "functional_in_vitro"},
+      "objectives_supported": ["H3", "H4"],
+      "h1_functional_analogue": true,
+      "status": "PARTIAL",
+      "open_requirement": "Source URL, accession and SHA-256 were not re-verified in this session. The registry must not assert provenance that was not checked.",
+      "verified_this_session": false,
+      "inherited_from": [
+        "docs/EPA_100_DONOR_TRANSCRIPT_CYP_VALIDATION_20261016.md",
+        "docs/EPA_100_LIVER_EIGHT_CYP_BONFERRONI_REAL_RESULTS_20261017.md",
+        "docs/EPA100_REAL_199_PERMUTATION_NEGATIVE_CONTROLS_20261018.md"
+      ]
+    },
+    {
+      "key": "wegler_15",
+      "label": "Wegler liver donors n=15",
+      "citation": "Wegler C et al. 2021.",
+      "pmcid": "PMC8041379",
+      "access_tier": "open_public",
+      "access_note": "Published supplement (Data S1/S2) is the stated source of donor-level values.",
+      "n_analysed": 15,
+      "omics_layers": [{"layer": "proteomics", "analytes": "liver CYP and transporter protein quantities", "identification_quality": "targeted quantitative proteomics"}],
+      "endpoint": {"name": "measured in vitro hepatic intrinsic clearance for five drugs", "endpoint_class": "functional_in_vitro"},
+      "objectives_supported": ["H2", "H5"],
+      "status": "PARTIAL",
+      "open_requirement": "Donor-level table extraction, units and SHA-256 not re-verified in this session.",
+      "verified_this_session": false,
+      "inherited_from": ["docs/WEGLER_SOURCE_STRUCTURE_RESULTS_20261016.md", "docs/E3_PUBLIC_DATA_PIVOT_SILVEIRA_CLOSED_TO_WEGLER54_20261018.md"],
+      "caveats": ["15 donors cannot support high-dimensional selection; parsimony budgets must stay very small.", "No measured RNA, so no transcript-to-protein comparison inside this cohort."]
+    },
+    {
+      "key": "latham_tki_donors",
+      "label": "Latham / TKI imatinib and tucatinib donor panel",
+      "access_tier": "open_public",
+      "endpoint": {"name": "CYP protein, activity and intrinsic clearance for imatinib and tucatinib", "endpoint_class": "functional_in_vitro"},
+      "objectives_supported": ["H2", "H5"],
+      "status": "PARTIAL",
+      "open_requirement": "Donor identity overlap with other hepatic panels must be resolved before any cross-drug transfer claim.",
+      "verified_this_session": false,
+      "inherited_from": ["docs/TUCATINIB_21_DONOR_MEASURED_VALIDATION_20261016.md", "docs/MEASURED_TKI_TWO_DRUG_ORIGINAL_RESULTS_20261017.md", "docs/HEPATIC_TWO_DRUG_CYP_PROTEIN_ACTIVITY_FUSION_REAL_20261018.md"],
+      "caveats": ["Two drugs measured in the same donors are ONE biological cohort, not two independent replications."]
+    },
+    {
+      "key": "jarmusch_midazolam",
+      "label": "Jarmusch CYP3A midazolam metabolomics",
+      "access_tier": "open_public",
+      "access_note": "GNPS / MassIVE public task output.",
+      "local_artifacts": [
+        {
+          "filename": "ProteoSAFe-FEATURE-BASED-MOLECULAR-NETWORKING-b3966445-download_cytoscape_data.zip",
+          "bytes": 92259063,
+          "sha256": "2047ea2032d73e3b48e2696fb1f652a7dedaa6f8cd5d40d0926d810bdd46c026"
+        }
+      ],
+      "omics_layers": [{"layer": "metabolomics_untargeted", "analytes": "MS1/MS2 features, plasma and urine", "identification_quality": "GNPS library annotation; a GNPS name is NOT a standard-confirmed structure"}],
+      "endpoint": {"name": "midazolam apparent clearance CL/F", "endpoint_class": "pk_clinical"},
+      "objectives_supported": ["H2", "H4", "H5"],
+      "status": "ACQUIRED",
+      "open_requirement": "Subject crosswalk between the GNPS feature table and the clinical PK/PGx table, plus plasma-versus-urine and day-1-versus-day-9 separation, must be established before any H1 claim.",
+      "verified_this_session": true,
+      "verification_method": "Local archive SHA-256 computed on 2026-11-07; member list inspected (graphml, clusterinfo, DB_result, qiime2 metadata and table).",
+      "caveats": ["Blank-detected features must be excluded.", "Low sample size with very high feature dimension makes this the designated hard-selection stress test, not a primary H1 cohort."]
+    },
+    {
+      "key": "rotroff_metformin_33",
+      "label": "Rotroff metformin pharmacometabolomics n=33",
+      "access_tier": "open_public",
+      "endpoint": {"name": "metformin AUC and renal clearance", "endpoint_class": "pk_clinical"},
+      "objectives_supported": ["H1", "H3", "H4"],
+      "status": "PARTIAL",
+      "open_requirement": "Pre-dose versus post-dose feature separation and the subject key were not re-verified in this session.",
+      "verified_this_session": false,
+      "inherited_from": ["docs/E3_ROTROFF33_METFORMIN_ORIGINAL_OMICS_PK_SOURCE_20261018.md", "docs/E3_REAL_METFORMIN33_PREDOSE_384_OMICS_AUC_CLR_HELDOUT_20261018.md"],
+      "caveats": ["Metformin is not a CYP substrate; it tests the method, not the CYP2D6 mechanism."]
+    },
+    {
+      "key": "nci60",
+      "label": "NCI-60 cell lines",
+      "access_tier": "open_public",
+      "endpoint": {"name": "doxorubicin and other compound GI50/IC50", "endpoint_class": "pd_cell_line"},
+      "objectives_supported": ["H4"],
+      "status": "QUALIFIED",
+      "qualified_for": "A dimension/selection stress test on a non-PK endpoint only.",
+      "verified_this_session": false,
+      "inherited_from": ["docs/NCI60_MULTIOMICS_FEASIBILITY.md", "docs/RESULTS_NCI60_DOXORUBICIN_20261016.md", "docs/NCI60_TWOOMICS_BENCHMARK.md"],
+      "caveats": ["A cell-line response is neither human PK nor human PD. It can never satisfy H1."]
+    },
+    {
+      "key": "estonian_biobank_pk_recall",
+      "label": "Estonian Biobank pharmacokinetic recall study n=114",
+      "pmcid": "PMC12859152",
+      "access_tier": "governed_application",
+      "status": "ABSTAIN",
+      "abstain_reason": "Access requires an application under the Estonian Human Genes Research Act. Explicitly excluded by the current mission's public-only constraint.",
+      "verified_this_session": true,
+      "verification_method": "Access conditions read from the source publication during the previous phase and re-classified against the current access policy on 2026-11-07.",
+      "note": "Recorded because it was the strongest acquisition target identified previously; it is retired for this phase, not forgotten. It is the only identified dataset that would unlock a real MAP-Bayesian comparison with several metoprolol concentrations per subject."
+    },
+    {
+      "key": "ariana_sister_geriatric_88",
+      "label": "Geriatric cohort n=88 (source of the delta activity score coefficient)",
+      "access_tier": "author_request",
+      "status": "ABSTAIN",
+      "abstain_reason": "Available on reasonable request from the corresponding author.",
+      "verified_this_session": false,
+      "note": "This cohort supplied the delta activity score of -0.54 used as a fixed module coefficient in the ARIANA mechanistic model. The coefficient is therefore transferred from a cohort whose rows cannot be inspected here."
+    },
+    {
+      "key": "pk_db",
+      "label": "PK-DB pharmacokinetics database",
+      "access_tier": "unavailable",
+      "status": "ABSTAIN",
+      "abstain_reason": "Service offline: no response from pk-db.com, develop.pk-db.com or the v1 API, and no data repository published on GitHub.",
+      "verified_this_session": false,
+      "note": "Verified unreachable during the previous phase."
+    },
+    {
+      "key": "retired_author_request_queue",
+      "label": "Previously prioritised acquisition queue, retired by the public-only rule",
+      "access_tier": "author_request",
+      "status": "ABSTAIN",
+      "abstain_reason": "Every item in the repository's former P0/P1 external acquisition queue depends on an author request or a governance decision, which the current phase forbids.",
+      "members": [
+        "Zhu 2022 tacrolimus repeated TDM metabolomics (n=137/693)",
+        "Phapale n=29 tacrolimus predose metabolomics",
+        "BIOMARGIN to ABIS/ISBA linkage",
+        "Zhang n=100 / Ohtsuki n=17 hepatic RNA-protein-activity",
+        "Rosuvastatin n=40 author-processed CSVs"
+      ],
+      "verified_this_session": true,
+      "verification_method": "docs/EXTERNAL_DATA_ACQUISITION_MATRIX_20261024.md read and each entry's minimum next source classified against the access policy.",
+      "consequence": "The project's remaining open questions cannot be answered by acquisition in this phase. They must be answered with data already in hand, or abstained from."
+    }
+  ],
+  "phase1_findings": {
+    "only_public_clinical_pk_with_matched_omics_and_pgx": "ariana_metoprolol_47",
+    "no_public_replication_cohort_for_the_solanidine_axis": {
+      "statement": "No publicly available dataset pairs solanidine-derived metabolic ratios with an individual drug exposure measurement other than ARIANA itself.",
+      "checked_and_abstained": ["muller_cocktail_20", "wollmann_839", "kiiski_314", "estonian_biobank_pk_recall"],
+      "consequence": "The H1 replication criterion cannot be met for the CYP2D6/solanidine axis with public data. Replication must therefore be sought on a different biological axis and on a functional endpoint, which is a weaker form of evidence and must be labelled as such."
+    },
+    "endpoint_class_separation": "Only ariana_metoprolol_47, jarmusch_midazolam and rotroff_metformin_33 carry a clinical PK endpoint. HLC, EPA, Wegler and the TKI panel carry functional in vitro endpoints. NCI-60 carries a cell-line endpoint. These must never be pooled into a common effect estimate."
+  }
+}

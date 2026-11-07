@@ -1,0 +1,55 @@
+name: public-data-evidence-registry
+
+# Governance gate for the five-objective validation protocol.
+# Enforces that every registry entry carries a verification trail and that no
+# dataset claims an objective its endpoint class cannot support. Runs offline:
+# no study data are downloaded and none are present in the repository.
+
+on:
+  push:
+    paths:
+      - "registry/PUBLIC_DATA_EVIDENCE_REGISTRY.json"
+      - "src/omics2pk/public_data_evidence_registry.py"
+      - "scripts/reconcile_ariana_published_correlations.py"
+      - "tests/test_public_data_evidence_registry.py"
+      - "tests/test_ariana_published_reconciliation.py"
+      - "docs/OMICS2PK_FIVE_OBJECTIVES_VALIDATION_PROTOCOL.md"
+      - ".github/workflows/public-data-evidence-registry.yml"
+  pull_request:
+    paths:
+      - "registry/PUBLIC_DATA_EVIDENCE_REGISTRY.json"
+      - "src/omics2pk/public_data_evidence_registry.py"
+      - "scripts/reconcile_ariana_published_correlations.py"
+      - "tests/test_public_data_evidence_registry.py"
+      - "tests/test_ariana_published_reconciliation.py"
+      - "docs/OMICS2PK_FIVE_OBJECTIVES_VALIDATION_PROTOCOL.md"
+      - ".github/workflows/public-data-evidence-registry.yml"
+  workflow_dispatch:
+
+jobs:
+  registry:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python -m pip install -e .
+      - run: python -m pip install pytest numpy pandas scipy
+      - name: Validate the registry against its own rules
+        run: python -m omics2pk.public_data_evidence_registry
+      - name: Registry and reconciliation contract tests
+        run: >-
+          python -m pytest -q
+          tests/test_public_data_evidence_registry.py
+          tests/test_ariana_published_reconciliation.py
+      - name: Refuse committed participant-level source files
+        run: |
+          set -euo pipefail
+          # The registry records provenance only; source workbooks and archives
+          # must never be committed, even when the source is openly licensed.
+          if git ls-files | grep -Ei '\.(xlsx|xls|zip|rds|RData|vcf|bam|fastq(\.gz)?)$'; then
+            echo "ERROR: a source data file is tracked in git." >&2
+            exit 1
+          fi
+          echo "OK: no participant-level source files are tracked."
