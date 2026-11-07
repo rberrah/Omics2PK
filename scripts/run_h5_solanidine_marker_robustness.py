@@ -5,8 +5,25 @@ v1.0.0 §8, on the Mueller 2026 standardized-potato-meal cohort
 (doi 10.3389/fphar.2026.1886427), with an optional direction-consistency check
 against ARIANA (doi 10.3389/fphar.2026.1812007).
 
-The criteria were frozen before this dataset was known to exist, which is
-verifiable from the v1.0.0 commit. Nothing here is tuned on the results.
+Prespecification, stated exactly
+-------------------------------
+Protocol v1.0.0 (commit 7632e9e) froze the H5 **objectives** and the
+**criterion families**: "intra-individual coefficients of variation where data
+permit", "ranking stability", "robustness to matrix and time", "95 % intervals",
+"quantified versus semi-quantitative identification". Those were frozen before
+this dataset was known to exist.
+
+It did NOT specify the statistics used to operationalise them. Spearman rather
+than Pearson, the intraclass correlation, Kendall's W and the reference times
+were chosen on 2026-11-07, at analysis time. The honest description is
+therefore: **objectives and criterion families prespecified, statistical
+operationalisation added later.**
+
+One of those choices was made after seeing a result and is labelled accordingly:
+the 3 h reference time was fixed before any run, but **the 29 h reference time
+was added after the first run showed 29 h to be the informative timepoint**.
+Statistics anchored on 29 h are post-hoc and exploratory. The association table
+itself is not selective: all nine timepoints are computed and all nine reported.
 
 What this measures
 ------------------
@@ -170,6 +187,50 @@ def _finite_rows(matrix, mask=None):
             yield row_index, row
 
 
+#: Primary multiplicity family for the activity-score associations: two markers
+#: times nine timepoints. The three censoring scenarios are sensitivity
+#: analyses of the same comparison, reported separately rather than multiplied
+#: into the family. The most conservative count is also reported.
+PRIMARY_FAMILY_SIZE = 18
+CONSERVATIVE_FAMILY_SIZE = 54
+
+
+def minimum_detectable_spearman(n, alpha, power=0.80):
+    """Smallest rank correlation detectable at this n, alpha and power.
+
+    Reported because a non-significant association at n=17-20 under Bonferroni
+    correction does NOT establish absence of association. Fisher z
+    approximation, which is adequate for the magnitude of this statement.
+    """
+    import numpy as np
+    from scipy import stats
+
+    if n <= 3:
+        return None
+    z_alpha = stats.norm.ppf(1.0 - alpha / 2.0)
+    z_power = stats.norm.ppf(power)
+    return float(np.tanh((z_alpha + z_power) / np.sqrt(n - 3)))
+
+
+def remove_time_effect(ln_matrix, mask=None):
+    """Subtract each timepoint's mean across subjects.
+
+    The nine samples follow one meal, so the raw within-subject dispersion
+    contains the real postprandial trajectory. Leaving that in the within term
+    deflates the ICC for reasons unrelated to measurement reliability. This
+    moves from a one-way to a two-way decomposition.
+    """
+    import numpy as np
+
+    usable = np.isfinite(ln_matrix)
+    if mask is not None:
+        usable = usable & ~mask
+    out = np.where(usable, ln_matrix, np.nan).astype(float)
+    with np.errstate(invalid="ignore"):
+        column_means = np.nanmean(out, axis=0)
+    return out - column_means
+
+
 def within_subject_stability(ln_matrix, mask=None):
     """Within-subject dispersion of a ln-scale marker, and the ICC."""
     import numpy as np
@@ -206,6 +267,63 @@ def within_subject_stability(ln_matrix, mask=None):
         ),
         "between_subject_sd_ln": float(np.sqrt(between_var)),
         "icc_between_share": float(between_var / total) if total > 0 else None,
+    }
+
+
+def icc_attribution(ln_matrix, mask):
+    """Separate the three candidate causes of the ICC drop under censoring.
+
+    Comparing "all values" against "below-LOQ excluded" confounds three things:
+    the subject set changes, the number of observations changes, and the
+    postprandial time trend sits inside the within-subject term. This restricts
+    both arms to a COMMON subject set and reports the decomposition with and
+    without the fixed time effect removed, so the part genuinely attributable to
+    censoring can be read off rather than assumed.
+    """
+    import numpy as np
+
+    usable_censored = np.isfinite(ln_matrix) & ~mask
+    # Subjects retained in the censored arm, on the same criterion the
+    # stability function applies: at least two usable values.
+    common = usable_censored.sum(axis=1) >= 2
+    if common.sum() < 3:
+        return {"insufficient": True, "n_common_subjects": int(common.sum())}
+
+    matrix = ln_matrix[common]
+    sub_mask = mask[common]
+
+    raw_all = within_subject_stability(matrix)
+    raw_censored = within_subject_stability(matrix, sub_mask)
+    adjusted_all = within_subject_stability(remove_time_effect(matrix))
+    adjusted_censored = within_subject_stability(
+        remove_time_effect(matrix, sub_mask), sub_mask
+    )
+
+    def icc(result):
+        return result.get("icc_between_share")
+
+    return {
+        "n_common_subjects": int(common.sum()),
+        "n_subjects_dropped_by_censoring": int(ln_matrix.shape[0] - common.sum()),
+        "common_subjects_raw": {
+            "all_values": icc(raw_all),
+            "below_loq_excluded": icc(raw_censored),
+        },
+        "common_subjects_time_effect_removed": {
+            "all_values": icc(adjusted_all),
+            "below_loq_excluded": icc(adjusted_censored),
+        },
+        "censoring_only_delta_icc": (
+            None
+            if icc(adjusted_all) is None or icc(adjusted_censored) is None
+            else float(icc(adjusted_all) - icc(adjusted_censored))
+        ),
+        "interpretation_rule": (
+            "The drop attributable to censoring alone is the difference in the "
+            "time-effect-removed, common-subject row. Any remainder against the "
+            "headline all-subjects figure reflects subject-set change and the "
+            "postprandial trajectory, not imputation."
+        ),
     }
 
 
@@ -401,11 +519,26 @@ def run(muller_path, ariana_path=None):
         "source_sha256": checksum,
         "endpoint_class": "biomarker_only",
         "is_pharmacokinetics": False,
-        "prespecification": (
-            "H5 items frozen in protocol v1.0.0 before this dataset was known to "
-            "exist. Reference time 3 h and Spearman as the primary association "
-            "measure are protocol choices, not result-driven ones."
-        ),
+        "prespecification": {
+            "frozen_in_v1_0_0": (
+                "H5 objectives and criterion families: intra-individual coefficients "
+                "of variation, ranking stability, robustness to matrix and time, 95% "
+                "intervals, quantified versus semi-quantitative identification."
+            ),
+            "not_frozen_operationalised_at_analysis_time": (
+                "Spearman rather than Pearson, the intraclass correlation, Kendall's "
+                "W, and the reference times."
+            ),
+            "post_hoc_choice_declared": (
+                "The 3 h reference was fixed before any run. The 29 h reference was "
+                "added AFTER the first run showed 29 h to be the informative "
+                "timepoint, so statistics anchored on 29 h are exploratory."
+            ),
+            "not_selective": (
+                "All nine timepoints are computed and all nine reported; no timepoint "
+                "was dropped."
+            ),
+        },
         "analyses": {},
     }
 
@@ -450,6 +583,27 @@ def run(muller_path, ariana_path=None):
                     matrix, fasted, mask=sub_mask, keep_subjects=keep
                 ),
             }
+        # Does the ICC drop survive a common subject set and a time effect?
+        entry["icc_attribution"] = icc_attribution(matrix, mask)
+
+        # Power: what could this n have detected at all?
+        n_censored = int((np.isfinite(matrix) & ~mask).sum(axis=1).__ge__(2).sum())
+        entry["detectability"] = {
+            "n_subjects_censored_arm": n_censored,
+            "primary_family_size": PRIMARY_FAMILY_SIZE,
+            "bonferroni_alpha_primary": 0.05 / PRIMARY_FAMILY_SIZE,
+            "min_detectable_spearman_at_80pct_power": minimum_detectable_spearman(
+                n_censored, 0.05 / PRIMARY_FAMILY_SIZE
+            ),
+            "conservative_family_size": CONSERVATIVE_FAMILY_SIZE,
+            "bonferroni_alpha_conservative": 0.05 / CONSERVATIVE_FAMILY_SIZE,
+            "warning": (
+                "A non-significant association in the early window does NOT "
+                "establish absence of association. It establishes only that any "
+                "association there is smaller than the minimum detectable value "
+                "above."
+            ),
+        }
         report["analyses"][name] = entry
 
     if ariana_path:

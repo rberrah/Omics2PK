@@ -1,6 +1,6 @@
 {
   "registry_name": "PUBLIC_DATA_EVIDENCE_REGISTRY",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "frozen_at": "2026-11-07",
   "scope": "Datasets admissible for the Omics2PK five-objective validation (H1-H5). A published article is not by itself an exploitable dataset.",
   "access_policy": {
@@ -280,9 +280,9 @@
         "document": "docs/H5_SOLANIDINE_MARKER_ROBUSTNESS_RESULTS_20261107.md",
         "script": "scripts/run_h5_solanidine_marker_robustness.py",
         "date": "2026-11-07",
-        "headline": "Both markers are informative only in the late (29 h) sample. Across 0-5 h after the potato meal, neither ratio shows a CYP2D6 activity-score association surviving Bonferroni correction over the nine timepoints.",
+        "headline": "The activity-score association is detected only in the late (29 h) sample, in both censoring scenarios. No early-window timepoint reaches significance after correction over the primary family of 18 comparisons. This does NOT establish that the marker is uninformative early: see detectability.",
         "sampling_time_effect": {
-          "status": "SUPPORTED",
+          "status": "PARTIALLY_SUPPORTED",
           "oh4_solanidine_29h": {
             "spearman_rho": 0.71,
             "p": 0.0007,
@@ -294,17 +294,29 @@
             "survives_bonferroni": true
           },
           "early_window_0_to_5h": "OH-solanidine rho -0.14 to +0.28, all p >= 0.32; SSDA rho +0.23 to +0.47, all p >= 0.066. None survives correction.",
-          "reproducible_but_not_valid": "Early timepoints agree strongly with each other (rank agreement with the 3 h ranking +0.46 to +0.90 for OH-solanidine, +0.75 to +0.96 for SSDA) while agreeing poorly with the informative 29 h ranking (+0.00 to +0.55 and +0.43 to +0.75). A reproducibility study confined to the early window would have been falsely reassuring."
+          "reproducible_but_not_valid": "Early timepoints agree strongly with each other (rank agreement with the 3 h ranking +0.46 to +0.90 for OH-solanidine, +0.75 to +0.96 for SSDA) while agreeing poorly with the informative 29 h ranking (+0.00 to +0.55 and +0.43 to +0.75). A reproducibility study confined to the early window would have been falsely reassuring.",
+          "status_change": "Downgraded from SUPPORTED in revision 1.1. The measured rank instability across timepoints is robust; the inference that the marker carries no early-window information is not supported at this sample size.",
+          "multiplicity": {
+            "primary_family_size": 18,
+            "primary_alpha": 0.002778,
+            "conservative_family_size": 54,
+            "conservative_alpha": 0.000926,
+            "survival": "At the primary family all four 29 h tests survive (OH-solanidine p 0.00013 all values and 0.00068 censored; SSDA p 0.00044 and 0.00218). At the conservative count only SSDA-censored fails."
+          }
         },
         "imputation_artefact": {
-          "status": "SUPPORTED",
-          "finding": "OH-solanidine's apparent reliability is largely produced by the below-LOQ imputed values. ICC falls from 0.942 to 0.400 and between-subject ln SD from 1.480 to 0.284 when imputed cells are excluded. SSDA falls only from 0.886 to 0.754, with Kendall's W unchanged at 0.83.",
-          "consequence": "A value-only reader that did not inspect the bold-font flags would have reported ICC 0.94 for OH-solanidine instead of 0.40."
+          "status": "SUPPORTED, but the attribution is corrected",
+          "original_claim_was_wrong": "The first version attributed the ICC fall from 0.942 to 0.400 to below-LOQ imputation.",
+          "attribution_analysis": "Restricting both arms to a common subject set and removing the fixed time effect: OH-solanidine 0.393 all values versus 0.430 censored on 17 common subjects, so the censoring-only delta is -0.037; SSDA 0.779 versus 0.798 on 18 common subjects, delta -0.020. Censoring raises the ICC slightly rather than lowering it.",
+          "real_mechanism": "Three subjects wholly pinned at the imputed floor, participant 1 among them, inflate between-subject variance when included. Excluding them from BOTH arms leaves OH-solanidine at ICC 0.35-0.43.",
+          "time_effect": "Removing the fixed time effect raises the ICC in every cell (0.349 to 0.393; 0.705 to 0.779), confirming the postprandial trajectory inflated the within-subject term.",
+          "what_still_stands": "A value-only pipeline would report ICC 0.942 for OH-solanidine when a comparable-population estimate is near 0.4. A reliability statistic computed over a population containing subjects pinned at an assay floor is not a reliability statistic."
         },
         "quantified_vs_semiquantitative": {
           "status": "SUPPORTED, direction opposite to expectation",
           "finding": "The counts-based SSDA is more robust than the ng/ml OH-solanidine on every stability measure: ICC after censoring 0.754 vs 0.400, Kendall W 0.83 vs 0.66, rank agreement with the informative timepoint, and sign consistency across times.",
-          "do_not_overstate": "At the informative timepoint OH-solanidine has the marginally stronger association in both cohorts (0.71 vs 0.66 in Muller at 29 h; 0.489 vs 0.405 in ARIANA). Neither marker dominates: OH-solanidine is slightly more associated when sampling time is controlled, SSDA degrades less when it is not."
+          "do_not_overstate": "At the informative timepoint OH-solanidine has the marginally stronger association in both cohorts (0.71 vs 0.66 in Muller at 29 h; 0.489 vs 0.405 in ARIANA). Neither marker dominates: OH-solanidine is slightly more associated when sampling time is controlled, SSDA degrades less when it is not.",
+          "strengthened_in_revision_1_1": "The marker difference now survives a common subject set and removal of the fixed time effect in all four cells: SSDA 0.705-0.798 against OH-solanidine 0.349-0.430. It is not an artefact of differing subject sets or of the postprandial trend."
         },
         "food_effect": {
           "status": "INCONCLUSIVE",
@@ -353,7 +365,23 @@
           },
           "reading": "Same sign, overlapping intervals and the same ordering between markers, but for the late sample only. Weaker than it looks: the cohorts share authors, laboratory and platform, so shared method bias would produce this agreement."
         },
-        "consequence_for_h1": "ARIANA sampled at trough but documents neither absolute sampling time nor time since the last meal. Its exposure-prediction result therefore rests on the unverifiable assumption that its samples sit in the informative regime. This must be stated as a limitation of the H1 result rather than discovered afterwards."
+        "consequence_for_h1": "ARIANA sampled at trough but documents neither absolute sampling time nor time since the last meal. Its exposure-prediction result therefore rests on the unverifiable assumption that its samples sit in the informative regime. This must be stated as a limitation of the H1 result rather than discovered afterwards.",
+        "revision": {
+          "version": "1.1",
+          "date": "2026-11-07",
+          "reason": "External review of the first version; see the document change log."
+        },
+        "prespecification": {
+          "frozen_in_protocol_v1_0_0": "H5 objectives and criterion families: intra-individual coefficients of variation, ranking stability, robustness to matrix and time, 95 percent intervals, quantified versus semi-quantitative identification.",
+          "operationalised_at_analysis_time": "Spearman rather than Pearson, the intraclass correlation, Kendall W, the reference times.",
+          "post_hoc_choice_declared": "The 3 h reference was fixed before any run. The 29 h reference was added after the first run showed 29 h to be informative, so statistics anchored on 29 h are exploratory.",
+          "not_selective": "All nine timepoints computed and reported; none dropped."
+        },
+        "detectability": {
+          "n_per_timepoint": 19,
+          "min_detectable_spearman_80pct_power_bonferroni_18": 0.76,
+          "consequence": "Early-window point estimates (+0.23 to +0.47 for SSDA) are far below the detectable threshold and their intervals overlap the 29 h estimate. The nulls bound any early association below about 0.76; they do not exclude one. Treating a difference in significance as significance of a difference is prohibited."
+        }
       }
     },
     {
@@ -891,6 +919,23 @@
         "muller_potato_meal_20"
       ],
       "does_not_change": "No pharmacokinetic claim arises from this cohort; no drug was given."
+    },
+    {
+      "version": "1.5.0",
+      "date": "2026-11-07",
+      "ruling": "Revises the recorded H5 result after external review. One conclusion is reversed.",
+      "requested_by": "repository owner, relaying an external review",
+      "corrections": [
+        "The prespecification claim was too strong. Protocol v1.0.0 froze the H5 objectives and criterion families, not the statistics. Spearman, the ICC, Kendall W and the reference times were operationalised at analysis time, and the 29 h reference was chosen AFTER the first run identified 29 h as informative.",
+        "REVERSED: the ICC fall from 0.942 to 0.400 was attributed to below-LOQ imputation. On a common subject set with the fixed time effect removed, censoring RAISES the ICC slightly (delta -0.037 for OH-solanidine, -0.020 for SSDA). The headline drop is caused by including three subjects wholly pinned at the imputed floor.",
+        "The sampling-time status is downgraded from SUPPORTED to PARTIALLY_SUPPORTED. At n approximately 19 the minimum detectable Spearman at 80 percent power under Bonferroni correction is 0.76, so the early-window nulls bound any association below that value rather than excluding one.",
+        "Multiplicity restated over the correct primary family of 18 comparisons (2 markers x 9 timepoints), not 9."
+      ],
+      "made_before_any_run_on_the_affected_data": false,
+      "affected_datasets": [
+        "muller_potato_meal_20"
+      ],
+      "does_not_change": "The marker-difference conclusion survives and is strengthened: on a common subject set, with and without the time effect removed, SSDA ICC is 0.71-0.80 against 0.35-0.43 for OH-solanidine. Still no pharmacokinetic claim: no drug was administered."
     }
   ]
 }

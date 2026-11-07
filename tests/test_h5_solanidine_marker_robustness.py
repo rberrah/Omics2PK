@@ -65,6 +65,95 @@ def test_reference_time_is_a_protocol_choice_not_the_best_result(mod):
     assert mod.TIMEPOINTS_H[-1] == 29.0
 
 
+def test_prespecification_claim_is_not_overstated(mod):
+    """The module must not claim the statistics were frozen. They were not.
+
+    Protocol v1.0.0 froze the H5 objectives and criterion families; Spearman,
+    the ICC, Kendall's W and the reference times were chosen at analysis time,
+    and the 29 h reference was chosen after seeing a result.
+    """
+    doc = mod.__doc__
+    assert "statistical\noperationalisation added later" in doc or (
+        "operationalisation added later" in doc
+    )
+    assert "was added after the first run" in doc
+    assert "post-hoc and exploratory" in doc
+    # The discredited phrasing must not come back.
+    assert "Nothing here is tuned on the results" not in doc
+
+
+def test_multiplicity_family_is_two_markers_by_nine_times(mod):
+    assert mod.PRIMARY_FAMILY_SIZE == 18
+    assert mod.CONSERVATIVE_FAMILY_SIZE == 54
+    assert mod.PRIMARY_FAMILY_SIZE == 2 * len(mod.TIMEPOINTS_H)
+
+
+def test_minimum_detectable_effect_is_large_at_this_sample_size(mod):
+    """A null at n=19 under correction cannot exclude a moderate association."""
+    detectable = mod.minimum_detectable_spearman(19, 0.05 / mod.PRIMARY_FAMILY_SIZE)
+    assert 0.70 < detectable < 0.82
+    # More subjects must lower the detectable threshold.
+    assert mod.minimum_detectable_spearman(
+        60, 0.05 / mod.PRIMARY_FAMILY_SIZE
+    ) < detectable
+    assert mod.minimum_detectable_spearman(3, 0.05) is None
+
+
+def test_removing_the_time_effect_centres_each_timepoint(mod):
+    matrix = np.array(
+        [[1.0, 11.0, 21.0], [3.0, 13.0, 23.0], [5.0, 15.0, 25.0]], dtype=float
+    )
+    out = mod.remove_time_effect(matrix)
+    np.testing.assert_allclose(np.nanmean(out, axis=0), np.zeros(3), atol=1e-12)
+    # Subject ordering within a timepoint is preserved.
+    assert out[0, 0] < out[1, 0] < out[2, 0]
+
+
+def test_removing_the_time_effect_ignores_masked_cells(mod):
+    matrix = np.array([[1.0, 2.0], [3.0, 4.0], [100.0, 5.0]], dtype=float)
+    mask = np.zeros_like(matrix, dtype=bool)
+    mask[2, 0] = True
+    out = mod.remove_time_effect(matrix, mask)
+    assert np.isnan(out[2, 0])
+    # The outlier was excluded from the column mean, so the kept cells centre
+    # on the mean of 1.0 and 3.0.
+    assert out[0, 0] == pytest.approx(-1.0)
+    assert out[1, 0] == pytest.approx(1.0)
+
+
+def test_icc_attribution_separates_subject_set_from_censoring(mod):
+    """The reversed finding: floor-pinned subjects, not cell-level imputation.
+
+    Three subjects pinned far below the rest inflate between-subject variance.
+    On a COMMON subject set the censoring-only effect must be small, and must
+    not reproduce the large headline drop.
+    """
+    rng = np.random.default_rng(11)
+    matrix = rng.normal(scale=0.3, size=(mod.N_PARTICIPANTS, len(mod.TIMEPOINTS_H)))
+    matrix += np.linspace(0, 1.5, mod.N_PARTICIPANTS).reshape(-1, 1)
+    mask = np.zeros_like(matrix, dtype=bool)
+    matrix[:3, :] = -8.0
+    mask[:3, :] = True
+
+    headline_all = mod.within_subject_stability(matrix)["icc_between_share"]
+    headline_censored = mod.within_subject_stability(matrix, mask)["icc_between_share"]
+    attribution = mod.icc_attribution(matrix, mask)
+
+    assert attribution["n_common_subjects"] == mod.N_PARTICIPANTS - 3
+    assert attribution["n_subjects_dropped_by_censoring"] == 3
+    # The headline difference is large...
+    assert headline_all - headline_censored > 0.3
+    # ...while the censoring-only difference on a common subject set is small.
+    assert abs(attribution["censoring_only_delta_icc"]) < 0.1
+
+
+def test_icc_attribution_abstains_when_too_few_subjects_remain(mod):
+    matrix = np.zeros((mod.N_PARTICIPANTS, len(mod.TIMEPOINTS_H)))
+    mask = np.ones_like(matrix, dtype=bool)
+    mask[:2, :] = False
+    assert mod.icc_attribution(matrix, mask)["insufficient"] is True
+
+
 def test_ratios_are_metabolite_over_parent_as_in_ariana(mod):
     assert mod.RATIOS["oh4_solanidine_over_solanidine"] == (
         "oh4_solanidine",
