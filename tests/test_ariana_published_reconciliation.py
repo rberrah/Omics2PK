@@ -8,10 +8,17 @@ reviewable edit.
 from __future__ import annotations
 
 import importlib.util
+import unittest
 from pathlib import Path
 
-import numpy as np
-import pytest
+try:  # See the note in test_public_data_evidence_registry: the `offline` job
+    # has no dependencies, so this must skip rather than error on import.
+    import numpy as np
+    import pytest
+except ImportError as exc:  # pragma: no cover - dependency-free CI job only
+    raise unittest.SkipTest(
+        f"numpy and pytest are required for this module: {exc}"
+    ) from exc
 
 SCRIPT = Path(__file__).resolve().parents[1] / "scripts" / "reconcile_ariana_published_correlations.py"
 

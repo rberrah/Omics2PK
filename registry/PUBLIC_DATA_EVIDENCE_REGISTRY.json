@@ -1,6 +1,6 @@
 {
   "registry_name": "PUBLIC_DATA_EVIDENCE_REGISTRY",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "frozen_at": "2026-11-07",
   "scope": "Datasets admissible for the Omics2PK five-objective validation (H1-H5). A published article is not by itself an exploitable dataset.",
   "access_policy": {
@@ -571,6 +571,7 @@
         "endpoint_class": "pk_clinical"
       },
       "objectives_supported": [
+        "H1",
         "H2",
         "H4",
         "H5"
@@ -596,8 +597,50 @@
         "note": "Individual-level pharmacogenomic covariates, publicly released. A narrow assayed subset, not independently phased full diplotypes."
       },
       "pk_pgx_matched": true,
-      "omic_crosswalk_status": "UNRESOLVED. The per-donor feature matrix GNPS_quant.csv referenced by the authors' analysis code is absent from their GitHub repository. Public metadata show 13 individuals with plasma untargeted MS on day 1. Until the subject crosswalk is established, PK and PGx are matched per individual but the omic layer is not.",
-      "corrects": "This entry previously supported the claim that ARIANA was the only public cohort with PK, omics and PGx. Jarmusch has PK and PGx matched at individual level; only the omic join is missing. The uniqueness claim was withdrawn in registry 1.2.0."
+      "omic_crosswalk_status": "RESOLVED, with a documented preprocessing deviation. The authors' input GNPS_quant.csv is absent from their GitHub repository, but the GNPS processed output qiime2_output/qiime2_table.qza is held locally: an HDF5 BIOM with 6349 unique MS1 features across 1198 analytical sample IDs. Filtering MS_SampleType=sample, blood_plasma, day 1, time 0 min yields 13 distinct biological subjects with predose plasma MS1, each matched to day-1 targeted midazolam oral CL/F, CYP3A4 and CYP3A5 calls, sex and measured weight. 12 of the 13 also have day-9 CL/F. Analytical replicates share patient/day/time and were verified consistent before collapsing to one observation per person-day; replicate rows are never counted as independent people.",
+      "corrects": "Two successive corrections. Registry 1.2.0 withdrew the claim that ARIANA was the only public cohort with PK, omics and PGx, since Jarmusch has PK and PGx matched per individual. Registry 1.3.0 further withdraws the statement that the omic crosswalk was unresolved: it was reconstructed from the GNPS processed output and the H1 comparison has been run, with a negative result.",
+      "omic_identification_caveat": "The qza is a GNPS/QIIME2 processed output, not the authors' input table. Its peak areas are not verified numerically identical to GNPS_quant.csv. Most ions are unidentified or isobaric, and a GNPS annotation is not a standard-confirmed structure, so this cohort cannot carry a named-biomarker claim.",
+      "executed_h1_result": {
+        "status": "NEGATIVE, exploratory",
+        "design": "Leave-one-person-out, Ridge alpha=1 predicting log midazolam oral CL/F. Arms: sex+weight; + CYP3A4/CYP3A5 one-hot encoded on training subjects only; + 2 train-only unsupervised principal components of the day-1 time-0 MS1 vectors.",
+        "units_caveat": "Source CL/F physical units are not securely verified; MAE values are in the source's numeric scale and are comparable only within a row.",
+        "day1": {
+          "n_independent_subjects": 13,
+          "mae_sex_weight": 6.875329,
+          "mae_plus_pgx": 7.343413,
+          "mae_plus_pgx_plus_omic": 9.888019,
+          "omic_delta_mae_vs_pgx": 2.544607,
+          "omic_percent_change_vs_pgx": 34.65,
+          "descriptive_95_interval": [
+            0.4421,
+            5.9959
+          ],
+          "interval_excludes_zero": true,
+          "direction": "omics WORSE than pharmacogenetics",
+          "individual_errors_improved": "1 of 13",
+          "shuffled_negative_controls": "25 person-to-metabolome shuffles had median augmented MAE 8.0924, and all 25 beat the true-pairing omic model. Random pairings outperformed the real one."
+        },
+        "day9": {
+          "n_independent_subjects": 12,
+          "mae_sex_weight": 3.984289,
+          "mae_plus_pgx": 4.601193,
+          "mae_plus_pgx_plus_omic": 4.748841,
+          "omic_delta_mae_vs_pgx": 0.147648,
+          "omic_percent_change_vs_pgx": 3.21,
+          "descriptive_95_interval": [
+            -0.4273,
+            0.6899
+          ],
+          "interval_excludes_zero": false,
+          "direction": "omics slightly worse, interval covers zero",
+          "individual_errors_improved": "4 of 12",
+          "shuffled_negative_controls": "25 shuffles had median augmented MAE 4.6313, with 13 of 25 at or below the real model."
+        },
+        "interpretation": "A genuine paired human omic-to-clinical-PK comparison in which untargeted metabolomics did NOT improve on measured CYP3A4/CYP3A5 variants, on either day. This is a real negative result for H1 and is retained as such. It does not establish that mechanism-targeted metabolite scores cannot help elsewhere: 6349 features projected onto 2 global principal components in n=12-13 is a weak, non-specific covariate, which is a plausible reason for the failure independent of the biology.",
+        "why_the_negative_result_is_conservative": "The GNPS/MZmine feature alignment was computed across the complete assay set BEFORE the leave-one-out split, so the feature universe is transductively informed by the held-out samples. That deviation can only favour the omic arm. The omic arm lost anyway, which makes the negative finding stronger rather than weaker.",
+        "why_this_does_not_qualify_for_h1": "The frozen protocol requires preprocessing inside training folds only. The feature universe here was built once across all samples, so this analysis cannot serve as a qualifying H1 test however informative it is. The entry stays ACQUIRED, which keeps it out of h1_eligible_datasets."
+      },
+      "one_cohort_not_several": "Four drug probes (midazolam, caffeine, omeprazole and metabolites) were measured in the SAME 14 donors. These are one biological cohort, never several independent cohorts, and day 1 versus day 9 in the same person are paired occasions, not independent subjects."
     },
     {
       "key": "rotroff_metformin_33",
@@ -742,6 +785,22 @@
         "hlc_syn4499"
       ],
       "does_not_change": "H1 remains unreplicable on public data: the new Mueller study administers no drug, so it carries no pharmacokinetic endpoint. ARIANA remains the only H1-eligible dataset."
+    },
+    {
+      "version": "1.3.0",
+      "date": "2026-11-07",
+      "ruling": "Correction to erratum item E2. The Jarmusch omic-to-PK crosswalk is NOT unresolved: it was reconstructed from the GNPS processed output and the H1 comparison has already been executed, with a negative result.",
+      "requested_by": "repository owner, relaying an external review",
+      "corrections": [
+        "E2 said the Jarmusch subject crosswalk was unresolved. Half right: the authors' own input GNPS_quant.csv is indeed absent from their repository, but the GNPS *processed output* qiime2_output/qiime2_table.qza (6349 MS1 features x 1198 analytical sample IDs) is in hand, and filtering to plasma / day 1 / time 0 min yields 13 matched biological subjects with predose MS1, day-1 midazolam CL/F and CYP3A4/CYP3A5 calls. Jarmusch is therefore a second public test of H1, not a pending one.",
+        "The external review described the matched set as 10 volunteers and the results as 'some numerical improvements whose intervals cover zero'. Both are wrong against the repository's own record: the matched set is 13 on day 1 and 12 on day 9, and the omic arm was WORSE than the pharmacogenetic baseline on both days, with the day-1 interval excluding zero on the harmful side."
+      ],
+      "made_before_any_run_on_the_affected_data": false,
+      "why_that_matters": "This amendment describes a run that already happened under an earlier internal version, so it is a corrected description of an existing result, not a new prespecification. The result is reported as exploratory and its pipeline deviation from the frozen protocol is recorded explicitly.",
+      "affected_datasets": [
+        "jarmusch_midazolam"
+      ],
+      "does_not_change": "ARIANA remains the only dataset QUALIFIED for H1 and so the only entry in h1_eligible_datasets. Jarmusch gains H1 as a supported objective but stays ACQUIRED, because its feature universe was built across all samples before fold splitting, which the frozen protocol does not permit for a qualifying analysis."
     }
   ]
 }

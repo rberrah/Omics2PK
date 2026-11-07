@@ -8,8 +8,14 @@ verification trail, or marks an authorization-gated source as usable.
 from __future__ import annotations
 
 import copy
+import unittest
 
-import pytest
+try:  # The `offline` CI job installs the package with no dependencies, so an
+    # unguarded import here would error during unittest discovery rather than
+    # skip. These tests are really executed by the `pytest` job.
+    import pytest
+except ImportError as exc:  # pragma: no cover - dependency-free CI job only
+    raise unittest.SkipTest(f"pytest is required for this module: {exc}") from exc
 
 from omics2pk.public_data_evidence_registry import (
     CONFIRMATORY_TIERS,
@@ -251,9 +257,58 @@ def test_jarmusch_pgx_is_recorded_so_uniqueness_is_not_overclaimed(registry):
     assert entry["pk_pgx_matched"] is True
     assert entry["genotypes"]["n_participants"] == 14
     assert "CYP3A5" in entry["genotypes"]["genes"]
-    assert "UNRESOLVED" in entry["omic_crosswalk_status"]
-    # H1 still cannot be claimed: the omic layer is not joined per donor.
-    assert "H1" not in entry["objectives_supported"]
+    # Corrected in registry 1.3.0: the crosswalk was reconstructed, so H1 is a
+    # supported objective here. Uniqueness still holds for *named* biomarkers.
+    assert "RESOLVED" in entry["omic_crosswalk_status"]
+    assert "H1" in entry["objectives_supported"]
+    assert "unidentified" in entry["omic_identification_caveat"]
+
+
+def test_jarmusch_negative_h1_result_is_retained_not_softened(registry):
+    """A negative result is a result. It must stay stated with its numbers."""
+    entry = next(
+        d for d in registry["datasets"] if d["key"] == "jarmusch_midazolam"
+    )
+    result = entry["executed_h1_result"]
+    assert result["status"].startswith("NEGATIVE")
+    day1, day9 = result["day1"], result["day9"]
+    assert day1["n_independent_subjects"] == 13
+    assert day9["n_independent_subjects"] == 12
+    # Omics was worse on both days: a positive delta is a worse MAE.
+    assert day1["omic_delta_mae_vs_pgx"] > 0
+    assert day9["omic_delta_mae_vs_pgx"] > 0
+    # Day 1 excludes zero on the harmful side; day 9 does not.
+    assert day1["descriptive_95_interval"][0] > 0
+    assert day1["interval_excludes_zero"] is True
+    assert day9["descriptive_95_interval"][0] < 0 < day9["descriptive_95_interval"][1]
+    assert day9["interval_excludes_zero"] is False
+
+
+def test_jarmusch_cannot_qualify_for_h1_despite_claiming_it(registry, summary):
+    """Preprocessing across all samples bars a qualifying test, by §2 of the protocol."""
+    entry = next(
+        d for d in registry["datasets"] if d["key"] == "jarmusch_midazolam"
+    )
+    assert entry["status"] == "ACQUIRED"
+    assert "H1" in entry["objectives_supported"]
+    # h1_eligible requires QUALIFIED, so this must not leak into the H1 set.
+    assert summary["h1_eligible_datasets"] == ["ariana_metoprolol_47"]
+    reason = entry["executed_h1_result"]["why_this_does_not_qualify_for_h1"]
+    assert "training folds only" in reason
+    # The deviation favours the omic arm, which is why the negative is conservative.
+    assert "favour the omic arm" in (
+        entry["executed_h1_result"]["why_the_negative_result_is_conservative"]
+    )
+
+
+def test_jarmusch_four_probes_are_one_cohort(registry):
+    """Several drugs in the same donors are not several independent cohorts."""
+    entry = next(
+        d for d in registry["datasets"] if d["key"] == "jarmusch_midazolam"
+    )
+    note = entry["one_cohort_not_several"]
+    assert "SAME 14 donors" in note
+    assert "paired occasions" in note
 
 
 def test_hlc_reacquisition_confirms_the_documented_route(registry):

@@ -11,9 +11,14 @@ biomarker behaviour turns out to be.
 from __future__ import annotations
 
 import importlib.util
+import unittest
 from pathlib import Path
 
-import pytest
+try:  # See the note in test_public_data_evidence_registry: the `offline` job
+    # has no dependencies, so this must skip rather than error on import.
+    import pytest
+except ImportError as exc:  # pragma: no cover - dependency-free CI job only
+    raise unittest.SkipTest(f"pytest is required for this module: {exc}") from exc
 
 SCRIPT = (
     Path(__file__).resolve().parents[1]

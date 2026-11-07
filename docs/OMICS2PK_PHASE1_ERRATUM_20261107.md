@@ -60,11 +60,43 @@ Confirmed independently: the GitHub API returns the public repository `JulianPet
 
 **What was wrong.** That phrasing implies Jarmusch has no pharmacogenetics. It does. The repository's own prior audit records Europe PMC supplement `CTS-13-972-s001.docx` as a 15-row × 11-column individual table covering **14 participants** with CYP2C19, CYP3A4, CYP3A5 and CYP2D6 genotypes and phenotypes, alongside midazolam CL/F (13 person-paired). PK and PGx are matched per individual there.
 
-**What remains true, stated precisely.** The gap in Jarmusch is the *omic* join, not the genetics: the per-donor feature matrix `GNPS_quant.csv` referenced by the authors' own analysis code is absent from their repository, and public metadata show only 13 individuals with plasma untargeted MS on day 1. The corrected claim:
+**Superseded in part by E5 below.** This section originally said the omic join was unresolved. The authors' own input `GNPS_quant.csv` is indeed absent from their repository, but the crosswalk *was* reconstructed from the GNPS processed output and the H1 comparison has already been run. See **E5**. The corrected uniqueness claim below stands unchanged, because it rests on biomarkers being *named and quantified*, which Jarmusch's ions are not:
 
 > ARIANA n=47 is the only public cohort in which clinical exposure, pharmacogenetics and **named, quantified** biomarkers are matched at the individual level today.
 
-H1 eligibility is unaffected — Jarmusch still cannot claim H1, because its omic layer is not joined per donor — and the registry summary continues to report `h1_eligible_datasets == ["ariana_metoprolol_47"]`.
+The registry summary continues to report `h1_eligible_datasets == ["ariana_metoprolol_47"]`, though for the reason given in E5 rather than the one originally stated here.
+
+---
+
+## E5 — The Jarmusch omic join is not pending: it was done, and H1 failed there
+
+**Added 2026-11-07, registry v1.3.0.** This corrects E2 above, and corrects the external review on two numbers.
+
+**What is actually in hand.** The authors' input `GNPS_quant.csv` is absent from their repository, but the GNPS *processed output* `qiime2_output/qiime2_table.qza` is held locally — an HDF5 BIOM with **6,349 unique MS1 features across 1,198 analytical sample IDs**. Filtering `MS_SampleType=sample`, `blood_plasma`, day 1, time 0 min yields **13 distinct biological subjects** with predose plasma MS1, each matched to day-1 targeted midazolam oral CL/F, CYP3A4 and CYP3A5 calls, sex and measured weight. **12 of the 13** also have day-9 CL/F. Analytical replicates were verified consistent on patient/day/time before collapsing to one observation per person-day, and are never counted as independent people.
+
+**Two corrections to the review.** It described the matched set as *10 volunteers* and the results as *"certaines améliorations numériques apparaissent, mais leurs intervalles d'incertitude recouvrent zéro"*. Against the repository's own record, both are wrong:
+
+| | Day 1 (n=13) | Day 9 (n=12) |
+|---|--:|--:|
+| sex + weight | 6.875329 | 3.984289 |
+| + CYP3A4/CYP3A5 | 7.343413 | 4.601193 |
+| + PGx + predose MS1 PCA2 | 9.888019 | 4.748841 |
+| **omic ΔMAE vs PGx** | **+2.544607 (+34.65 %, worse)** | **+0.147648 (+3.21 %, worse)** |
+| descriptive 95 % interval | **[+0.4421, +5.9959] — excludes zero** | [−0.4273, +0.6899] — covers zero |
+| individual errors improved | 1 of 13 | 4 of 12 |
+
+There were **no improvements**. The omic arm was worse on both days, and on day 1 the interval excludes zero **on the harmful side**. Worse still, 25 person-to-metabolome shuffles gave a median augmented MAE of 8.0924 and **all 25 beat the true-pairing model** on day 1 — random pairings outperformed the real one. MAE values are in the source's numeric scale, as the physical CL/F units are not securely verified, so they are comparable only within a row.
+
+**Why the negative result is conservative rather than fragile.** The GNPS/MZmine feature alignment was computed across the complete assay set **before** the leave-one-out split, so the feature universe is transductively informed by the held-out samples. That deviation can only *favour* the omic arm. The omic arm lost anyway, which makes the finding stronger, not weaker.
+
+**Why it still cannot qualify for H1.** The frozen protocol requires preprocessing inside training folds only. A feature universe built once across all samples cannot serve as a *qualifying* H1 test, however informative it is. The entry therefore gains `H1` among its supported objectives but stays `ACQUIRED`, which keeps it out of `h1_eligible_datasets`.
+
+**What this changes for the programme.** H1 now has **two** public clinical-PK tests rather than one, and the second has already failed:
+
+- **ARIANA** n=47 — named, quantified biomarkers; exploratory re-analysis; not yet run under the frozen protocol.
+- **Jarmusch** n=13/12 — unidentified ions, 2 global PCs, tiny n; **already negative**, with a documented preprocessing deviation that worked in the omic arm's favour.
+
+A plausible reading, to be tested rather than assumed: 6,349 features projected onto 2 global principal components in 12–13 subjects is a weak, non-specific covariate, so the failure may be a property of *unselected* high-dimensional omics rather than of omics as such. That is precisely the H2/H4 question, and this cohort is the designated hard case for it. Four probes measured in the **same** 14 donors remain **one** biological cohort, and day 1 versus day 9 are paired occasions, not independent subjects.
 
 ---
 
