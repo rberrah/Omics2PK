@@ -1,6 +1,6 @@
 {
   "registry_name": "PUBLIC_DATA_EVIDENCE_REGISTRY",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "frozen_at": "2026-11-07",
   "scope": "Datasets admissible for the Omics2PK five-objective validation (H1-H5). A published article is not by itself an exploitable dataset.",
   "access_policy": {
@@ -275,7 +275,86 @@
         "Only 1 poor metaboliser and 1 ultrarapid metaboliser, and the poor metaboliser is entirely below the limit of quantification. The extremes of the phenotype range are represented by one subject each.",
         "SSDA is in counts, so between-cohort absolute comparison is not meaningful.",
         "Shares authors, laboratory and platform with ARIANA."
-      ]
+      ],
+      "executed_h5_result": {
+        "document": "docs/H5_SOLANIDINE_MARKER_ROBUSTNESS_RESULTS_20261107.md",
+        "script": "scripts/run_h5_solanidine_marker_robustness.py",
+        "date": "2026-11-07",
+        "headline": "Both markers are informative only in the late (29 h) sample. Across 0-5 h after the potato meal, neither ratio shows a CYP2D6 activity-score association surviving Bonferroni correction over the nine timepoints.",
+        "sampling_time_effect": {
+          "status": "SUPPORTED",
+          "oh4_solanidine_29h": {
+            "spearman_rho": 0.71,
+            "p": 0.0007,
+            "survives_bonferroni": true
+          },
+          "ssda_29h": {
+            "spearman_rho": 0.66,
+            "p": 0.0022,
+            "survives_bonferroni": true
+          },
+          "early_window_0_to_5h": "OH-solanidine rho -0.14 to +0.28, all p >= 0.32; SSDA rho +0.23 to +0.47, all p >= 0.066. None survives correction.",
+          "reproducible_but_not_valid": "Early timepoints agree strongly with each other (rank agreement with the 3 h ranking +0.46 to +0.90 for OH-solanidine, +0.75 to +0.96 for SSDA) while agreeing poorly with the informative 29 h ranking (+0.00 to +0.55 and +0.43 to +0.75). A reproducibility study confined to the early window would have been falsely reassuring."
+        },
+        "imputation_artefact": {
+          "status": "SUPPORTED",
+          "finding": "OH-solanidine's apparent reliability is largely produced by the below-LOQ imputed values. ICC falls from 0.942 to 0.400 and between-subject ln SD from 1.480 to 0.284 when imputed cells are excluded. SSDA falls only from 0.886 to 0.754, with Kendall's W unchanged at 0.83.",
+          "consequence": "A value-only reader that did not inspect the bold-font flags would have reported ICC 0.94 for OH-solanidine instead of 0.40."
+        },
+        "quantified_vs_semiquantitative": {
+          "status": "SUPPORTED, direction opposite to expectation",
+          "finding": "The counts-based SSDA is more robust than the ng/ml OH-solanidine on every stability measure: ICC after censoring 0.754 vs 0.400, Kendall W 0.83 vs 0.66, rank agreement with the informative timepoint, and sign consistency across times.",
+          "do_not_overstate": "At the informative timepoint OH-solanidine has the marginally stronger association in both cohorts (0.71 vs 0.66 in Muller at 29 h; 0.489 vs 0.405 in ARIANA). Neither marker dominates: OH-solanidine is slightly more associated when sampling time is controlled, SSDA degrades less when it is not."
+        },
+        "food_effect": {
+          "status": "INCONCLUSIVE",
+          "finding": "Fasted subjects show lower ratios in every scenario, but all descriptive 95% intervals cover zero with only 5 non-fasted subjects. Reported as inconclusive, explicitly NOT as evidence of no food effect.",
+          "confounding": "The fasting flag and the sampling-time effect are not separable here; both bear on recent dietary precursor supply."
+        },
+        "poor_metaboliser_discrimination": {
+          "status": "ABSTAIN",
+          "reason": "The only poor metaboliser is below the limit of quantification at all 9 timepoints for both metabolites."
+        },
+        "between_day_reproducibility": {
+          "status": "ABSTAIN",
+          "reason": "Nine samples follow a single meal. Within-occasion dispersion is not between-day reproducibility."
+        },
+        "ariana_direction_consistency": {
+          "status": "PARTIALLY_SUPPORTED",
+          "ariana_oh4_vs_activity_score": {
+            "rho": 0.489,
+            "ci": [
+              0.234,
+              0.68
+            ],
+            "n": 47
+          },
+          "ariana_ssda_vs_activity_score": {
+            "rho": 0.405,
+            "ci": [
+              0.134,
+              0.62
+            ],
+            "n": 47
+          },
+          "muller_29h_oh4": {
+            "rho": 0.71,
+            "ci": [
+              0.38,
+              0.88
+            ]
+          },
+          "muller_29h_ssda": {
+            "rho": 0.66,
+            "ci": [
+              0.29,
+              0.86
+            ]
+          },
+          "reading": "Same sign, overlapping intervals and the same ordering between markers, but for the late sample only. Weaker than it looks: the cohorts share authors, laboratory and platform, so shared method bias would produce this agreement."
+        },
+        "consequence_for_h1": "ARIANA sampled at trough but documents neither absolute sampling time nor time since the last meal. Its exposure-prediction result therefore rests on the unverifiable assumption that its samples sit in the informative regime. This must be stated as a limitation of the H1 result rather than discovered afterwards."
+      }
     },
     {
       "key": "wollmann_839",
@@ -801,6 +880,17 @@
         "jarmusch_midazolam"
       ],
       "does_not_change": "ARIANA remains the only dataset QUALIFIED for H1 and so the only entry in h1_eligible_datasets. Jarmusch gains H1 as a supported objective but stays ACQUIRED, because its feature universe was built across all samples before fold splitting, which the frozen protocol does not permit for a qualifying analysis."
+    },
+    {
+      "version": "1.4.0",
+      "date": "2026-11-07",
+      "ruling": "Records the executed H5 result on muller_potato_meal_20. No criterion changed.",
+      "made_before_any_run_on_the_affected_data": false,
+      "why_that_matters": "This records an outcome, not a rule. The H5 criteria were frozen in protocol v1.0.0 before this dataset was known to exist, so the analysis plan predates the data.",
+      "affected_datasets": [
+        "muller_potato_meal_20"
+      ],
+      "does_not_change": "No pharmacokinetic claim arises from this cohort; no drug was given."
     }
   ]
 }

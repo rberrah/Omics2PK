@@ -36,6 +36,7 @@ jobs:
           tests/test_public_data_evidence_registry.py
           tests/test_ariana_published_reconciliation.py
           tests/test_muller2026_potato_meal_qualification.py
+          tests/test_h5_solanidine_marker_robustness.py
       - name: Fail if a pytest module was collected but ran nothing
         run: |
           set -euo pipefail
@@ -45,9 +46,10 @@ jobs:
             tests/test_public_data_evidence_registry.py \
             tests/test_ariana_published_reconciliation.py \
             tests/test_muller2026_potato_meal_qualification.py \
+            tests/test_h5_solanidine_marker_robustness.py \
             | grep -c '::' || true)
           echo "collected $count pytest tests"
-          if [ "$count" -lt 40 ]; then
-            echo "ERROR: expected at least 40 collected tests, got $count." >&2
+          if [ "$count" -lt 55 ]; then
+            echo "ERROR: expected at least 55 collected tests, got $count." >&2
             exit 1
           fi
