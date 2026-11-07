@@ -1,6 +1,6 @@
 # Omics2PK — five-objective validation protocol
 
-**Version:** 1.1.0
+**Version:** 1.2.0
 **Frozen:** 2026-11-07
 **Status:** frozen before execution of the Phase 2–5 runs. Any later change requires a new version number, a date, and a statement of what was changed and why. Thresholds must not be revised after seeing a result.
 
@@ -42,7 +42,13 @@ The admitted gates involve no third party reviewing, deciding or being contacted
 
 **Admissible sources are still reported as gated when they are.** The registry summary field `gated_but_admissible` lists them, and a reader must be able to see which conclusions rest on a source retrievable only after registration. Redistribution restrictions are unaffected: HLC files stay out of this repository and only aggregates are committed.
 
-**Consequence recorded at freeze time:** exactly one public dataset carries a clinical PK endpoint with matched omics *and* pharmacogenetics — ARIANA n=47. Jarmusch (midazolam CL/F) and Rotroff (metformin AUC/CLr) carry clinical PK but are not CYP2D6/solanidine cohorts. HLC, EPA, Wegler and the TKI donor panel carry **functional in vitro** endpoints. NCI-60 carries a **cell-line** endpoint.
+**Corrected in v1.2.0.** The freeze-time text claimed ARIANA was the only public dataset with a clinical PK endpoint matched to omics *and* pharmacogenetics. That was wrong: Jarmusch releases an individual pharmacogenomic table for 14 participants (CYP2C19, CYP3A4, CYP3A5, CYP2D6) alongside midazolam CL/F, so PK and PGx are matched there too. What is missing in Jarmusch is the *omic* join — the per-donor feature matrix `GNPS_quant.csv` is absent from the authors' repository, and the subject crosswalk is unresolved.
+
+The accurate statement:
+
+> ARIANA n=47 is the only public cohort in which clinical exposure, pharmacogenetics and **named, quantified** biomarkers are matched at the individual level today.
+
+Jarmusch carries clinical PK and PGx matched per individual, with an untargeted omic layer not yet joined per donor. Rotroff (metformin AUC/CLr) carries clinical PK. HLC, EPA, Wegler and the TKI donor panel carry **functional in vitro** endpoints. NCI-60 carries a **cell-line** endpoint. Müller 2026 (n=20, potato meal) carries **biomarker-only** observations with no drug administered.
 
 **These three endpoint classes are never pooled into a common effect estimate.** A functional result is reported as the *functional analogue* of the corresponding hypothesis, never as the hypothesis itself.
 
@@ -134,7 +140,9 @@ A reduced PBPK transferring Open Systems Pharmacology parameters is labelled a *
 **Failure** | No gain, or degradation, under correctly controlled evaluation.
 **Abstention** | No genuine individual endpoint, or no omic↔PK matching.
 
-**Recorded at freeze time, before any run:** the replication criterion for the CYP2D6/solanidine axis **cannot be met with public data**. Müller n=20, Wollmann n=839 and Kiiski n=314 are all `ABSTAIN`, and the Estonian Biobank is excluded. An exploratory success on ARIANA therefore cannot be upgraded to confirmatory in this phase, and must not be presented as such. Replication will be sought only as the **functional analogue** of H1 on HLC/EPA/Wegler, which is explicitly weaker evidence.
+**Recorded at freeze time, before any run, and re-verified in v1.2.0:** the replication criterion for the CYP2D6/solanidine axis **cannot be met with public data**. The Müller 2024 cocktail study, Wollmann n=839 and Kiiski n=314 are all `ABSTAIN`, and the Estonian Biobank is excluded. The Müller 2026 potato-meal study is open and is now registered, but **it administers no drug**, so it carries no exposure to predict and cannot replicate a PK association. An exploratory success on ARIANA therefore cannot be upgraded to confirmatory in this phase, and must not be presented as such. Replication will be sought only as the **functional analogue** of H1 on HLC/EPA/Wegler, which is explicitly weaker evidence.
+
+**ARIANA conclusions are exploratory by construction, not merely by sample size.** This project has already analysed this cohort repeatedly, with model choices made while results were visible. Freezing the protocol stops further result-guided decisions; it cannot convert a re-analysis into an independent validation. The registry records this as `prior_analysis_exposure` with `max_claimable_status: exploratory`, and no ARIANA result may be reported as confirmatory however favourable it is or however strictly the frozen rules were followed.
 
 ## 5. H2 — reliability of mechanism-guided selection
 
@@ -197,7 +205,19 @@ Report: MAE change versus baseline; probability of selecting at least one decoy;
 
 Layers studied separately: genotype; total RNA versus functional isoforms; protein; enzyme activity; functional metabolites; inter-omic combinations.
 
-- **ARIANA:** reproducibility of the OH-solanidine and SSDA ratios; differences by CYP2D6 activity score; quantified versus semi-quantitative identification. **Sampling-time effect, food effect and intra-individual stability are `ABSTAIN` on public data:** ARIANA documents neither absolute sampling time nor repeated sampling, and the Müller n=20 cohort that carries 15 timepoints releases no individual data.
+- **ARIANA:** reproducibility of the OH-solanidine and SSDA ratios; differences by CYP2D6 activity score; quantified versus semi-quantitative identification. ARIANA itself documents neither absolute sampling time nor repeated sampling, so those items are not testable *in ARIANA*.
+- **Müller 2026 (n=20, standardized potato meal) — the three previously abstained items are now testable.** Registered in v1.2.0; 20 participants, all CYP2D6 genotyped, 9 plasma timepoints over 0–29 h, 180/180 cells present for each of solanidine, 4-OH-solanidine and SSDA. This lifts the `ABSTAIN` on:
+  - **sampling-time effect** — the ratio is computed at each of the 9 timepoints and its dependence on sampling instant is quantified;
+  - **food effect** — the source records "fasted on potato products for 3 days" for 15 of 20 participants against 5 who were not;
+  - **intra-individual temporal stability** — within-subject dispersion of the ratio across the 9 timepoints, reported per participant.
+
+  Four constraints on how this cohort may be used, all recorded before any run:
+  1. **It replicates nothing about PK.** No drug is administered. It tests whether the marker behaves reproducibly, never whether it predicts exposure.
+  2. **It is not an independent laboratory.** Sarömba, Stingl and Just are authors of both this study and ARIANA. The participants are different people, so donors are not double-counted, but shared method bias would produce agreement just as a true effect would. Any concordance is reported with this stated.
+  3. **Limit-of-quantification imputation is already present in the source** and is flagged *only by bold font*: 27 of 180 solanidine cells (15.0%), 15 of 180 for 4-OH-solanidine (8.3%), 9 of 180 for SSDA (5.0%). A value-only read would silently treat imputed floors as measurements, so the bold flags are extracted and imputed cells are reported separately. **Participant 1, the cohort's only poor metaboliser, is below the limit of quantification at all 9 timepoints for both metabolites** — the subject the marker most needs to identify has a fully imputed ratio.
+  4. **Activity scores are not comparable with ARIANA's without alignment.** This cohort scores `*41` as 0.25 (post-2021 CPIC); the Rüdesheim 2020 mapping used by the mechanistic module is built on the grid (0, 0.5, 1.25, 1.5, 2, 3) and predates that change. The mapping is not applied across the two cohorts until the convention is explicitly aligned, and the alignment is reported as a decision, not performed silently.
+
+  The source additionally quantifies the **precursor dose** in the meal (α-chaconine, α-solanine, solanidine across 4 aliquots), permitting a precursor-normalised analysis, and includes **stool incubations** showing solanidine is formed only with an active microbial community. The latter is mechanistically double-edged and both directions are tested: microbiota-dependent precursor supply is a reason a measured ratio can beat a genotype estimate, and a reason its reproducibility may be poor.
 - **HLC / EPA / Wegler:** RNA → protein → activity → CLint comparison; enzyme-specific variables versus broad panels; redundancy and complementarity across layers. HLC has no matched protein, so the chain cannot be completed within one cohort and must not be assembled across cohorts.
 - **Jarmusch:** plasma versus urine; day 1 versus day 9; retention time, annotation level and GNPS networks; blank detection; exclusion of chemically insufficient or contaminated signals.
 
@@ -240,6 +260,7 @@ A result obtained on a functional or cell-line endpoint is never presented in th
 |---|---|---|
 | 1.0.0 | 2026-11-07 | Initial freeze. Primary contrast, loss hierarchy, reversal rule, multiplicity plan, MAP-BE exclusion, public-only admissibility and the recorded impossibility of CYP2D6-axis replication on public data. |
 | 1.1.0 | 2026-11-07 | §1 rewritten: admissibility is decided by the download gate rather than the tier label, and self-signed terms of use are admitted. Requested by the repository owner. Grounds: the HLC gate was inspected against the Synapse public API and is a `SelfSignAccessRequirement` on `syn4499` (id 9604913, `isCertifiedUserRequired=false`, `isValidatedProfileRequired=false`), i.e. no committee and no author contact. Committee-reviewed gates remain excluded. |
+| 1.2.0 | 2026-11-07 | **Erratum, four corrections after external review.** (E1) A second Müller study was missed: the audit checked the 2024 cocktail paper and wrongly concluded no public solanidine time-course existed. Müller 2026, doi `10.3389/fphar.2026.1886427`, releases individual data openly; registered and the H5 `ABSTAIN` on sampling time, food effect and intra-individual stability is lifted (§8). (E2) The claim that ARIANA was the only public PK+omics+PGx cohort is withdrawn; Jarmusch has individual PGx for 14 participants (§1). (E3) ARIANA conclusions are stated as an exploratory re-analysis, capped at `exploratory` regardless of result (§4). (E4) "An NLME likelihood is not identifiable from one observation per subject" is corrected to the precise statement: between-subject and residual variability are not *separately* identifiable. No threshold, margin, comparator or primary contrast changed. |
 
 ### Validity of the 1.1.0 amendment
 

@@ -14,6 +14,9 @@ on:
       - "tests/test_public_data_evidence_registry.py"
       - "tests/test_ariana_published_reconciliation.py"
       - "docs/OMICS2PK_FIVE_OBJECTIVES_VALIDATION_PROTOCOL.md"
+      - "scripts/qualify_muller2026_potato_meal_source.py"
+      - "tests/test_muller2026_potato_meal_qualification.py"
+      - "docs/OMICS2PK_PHASE1_ERRATUM_20261107.md"
       - ".github/workflows/public-data-evidence-registry.yml"
   pull_request:
     paths:
@@ -23,6 +26,9 @@ on:
       - "tests/test_public_data_evidence_registry.py"
       - "tests/test_ariana_published_reconciliation.py"
       - "docs/OMICS2PK_FIVE_OBJECTIVES_VALIDATION_PROTOCOL.md"
+      - "scripts/qualify_muller2026_potato_meal_source.py"
+      - "tests/test_muller2026_potato_meal_qualification.py"
+      - "docs/OMICS2PK_PHASE1_ERRATUM_20261107.md"
       - ".github/workflows/public-data-evidence-registry.yml"
   workflow_dispatch:
 
@@ -38,11 +44,12 @@ jobs:
       - run: python -m pip install pytest numpy pandas scipy
       - name: Validate the registry against its own rules
         run: python -m omics2pk.public_data_evidence_registry
-      - name: Registry and reconciliation contract tests
+      - name: Registry and source-qualification contract tests
         run: >-
           python -m pytest -q
           tests/test_public_data_evidence_registry.py
           tests/test_ariana_published_reconciliation.py
+          tests/test_muller2026_potato_meal_qualification.py
       - name: Refuse committed participant-level source files
         run: |
           set -euo pipefail

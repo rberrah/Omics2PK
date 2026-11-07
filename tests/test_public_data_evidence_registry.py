@@ -65,7 +65,9 @@ def test_single_observation_blocks_mapbe_and_nlme(registry):
     entry = next(d for d in registry["datasets"] if d["key"] == "ariana_metoprolol_47")
     caveats = " ".join(entry["caveats"]).lower()
     assert "circular" in caveats
-    assert "not identifiable" in caveats
+    # Corrected in registry 1.2.0: the limitation is a non-identifiability of
+    # the variance components, not an impossibility of fitting any NLME model.
+    assert "not separately identifiable" in caveats
     # The metabolic ratio shares a denominator with the target.
     assert "validation target" in caveats
 
@@ -160,6 +162,114 @@ def test_hlc_retrieval_links_cover_every_local_archive(registry):
     for record in files:
         assert record["synapse_id"].startswith("syn")
         assert record["synapse_id"] in record["url"]
+
+
+def test_the_two_muller_studies_are_separate_entries(registry):
+    """The Phase 1 audit conflated them; the registry must keep them apart.
+
+    The 2024 cocktail study releases nothing. The 2026 potato-meal study
+    releases individual data openly. Treating them as one source is what
+    produced the withdrawn 'no public dataset can test temporal stability'
+    conclusion.
+    """
+    by_key = {d["key"]: d for d in registry["datasets"]}
+    cocktail = by_key["muller_cocktail_20"]
+    potato = by_key["muller_potato_meal_20"]
+    assert cocktail["doi"] == "10.1002/cpt.3106"
+    assert potato["doi"] == "10.3389/fphar.2026.1886427"
+    assert cocktail["status"] == "ABSTAIN"
+    assert potato["status"] == "QUALIFIED"
+    assert cocktail["do_not_confuse_with"] == "muller_potato_meal_20"
+    # The superseded conclusion must be marked withdrawn, not quietly deleted.
+    assert "WITHDRAWN" in cocktail["consequence"]
+
+
+def test_potato_meal_cohort_can_never_claim_pk(registry):
+    """No drug is administered, so no pharmacokinetic claim is possible."""
+    entry = next(
+        d for d in registry["datasets"] if d["key"] == "muller_potato_meal_20"
+    )
+    assert entry["endpoint"]["endpoint_class"] == "biomarker_only"
+    assert entry["endpoint"]["no_drug_administered"] is True
+    assert entry["objectives_supported"] == ["H5"]
+    assert "H1" not in entry["objectives_supported"]
+    assert not entry.get("h1_functional_analogue")
+    forbidden = {n.lower() for n in entry["endpoint"]["must_not_be_called"]}
+    assert {"clinical pk", "auc", "clearance"} <= forbidden
+
+
+def test_potato_meal_records_its_loq_imputation_burden(registry):
+    """Imputed floors are flagged only by font; the burden must be recorded."""
+    entry = next(
+        d for d in registry["datasets"] if d["key"] == "muller_potato_meal_20"
+    )
+    loq = entry["omics_layers"][0]["loq_imputation"]
+    assert loq["flagged_only_by_bold_font"] is True
+    assert loq["imputed_cells"]["solanidine"]["n"] == 27
+    assert loq["imputed_cells"]["4_oh_solanidine"]["n"] == 15
+    assert loq["imputed_cells"]["ssda"]["n"] == 9
+    # The poor metaboliser being wholly at the floor is the material limitation.
+    assert "poor metaboliser" in loq["critical_limitation"]
+
+
+def test_potato_meal_is_not_presented_as_independent_replication(registry):
+    """Shared authors and platform with ARIANA; agreement could be method bias."""
+    entry = next(
+        d for d in registry["datasets"] if d["key"] == "muller_potato_meal_20"
+    )
+    limitation = entry["independence_limitation"]
+    assert "NOT a fully independent replication" in limitation
+    assert "Just" in limitation
+    assert "cannot_support" in entry
+
+
+def test_ariana_is_capped_at_exploratory(registry):
+    """Freezing a protocol cannot turn a repeated re-analysis into validation."""
+    entry = next(
+        d for d in registry["datasets"] if d["key"] == "ariana_metoprolol_47"
+    )
+    exposure = entry["prior_analysis_exposure"]
+    assert exposure["previously_analysed_by_this_project"] is True
+    assert exposure["max_claimable_status"] == "exploratory"
+
+
+def test_nlme_caveat_states_the_precise_limitation(registry):
+    """One observation per subject is a non-identifiability of variance parts."""
+    entry = next(
+        d for d in registry["datasets"] if d["key"] == "ariana_metoprolol_47"
+    )
+    caveat = entry["caveats"][1]
+    assert "not separately identifiable" in caveat
+    # The earlier over-strong wording must be gone.
+    assert "likelihood is not identifiable" not in caveat
+
+
+def test_jarmusch_pgx_is_recorded_so_uniqueness_is_not_overclaimed(registry):
+    entry = next(
+        d for d in registry["datasets"] if d["key"] == "jarmusch_midazolam"
+    )
+    assert entry["pk_pgx_matched"] is True
+    assert entry["genotypes"]["n_participants"] == 14
+    assert "CYP3A5" in entry["genotypes"]["genes"]
+    assert "UNRESOLVED" in entry["omic_crosswalk_status"]
+    # H1 still cannot be claimed: the omic layer is not joined per donor.
+    assert "H1" not in entry["objectives_supported"]
+
+
+def test_hlc_reacquisition_confirms_the_documented_route(registry):
+    entry = next(d for d in registry["datasets"] if d["key"] == "hlc_syn4499")
+    confirmation = entry["reacquisition_confirmation"]
+    assert len(confirmation["bundle_sha256"]) == 64
+    # Keyed by Synapse entity ID, because the manifest's entity name and the
+    # local filename differ for curatedPhenotype.
+    assert set(confirmation["source_provided_md5"]) == {
+        record["synapse_id"] for record in entry["retrieval"]["files"]
+    }
+    for md5 in confirmation["source_provided_md5"].values():
+        assert len(md5) == 32
+    # Every entity must still resolve to exactly one local archive.
+    local = {artifact["filename"] for artifact in entry["local_artifacts"]}
+    assert {r["local_filename"] for r in entry["retrieval"]["files"]} == local
 
 
 def test_abstained_sources_claim_no_objectives(registry):

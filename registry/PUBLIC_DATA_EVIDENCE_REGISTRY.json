@@ -1,6 +1,6 @@
 {
   "registry_name": "PUBLIC_DATA_EVIDENCE_REGISTRY",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "frozen_at": "2026-11-07",
   "scope": "Datasets admissible for the Omics2PK five-objective validation (H1-H5). A published article is not by itself an exploitable dataset.",
   "access_policy": {
@@ -97,15 +97,20 @@
       "verification_method": "Downloaded from the repository named in the data availability statement; SHA-256 recomputed and found identical to the file already used in the local ARIANA analysis.",
       "caveats": [
         "One concentration per patient. MAP-Bayesian estimation conditioned on that concentration and then predicting it is circular (measured optimism factor 3.6) and is excluded by construction.",
-        "An NLME likelihood is not identifiable from a single observation per subject.",
+        "One observation per subject does not make a nonlinear mixed-effects model impossible, but it leaves between-subject variability and residual error not separately identifiable, and it cannot support estimation of individual PK parameters from ARIANA alone. No NLME variability claim is made from this cohort.",
         "The OH-metoprolol/metoprolol metabolic ratio is present in the source but shares its denominator with the target concentration. It may be used ONLY as a validation target, never as a predictor.",
         "The source publication's own primary result is the correlation between solanidine-derived and metoprolol-derived metabolic ratios. Reproducing it is a positive control on the implementation, NOT a new finding of this project.",
         "Single centre, single laboratory, single assay."
-      ]
+      ],
+      "prior_analysis_exposure": {
+        "previously_analysed_by_this_project": true,
+        "implication": "This cohort has already been analysed repeatedly under earlier internal versions, with model choices made while results were visible. Freezing the protocol prevents further result-guided decisions; it cannot retroactively make this an independent confirmatory validation. Every ARIANA conclusion is reported as an exploratory re-analysis.",
+        "max_claimable_status": "exploratory"
+      }
     },
     {
       "key": "muller_cocktail_20",
-      "label": "Mueller phenotyping cocktail n=20",
+      "label": "Mueller phenotyping cocktail n=20 (2024 study)",
       "citation": "Mueller JP, Saromba J, Ziegler P, Tremmel R, Rengelshausen J, Schaeffeler E, Just KS, Schwab M, Kraus T, Stingl JC. Clin Pharmacol Ther. 2024 Feb;115(2):309-317.",
       "doi": "10.1002/cpt.3106",
       "pmid": "37971251",
@@ -125,7 +130,152 @@
       "abstain_reason": "No individual-level data released. Europe PMC core record reports hasData=N, hasSuppl=N, no PMCID; the publisher page returns HTTP 403. Published aggregate values must not be converted into reconstructed individual rows.",
       "verified_this_session": true,
       "verification_method": "Europe PMC REST core record for DOI 10.1002/cpt.3106 retrieved and inspected; publisher full text attempted and refused.",
-      "consequence": "This was the designated independent biological and temporal validation for the solanidine module (intra-individual stability, effect of sampling time). Its loss means no public dataset can currently test within-subject temporal stability of the solanidine ratios."
+      "consequence": "WITHDRAWN in registry 1.2.0. This entry previously concluded that no public dataset could test within-subject temporal stability of the solanidine ratios. That conclusion was wrong: see muller_potato_meal_20, a different study by the same first author which releases individual time-course data openly. This 2024 cocktail study itself remains ABSTAIN.",
+      "do_not_confuse_with": "muller_potato_meal_20"
+    },
+    {
+      "key": "muller_potato_meal_20",
+      "label": "Mueller standardized potato meal n=20 (2026 study)",
+      "citation": "Mueller JP, Friske D, Hasoumi M, Miller B, Saromba J, Tupiec J, Koczera P, Laurentius T, Clavel T, Stingl JC, Just KS. Solanidine metabolic ratios for CYP2D6 phenotyping after a standardized potato meal. Front Pharmacol. 2026 Oct 2;17:1886427.",
+      "doi": "10.3389/fphar.2026.1886427",
+      "citation_verified_via": "Crossref API, 2026-11-07: title, journal, volume 17, article 1886427, published 2026-10-02, 11 authors.",
+      "original_repository": "https://github.com/JulianPeterMueller/Solanidine-standardized-potato-meal",
+      "access_tier": "open_public",
+      "access_note": "Public GitHub repository, retrievable by URL with no account.",
+      "individual_level_data_released": true,
+      "redistribution_permitted": null,
+      "redistribution_note": "No licence file is present in the source repository, so redistribution rights are unstated. The workbook is therefore NOT committed; acquisition is by script with a checksum, exactly as for ARIANA.",
+      "local_artifacts": [
+        {
+          "filename": "Solanidine standardized potato meal.xlsx",
+          "bytes": 20965,
+          "sha256": "68d53071db79f961a63e433137a8a3e7dbd40daf8c8ad0f9f7f1b268bb3a8e07"
+        }
+      ],
+      "n_analysed": 20,
+      "biological_unit": "healthy volunteer",
+      "matrix": "plasma",
+      "design": "Single standardized potato meal, no drug administered. 9 plasma sampling points per participant at 0, 0.5, 1, 1.5, 2, 3, 4, 5 and 29 hours.",
+      "sampling_time": {
+        "absolute_times_documented": true,
+        "timepoints_h": [
+          0,
+          0.5,
+          1,
+          1.5,
+          2,
+          3,
+          4,
+          5,
+          29
+        ],
+        "observations_per_subject": 9,
+        "repeated_sampling": true
+      },
+      "omics_layers": [
+        {
+          "layer": "targeted_metabolomics",
+          "analytes": "solanidine (ng/ml), 4-OH-solanidine (ng/ml), SSDA (counts)",
+          "identification_quality": "Solanidine and 4-OH-solanidine are reported in concentration units with a stated limit of quantification. SSDA is reported in raw counts and is therefore SEMI-QUANTITATIVE, the same analytical weakness recorded for ARIANA.",
+          "completeness": "180 of 180 cells present for each of the three analytes; no missing values",
+          "loq_imputation": {
+            "present": true,
+            "method_stated_in_source": "Values below the limit of quantification were imputed as half the lower limit of quantification for solanidine (0.01 ng/ml) and 4-OH-solanidine (0.02 ng/ml), or as the lowest measured value for SSDA.",
+            "flagged_only_by_bold_font": true,
+            "imputed_cells": {
+              "solanidine": {
+                "n": 27,
+                "percent": 15.0
+              },
+              "4_oh_solanidine": {
+                "n": 15,
+                "percent": 8.3
+              },
+              "ssda": {
+                "n": 9,
+                "percent": 5.0
+              }
+            },
+            "critical_limitation": "Participant 1, the cohort's only poor metaboliser (*4/*4x2, activity score 0), is below the limit of quantification at ALL 9 timepoints for BOTH metabolites. The metabolic ratio is therefore entirely imputed for the one subject the marker most needs to identify. Any discriminative performance at the poor-metaboliser end rests on imputed floor values and must be reported as such.",
+            "extraction_method": "Imputed cells carry no data flag; they are distinguishable only by bold font. Reading them requires openpyxl font inspection, not a plain value read, so any pandas-only pipeline would silently treat imputed floors as measurements."
+          }
+        }
+      ],
+      "genotypes": {
+        "available": true,
+        "n_genotyped": 20,
+        "genes": [
+          "CYP2D6"
+        ],
+        "fields": [
+          "CYP2D6 genotype",
+          "CYP2D6 genotype-predicted phenotype",
+          "CYP2D6 activity score"
+        ],
+        "activity_score_values_present": [
+          0.0,
+          0.25,
+          1.0,
+          2.0,
+          3.0
+        ],
+        "phenotype_distribution": {
+          "poor_metabolizer": 1,
+          "intermediate_metabolizer": 10,
+          "normal_metabolizer": 8,
+          "ultrarapid_metabolizer": 1
+        },
+        "activity_score_convention_conflict": "This cohort scores *41 as 0.25, the post-2021 CPIC convention. The Rudesheim 2020 activity-score-to-relative-activity mapping used by the mechanistic module is built on the grid (0, 0.5, 1.25, 1.5, 2, 3) and predates that change. Activity scores are therefore NOT directly comparable between this cohort and ARIANA, and the mapping must not be applied across them without an explicit convention alignment. This is a prespecified H5 item, not a correction to be made silently.",
+        "phenotype_distribution_verified_by": "scripts/qualify_muller2026_potato_meal_source.py, which recounted the participant sheet and corrected an earlier hand-entered 9/9 split."
+      },
+      "covariates": {
+        "fields": [
+          "sex",
+          "age (years)",
+          "BMI (kg/m2)",
+          "eGFR (ml/min/1.73m2)"
+        ],
+        "food_exposure_flag": "'Fasted on potato products for 3 days': 15 participants yes, 5 no. This makes a food effect directly testable."
+      },
+      "additional_source_sheets": [
+        {
+          "sheet": "Glycoalkaloid concentrations",
+          "content": "The meal itself was assayed: 4 potato fritter aliquots with alpha-chaconine, alpha-solanine and solanidine content, plus mean and standard deviation. The precursor dose is therefore quantified, which permits a precursor-normalised biomarker analysis."
+        },
+        {
+          "sheet": "Microbial metabolism",
+          "content": "Two stool samples incubated with alpha-solanine or alpha-chaconine under active versus inactivated microbial community, in triplicate. Solanidine is formed only with an active community.",
+          "mechanistic_consequence": "Solanidine supply is gut-microbiota dependent. The biomarker therefore carries a variance source upstream of CYP2D6 that genotype cannot capture, which is a mechanistic argument for why a measured ratio can outperform a genotype estimate AND a reason its reproducibility may be limited. Both directions must be tested."
+        }
+      ],
+      "endpoint": {
+        "name": "solanidine-derived metabolic ratios as CYP2D6 phenotype markers",
+        "endpoint_class": "biomarker_only",
+        "no_drug_administered": true,
+        "must_not_be_called": [
+          "pharmacokinetics",
+          "clinical PK",
+          "AUC",
+          "clearance",
+          "drug exposure"
+        ]
+      },
+      "objectives_supported": [
+        "H5"
+      ],
+      "status": "QUALIFIED",
+      "qualified_for": "H5 only, and specifically the three items previously recorded as ABSTAIN: the sampling-time effect, the food effect, and intra-individual temporal stability of the solanidine ratios. Also the quantified-versus-semi-quantitative comparison, since solanidine is in ng/ml and SSDA in counts.",
+      "cannot_support": "H1 and any pharmacokinetic claim. No drug is administered, so there is no PK endpoint and no exposure to predict. This dataset does NOT replicate the ARIANA solanidine-to-exposure association; it can only test whether the marker itself behaves reproducibly.",
+      "independence_limitation": "NOT a fully independent replication. Saromba J, Stingl JC and Just KS are authors of both this study and ARIANA, so the cohort shares a research group, laboratory and analytical platform with ARIANA. The participants are different people (20 healthy volunteers versus 47 cardiology patients), so this is a different population measured by the same group, not an independent laboratory. Any agreement between the two must be reported with that limitation stated, since shared method bias would produce agreement as well.",
+      "verified_this_session": true,
+      "verification_method": "GitHub API confirmed the public repository and its two files on 2026-11-07. The workbook was downloaded and its SHA-256 computed. All four sheets were parsed: participant table (20 rows, complete), plasma concentrations (3 analyte blocks of 20 participants x 9 timepoints, 180/180 cells each, no missing values), glycoalkaloid assay and microbial incubations. Bold-font imputation flags were extracted with openpyxl and counted. Crossref confirmed the citation.",
+      "caveats": [
+        "No drug administered: this is a biomarker reproducibility cohort, never a PK cohort.",
+        "n=20 healthy young volunteers (ages 22-27), so results do not transfer to a multimorbid comedicated population without an explicit argument.",
+        "Only 1 poor metaboliser and 1 ultrarapid metaboliser, and the poor metaboliser is entirely below the limit of quantification. The extremes of the phenotype range are represented by one subject each.",
+        "SSDA is in counts, so between-cohort absolute comparison is not meaningful.",
+        "Shares authors, laboratory and platform with ARIANA."
+      ]
     },
     {
       "key": "wollmann_839",
@@ -300,6 +450,20 @@
             "local_filename": "curatedPhenotypesynapse.zip"
           }
         ]
+      },
+      "reacquisition_confirmation": {
+        "date": "2026-11-07",
+        "route": "Owner downloaded the whole syn4499 folder through the self-signed gate as a single 136114988-byte bundle containing the four entity archives plus Synapse's own manifest.csv.",
+        "bundle_sha256": "8eaec548a505aca6b2db7ed28cd4c3af37c56b22131607cb9b4659cbc98e5070",
+        "result": "All four inner archive SHA-256 values recomputed from the bundle and found identical to the values recorded here, which independently confirms the 2026-10-18 acquisition and demonstrates the documented access route is reproducible.",
+        "source_provided_md5": {
+          "syn4629": "2e5495caab1cf497bf09621750338eb3",
+          "syn89614": "c501bbd52bd165d7c2e189abb1f476c8",
+          "syn88644": "f1ab8f79f31bc319428fb7e154ea0333",
+          "syn3275753": "48c82bd22645f0bc4b61df7a9125215b"
+        },
+        "manifest_metadata_confirms": "curatedPhenotype numSamples=836, curatedExpressionLiver numSamples=465 on an Agilent Custom 44K platform, tissueType Liver. These match the counts already recorded, and remain entity-level counts rather than a complete-case same-donor count.",
+        "md5_keying_note": "Keyed by Synapse entity ID, not filename: the manifest uses the entity name (curatedPhenotype.zip) while the local copy was saved as curatedPhenotypesynapse.zip. The entity ID is the unambiguous key, and retrieval.files maps each ID to its local filename."
       }
     },
     {
@@ -418,7 +582,22 @@
       "caveats": [
         "Blank-detected features must be excluded.",
         "Low sample size with very high feature dimension makes this the designated hard-selection stress test, not a primary H1 cohort."
-      ]
+      ],
+      "genotypes": {
+        "available": true,
+        "source": "Europe PMC supplement CTS-13-972-s001.docx, a 15-row x 11-column individual table",
+        "n_participants": 14,
+        "genes": [
+          "CYP2C19",
+          "CYP3A4",
+          "CYP3A5",
+          "CYP2D6"
+        ],
+        "note": "Individual-level pharmacogenomic covariates, publicly released. A narrow assayed subset, not independently phased full diplotypes."
+      },
+      "pk_pgx_matched": true,
+      "omic_crosswalk_status": "UNRESOLVED. The per-donor feature matrix GNPS_quant.csv referenced by the authors' analysis code is absent from their GitHub repository. Public metadata show 13 individuals with plasma untargeted MS on day 1. Until the subject crosswalk is established, PK and PGx are matched per individual but the omic layer is not.",
+      "corrects": "This entry previously supported the claim that ARIANA was the only public cohort with PK, omics and PGx. Jarmusch has PK and PGx matched at individual level; only the omic join is missing. The uniqueness claim was withdrawn in registry 1.2.0."
     },
     {
       "key": "rotroff_metformin_33",
@@ -541,6 +720,28 @@
         "hlc_syn4499"
       ],
       "does_not_change": "HLC's endpoint remains functional_in_vitro. It is admissible for H3/H4/H5 and the functional analogue of H1. It still cannot satisfy H1, and ARIANA remains the only H1-eligible dataset."
+    },
+    {
+      "version": "1.2.0",
+      "date": "2026-11-07",
+      "ruling": "Erratum. Four provenance and status corrections following external review.",
+      "requested_by": "repository owner, relaying an external review",
+      "corrections": [
+        "E1: a second Mueller study was missed. The Phase 1 audit checked the 2024 phenotyping cocktail (doi 10.1002/cpt.3106) and concluded no public solanidine time-course data existed. A different study by the same first author, doi 10.3389/fphar.2026.1886427, releases individual data openly. Registered as muller_potato_meal_20.",
+        "E2: the claim that ARIANA is the only public dataset with matched clinical PK, omics and pharmacogenetics was wrong. Jarmusch releases an individual pharmacogenomic table for 14 participants together with midazolam CL/F. The correct claim is narrower and is now stated on named, quantified biomarkers.",
+        "E3: ARIANA conclusions are an exploratory re-analysis of a cohort this project has already analysed repeatedly, not an independent confirmatory validation. Recorded as prior_analysis_exposure on the entry.",
+        "E4: 'an NLME likelihood is not identifiable from a single observation per subject' was too strong. One observation per subject does not make every NLME model impossible; it makes between-subject and residual variability not separately identifiable."
+      ],
+      "made_before_any_run_on_the_affected_data": true,
+      "why_that_matters": "The H5 analysis items that muller_potato_meal_20 makes testable were frozen in protocol v1.0.0 before this dataset was known to exist, which is verifiable from the v1.0.0 commit. No criterion was written or altered with this data in view.",
+      "affected_datasets": [
+        "muller_potato_meal_20",
+        "muller_cocktail_20",
+        "jarmusch_midazolam",
+        "ariana_metoprolol_47",
+        "hlc_syn4499"
+      ],
+      "does_not_change": "H1 remains unreplicable on public data: the new Mueller study administers no drug, so it carries no pharmacokinetic endpoint. ARIANA remains the only H1-eligible dataset."
     }
   ]
 }
