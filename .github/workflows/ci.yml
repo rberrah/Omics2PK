@@ -38,6 +38,8 @@ jobs:
           tests/test_muller2026_potato_meal_qualification.py
           tests/test_h5_solanidine_marker_robustness.py
           tests/test_h1_ariana_incremental_omic_value.py
+          tests/test_mechanistic_graph_selection.py
+          tests/test_knowledge_graph_source_qualification.py
       - name: Fail if a pytest module was collected but ran nothing
         run: |
           set -euo pipefail
@@ -49,9 +51,11 @@ jobs:
             tests/test_muller2026_potato_meal_qualification.py \
             tests/test_h5_solanidine_marker_robustness.py \
             tests/test_h1_ariana_incremental_omic_value.py \
+            tests/test_mechanistic_graph_selection.py \
+            tests/test_knowledge_graph_source_qualification.py \
             | grep -c '::' || true)
           echo "collected $count pytest tests"
-          if [ "$count" -lt 90 ]; then
-            echo "ERROR: expected at least 90 collected tests, got $count." >&2
+          if [ "$count" -lt 180 ]; then
+            echo "ERROR: expected at least 180 collected tests, got $count." >&2
             exit 1
           fi

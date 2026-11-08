@@ -1,10 +1,10 @@
 # Omics2PK — five-objective validation protocol
 
-**Version:** 1.2.0
-**Frozen:** 2026-11-07
+**Version:** 1.4.0
+**Frozen:** 2026-11-08
 **Status:** frozen before execution of the Phase 2–5 runs. Any later change requires a new version number, a date, and a statement of what was changed and why. Thresholds must not be revised after seeing a result.
 
-No threshold, criterion, comparator or primary contrast has been changed since the initial freeze. Version 1.1.0 changes only which sources are admissible, and does so before any run on the affected source — see §12.
+No threshold, criterion, comparator, margin or primary contrast has been changed since the initial freeze. Version 1.1.0 changes only which sources are admissible. Version 1.4.0 rewrites §5 so that the mechanistic selection is computed rather than written down, and records a negative finding about what a network ranking can decide; both were done before any enzyme-activity value was read — see §12.
 
 ## 0. Question and standard of proof
 
@@ -148,19 +148,66 @@ A reduced PBPK transferring Open Systems Pharmacology parameters is labelled a *
 
 **Hypothesis.** Selection grounded in documented biology improves the relevance and/or robustness of selection relative to purely statistical methods.
 
-Comparators, all on identical folds and at **identical panel dimension**:
+**Status of this section.** Rewritten in v1.4.0, **before any enzyme-activity value was read**, to replace a hard-coded retained set with an executable chain and to record a negative methodological finding established from the network alone. Every comparator, criterion and margin frozen in v1.0.0 is carried over unchanged; what changes is that the NetPK arm is now computed rather than written down, and that the *size* of its panel is no longer claimed to come from the network. The chronology matters and is verifiable: the panels, the sample sizes and the finding below were obtained from the network, the pathway annotation and the array's probe annotation, none of which contains an endpoint.
 
-1. NetPK prespecified mechanistic selection;
+**ARIANA cannot carry H2.** It has exactly two candidate omic variables. Choosing two of two is not selection, and no selector can distinguish itself on a panel that size, so running this comparator set there would produce a near-tie by construction. H2 runs on the wide panels.
+
+### 5.1 The executable chain, frozen
+
+| Step | Frozen specification |
+|---|---|
+| Network | STRING v12.0 human, `combined_score ≥ 700`. Identifiers collapsed onto preferred gene symbols keeping the strongest edge. Yields **16,201 nodes and 236,930 undirected edges**, recorded at qualification. |
+| Propagation | Random walk with restart, restart probability **α = 0.30**, column-stochastic transition, L1 tolerance 1e-11, at most 400 power iterations. |
+| Seeds, variant **S1** | The endpoint's own column name, resolved against the network: drop the dataset's documented suffix, then drop trailing single uppercase characters until the remainder is a network node. No gene list is consulted and no family is special-cased. |
+| Seeds, variant **S2** | Every member of the Reactome pathways matching a frozen name pattern, equally weighted. **Identical for all ten endpoints**, so no endpoint-specific information enters at all. |
+| Seeds, variant **S3** | Genes carrying a curated `metabolic processing` interaction with the **documented probe substrate**, weighted by the number of distinct supporting references. The enzyme is never named. |
+| Output | An ordering of every non-seed gene. **The network supplies the order, not the size.** |
+| Gene → probe | A gene's candidates are all platform probes carrying its symbol; where several exist, the one with the highest mean expression **in the training fold**. |
+
+**S3 is available for two endpoints only, and this is a provenance limit, not a choice.** The probe substrates of eight of the ten assays are not retrievable: the source archive's readme names only the two used for the duplicated enzyme, the 2008 publication does not describe the activity assays at all, and the 2010 publication's substrate list sits in a supplement absent from the open repository, with the publisher's supplement path returning 404. Naming the other eight from memory would be an unverifiable input of exactly the kind this protocol forbids. S3 is therefore reported as an **illustration of the full chain**, never as a test.
+
+### 5.2 Why the panel size is not delegated to the network
+
+**Finding, established before any endpoint was read, and reported as a result rather than worked around.** A network propagation score cannot be given a calibrated significance threshold.
+
+- An empirical p-value from `B` resamples cannot fall below `1/(B+1)`, while a Benjamini–Hochberg threshold over sixteen thousand candidate genes is of order 1e-6. The first version of the rule could therefore never retain anything, whatever the data.
+- Replacing the p-value with a permutation false-discovery estimator on **node counts** removes that resolution floor, but not the deeper obstacle: every null that preserves the degree sequence also preserves, approximately, *how many* nodes reach a given proximity to a seed. Relocating a seed to a comparably connected node gives its new neighbours about the scores the real seed's neighbours have, so the count ratio sits near one wherever the walk is informative.
+- Measured on the real network: the threshold rule retains **one or two genes for all ten endpoints**, and retains **the same number when deliberately given the wrong enzyme**. With many seeds it does retain — 66 to 205 genes for the pathway variants — so the diagnostic has power for *module coherence* and essentially none for *single-seed neighbour identification*.
+
+The conclusion is not that the parameters need tuning. It is that network proximity carries information about **which** genes are partners and almost none about whether being a partner is unusual. The panel size is therefore chosen inside **training folds only**, exactly as a data-driven competitor chooses its own. Every arm then uses the endpoint in the same way, and the only difference between arms is where the ordering came from — which is the comparison H2 actually requires. The threshold rule is kept and reported as the diagnostic of this fact.
+
+**Withdrawn in advance.** Any claim that the network autonomously decides how many variables to retain. H2 can be evaluated on the autonomy of the **ordering**; the autonomy of the **size** is not achievable by this mechanism and is not claimed.
+
+### 5.3 The two experiments, kept separate
+
+**H2a — does the mechanistic ordering select better?** Same donors, same folds, same predictor, same number of variables for every arm. Comparators, as frozen in v1.0.0:
+
+1. NetPK: the executable mechanistic ranking of §5.1;
 2. SHAP ranking with XGBoost;
-3. Elastic Net / LASSO;
+3. Elastic Net / LASSO by coefficient magnitude;
 4. nested univariate filtering;
-5. random panel of the same dimension, replicated;
-6. **deliberately wrong or biologically incompatible mechanistic panel**;
-7. no selection: all admissible variables.
+5. random panel of the same dimension, **≥ 100 replications**;
+6. **deliberately wrong mechanistic panel**: the identical chain seeded with an enzyme that does not perform the measured reaction, by a rotation fixed before running;
+7. no selection: all admissible probes;
+8. the target transcript alone, which is the information the endpoint's label gives away for free and is the arm NetPK must beat to claim it finds *complementary* mechanisms.
 
-The mechanistic selection must be derived from knowledge **independent of the PK responses of the evaluated dataset**.
+Panel size `k` is swept over the frozen grid `k = 1, 2, 3, 5, 10, 20, 50, 100` and, separately, chosen in the inner folds; both are reported. All selection, preprocessing and tuning happen in training folds; no arm sees a test fold.
 
-Per variable, the record states: name, molecular identifier, tissue, hypothesised mechanism, level of evidence, decision (retained / excluded / uncertain), reason, and observed predictive contribution after evaluation.
+**H2b — does mechanistic integration then help?** Identical NetPK variables, statistical integration against parameterisation as an enzyme-activity score feeding a structural model. Separating H2a from H2b isolates the value of the selection from the value of pharmacological coefficients borrowed from the literature. H2b is not evaluated until H2a is complete.
+
+### 5.4 Validation design, frozen
+
+- **Primary:** donor-disjoint repeated nested cross-validation, 5 outer folds × 2 repeats, 3 inner folds, identical folds across every arm and model, seed `20261108`.
+- **Secondary, transportability:** leave-one-collection-centre-out, 3 folds. The source readme states the cohort came from three independent tissue collection centres; the donor identifier's leading digit separates the 466 expression donors into exactly three groups of **245, 184 and 37**. This is an **inference from the identifier, not a documented field**, and is labelled as such wherever it is used. The 37-donor group is used as a held-out set only, never as a training set alone.
+- **Endpoint class:** `functional_in_vitro` — measured microsomal activity in nmol/min/mg protein. Never pooled with `pk_clinical` and always reported in a separate column. The sample size is **387 to 398 donors per endpoint** after the donor join, which is verified rather than assumed.
+- **Baseline covariates:** the curated phenotype's documented fields — age, sex, weight, body mass index.
+- **Loss hierarchy:** as §2.1, unchanged. MAE primary, with 10 % one-sided trimmed MAE and log MAE as mandatory robustness co-criteria and the reversal rule capping status at `PARTIALLY_SUPPORTED`.
+
+### 5.5 Null variables, frozen
+
+To measure the false-positive rate, **200 decoy features** are added: each is a real probe whose donor order has been permuted, carrying the symbol of a gene drawn uniformly at random from the network, under a fixed seed. Retaining a decoy is an error.
+
+**Stated in advance so that it is not later presented as a discovery:** NetPK's decoy rate must equal its rate on the corresponding real genes, because an outcome-blind ordering cannot tell a destroyed signal from an intact one. This is the method's structural weakness and the direct link to H4. The data-driven arms' decoy rates measure something different — sampling error — and the two are reported separately rather than ranked against each other.
 
 ### Criteria
 
@@ -168,8 +215,10 @@ Per variable, the record states: name, molecular identifier, tissue, hypothesise
 - **Methodological success:** NetPK is non-inferior to the best statistical comparator within a prespecified **5 % relative MAE margin**, *and* shows better stability or better selection specificity.
 - **Superiority** requires a favourable paired difference whose uncertainty is compatible with a real improvement. If the interval is wider than the margin, the status is `INCONCLUSIVE`, not equivalence. A non-significant difference is never reported as equivalence.
 - **Failure:** NetPK repeatedly retains incorrect pathways, or degrades beyond the margin.
+- **Stability is not scored naively.** At a fixed `k`, NetPK's Jaccard across folds is **1.0 by construction**, because the ordering never reads the outcome. That is a structural property and not a merit, and reporting it as one would be misleading. What is compared is the data-driven arms' stability, and NetPK's stability when its `k` is chosen in the inner folds — where it can vary.
+- **Status cap.** A `functional_in_vitro` result cannot promote the clinical H2 claim above `PARTIALLY_SUPPORTED`. It is reported as the **functional analogue** of H2. No public cohort currently permits the clinical-PK form of this experiment at a panel width where selection is meaningful.
 
-**Mandatory honesty check, frozen.** The selection must be *produced by the stated procedure*, not written into the code after inspecting results. The Random-Walk-with-Restart network ranking is currently a **prioritisation** step whose final retain/exclude decisions are hard-coded. Until an executable rule maps the ranking to the decision, the mechanism is reported as **knowledge-guided selection, not automated discovery**, and H2 cannot be `SUPPORTED` on the autonomy claim. A separate test must verify that the documented rule, applied mechanically, reproduces the retained set.
+**Mandatory honesty check, now enforced rather than asserted.** The selection must be *produced by the stated procedure*, not written into the code after inspecting results. Two tests enforce this: one parses the selector's source and fails if any gene symbol appears in it, so a retained set cannot be smuggled in as a literal; the other re-derives the decision from its written definition — the walk by direct linear solve, the null by the same stratified relocation, the cut by the same estimator — and asserts the module agrees. The former hard-coded retain/exclude step is removed.
 
 ## 6. H3 — parsimony and minimal information
 
@@ -261,6 +310,9 @@ A result obtained on a functional or cell-line endpoint is never presented in th
 | 1.0.0 | 2026-11-07 | Initial freeze. Primary contrast, loss hierarchy, reversal rule, multiplicity plan, MAP-BE exclusion, public-only admissibility and the recorded impossibility of CYP2D6-axis replication on public data. |
 | 1.1.0 | 2026-11-07 | §1 rewritten: admissibility is decided by the download gate rather than the tier label, and self-signed terms of use are admitted. Requested by the repository owner. Grounds: the HLC gate was inspected against the Synapse public API and is a `SelfSignAccessRequirement` on `syn4499` (id 9604913, `isCertifiedUserRequired=false`, `isValidatedProfileRequired=false`), i.e. no committee and no author contact. Committee-reviewed gates remain excluded. |
 | 1.2.0 | 2026-11-07 | **Erratum, four corrections after external review.** (E1) A second Müller study was missed: the audit checked the 2024 cocktail paper and wrongly concluded no public solanidine time-course existed. Müller 2026, doi `10.3389/fphar.2026.1886427`, releases individual data openly; registered and the H5 `ABSTAIN` on sampling time, food effect and intra-individual stability is lifted (§8). (E2) The claim that ARIANA was the only public PK+omics+PGx cohort is withdrawn; Jarmusch has individual PGx for 14 participants (§1). (E3) ARIANA conclusions are stated as an exploratory re-analysis, capped at `exploratory` regardless of result (§4). (E4) "An NLME likelihood is not identifiable from one observation per subject" is corrected to the precise statement: between-subject and residual variability are not *separately* identifiable. No threshold, margin, comparator or primary contrast changed. |
+
+| 1.3.0 | 2026-11-07 | **Recorded late: this row was missing while §1 already carried 1.3.0 text.** Jarmusch's omic layer is joined per donor through the GNPS processed output, so H1 has two public clinical-PK tests rather than one, and the second is already negative. No threshold, margin, comparator or primary contrast changed. |
+| 1.4.0 | 2026-11-08 | **§5 rewritten: the mechanistic selection is now executable.** The hard-coded retain/exclude step is removed; the ranking is computed from a downloaded public network with seeds obtained automatically from the dataset's own column name, a public pathway annotation or a public chemical-gene resource, and two tests enforce that no gene is named in the selector and that the decision is reproducible from its written definition. Records the finding that a propagation score cannot be given a calibrated significance threshold, measured as one or two genes retained for all ten endpoints and the same number with the wrong enzyme; the panel size is therefore chosen in training folds and the claim of autonomous sizing is withdrawn in advance. Adds the decoy-variable specification, the leave-one-centre-out secondary design with its inferred-not-documented label, the eighth comparator (target transcript alone), and the statement that ARIANA cannot carry H2. Done before any enzyme-activity value was read. No threshold, margin, comparator or primary contrast changed. |
 
 ### Validity of the 1.1.0 amendment
 

@@ -17,6 +17,11 @@ on:
       - "scripts/qualify_muller2026_potato_meal_source.py"
       - "tests/test_muller2026_potato_meal_qualification.py"
       - "docs/OMICS2PK_PHASE1_ERRATUM_20261107.md"
+      - "scripts/qualify_public_knowledge_graph_sources.py"
+      - "tests/test_knowledge_graph_source_qualification.py"
+      - "docs/KNOWLEDGE_GRAPH_SOURCE_QUALIFICATION.json"
+      - "src/omics2pk/mechanistic_graph_selection.py"
+      - "tests/test_mechanistic_graph_selection.py"
       - ".github/workflows/public-data-evidence-registry.yml"
   pull_request:
     paths:
@@ -29,6 +34,11 @@ on:
       - "scripts/qualify_muller2026_potato_meal_source.py"
       - "tests/test_muller2026_potato_meal_qualification.py"
       - "docs/OMICS2PK_PHASE1_ERRATUM_20261107.md"
+      - "scripts/qualify_public_knowledge_graph_sources.py"
+      - "tests/test_knowledge_graph_source_qualification.py"
+      - "docs/KNOWLEDGE_GRAPH_SOURCE_QUALIFICATION.json"
+      - "src/omics2pk/mechanistic_graph_selection.py"
+      - "tests/test_mechanistic_graph_selection.py"
       - ".github/workflows/public-data-evidence-registry.yml"
   workflow_dispatch:
 

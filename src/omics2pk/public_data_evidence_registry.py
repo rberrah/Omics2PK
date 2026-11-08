@@ -251,6 +251,63 @@ def validate_entry(entry):
     return key
 
 
+KNOWLEDGE_SOURCE_ROLES = ("functional_network", "pathway_annotation",
+                          "chemical_gene_interaction")
+
+
+def validate_knowledge_source(entry):
+    """Validate one prior-knowledge resource and return its key.
+
+    A knowledge source is not a cohort: it has no participant, no outcome and
+    no endpoint, so it can neither support nor refute an objective by itself.
+    What must be true of it is narrower and is checked here. It has to be
+    retrievable without a third-party decision, carry a verified checksum, and
+    state its redistribution position explicitly -- with an unverified position
+    treated as a refusal, so silence can never be read as permission.
+    """
+    for field in ("key", "label", "role", "url", "access_requirement",
+                  "licence", "redistribution_permitted",
+                  "committed_to_this_repository", "local_artifacts",
+                  "used_for"):
+        _require(field in entry, f"knowledge source missing field '{field}'")
+    key = entry["key"]
+    _require(isinstance(key, str) and key, "knowledge source needs a key")
+    _require(entry["role"] in KNOWLEDGE_SOURCE_ROLES,
+             f"{key}: role must be one of {KNOWLEDGE_SOURCE_ROLES}")
+
+    requirement = entry["access_requirement"]
+    _require(isinstance(requirement, dict), f"{key}: access_requirement must be an object")
+    for field in ("type", "evidence", "verified_on"):
+        _require(field in requirement, f"{key}: access_requirement missing '{field}'")
+    _require(requirement["type"] in ACCESS_REQUIREMENT_TYPES,
+             f"{key}: access requirement type must be one of {ACCESS_REQUIREMENT_TYPES}")
+    _require(
+        requirement["type"] in SELF_SERVICE_REQUIREMENT_TYPES,
+        f"{key}: a knowledge source behind a third-party decision is not admissible",
+    )
+
+    _require(isinstance(entry["licence"], str) and entry["licence"],
+             f"{key}: the licence must be stated, 'not verified' included")
+    permitted = entry["redistribution_permitted"]
+    _require(permitted in (True, False, None),
+             f"{key}: redistribution_permitted must be true, false or null")
+    _require(entry["committed_to_this_repository"] is False,
+             f"{key}: source artefacts are not committed to this repository")
+    if permitted is not True:
+        _require(
+            "redistribution_note" in entry,
+            f"{key}: redistribution is unproven, so a note must say how that is handled",
+        )
+    _check_artifacts(entry, key)
+    _require(isinstance(entry["used_for"], list) and entry["used_for"],
+             f"{key}: 'used_for' must say what the resource is used for")
+    _require(
+        not entry.get("objectives_supported"),
+        f"{key}: a knowledge source carries no endpoint and cannot support an objective",
+    )
+    return key
+
+
 def validate_registry(path=None):
     """Validate the whole registry; return an aggregate summary.
 
@@ -272,6 +329,17 @@ def validate_registry(path=None):
         keys.append(validate_entry(entry))
     duplicates = sorted({key for key in keys if keys.count(key) > 1})
     _require(not duplicates, f"duplicate dataset keys: {duplicates}")
+
+    knowledge = registry.get("knowledge_sources") or []
+    _require(isinstance(knowledge, list), "'knowledge_sources' must be a list")
+    knowledge_keys = [validate_knowledge_source(entry) for entry in knowledge]
+    knowledge_duplicates = sorted(
+        {key for key in knowledge_keys if knowledge_keys.count(key) > 1})
+    _require(not knowledge_duplicates,
+             f"duplicate knowledge source keys: {knowledge_duplicates}")
+    overlap = sorted(set(knowledge_keys) & set(keys))
+    _require(not overlap, f"keys used for both a dataset and a knowledge source: {overlap}")
+    knowledge_keys = sorted(knowledge_keys)
 
     by_status = {status: sorted(e["key"] for e in datasets if e["status"] == status) for status in STATUSES}
     by_tier = {tier: sorted(e["key"] for e in datasets if e["access_tier"] == tier) for tier in ACCESS_TIERS}
@@ -319,6 +387,10 @@ def validate_registry(path=None):
         "h1_eligible_datasets": h1_eligible,
         "verified_this_session": sorted(e["key"] for e in datasets if e.get("verified_this_session")),
         "unverified_inherited": sorted(e["key"] for e in datasets if not e.get("verified_this_session")),
+        "knowledge_sources": knowledge_keys,
+        "knowledge_sources_redistributable": sorted(
+            e["key"] for e in knowledge
+            if e["redistribution_permitted"] is True),
     }
 
 
