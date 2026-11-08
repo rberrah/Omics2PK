@@ -1,6 +1,6 @@
 # H2d — erratum to the prespecification, before any execution
 
-**Erratum version:** 1.0.1 to `OMICS2PK_H2D_HYBRID_SELECTION_PRESPECIFICATION_20261108.md` v1.0.0
+**Erratum version:** 1.0.2 to `OMICS2PK_H2D_HYBRID_SELECTION_PRESPECIFICATION_20261108.md` v1.0.0
 **Date:** 2026-11-08
 **Status:** written **before the hybrid rule has been run on any cohort endpoint**. No success threshold is changed. Three definitions are made precise, one reporting requirement is added, and one claim about the validation set is weakened by a measurement.
 
@@ -58,7 +58,9 @@ Item 3 is the contrast that isolates selection quality. Items 1 and 2 are what m
 | one weak real signal, partial *r* ≈ 0.4 | **1.000** | 1.11 |
 | one strong real signal | **1.000** | 1.00 |
 
-Reading: specificity sits at or slightly above the nominal rate in all three null regimes, correlated candidates do not inflate it, a candidate that merely echoes a baseline covariate is not mistaken for information, and sensitivity is complete at a partial correlation of 0.4. The rule is calibrated on these designs. It is **not** thereby calibrated on real transcriptome dependence structure, which is far richer than a single shared factor, and no claim of general FDR control is made.
+Reading, stated with the precision the numbers support. Specificity sits at or slightly above the nominal rate in all three null regimes, correlated candidates do not inflate it, a candidate that merely echoes a baseline covariate is not mistaken for information, and sensitivity is complete at a partial correlation of 0.4.
+
+**What these rates do and do not establish, corrected in v1.0.2.** Rates of 0.075 to 0.083 from 120 draws are *compatible* with a nominal 0.05 — the 95 % interval for 10 of 120 reaches about 0.15 — but they do **not** demonstrate exact calibration, and the earlier phrase "the rule is calibrated on these designs" claimed more than 120 draws can support. The admissible statement is: no regime showed the gross miscalibration that would invalidate the rule, and the point estimates sit within sampling error of the nominal rate. Establishing calibration itself would need an order of magnitude more draws, and it would still be calibration on synthetic designs. The rule is **not** thereby calibrated on real transcriptome dependence structure, which is far richer than a single shared factor, and no claim of general false-discovery control is made.
 
 ---
 
@@ -70,13 +72,13 @@ Reading: specificity sits at or slightly above the nominal rate in all three nul
 
 - 45 endpoint pairs, Spearman **median 0.446**, mean 0.425, range 0.144 to 0.841; 13 pairs above 0.5.
 - The first principal component of the endpoint correlation matrix explains **49.6 %** of the variance.
-- Effective number of independent endpoints, from the eigenvalue spread: **3.55 of 10**.
+- Effective number of independent endpoints, from the eigenvalue spread: **3.55 of 10**. **Corrected in v1.0.2:** this is a *spectral index of dependence between endpoints*, not a *count* of independent replications. It summarises how concentrated the correlation matrix's eigenvalues are and has no interpretation as "three and a half separate experiments". It is reported so that a tally of agreeing endpoints is read against the dependence among them, and for nothing else.
 - `CYP3A4M_activity` and `CYP3A4T_activity` correlate at **0.841**. They are two substrates of one enzyme and **count as one endpoint**, never two, in any tally of how many endpoints agreed.
 
 **Consequences, frozen:**
 
-1. No text may describe an H2d result as "confirmed on nine endpoints". The admissible form is: *nine endpoint measurements from a single cohort, of effective independent dimensionality about three and a half, none of which was used to design the rule.*
-2. Agreement across endpoints is reported as a count **and** with this effective dimensionality beside it.
+1. No text may describe an H2d result as "confirmed on nine endpoints". The admissible form is: *nine endpoint measurements from a single cohort, carrying a dependence index of about three and a half, none of which was used to design the rule.*
+2. Agreement across endpoints is reported as a count **and** with this dependence index beside it. The index is not substituted for the count and is not described as a number of replications.
 3. This is **validation on unused endpoints, not independent replication.** Independent replication would need another cohort, and §4.1 of the parent protocol already records that no admissible public cohort supplies one for this axis.
 
 ---

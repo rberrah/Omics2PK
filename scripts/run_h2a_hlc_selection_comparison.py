@@ -150,6 +150,34 @@ def load_hlc(hlc_dir: Path):
     }
 
 
+def restrict_universe_to_network(universe, graph):
+    """Keep only candidates the mechanistic ordering could ever reach.
+
+    Sensitivity analysis, added after the primary run and labelled as such. In
+    the primary comparison every arm selects the same *number* of genes but not
+    from the same *pool*: the mechanistic ordering can only reach genes present
+    in the public network, while a statistical selector ranks the whole array --
+    including 1,007 technical control probes and about eleven thousand entries
+    carrying an accession rather than a gene symbol, none of which is in the
+    network. A statistical arm selected a negative control probe on one
+    endpoint, so the asymmetry is not hypothetical.
+
+    That confounds ordering quality with pool size. Restricting every arm to the
+    genes the network contains separates the two. It does not replace the
+    primary result, which stays as frozen and as run.
+    """
+    kept = {symbol: positions for symbol, positions in universe["by_symbol"].items()
+            if symbol in graph.index}
+    if not kept:
+        raise H2aError("restricting to the network left no candidate")
+    restricted = dict(universe)
+    restricted["by_symbol"] = kept
+    restricted["restricted_to_network"] = True
+    restricted["candidates_before_restriction"] = len(universe["by_symbol"])
+    restricted["candidates_after_restriction"] = len(kept)
+    return restricted
+
+
 def build_universe(data, graph, rng):
     """One candidate feature per gene symbol, plus the frozen decoy block.
 
@@ -838,6 +866,11 @@ def main(argv=None) -> int:
     parser.add_argument("--endpoints", nargs="*", default=list(ENDPOINTS))
     parser.add_argument("--design", choices=("repeated", "centre"),
                         default="repeated")
+    parser.add_argument("--restrict-to-network", action="store_true",
+                        help="Sensitivity analysis: let every arm select "
+                             "only from genes the public network contains, "
+                             "so ordering quality is not confounded with "
+                             "pool size. Does not replace the primary run.")
     parser.add_argument("--random-replications", type=int,
                         default=RANDOM_REPLICATIONS,
                         help="Lower only for a smoke test; the protocol "
@@ -863,6 +896,11 @@ def main(argv=None) -> int:
     log(f"candidate genes: {len(universe['by_symbol'])}; "
         f"on the network: {len(universe['genes_on_network'])}; "
         f"decoys: {N_DECOYS}")
+    if args.restrict_to_network:
+        universe = restrict_universe_to_network(universe, graph)
+        log(f"SENSITIVITY: restricted to the network -> "
+            f"{universe['candidates_after_restriction']} candidates "
+            f"(was {universe['candidates_before_restriction']})")
 
     orders = mechanistic_orders(graph, knowledge)
     log("mechanistic orderings computed once, outcome-blind")
@@ -900,6 +938,14 @@ def main(argv=None) -> int:
             "candidate_genes": len(universe["by_symbol"]),
             "candidate_genes_on_network": len(universe["genes_on_network"]),
             "decoy_block": N_DECOYS,
+            "restricted_to_network": bool(args.restrict_to_network),
+            "pool_asymmetry_note": (
+                "In the primary run every arm selects the same NUMBER of genes "
+                "but not from the same POOL: the mechanistic ordering reaches "
+                "only genes present in the public network, while a statistical "
+                "selector ranks the whole array, technical control probes "
+                "included. The restricted run separates ordering quality from "
+                "pool size."),
         },
         "endpoints": {},
     }

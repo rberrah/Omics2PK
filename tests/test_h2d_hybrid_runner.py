@@ -131,11 +131,16 @@ class TestTheValidationSetIsNotCalledIndependent(unittest.TestCase):
         return RUNNER.read_text(encoding="utf-8")
 
     def test_the_runner_records_the_measured_dependence(self):
-        source = self.source()
-        self.assertIn("validation_set_independence", source)
-        self.assertIn("effective_independent_endpoints", source)
-        self.assertIn("3.55", source)
-        self.assertIn("0.496", source)
+        caveat = H2D.VALIDATION_SET_INDEPENDENCE
+        self.assertAlmostEqual(caveat["pairwise_spearman_median"], 0.446)
+        self.assertAlmostEqual(caveat["first_component_share_of_variance"], 0.496)
+        self.assertEqual(caveat["of_endpoints"], 10)
+        # The key itself says what the number is not, so a reader of the output
+        # cannot take it for a count of replications.
+        self.assertAlmostEqual(
+            caveat["dependence_index_not_a_replication_count"], 3.55)
+        self.assertNotIn("effective_independent_endpoints", caveat)
+        self.assertIn("validation_set_independence", self.source())
 
     def test_it_refuses_the_phrase_that_would_overstate_the_result(self):
         # Asserted on the value, not on the source text, so a line break inside
@@ -144,8 +149,12 @@ class TestTheValidationSetIsNotCalledIndependent(unittest.TestCase):
         self.assertIn("NOT independent replication", caveat["claim"])
         self.assertIn("No text may say 'confirmed on nine endpoints'",
                       caveat["counting_rule"])
-        self.assertIn("effective independent dimensionality about three and a half",
+        self.assertIn("a dependence index of about three and a half",
                       caveat["counting_rule"])
+        self.assertIn("NOT a count of",
+                      caveat["dependence_index_meaning"])
+        self.assertIn("never be described as one",
+                      caveat["dependence_index_meaning"])
         self.assertIn("would need another cohort", caveat["why_not_replication"])
         self.assertTrue(caveat["same_cohort"])
 
@@ -218,7 +227,19 @@ class TestTheErratumExistsAndWeakensNothing(unittest.TestCase):
 
     def test_it_declines_to_claim_general_false_discovery_control(self):
         text = self.text().lower()
-        self.assertIn("no claim of general fdr control is made", text)
+        self.assertIn("no claim of general false-discovery control is made", text)
+
+    def test_it_does_not_claim_the_rule_is_calibrated(self):
+        text = self.text()
+        self.assertIn("do **not** demonstrate exact calibration", text)
+        self.assertIn("claimed more than 120 draws can support", text)
+        self.assertNotIn("The rule is calibrated on these designs", text)
+
+    def test_it_calls_the_index_an_index_and_not_a_replication_count(self):
+        flat = " ".join(self.text().split())
+        self.assertIn("spectral index of dependence between endpoints", flat)
+        self.assertIn("not a *count* of independent replications", flat)
+        self.assertIn("no interpretation as", flat)
 
     def test_the_prespecification_it_amends_exists(self):
         self.assertTrue(PRESPEC.is_file())
@@ -227,3 +248,98 @@ class TestTheErratumExistsAndWeakensNothing(unittest.TestCase):
 
 if __name__ == "__main__":  # pragma: no cover
     unittest.main()
+
+
+class TestTheThreeRunnerDefectsStayFixed(unittest.TestCase):
+    """Regression guards for three defects found by review before execution.
+
+    All three are independent of the selection method, so none of them changes a
+    hypothesis, a margin or a decision rule.
+    """
+
+    def source(self):
+        return RUNNER.read_text(encoding="utf-8")
+
+    # 1. The log loss needs predictions, not absolute errors.
+    def test_out_of_fold_predictions_are_kept_for_every_arm(self):
+        source = self.source()
+        self.assertIn('predictions = {name: blank() for name in', source)
+        self.assertIn('("hybrid_at_budget", "blind_mechanistic") + STATISTICAL',
+                      source)
+        self.assertIn('predictions["statistical_at_matched_dimension"]', source)
+
+    def test_the_loss_summary_receives_each_arm_s_own_predictions(self):
+        source = self.source()
+        self.assertIn("per_donor(predictions[name][k])", source)
+        self.assertNotIn(
+            'per_donor(predictions["hybrid_at_budget"][k])\n'
+            '                if name == "hybrid_at_budget" else', source)
+
+    def test_the_matched_dimension_losses_are_full_summaries_not_a_bare_mae(self):
+        source = self.source()
+        self.assertIn(
+            'per_donor(predictions["statistical_at_matched_dimension"][arm][k])',
+            source)
+        self.assertNotIn('{"mae": float(np.nanmean(per_donor(', source)
+
+    def test_the_reason_is_recorded_beside_the_fix(self):
+        # Comment markers survive whitespace flattening, so the phrases checked
+        # here are ones that sit on a single source line.
+        source = self.source()
+        self.assertIn(
+            "absolute errors in place of predictions leaves the plain MAE",
+            source)
+        self.assertIn("robustness co-criterion rather than a decoration", source)
+
+    # 2. The destroyed-signal permutation must respect block separation.
+    def test_the_permutation_happens_within_each_block(self):
+        source = self.source()
+        self.assertIn("for block_rows in (train, test):", source)
+        self.assertIn("block_rows[shuffler.permutation(block_rows.size)]", source)
+        self.assertIn('"within each block separately, per-fold seed"', source)
+
+    def test_a_single_permutation_over_all_donors_is_gone(self):
+        source = self.source()
+        self.assertNotIn(").permutation(y.size)\n            wrecked[:,", source)
+        self.assertNotIn("wrecked[:, position_of[target_gene]] = matrix[\n", source)
+
+    def test_the_permutation_seed_is_per_fold_and_reproducible(self):
+        source = self.source()
+        self.assertIn("shuffler = np.random.default_rng(H2A.SEED + 31337 + fold_number)",
+                      source)
+
+    def test_within_block_permutation_keeps_each_block_s_own_values(self):
+        # Demonstrated on a small array: the fix must be a permutation of each
+        # block, so every block keeps exactly the multiset it started with.
+        matrix = numpy.arange(20.0).reshape(10, 2)
+        train = numpy.array([0, 1, 2, 3, 4, 5])
+        test = numpy.array([6, 7, 8, 9])
+        wrecked = matrix.copy()
+        shuffler = numpy.random.default_rng(1)
+        for block in (train, test):
+            wrecked[block, 0] = matrix[block[shuffler.permutation(block.size)], 0]
+        numpy.testing.assert_array_equal(numpy.sort(wrecked[train, 0]),
+                                         numpy.sort(matrix[train, 0]))
+        numpy.testing.assert_array_equal(numpy.sort(wrecked[test, 0]),
+                                         numpy.sort(matrix[test, 0]))
+
+    # 3. The repair criterion needs the univariate arm on the same matrix.
+    def test_the_univariate_arm_is_computed_on_the_wrecked_matrix(self):
+        source = self.source()
+        self.assertIn("H2A._spearman_strength(wrecked[train], y[train])", source)
+        self.assertIn('destroyed["univariate"]', source)
+        self.assertIn("univariate_kept_the_dead_gene", source)
+
+    def test_both_halves_of_the_repair_criterion_are_reported(self):
+        source = self.source()
+        self.assertIn("contrast_against_blind", source)
+        self.assertIn("contrast_against_univariate", source)
+        self.assertIn("repair_criterion_met", source)
+
+    def test_the_criterion_requires_both_halves_and_says_so(self):
+        source = self.source()
+        self.assertIn('against_univariate["non_inferior_within_margin"]', source)
+        self.assertIn('and against_blind["interval_excludes_zero"]', source)
+        self.assertIn('and against_blind["delta_mae"] < 0.0', source)
+        flat = " ".join(source.split())
+        self.assertIn("Either one alone is not the repair", flat)

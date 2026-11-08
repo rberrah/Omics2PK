@@ -2,7 +2,7 @@
 """H2d: hybrid selection, wired to the same cross-validation as H2a.
 
 Frozen by `OMICS2PK_H2D_HYBRID_SELECTION_PRESPECIFICATION_20261108.md` v1.0.0
-with erratum `OMICS2PK_H2D_ERRATUM_20261108.md` v1.0.1.
+with erratum `OMICS2PK_H2D_ERRATUM_20261108.md` v1.0.2.
 
 Knowledge proposes a shortlist from the outcome-blind mechanistic ordering; the
 training donors then keep, demote or abstain. Everything else -- folds, donors,
@@ -89,16 +89,22 @@ VALIDATION_SET_INDEPENDENCE = {
     "pairwise_spearman_median": 0.446,
     "pairwise_spearman_range": [0.144, 0.841],
     "first_component_share_of_variance": 0.496,
-    "effective_independent_endpoints": 3.55,
+    "dependence_index_not_a_replication_count": 3.55,
+    "dependence_index_meaning": (
+        "A spectral index of dependence between endpoints, computed from the "
+        "eigenvalue spread of their correlation matrix. It is NOT a count of "
+        "independent replications and must never be described as one. It is "
+        "reported so a tally of agreeing endpoints is read against the "
+        "dependence among them."),
     "of_endpoints": 10,
     "same_enzyme_pair": list(SAME_ENZYME_PAIR),
     "same_enzyme_pair_correlation": 0.841,
     "counting_rule": (
         "The two substrates of one enzyme count as one endpoint. No text may "
         "say 'confirmed on nine endpoints'; the admissible form is nine "
-        "endpoint measurements from a single cohort of effective independent "
-        "dimensionality about three and a half, none of which was used to "
-        "design the rule."),
+        "endpoint measurements from a single cohort carrying a dependence "
+        "index of about three and a half, none of which was used to design "
+        "the rule."),
     "why_not_replication": (
         "Independent replication would need another cohort. Section 4.1 of the "
         "parent protocol records that no admissible public cohort supplies one "
@@ -135,14 +141,24 @@ def run_endpoint(endpoint, data, universe, orders, *, folds, fold_label,
               ("hybrid_at_budget", "blind_mechanistic") + STATISTICAL}
     errors["statistical_at_matched_dimension"] = {
         arm: blank() for arm in STATISTICAL}
-    predictions = {"hybrid_at_budget": blank()}
+    # Out-of-fold predictions are kept for EVERY arm, not only the hybrid. The
+    # log loss is computed from predictions and observations; feeding it
+    # absolute errors in place of predictions leaves the plain MAE correct and
+    # makes the log loss meaningless, and the log loss is a mandatory
+    # robustness co-criterion rather than a decoration.
+    predictions = {name: blank() for name in
+                   ("hybrid_at_budget", "blind_mechanistic") + STATISTICAL}
+    predictions["statistical_at_matched_dimension"] = {
+        arm: blank() for arm in STATISTICAL}
     retained_counts = {k: [] for k in sizes}
     abstentions = {k: 0 for k in sizes}
     agreement = {k: [] for k in sizes}
     demoted_examples = {k: [] for k in sizes}
     destroyed = {"blind": np.full((repeats, y.size), np.nan),
                  "hybrid": np.full((repeats, y.size), np.nan),
+                 "univariate": np.full((repeats, y.size), np.nan),
                  "hybrid_kept_the_dead_gene": 0,
+                 "univariate_kept_the_dead_gene": 0,
                  "folds_examined": 0}
 
     blind_order = orders[endpoint]["netpk_target_seeded"]
@@ -180,18 +196,22 @@ def run_endpoint(endpoint, data, universe, orders, *, folds, fold_label,
             errors["hybrid_at_budget"][k][repeat, test] = np.abs(predicted - y[test])
 
             blind = [g for g in blind_order if g in position_of][:k]
+            blind_predicted = predict(blind)
+            predictions["blind_mechanistic"][k][repeat, test] = blind_predicted
             errors["blind_mechanistic"][k][repeat, test] = np.abs(
-                predict(blind) - y[test])
+                blind_predicted - y[test])
 
             for arm in STATISTICAL:
-                at_budget = statistical[arm][:k]
-                errors[arm][k][repeat, test] = np.abs(
-                    predict(at_budget) - y[test])
+                at_budget = predict(statistical[arm][:k])
+                predictions[arm][k][repeat, test] = at_budget
+                errors[arm][k][repeat, test] = np.abs(at_budget - y[test])
                 # Matched dimension: the comparator is cut to what the hybrid
                 # actually used, so neither side is credited for being smaller.
-                matched = statistical[arm][: len(kept)]
+                matched = predict(statistical[arm][: len(kept)])
+                predictions["statistical_at_matched_dimension"][arm][k][
+                    repeat, test] = matched
                 errors["statistical_at_matched_dimension"][arm][k][repeat, test] = (
-                    np.abs(predict(matched) - y[test]))
+                    np.abs(matched - y[test]))
 
             agreement[k].append(agreement_with(
                 selection, statistical["univariate_spearman"][:k]))
@@ -200,10 +220,15 @@ def run_endpoint(endpoint, data, universe, orders, *, folds, fold_label,
         # hybrid must demote the dead gene where the blind arm cannot.
         if target_gene in position_of:
             wrecked = matrix.copy()
-            shuffle = np.random.default_rng(
-                H2A.SEED + 31337 + fold_number).permutation(y.size)
-            wrecked[:, position_of[target_gene]] = matrix[
-                shuffle, position_of[target_gene]]
+            column = position_of[target_gene]
+            # Permute WITHIN each block. A single permutation over all donors
+            # would move training values into the test block and back; it
+            # cannot leak the endpoint, but it breaks the separation this
+            # diagnostic is supposed to respect.
+            shuffler = np.random.default_rng(H2A.SEED + 31337 + fold_number)
+            for block_rows in (train, test):
+                wrecked[block_rows, column] = matrix[
+                    block_rows[shuffler.permutation(block_rows.size)], column]
             destroyed["blind"][repeat, test] = np.abs(
                 predict([target_gene], block=wrecked) - y[test])
             wrecked_choice = select_hybrid(
@@ -213,6 +238,15 @@ def run_endpoint(endpoint, data, universe, orders, *, folds, fold_label,
                 predict(list(wrecked_choice.retained), block=wrecked) - y[test])
             destroyed["hybrid_kept_the_dead_gene"] += int(
                 target_gene in wrecked_choice.retained)
+            # The prespecification's first success criterion compares the
+            # hybrid against the univariate arm on this same wrecked matrix, so
+            # the univariate arm has to be computed here too.
+            strength = H2A._spearman_strength(wrecked[train], y[train])
+            univariate_choice = str(names[int(np.argmax(strength))])
+            destroyed["univariate"][repeat, test] = np.abs(
+                predict([univariate_choice], block=wrecked) - y[test])
+            destroyed["univariate_kept_the_dead_gene"] += int(
+                univariate_choice == target_gene)
             destroyed["folds_examined"] += 1
 
         log(f"    fold {fold_number + 1}/{len(donor_folds)} "
@@ -243,15 +277,14 @@ def run_endpoint(endpoint, data, universe, orders, *, folds, fold_label,
     hybrid_errors = {k: per_donor(errors["hybrid_at_budget"][k]) for k in sizes}
     for name in ("hybrid_at_budget", "blind_mechanistic") + STATISTICAL:
         summary["losses_at_budget"][name] = {
-            str(k): H2A.loss_summary(
-                per_donor(errors[name][k]), y,
-                per_donor(predictions["hybrid_at_budget"][k])
-                if name == "hybrid_at_budget" else per_donor(errors[name][k]))
+            str(k): H2A.loss_summary(per_donor(errors[name][k]), y,
+                                     per_donor(predictions[name][k]))
             for k in sizes}
     for arm in STATISTICAL:
         summary["losses_at_matched_dimension"][arm] = {
-            str(k): {"mae": float(np.nanmean(per_donor(
-                errors["statistical_at_matched_dimension"][arm][k])))}
+            str(k): H2A.loss_summary(
+                per_donor(errors["statistical_at_matched_dimension"][arm][k]), y,
+                per_donor(predictions["statistical_at_matched_dimension"][arm][k]))
             for k in sizes}
 
     for k in sizes:
@@ -321,25 +354,41 @@ def run_endpoint(endpoint, data, universe, orders, *, folds, fold_label,
         } for k in sizes}
 
     if destroyed["folds_examined"]:
-        blind_mae = float(np.nanmean(per_donor(destroyed["blind"])))
-        hybrid_mae = float(np.nanmean(per_donor(destroyed["hybrid"])))
+        blind_errors = per_donor(destroyed["blind"])
+        hybrid_errors_wrecked = per_donor(destroyed["hybrid"])
+        univariate_errors = per_donor(destroyed["univariate"])
+        against_blind = H2A.paired_contrast(
+            hybrid_errors_wrecked, blind_errors, seed=H2A.SEED + 30000,
+            label="hybrid_minus_blind_on_destroyed_signal")
+        against_univariate = H2A.paired_contrast(
+            hybrid_errors_wrecked, univariate_errors, seed=H2A.SEED + 30001,
+            label="hybrid_minus_univariate_on_destroyed_signal")
         summary["destroyed_signal_repair"] = {
             "gene": target_gene,
             "folds_examined": destroyed["folds_examined"],
-            "blind_arm_mae": blind_mae,
-            "hybrid_arm_mae": hybrid_mae,
+            "permutation": "within each block separately, per-fold seed",
+            "blind_arm_mae": float(np.nanmean(blind_errors)),
+            "hybrid_arm_mae": float(np.nanmean(hybrid_errors_wrecked)),
+            "univariate_arm_mae": float(np.nanmean(univariate_errors)),
             "hybrid_kept_the_dead_gene_in_n_folds":
                 destroyed["hybrid_kept_the_dead_gene"],
-            "contrast": H2A.paired_contrast(
-                per_donor(destroyed["hybrid"]), per_donor(destroyed["blind"]),
-                seed=H2A.SEED + 30000,
-                label="hybrid_minus_blind_on_destroyed_signal"),
+            "univariate_kept_the_dead_gene_in_n_folds":
+                destroyed["univariate_kept_the_dead_gene"],
+            "contrast_against_blind": against_blind,
+            "contrast_against_univariate": against_univariate,
+            # The prespecification's first success criterion needs both halves.
+            "repair_criterion_met": bool(
+                against_univariate["non_inferior_within_margin"]
+                and against_blind["interval_excludes_zero"]
+                and against_blind["delta_mae"] < 0.0),
             "how_to_read": (
-                "The target gene's donor order is permuted, so it keeps its "
-                "place in the mechanistic ordering while carrying nothing. The "
-                "blind arm must keep choosing it; the hybrid must demote it. A "
-                "negative contrast excluding zero is the repair this rule "
-                "exists to deliver."),
+                "The target gene's donor order is permuted within each block, "
+                "so it keeps its place in the mechanistic ordering while "
+                "carrying nothing. The blind arm must keep choosing it; the "
+                "hybrid must demote it. The repair criterion needs BOTH halves: "
+                "the hybrid within the frozen margin of the univariate arm, and "
+                "its interval against the blind arm excluding zero on the "
+                "favourable side. Either one alone is not the repair."),
         }
     return summary
 
@@ -389,7 +438,7 @@ def main(argv=None) -> int:
     report = {
         "analysis": "H2d: hybrid mechanistic selection",
         "prespecification": "OMICS2PK_H2D_HYBRID_SELECTION_PRESPECIFICATION_20261108.md v1.0.0",
-        "erratum": "OMICS2PK_H2D_ERRATUM_20261108.md v1.0.1",
+        "erratum": "OMICS2PK_H2D_ERRATUM_20261108.md v1.0.2",
         "run_on": date.today().isoformat(),
         "endpoint_set": args.which,
         "endpoint_class": "functional_in_vitro",

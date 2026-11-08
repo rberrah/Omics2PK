@@ -41,3 +41,4 @@ reports/*.utf8.md
 reports/*_files/
 reports/*_cache/
 reports/data/h2a_part_*.json
+reports/data/h2a_net_part_*.json
