@@ -1,6 +1,6 @@
 # H2a — erratum: one endpoint withdrawn, and a platform defect that changes the reading
 
-**Erratum version:** 1.0.0
+**Erratum version:** 1.0.1
 **Date:** 2026-11-09
 **Applies to:** the frozen H2a run, protocol v1.4.3, merged result `reports/data/h2a_hlc_selection.json`
 **Status:** no H2a number is recomputed. One endpoint's mechanistic arms are withdrawn as uninterpretable, and one conclusion I reported is retracted.
@@ -11,23 +11,25 @@
 
 **What I reported.** That CYP1A2 and CYP2E1 were cases where the target enzyme's own transcript carried no more information than age and sex, and that NetPK failed on CYP1A2 at every panel size (non-inferiority 0 of 8).
 
-**What is actually true.** Every probe on this array carrying the symbol `CYP1A2` is a **macaque** sequence. Verified by accession at NCBI Nucleotide on 2026-11-09:
+**What is actually true, stated as precisely as the evidence allows — and version 1.0.1 weakens what version 1.0.0 of this erratum claimed.** Two independent public annotations describe these four features, they **contradict each other**, and one of them is internally incoherent:
 
-| probe accession | organism | molecule |
-|---|---|---|
-| `AB185338` | *Macaca fuscata* | mRNA |
-| `AF123056` | *Macaca fascicularis* | DNA |
-| `AF123057` | *Macaca mulatta* | DNA |
-| `D86474` | *Macaca fascicularis* | mRNA |
+| feature | archive accession | organism of that accession | platform accession | platform gene assignment |
+|---|---|---|---|---|
+| `10033668809` | `AF123056` | *Macaca fascicularis* (DNA) | `DN745607` | dog `LOC479559` |
+| `10033668817` | `AB185338` | *Macaca fuscata* (mRNA) | `CO597948` | dog `LOC479559` |
+| `10033668906` | `AF123057` | *Macaca mulatta* (DNA) | `AM086385` | dog **`MYH9`, myosin heavy chain 9** |
+| `10033668921` | `D86474` | *Macaca fascicularis* (mRNA) | — | dog `LOC479559` |
 
-**There is no human CYP1A2 probe under that symbol on the platform.** The frozen one-feature-per-gene rule, which picks the probe with the highest training-fold mean, selected `AF123056` — a macaque *genomic* probe.
+A cytochrome probe is not myosin, so the platform's gene assignment is wrong here; and the two sources cannot both be right about the accession. **Neither source distributes the oligonucleotide sequence**, so hybridisation specificity cannot be checked at all.
 
-So the CYP1A2 "target transcript" arm never measured human CYP1A2 messenger RNA. Consequences:
+**Why version 1.0.0 was too strong.** It said the arm "never measured human CYP1A2 messenger RNA". That does not follow. A sixty-mer designed from a macaque cytochrome coding sequence, highly similar to its human orthologue, may well hybridise the human transcript, with unknown efficiency. The defensible claim is narrower and is the one that now stands: **the molecular identity of what these probes measure cannot be established from any available public source.** Not established as human, not established as non-human — unestablished.
 
-1. **The claim that CYP1A2 mRNA is uninformative for CYP1A2 activity is withdrawn.** It was never tested. The measured equality with the baseline (492.6 against 492.4) reflects a non-human probe, not the biology of the human transcript.
-2. **NetPK's 0-of-8 failure on CYP1A2 is withdrawn as evidence about mechanistic selection.** The ordering was seeded on a gene whose only available probes are from another species, so the arm was handicapped by the gene-to-probe mapping, not by the mechanism.
-3. The statistical arms on CYP1A2 remain interpretable, because they chose their own probes. The endpoint is not void; the arms **seeded on CYP1A2** are.
-4. Nothing can repair this by re-running: the platform does not carry the probe. The endpoint is reported with its mechanistic arms marked uninterpretable.
+That is a different reason from the one first given, and it is a sufficient one. The consequences are unchanged in substance:
+
+1. **The claim that CYP1A2 mRNA is uninformative for CYP1A2 activity is withdrawn.** It was never tested: the measured equality with the baseline (492.6 against 492.4) came from a probe of unestablished identity.
+2. **NetPK's 0-of-8 failure on CYP1A2 is withdrawn as evidence about mechanistic selection.** The ordering was seeded on a symbol behind which no probe has an establishable human identity, so the arm was handicapped by the gene-to-probe mapping rather than by the mechanism.
+3. **The numbers are kept, not deleted.** CYP1A2's full result stays in the merged output exactly as obtained, marked uninterpretable *for this comparison*. The statistical arms on that endpoint remain interpretable, because they chose their own probes, and the enzyme activity itself remains a usable **secondary endpoint** for studying mechanisms other than its own transcript.
+4. Nothing can repair this by re-running: the platform carries no probe for this symbol whose identity can be established.
 
 **This defect was mine, not the protocol's.** The label-resolution rule was designed to avoid hard-coding a gene list, and it does. It never checked that the probe behind the resolved symbol belongs to the organism under study, and nothing in the protocol required it to. That requirement is added below.
 
@@ -37,9 +39,27 @@ Three probes carry `CYP2E1`: two human (`NM_000773`) and one macaque (`AY635465`
 
 **One conclusion survives, one does not.** The admissible statement is: *on one of ten endpoints, the enzyme's own human transcript carried no more information than the clinical baseline.* Not two.
 
-## E3 — The candidate universe contains probes no biological reading can use
+## E3 — The candidate universe, qualified over every probe rather than every selected symbol
 
-Qualified by accession lookup, restricted to the probes some arm actually selected, so every verdict is auditable:
+**Version 1.0.0 qualified only the symbols the first fold recorded as selected, and judged a symbol by pooling the accessions of all probes behind it.** Both limits were real: the ten folds select far more than the first fold records, and the analysis picks one *particular* probe per symbol per fold, so a verdict on a symbol certifies nothing about the probe a fold used. The qualification is redone **per probe, over all 40,638 features, before any selection is consulted**, tracing `feature → accession → organism → symbol` for each.
+
+A probe is `identified_human` when both annotations point at the same human gene and the analysis's symbol matches it; `contradictory` when they disagree or the assigned gene is implausible for the symbol; `unverifiable` when neither assigns a gene.
+
+| probe verdict | probes | symbol status | symbols |
+|---|---:|---|---:|
+| identified human | 22,348 | all probes identified human | 15,647 |
+| contradictory | 7,049 | **no identified human probe** | **13,960** |
+| unverifiable | 6,268 | mixed, some probes unidentified | 1,248 |
+| human gene, symbol mismatch | 3,966 | technical control | 1,007 |
+| technical control | 1,007 | | |
+
+**Forty-four per cent of the candidate symbols have no probe whose human identity can be established.** That is far larger than the 1,007 control features found first, and it bears on every arm, not only the statistical ones.
+
+**The nine target genes, checked individually.** Eight are `all_probes_identified_human`. `CYP2E1` is mixed and `CYP1A2` has `no_identified_human_probe`.
+
+**Per-fold traceability, which a symbol-level verdict cannot give.** For both mixed symbols the analysis actually used — `CYP2E1`, the target of one endpoint, and `CYP1A1`, which appears in the mechanistic expansion for another — the frozen highest-training-mean rule selected an `identified_human` probe in **10 of 10 folds**. The CYP2E1 result therefore rests on a human-identified probe in every fold, not merely on average.
+
+**The earlier per-selection table is superseded; its reading stands.** For the record, among the symbols the first fold's selections reached:
 
 | verdict | distinct symbols selected |
 |---|---:|
@@ -61,7 +81,7 @@ Inadmissible selections per arm, out of the symbols that arm chose:
 
 **What this does and does not mean.** A non-human probe cannot carry independent human biology: on human liver RNA its signal is cross-hybridisation with the human orthologue, or noise. A technical control carries no transcript at all. But neither makes the arm that chose it *wrong about prediction* — averaging two cross-hybridising probes of one transcript is a legitimate way to reduce noise, and that is probably what the univariate arm was doing when it ranked CYP2D17 and CYP2D42 behind CYP2D6. What it means is that **those selections must not be reported as distinct biomarkers**, and that my earlier description of them as "a platform artefact" was too dismissive in one direction while assuming too much in the other.
 
-**A human record is not dismissed because its symbol looks like a pseudogene.** CYP2A7P1 and CYP2B7P1 are human records and are left alone. Where no record was retrievable the verdict is `unverified`, not a guess — 74 of 480 selected symbols, which is itself a limit on how far any biological reading of these panels can go.
+**A human record is not dismissed because its symbol looks like a pseudogene.** Under the full qualification CYP2A7P1, CYP2B7P1, POR and FABP1 all come out `all_probes_identified_human` and are left alone. The symbols that fail are the ones that fail on evidence: CYP2D17, CYP2D42, CYP2A23, CYP2A24, CYP2C74, CYP2C75, CYP3A64 and CYP3A66 all have `no_identified_human_probe`. Where no record was retrievable the verdict is `unverified`, not a guess — 74 of 480 selected symbols, which is itself a limit on how far any biological reading of these panels can go.
 
 ---
 
@@ -76,6 +96,20 @@ Inadmissible selections per arm, out of the symbols that arm chose:
 3. **the biologically qualified pool** — human probes only, technical controls removed, cross-hybridising paralogues flagged.
 
 **The third must not be read as favouring either side.** Restricting to the network pool removes technical probes that only a statistical arm could reach, which helps NetPK; it also removes real human biomarkers absent from the network, which hurts it. Restricting to qualified human probes removes the cross-species probes a statistical arm used, which helps NetPK; it leaves the uncharacterised loci, which it can still use. Each restriction moves the comparison in both directions at once, and no single one of them is the honest answer on its own. All three are reported.
+
+## E4 — Status of this qualification, and the three levels it separates
+
+This is a **secondary analysis, posterior to the H2a run**. It does not requalify the frozen H2a result as confirmatory, changes no threshold, and introduces no selection rule chosen in the light of an inspected endpoint. It establishes which candidate variables can carry a biological reading at all, which is a question about the platform and not about any hypothesis.
+
+Three levels have to be kept apart, and the H2a experience is what separates them:
+
+| level | question | what went wrong here |
+|---|---|---|
+| analytical quality | is the announced biomarker the molecule actually measured? | 44 % of candidate symbols cannot be shown to measure a human gene |
+| biological validity | does that molecule represent the supposed mechanism? | messenger RNA abundance need not represent enzyme activity |
+| predictive usefulness | does it add information about the phenotype? | the only question H2a was built to answer |
+
+A variable can pass the third and fail the first, which is exactly what the contested cytochrome probes did. A selection method cannot be judged on predictive usefulness alone when the first level is unsettled.
 
 ---
 

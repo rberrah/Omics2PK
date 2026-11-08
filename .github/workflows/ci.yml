@@ -65,7 +65,7 @@ jobs:
             tests/test_selected_probe_qualification.py \
             | grep -c '::' || true)
           echo "collected $count pytest tests"
-          if [ "$count" -lt 330 ]; then
-            echo "ERROR: expected at least 330 collected tests, got $count." >&2
+          if [ "$count" -lt 345 ]; then
+            echo "ERROR: expected at least 345 collected tests, got $count." >&2
             exit 1
           fi
