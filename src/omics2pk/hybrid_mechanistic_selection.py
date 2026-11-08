@@ -44,8 +44,18 @@ ordering had on that one metric; both must be reported.
 The most likely negative outcome is stated in advance: if the shortlist is wide
 enough, the data step does all the work and the hybrid collapses onto the
 univariate selector, which would mean the knowledge contributed nothing beyond
-shortlisting. The overlap with the univariate choice is therefore reported
-alongside every result, and the oversampling factor is kept small.
+shortlisting. Agreement with the univariate choice is therefore reported
+alongside every result -- as containment, Jaccard and exact set equality, which
+answer different questions and must not be collapsed into one number -- and the
+oversampling factor is kept small.
+
+A second accounting hazard, and the reason `retained` and `budget` are both
+carried on every result: the hybrid may keep fewer genes than its budget, or
+none at all, while the statistical comparators always keep exactly `k`. A naive
+comparison at budget `k` would then credit selection quality for what is partly
+dimension reduction. Any report built on this module must state the budget, the
+number actually retained, and a contrast at the dimension the hybrid actually
+used.
 """
 from __future__ import annotations
 
@@ -220,18 +230,43 @@ def select_hybrid(ordering: Sequence[str], available: Mapping[str, int],
     )
 
 
-def collapse_onto(selection: HybridSelection, statistical_choice: Sequence[str]
-                  ) -> float:
-    """Fraction of the hybrid's retained set that a statistical arm also picked.
+def agreement_with(selection: HybridSelection, statistical_choice: Sequence[str]
+                   ) -> dict:
+    """Three distinct ways the hybrid's panel can resemble a statistical one.
 
-    Reported with every result because it measures the stated failure mode: a
-    hybrid whose choices coincide with the statistical selector's has shown that
-    the knowledge contributed nothing beyond shortlisting.
+    They are reported together because they answer different questions and a
+    single number conflates them. The first version of this project's code
+    returned containment alone and called it convergence: a hybrid retaining one
+    gene that a statistical arm's top five also contains scored a perfect 1.0,
+    although the two panels were plainly different sets.
+
+    * `containment` -- share of the hybrid's genes the statistical arm also
+      chose. High containment with a small hybrid panel means the hybrid is a
+      *subset*, which is a parsimony claim, not a collapse.
+    * `jaccard` -- the graded set agreement, which falls when either panel
+      holds genes the other does not.
+    * `identical` -- exact set equality. This is the one the declared failure
+      mode is about: if the hybrid's panel *is* the statistical panel, the
+      knowledge contributed nothing beyond shortlisting.
+
+    An abstention has no panel to compare, so every measure is undefined rather
+    than zero; counting it as disagreement would flatter the method.
     """
     retained = set(selection.retained)
+    chosen = set(statistical_choice)
     if not retained:
-        return float("nan")
-    return len(retained & set(statistical_choice)) / len(retained)
+        return {"containment": float("nan"), "jaccard": float("nan"),
+                "identical": None, "hybrid_size": 0,
+                "comparator_size": len(chosen), "abstained": True}
+    union = retained | chosen
+    return {
+        "containment": len(retained & chosen) / len(retained),
+        "jaccard": (len(retained & chosen) / len(union)) if union else 1.0,
+        "identical": retained == chosen,
+        "hybrid_size": len(retained),
+        "comparator_size": len(chosen),
+        "abstained": False,
+    }
 
 
 __all__ = [
@@ -239,7 +274,7 @@ __all__ = [
     "HybridSelection",
     "HybridSelectionError",
     "MechanisticSelectionError",
-    "collapse_onto",
+    "agreement_with",
     "partial_rank_strength",
     "select_hybrid",
 ]

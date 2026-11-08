@@ -30,7 +30,7 @@ except ImportError as exc:  # pragma: no cover - dependency-free CI job only
 from omics2pk.hybrid_mechanistic_selection import (
     FROZEN,
     HybridSelectionError,
-    collapse_onto,
+    agreement_with,
     partial_rank_strength,
     select_hybrid,
 )
@@ -253,24 +253,179 @@ class TestNothingIsDecidedOutsideTheTrainingBlock(unittest.TestCase):
                          len(selection.shortlist))
 
 
-class TestCollapseMeasure(unittest.TestCase):
-    def test_full_overlap_is_one(self):
-        matrix, endpoint, baseline, _, available = build()
-        selection = select_hybrid(["INFORMS"], available, matrix, endpoint,
-                                  baseline, budget=1)
-        self.assertEqual(collapse_onto(selection, ["INFORMS", "DEAD"]), 1.0)
+class TestAgreementMeasure(unittest.TestCase):
+    """Containment alone was reported as convergence, and it is not.
 
-    def test_no_overlap_is_zero(self):
-        matrix, endpoint, baseline, _, available = build()
-        selection = select_hybrid(["INFORMS"], available, matrix, endpoint,
-                                  baseline, budget=1)
-        self.assertEqual(collapse_onto(selection, ["NOISE0"]), 0.0)
+    A hybrid retaining one gene that a statistical arm's top five also contains
+    scored a perfect 1.0 although the panels were plainly different sets. The
+    declared failure mode is about the panels being the same, so exact set
+    equality has to be measured separately.
+    """
 
-    def test_an_abstention_has_no_overlap_to_report(self):
+    def hybrid_of_one(self):
         matrix, endpoint, baseline, _, available = build()
-        selection = select_hybrid(["DEAD"], available, matrix, endpoint,
+        return select_hybrid(["INFORMS"], available, matrix, endpoint,
+                             baseline, budget=1)
+
+    def test_a_subset_is_contained_but_not_identical(self):
+        agreement = agreement_with(self.hybrid_of_one(),
+                                   ["INFORMS", "NOISE2", "NOISE3", "DEAD"])
+        self.assertEqual(agreement["containment"], 1.0)
+        self.assertFalse(agreement["identical"])
+        self.assertAlmostEqual(agreement["jaccard"], 0.25)
+        self.assertEqual(agreement["hybrid_size"], 1)
+        self.assertEqual(agreement["comparator_size"], 4)
+
+    def test_equal_panels_are_identical_on_every_measure(self):
+        agreement = agreement_with(self.hybrid_of_one(), ["INFORMS"])
+        self.assertEqual(agreement["containment"], 1.0)
+        self.assertEqual(agreement["jaccard"], 1.0)
+        self.assertTrue(agreement["identical"])
+
+    def test_disjoint_panels_score_zero(self):
+        agreement = agreement_with(self.hybrid_of_one(), ["NOISE0", "NOISE1"])
+        self.assertEqual(agreement["containment"], 0.0)
+        self.assertEqual(agreement["jaccard"], 0.0)
+        self.assertFalse(agreement["identical"])
+
+    def test_an_abstention_has_nothing_to_compare(self):
+        rng = np.random.default_rng(3)
+        n = 200
+        baseline = np.column_stack([rng.normal(50, 10, size=n),
+                                    rng.integers(0, 2, size=n).astype(float)])
+        selection = select_hybrid(["FLAT1"], {"FLAT1": 0},
+                                  np.full((n, 1), 2.0), rng.normal(size=n),
                                   baseline, budget=1)
-        self.assertTrue(np.isnan(collapse_onto(selection, ["DEAD"])))
+        agreement = agreement_with(selection, ["FLAT1"])
+        self.assertTrue(selection.abstained)
+        self.assertTrue(agreement["abstained"])
+        self.assertTrue(np.isnan(agreement["containment"]))
+        self.assertTrue(np.isnan(agreement["jaccard"]))
+        # Not False: an abstention is not a disagreement, and scoring it as one
+        # would flatter the method.
+        self.assertIsNone(agreement["identical"])
+
+    def test_containment_and_equality_can_disagree_sharply(self):
+        # The case that motivated the fix, asserted so it cannot return.
+        agreement = agreement_with(
+            self.hybrid_of_one(),
+            ["INFORMS", "NOISE0", "NOISE1", "NOISE2", "NOISE3"])
+        self.assertEqual(agreement["containment"], 1.0)
+        self.assertFalse(agreement["identical"])
+        self.assertLess(agreement["jaccard"], 0.25)
+
+
+class TestCalibrationAcrossRegimes(unittest.TestCase):
+    """The single null design was too thin to call the rule calibrated.
+
+    Three regimes, all synthetic and none touching the cohort: pure noise,
+    correlated candidates where a false positive is easiest to produce, and a
+    weak signal where the question is sensitivity rather than specificity.
+    """
+
+    PERMUTATIONS = 200
+    TRIALS = 120
+
+    def run_regime(self, make, budget=2):
+        fired = 0
+        sizes = []
+        for seed in range(self.TRIALS):
+            matrix, endpoint, baseline, names, available = make(seed)
+            selection = select_hybrid(names, available, matrix, endpoint,
+                                      baseline, budget=budget,
+                                      null_permutations=self.PERMUTATIONS)
+            fired += int(bool(selection.retained))
+            sizes.append(len(selection.retained))
+        return fired / self.TRIALS, float(np.mean(sizes))
+
+    def test_pure_noise_fires_near_the_nominal_rate(self):
+        def make(seed):
+            rng = np.random.default_rng(1000 + seed)
+            n = 240
+            baseline = np.column_stack([rng.normal(50, 10, size=n),
+                                        rng.integers(0, 2, size=n).astype(float)])
+            endpoint = rng.normal(size=n)
+            matrix = rng.normal(size=(n, 6))
+            names = [f"NULL{i}" for i in range(6)]
+            return matrix, endpoint, baseline, names, {
+                name: index for index, name in enumerate(names)}
+
+        rate, mean_size = self.run_regime(make)
+        self.assertLessEqual(rate, 0.20, msg=f"pure noise fired at {rate:.3f}")
+        self.assertLess(mean_size, 0.5)
+
+    def test_correlated_candidates_do_not_inflate_the_rate(self):
+        # Correlated nulls share their fluctuations, which is where a
+        # permutation null that ignored the dependence would break down.
+        def make(seed):
+            rng = np.random.default_rng(2000 + seed)
+            n = 240
+            baseline = np.column_stack([rng.normal(50, 10, size=n),
+                                        rng.integers(0, 2, size=n).astype(float)])
+            endpoint = rng.normal(size=n)
+            shared = rng.normal(size=n)
+            matrix = np.column_stack(
+                [0.9 * shared + 0.436 * rng.normal(size=n) for _ in range(6)])
+            names = [f"CORR{i}" for i in range(6)]
+            return matrix, endpoint, baseline, names, {
+                name: index for index, name in enumerate(names)}
+
+        rate, _ = self.run_regime(make)
+        self.assertLessEqual(rate, 0.20, msg=f"correlated nulls fired at {rate:.3f}")
+
+    def test_an_endpoint_driven_entirely_by_the_baseline_is_not_mistaken(self):
+        # Nothing in the candidate block adds information, so the rule must
+        # abstain even though the endpoint is highly predictable.
+        def make(seed):
+            rng = np.random.default_rng(3000 + seed)
+            n = 240
+            age = rng.normal(50, 10, size=n)
+            sex = rng.integers(0, 2, size=n).astype(float)
+            baseline = np.column_stack([age, sex])
+            endpoint = 5.0 * age + 20.0 * sex + rng.normal(size=n)
+            matrix = np.column_stack([age + rng.normal(scale=0.01, size=n),
+                                      sex, rng.normal(size=(n, 4))])
+            names = ["ECHO_AGE", "ECHO_SEX"] + [f"NULL{i}" for i in range(4)]
+            return matrix, endpoint, baseline, names, {
+                name: index for index, name in enumerate(names)}
+
+        rate, _ = self.run_regime(make)
+        self.assertLessEqual(rate, 0.25, msg=(
+            f"baseline echoes were selected in {rate:.3f} of draws"))
+
+    def test_a_weak_signal_is_detected_more_often_than_noise(self):
+        def make(seed):
+            rng = np.random.default_rng(4000 + seed)
+            n = 240
+            baseline = np.column_stack([rng.normal(50, 10, size=n),
+                                        rng.integers(0, 2, size=n).astype(float)])
+            weak = rng.normal(size=n)
+            endpoint = 0.45 * weak + rng.normal(size=n)
+            matrix = np.column_stack([weak, rng.normal(size=(n, 5))])
+            names = ["WEAK"] + [f"NULL{i}" for i in range(5)]
+            return matrix, endpoint, baseline, names, {
+                name: index for index, name in enumerate(names)}
+
+        rate, _ = self.run_regime(make)
+        self.assertGreater(rate, 0.60, msg=(
+            f"a weak but real signal was only found in {rate:.3f} of draws"))
+
+    def test_a_strong_signal_is_always_detected(self):
+        def make(seed):
+            rng = np.random.default_rng(5000 + seed)
+            n = 200
+            baseline = np.column_stack([rng.normal(50, 10, size=n),
+                                        rng.integers(0, 2, size=n).astype(float)])
+            strong = rng.normal(size=n)
+            endpoint = 4.0 * strong + rng.normal(size=n)
+            matrix = np.column_stack([strong, rng.normal(size=(n, 5))])
+            names = ["STRONG"] + [f"NULL{i}" for i in range(5)]
+            return matrix, endpoint, baseline, names, {
+                name: index for index, name in enumerate(names)}
+
+        self.TRIALS = 40
+        rate, _ = self.run_regime(make, budget=1)
+        self.assertEqual(rate, 1.0)
 
 
 class TestThePrespecificationCarriesItsOwnProvenance(unittest.TestCase):
