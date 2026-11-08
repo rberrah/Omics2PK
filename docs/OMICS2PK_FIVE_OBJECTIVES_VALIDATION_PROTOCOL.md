@@ -1,6 +1,6 @@
 # Omics2PK — five-objective validation protocol
 
-**Version:** 1.4.1
+**Version:** 1.4.2
 **Frozen:** 2026-11-08
 **Status:** frozen before execution of the Phase 2–5 runs. Any later change requires a new version number, a date, and a statement of what was changed and why. Thresholds must not be revised after seeing a result.
 
@@ -209,7 +209,9 @@ Panel size `k` is swept over the frozen grid `k = 1, 2, 3, 5, 10, 20, 50, 100` a
 
 To measure the false-positive rate, **200 decoy features** are added: each is a real probe whose donor order has been permuted, carrying the symbol of a gene drawn uniformly at random from the network, under a fixed seed. Retaining a decoy is an error.
 
-**Stated in advance so that it is not later presented as a discovery:** NetPK's decoy rate must equal its rate on the corresponding real genes, because an outcome-blind ordering cannot tell a destroyed signal from an intact one. This is the method's structural weakness and the direct link to H4. The data-driven arms' decoy rates measure something different — sampling error — and the two are reported separately rather than ranked against each other.
+**Corrected in v1.4.2, before any reported run, because the reasoning first written here was wrong.** The original text said NetPK's decoy rate must equal its rate on the corresponding real genes, since an outcome-blind ordering cannot tell a destroyed signal from an intact one. The first execution showed NetPK retaining **zero** decoys, and the explanation is not discrimination: a decoy carries the symbol of a *randomly drawn* network gene, which is almost always far from the seed and was therefore never a candidate for the top of the ordering. The decoy block measures susceptibility to a **spurious correlation**, which only an arm that reads the endpoint can have. It is retained for that purpose and the mechanistic arms' zero must not be reported as a merit.
+
+**Destroyed-signal diagnostic, added in v1.4.2 — this is the test that does expose the weakness.** The target gene's own column has its donor order permuted. The gene keeps its place in the mechanistic ordering while carrying no information at all, so a mechanistic arm must keep choosing it and must lose its advantage, while an arm that reads the endpoint should choose something else. Reported per endpoint: the mechanistic arm's MAE at `k = 1` on the wrecked matrix, the univariate arm's MAE on the same matrix, and how many folds the univariate arm still picked the dead gene. This measures the price of being outcome-blind and is the direct link to H4.
 
 ### Criteria
 
@@ -317,6 +319,8 @@ A result obtained on a functional or cell-line endpoint is never presented in th
 | 1.4.0 | 2026-11-08 | **§5 rewritten: the mechanistic selection is now executable.** The hard-coded retain/exclude step is removed; the ranking is computed from a downloaded public network with seeds obtained automatically from the dataset's own column name, a public pathway annotation or a public chemical-gene resource, and two tests enforce that no gene is named in the selector and that the decision is reproducible from its written definition. Records the finding that a propagation score cannot be given a calibrated significance threshold, measured as one or two genes retained for all ten endpoints and the same number with the wrong enzyme; the panel size is therefore chosen in training folds and the claim of autonomous sizing is withdrawn in advance. Adds the decoy-variable specification, the leave-one-centre-out secondary design with its inferred-not-documented label, the eighth comparator (target transcript alone), and the statement that ARIANA cannot carry H2. Done before any enzyme-activity value was read. No threshold, margin, comparator or primary contrast changed. |
 
 | 1.4.1 | 2026-11-08 | **§5.4 corrected before any run, for a reason independent of any endpoint.** Measured covariate completeness in the curated phenotype: weight 144 of 466 donors, body mass index 124 of 466, age complete, sex missing for one. The baseline is therefore age and sex only; keeping weight and body mass index would discard about seventy per cent of the cohort. Adds the frozen missing-value rule and the one-feature-per-gene universe, so that panel dimension means the same thing in a gene-ordering arm and a probe-ordering arm. No threshold, margin, comparator or primary contrast changed. |
+
+| 1.4.2 | 2026-11-08 | **§5.5 corrected: the stated reason for the decoy block was wrong.** The protocol predicted that a mechanistic arm would retain decoys at the rate it retains real genes. The first execution retained zero, and the cause is not discrimination: a decoy carries the symbol of a randomly drawn network gene, almost always far from the seed and so never a candidate for the top of the ordering. The block in fact measures susceptibility to a spurious correlation, which only an arm reading the endpoint can have, and the mechanistic zero must not be reported as a merit. Adds the destroyed-signal diagnostic, which permutes the target gene's donor order so the gene keeps its rank while carrying no information: the test that does expose the cost of being outcome-blind. Corrected before any reported run. No threshold, margin, comparator or primary contrast changed. |
 
 ### Validity of the 1.1.0 amendment
 

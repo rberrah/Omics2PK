@@ -323,9 +323,19 @@ def mechanistic_orders(graph, knowledge_dir: Path):
 
 
 def _spearman_strength(matrix, y):
-    ranked = np.argsort(np.argsort(matrix, axis=0), axis=0).astype(np.float64)
+    """Absolute rank correlation of every column with the endpoint.
+
+    Ties take the average rank. Breaking them by position instead, as a
+    double argsort does, hands a constant column a perfect correlation with any
+    monotone endpoint -- it would turn an uninformative probe into the
+    univariate arm's first choice. The expression values are clipped to a
+    narrow range and carry real ties, so this is not a corner case.
+    """
+    from scipy.stats import rankdata
+
+    ranked = rankdata(matrix, axis=0).astype(np.float64)
     ranked -= ranked.mean(axis=0)
-    target = np.argsort(np.argsort(y)).astype(np.float64)
+    target = rankdata(y).astype(np.float64)
     target -= target.mean()
     denominator = np.sqrt((ranked ** 2).sum(axis=0) * (target ** 2).sum())
     with np.errstate(invalid="ignore", divide="ignore"):
@@ -377,28 +387,66 @@ def statistical_orders(matrix, names, y, *, seed):
 # --------------------------------------------------------------------------
 # Prediction
 # --------------------------------------------------------------------------
+def ridge_path_predictions(x_train, y_train, x_test, alphas):
+    """Ridge predictions for every penalty in `alphas`, sharing one decomposition.
+
+    Statistically identical to fitting each penalty separately: the training
+    fold's mean and standard deviation standardise both blocks, the response is
+    centred to carry the intercept, and the penalty is applied to the
+    standardised coefficients. One decomposition serves the whole path, which
+    matters because the comparison needs a hundred random panels per fold and a
+    fresh solver object per penalty would dominate the run.
+
+    Two branches, because the arms differ by four orders of magnitude in width:
+    the primal form through a singular value decomposition when there are at
+    least as many donors as variables, and the dual form through the Gram
+    matrix when there are not -- as in the no-selection arm, which carries
+    every candidate gene.
+    """
+    mean = x_train.mean(axis=0)
+    spread = x_train.std(axis=0)
+    spread = np.where(spread > 0.0, spread, 1.0)
+    train = (x_train - mean) / spread
+    test = (x_test - mean) / spread
+    centre = float(y_train.mean())
+    centred = y_train - centre
+
+    n, p = train.shape
+    out = []
+    if p <= n:
+        u, singular, vt = np.linalg.svd(train, full_matrices=False)
+        projected = u.T @ centred
+        for alpha in alphas:
+            shrunk = singular / (singular ** 2 + alpha)
+            out.append(test @ (vt.T @ (shrunk * projected)) + centre)
+    else:
+        gram = train @ train.T
+        eigenvalues, vectors = np.linalg.eigh(gram)
+        eigenvalues = np.clip(eigenvalues, 0.0, None)
+        projected = vectors.T @ centred
+        cross = test @ train.T
+        for alpha in alphas:
+            dual = vectors @ (projected / (eigenvalues + alpha))
+            out.append(cross @ dual + centre)
+    return out
+
+
 def ridge_prediction(x_train, y_train, x_test, *, inner_folds, seed):
     """Ridge with the penalty chosen by inner cross-validation on the training fold."""
-    from sklearn.linear_model import Ridge
-    from sklearn.preprocessing import StandardScaler
-
     n = x_train.shape[0]
     order = np.random.default_rng(seed).permutation(n)
     splits = np.array_split(order, inner_folds)
     errors = np.zeros(len(RIDGE_ALPHAS), dtype=np.float64)
     for held in splits:
         keep = np.setdiff1d(np.arange(n), held)
-        scaler = StandardScaler().fit(x_train[keep])
-        inner_train = scaler.transform(x_train[keep])
-        inner_test = scaler.transform(x_train[held])
-        for position, alpha in enumerate(RIDGE_ALPHAS):
-            model = Ridge(alpha=alpha).fit(inner_train, y_train[keep])
-            errors[position] += np.abs(
-                model.predict(inner_test) - y_train[held]).sum()
-    alpha = RIDGE_ALPHAS[int(np.argmin(errors))]
-    scaler = StandardScaler().fit(x_train)
-    model = Ridge(alpha=alpha).fit(scaler.transform(x_train), y_train)
-    return model.predict(scaler.transform(x_test)), alpha
+        predictions = ridge_path_predictions(
+            x_train[keep], y_train[keep], x_train[held], RIDGE_ALPHAS)
+        for position, predicted in enumerate(predictions):
+            errors[position] += np.abs(predicted - y_train[held]).sum()
+    best = int(np.argmin(errors))
+    alpha = RIDGE_ALPHAS[best]
+    final = ridge_path_predictions(x_train, y_train, x_test, (alpha,))[0]
+    return final, alpha
 
 
 # --------------------------------------------------------------------------
@@ -594,6 +642,76 @@ def run_endpoint(endpoint, data, universe, orders, *, folds, fold_label, log):
             "replications": RANDOM_REPLICATIONS,
         } for k in PANEL_SIZES}
 
+    # ------------------------------------------------------------------
+    # Destroyed-signal diagnostic.
+    #
+    # The random-symbol decoy block turns out to measure susceptibility to a
+    # spurious correlation, which only an arm that reads the endpoint can have.
+    # A mechanistic arm scores zero on it for an uninteresting reason: a decoy
+    # carries the symbol of a randomly drawn network gene, which is almost
+    # always far from the seed, so it was never a candidate for the top of the
+    # ordering. That is not discrimination.
+    #
+    # This is the test that does expose the weakness. The target gene's own
+    # column has its donor order permuted, so the gene keeps its position in
+    # the mechanistic ordering while carrying no information at all. An arm
+    # that reads the endpoint must notice and choose something else; an arm
+    # that does not read it cannot.
+    # ------------------------------------------------------------------
+    target_gene = orders[endpoint]["target_gene_only"][0]
+    destroyed = {"gene": target_gene,
+                 "blind_errors": np.full(y.size, np.nan),
+                 "univariate_errors": np.full(y.size, np.nan),
+                 "univariate_still_picked_the_dead_gene": 0,
+                 "folds_examined": 0}
+    for fold_number, (train, test) in enumerate(donor_folds):
+        matrix, names, _ = fold_matrix(data, universe, train, keep)
+        position_of = {str(name): index for index, name in enumerate(names)}
+        if target_gene not in position_of:
+            break
+        clinical = baseline_matrix(data, keep, train)
+        wrecked = matrix.copy()
+        shuffle = np.random.default_rng(SEED + 31337 + fold_number).permutation(y.size)
+        wrecked[:, position_of[target_gene]] = matrix[shuffle,
+                                                      position_of[target_gene]]
+
+        def predict_on(block_columns):
+            picked = [position_of[name] for name in block_columns
+                      if name in position_of]
+            block = (np.column_stack([clinical, wrecked[:, picked]])
+                     if picked else clinical)
+            return ridge_prediction(block[train], y[train], block[test],
+                                    inner_folds=INNER_FOLDS,
+                                    seed=SEED + fold_number)[0]
+
+        destroyed["blind_errors"][test] = np.abs(
+            predict_on([target_gene]) - y[test])
+        strength = _spearman_strength(wrecked[train], y[train])
+        chosen = str(names[int(np.argmax(strength))])
+        destroyed["univariate_errors"][test] = np.abs(
+            predict_on([chosen]) - y[test])
+        destroyed["univariate_still_picked_the_dead_gene"] += int(
+            chosen == target_gene)
+        destroyed["folds_examined"] += 1
+    summary["destroyed_signal_diagnostic"] = {
+        "gene": target_gene,
+        "folds_examined": destroyed["folds_examined"],
+        "mechanistic_arm_k1_mae": (
+            float(np.nanmean(destroyed["blind_errors"]))
+            if destroyed["folds_examined"] else None),
+        "univariate_arm_k1_mae": (
+            float(np.nanmean(destroyed["univariate_errors"]))
+            if destroyed["folds_examined"] else None),
+        "univariate_still_picked_the_dead_gene":
+            destroyed["univariate_still_picked_the_dead_gene"],
+        "how_to_read": (
+            "The target gene's donor order is permuted, so it carries no "
+            "information while keeping its place in the mechanistic ordering. "
+            "The mechanistic arm must keep choosing it and must therefore lose "
+            "its advantage; an arm that reads the endpoint should choose "
+            "something else. This measures the cost of being outcome-blind."),
+    }
+
     contrasts = []
     for k in PANEL_SIZES:
         best_statistical = min(
@@ -676,7 +794,7 @@ def main(argv=None) -> int:
 
     report = {
         "analysis": "H2a: mechanistic versus statistical selection, equal dimension",
-        "protocol_version": "1.4.1",
+        "protocol_version": "1.4.2",
         "run_on": date.today().isoformat(),
         "endpoint_class": "functional_in_vitro",
         "endpoint_class_note": (
