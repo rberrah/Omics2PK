@@ -1,6 +1,6 @@
 # Omics2PK — five-objective validation protocol
 
-**Version:** 1.4.0
+**Version:** 1.4.1
 **Frozen:** 2026-11-08
 **Status:** frozen before execution of the Phase 2–5 runs. Any later change requires a new version number, a date, and a statement of what was changed and why. Thresholds must not be revised after seeing a result.
 
@@ -200,7 +200,9 @@ Panel size `k` is swept over the frozen grid `k = 1, 2, 3, 5, 10, 20, 50, 100` a
 - **Primary:** donor-disjoint repeated nested cross-validation, 5 outer folds × 2 repeats, 3 inner folds, identical folds across every arm and model, seed `20261108`.
 - **Secondary, transportability:** leave-one-collection-centre-out, 3 folds. The source readme states the cohort came from three independent tissue collection centres; the donor identifier's leading digit separates the 466 expression donors into exactly three groups of **245, 184 and 37**. This is an **inference from the identifier, not a documented field**, and is labelled as such wherever it is used. The 37-donor group is used as a held-out set only, never as a training set alone.
 - **Endpoint class:** `functional_in_vitro` — measured microsomal activity in nmol/min/mg protein. Never pooled with `pk_clinical` and always reported in a separate column. The sample size is **387 to 398 donors per endpoint** after the donor join, which is verified rather than assumed.
-- **Baseline covariates:** the curated phenotype's documented fields — age, sex, weight, body mass index.
+- **Baseline covariates: age and sex only.** Corrected in v1.4.1, before any enzyme-activity value was read, for a reason independent of any endpoint: weight is recorded for **144 of 466** donors and body mass index for **124 of 466**, while age is complete and sex is missing for one donor. Keeping weight and body mass index would discard about seventy per cent of the cohort or impute the majority of their values. Both are therefore excluded and the exclusion is recorded here rather than discovered later. The one missing sex is imputed with the training-fold majority.
+- **Missing values, frozen.** Expression is supplied as log ratios already clipped to [−2, 2], with about 0.3 % of cells absent. A probe missing in more than 20 % of a training fold is dropped in that fold; otherwise a missing cell takes the training-fold mean of its probe. No imputation ever reads a test fold or an endpoint.
+- **Feature universe, frozen.** One feature per gene symbol: the probe with the highest mean expression **in the training fold**. Probes with no symbol are excluded. This makes the panel dimension mean the same thing in every arm, since the mechanistic ranking orders genes while the statistical comparators would otherwise order probes and could spend their budget on several probes of one gene.
 - **Loss hierarchy:** as §2.1, unchanged. MAE primary, with 10 % one-sided trimmed MAE and log MAE as mandatory robustness co-criteria and the reversal rule capping status at `PARTIALLY_SUPPORTED`.
 
 ### 5.5 Null variables, frozen
@@ -313,6 +315,8 @@ A result obtained on a functional or cell-line endpoint is never presented in th
 
 | 1.3.0 | 2026-11-07 | **Recorded late: this row was missing while §1 already carried 1.3.0 text.** Jarmusch's omic layer is joined per donor through the GNPS processed output, so H1 has two public clinical-PK tests rather than one, and the second is already negative. No threshold, margin, comparator or primary contrast changed. |
 | 1.4.0 | 2026-11-08 | **§5 rewritten: the mechanistic selection is now executable.** The hard-coded retain/exclude step is removed; the ranking is computed from a downloaded public network with seeds obtained automatically from the dataset's own column name, a public pathway annotation or a public chemical-gene resource, and two tests enforce that no gene is named in the selector and that the decision is reproducible from its written definition. Records the finding that a propagation score cannot be given a calibrated significance threshold, measured as one or two genes retained for all ten endpoints and the same number with the wrong enzyme; the panel size is therefore chosen in training folds and the claim of autonomous sizing is withdrawn in advance. Adds the decoy-variable specification, the leave-one-centre-out secondary design with its inferred-not-documented label, the eighth comparator (target transcript alone), and the statement that ARIANA cannot carry H2. Done before any enzyme-activity value was read. No threshold, margin, comparator or primary contrast changed. |
+
+| 1.4.1 | 2026-11-08 | **§5.4 corrected before any run, for a reason independent of any endpoint.** Measured covariate completeness in the curated phenotype: weight 144 of 466 donors, body mass index 124 of 466, age complete, sex missing for one. The baseline is therefore age and sex only; keeping weight and body mass index would discard about seventy per cent of the cohort. Adds the frozen missing-value rule and the one-feature-per-gene universe, so that panel dimension means the same thing in a gene-ordering arm and a probe-ordering arm. No threshold, margin, comparator or primary contrast changed. |
 
 ### Validity of the 1.1.0 amendment
 
