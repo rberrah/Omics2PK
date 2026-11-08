@@ -1,6 +1,6 @@
 # Omics2PK — five-objective validation protocol
 
-**Version:** 1.4.2
+**Version:** 1.4.3
 **Frozen:** 2026-11-08
 **Status:** frozen before execution of the Phase 2–5 runs. Any later change requires a new version number, a date, and a statement of what was changed and why. Thresholds must not be revised after seeing a result.
 
@@ -178,7 +178,7 @@ The conclusion is not that the parameters need tuning. It is that network proxim
 
 **Withdrawn in advance.** Any claim that the network autonomously decides how many variables to retain. H2 can be evaluated on the autonomy of the **ordering**; the autonomy of the **size** is not achievable by this mechanism and is not claimed.
 
-### 5.3 The two experiments, kept separate
+### 5.3 Three experiments, kept separate
 
 **H2a — does the mechanistic ordering select better?** Same donors, same folds, same predictor, same number of variables for every arm. Comparators, as frozen in v1.0.0:
 
@@ -193,11 +193,25 @@ The conclusion is not that the parameters need tuning. It is that network proxim
 
 Panel size `k` is swept over the frozen grid `k = 1, 2, 3, 5, 10, 20, 50, 100` and, separately, chosen in the inner folds; both are reported. All selection, preprocessing and tuning happen in training folds; no arm sees a test fold.
 
-**H2b — does mechanistic integration then help?** Identical NetPK variables, statistical integration against parameterisation as an enzyme-activity score feeding a structural model. Separating H2a from H2b isolates the value of the selection from the value of pharmacological coefficients borrowed from the literature. H2b is not evaluated until H2a is complete.
+**H2b — can the chain identify the mechanism from the drug, rather than being told the enzyme?** Introduced in v1.4.3 at the request of an external review, which drew the distinction the earlier text had blurred.
+
+H2a gives the chain the enzyme that performs the measured reaction. That is **contextualised mechanistic selection, not autonomous discovery of the mechanism**, and must be called so throughout: the endpoint's own label supplies the enzyme, and the only thing the ordering can add is which *further* genes to retain. H2b is the harder and more interesting question — given a drug, can the chain find the enzymes, transporters and pathways that matter, and then select the omic variables attached to them?
+
+The instrument already exists: the substrate-seeded variant of §5.1, which withholds the enzyme name and seeds from the documented probe substrate. Its reach on this cohort is limited to **two endpoints** by the provenance limit recorded in §5.1, so H2b is **not** evaluated as prediction there. It is evaluated instead as **mechanism recovery**, which needs no pharmacokinetic measurement at all and is therefore not limited by cohort availability:
+
+- for a set of drugs with an independently documented primary metabolising enzyme, does the chain rank that enzyme first from the drug name alone;
+- how often does it rank an enzyme that no guideline associates with the drug (false identification);
+- does it abstain when the drug is absent from the interaction source, rather than returning its nearest guess.
+
+**Ground truth must not come from the chain's own input.** The chain reads a curated chemical-gene interaction resource, so taking the reference drug-enzyme pairs from that same resource would be circular. The reference is instead an independently curated clinical consensus list. Even so, both are distilled from overlapping literature, and the benchmark therefore measures whether a public interaction database plus a public network **reproduces a clinical-guideline consensus** — retrieval reliability, false-identification rate and abstention — and **not** whether anything new is discovered. That limit is stated here so no later text can read the result as discovery.
+
+**H2c — does mechanistic integration then help?** Renamed from H2b in v1.4.3 to free the label for the question above; the content is unchanged. Identical NetPK variables, statistical integration against parameterisation as an enzyme-activity score feeding a structural model. Separating selection from integration isolates the value of the ordering from the value of pharmacological coefficients borrowed from the literature. H2c is not evaluated until H2a is complete.
+
+**What the decisive result is, and is not.** Not that NetPK obtains the lowest MAE. The questions that bear on the method's worth are whether it can work with few variables, whether it resists a signal that is not there, and whether it recognises the cases where its own knowledge is insufficient. A favourable MAE with a high false-identification rate or no abstention capability is a weaker result than a modest MAE with both.
 
 ### 5.4 Validation design, frozen
 
-- **Primary:** donor-disjoint repeated nested cross-validation, 5 outer folds × 2 repeats, 3 inner folds, identical folds across every arm and model, seed `20261108`.
+- **Primary:** donor-disjoint repeated nested cross-validation, 5 outer folds × 2 repeats, 3 inner folds, identical folds across every arm and model, seed `20261108`. **Analysis unit, made explicit in v1.4.3:** out-of-fold results are stored per repeat, and a donor's absolute error is averaged across repeats before any loss or bootstrap. The donor stays the independent unit and a repeat is never a second donor. The first implementation wrote every fold into one vector per arm, so the second repeat overwrote the first and the reported losses came from one pass; no result had been published from it.
 - **Secondary, transportability:** leave-one-collection-centre-out, 3 folds. The source readme states the cohort came from three independent tissue collection centres; the donor identifier's leading digit separates the 466 expression donors into exactly three groups of **245, 184 and 37**. This is an **inference from the identifier, not a documented field**, and is labelled as such wherever it is used. The 37-donor group is used as a held-out set only, never as a training set alone.
 - **Endpoint class:** `functional_in_vitro` — measured microsomal activity in nmol/min/mg protein. Never pooled with `pk_clinical` and always reported in a separate column. The sample size is **387 to 398 donors per endpoint** after the donor join, which is verified rather than assumed.
 - **Baseline covariates: age and sex only.** Corrected in v1.4.1, before any enzyme-activity value was read, for a reason independent of any endpoint: weight is recorded for **144 of 466** donors and body mass index for **124 of 466**, while age is complete and sex is missing for one donor. Keeping weight and body mass index would discard about seventy per cent of the cohort or impute the majority of their values. Both are therefore excluded and the exclusion is recorded here rather than discovered later. The one missing sex is imputed with the training-fold majority.
@@ -216,7 +230,7 @@ To measure the false-positive rate, **200 decoy features** are added: each is a 
 ### Criteria
 
 - Final MAE at equal panel dimension; selection frequency over repeated folds; Jaccard stability between selections; false-positive rate on null variables; causal-variable recovery in synthetic known-truth experiments; ability to reject the deliberately wrong panel; abstention rate when evidence is insufficient.
-- **Methodological success:** NetPK is non-inferior to the best statistical comparator within a prespecified **5 % relative MAE margin**, *and* shows better stability or better selection specificity.
+- **Methodological success:** NetPK is non-inferior within a prespecified **5 % relative MAE margin** against **every** statistical comparator separately, *and* shows better stability or better selection specificity. **Corrected in v1.4.3.** The earlier wording, "non-inferior to the best statistical comparator", was implemented by picking the statistical method with the lowest out-of-fold error and then contrasting against it. That uses the test folds twice and credits the winner of three draws, so the comparator looks better than any single method truly is. Each method is now contrasted separately and the margin must hold against all three, which is strictly harder than beating a test-chosen winner and needs no extra computation.
 - **Superiority** requires a favourable paired difference whose uncertainty is compatible with a real improvement. If the interval is wider than the margin, the status is `INCONCLUSIVE`, not equivalence. A non-significant difference is never reported as equivalence.
 - **Failure:** NetPK repeatedly retains incorrect pathways, or degrades beyond the margin.
 - **Stability is not scored naively.** At a fixed `k`, NetPK's Jaccard across folds is **1.0 by construction**, because the ordering never reads the outcome. That is a structural property and not a merit, and reporting it as one would be misleading. What is compared is the data-driven arms' stability, and NetPK's stability when its `k` is chosen in the inner folds — where it can vary.
@@ -321,6 +335,8 @@ A result obtained on a functional or cell-line endpoint is never presented in th
 | 1.4.1 | 2026-11-08 | **§5.4 corrected before any run, for a reason independent of any endpoint.** Measured covariate completeness in the curated phenotype: weight 144 of 466 donors, body mass index 124 of 466, age complete, sex missing for one. The baseline is therefore age and sex only; keeping weight and body mass index would discard about seventy per cent of the cohort. Adds the frozen missing-value rule and the one-feature-per-gene universe, so that panel dimension means the same thing in a gene-ordering arm and a probe-ordering arm. No threshold, margin, comparator or primary contrast changed. |
 
 | 1.4.2 | 2026-11-08 | **§5.5 corrected: the stated reason for the decoy block was wrong.** The protocol predicted that a mechanistic arm would retain decoys at the rate it retains real genes. The first execution retained zero, and the cause is not discrimination: a decoy carries the symbol of a randomly drawn network gene, almost always far from the seed and so never a candidate for the top of the ordering. The block in fact measures susceptibility to a spurious correlation, which only an arm reading the endpoint can have, and the mechanistic zero must not be reported as a merit. Adds the destroyed-signal diagnostic, which permutes the target gene's donor order so the gene keeps its rank while carrying no information: the test that does expose the cost of being outcome-blind. Corrected before any reported run. No threshold, margin, comparator or primary contrast changed. |
+
+| 1.4.3 | 2026-11-08 | **Two implementation defects corrected after external review, before any H2a result was reported.** (1) The repeated cross-validation overwrote itself: out-of-fold errors were stored in one vector per arm, so with five folds by two repeats each donor was written twice and the reported losses came from the last repeat alone. Results are now stored per repeat and averaged per donor before any loss or bootstrap, which also keeps the donor as the independent unit. (2) The non-inferiority criterion named "the best statistical comparator", and the implementation chose it by out-of-fold error -- using the test folds twice and crediting the winner of three draws. The three statistical methods are now contrasted separately and the 5 % margin must hold against every one of them. The run in progress was stopped and discarded rather than reported. No threshold, margin, comparator or primary contrast was weakened. §5.3 also splits the second question in two at the review's request: H2a is relabelled as contextualised mechanistic selection rather than autonomous discovery, since the endpoint's label supplies the enzyme; the new H2b asks whether the chain can identify the mechanism from the drug instead, evaluated as mechanism recovery against an independently curated consensus so the ground truth does not come from the chain's own input; the integration question keeps its content and becomes H2c. |
 
 ### Validity of the 1.1.0 amendment
 

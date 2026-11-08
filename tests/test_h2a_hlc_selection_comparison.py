@@ -105,6 +105,91 @@ class TestFolds(unittest.TestCase):
             self.assertNotIn(value, centre[train])
 
 
+class TestRepeatsAreNotOverwritten(unittest.TestCase):
+    """The defect this guards against reduced a declared design to one pass.
+
+    A donor is tested exactly once per repeat, so storing every fold's
+    out-of-fold error in one vector per arm let the last repeat overwrite the
+    others. A design announced as five folds by two repeats then reported the
+    second repeat alone.
+    """
+
+    def test_each_repeat_gets_its_own_index(self):
+        repeats, assignment = H2A.repeat_assignment(10, n_splits=5, repeated=True)
+        self.assertEqual(repeats, 2)
+        self.assertEqual(assignment, [0] * 5 + [1] * 5)
+
+    def test_a_single_pass_design_has_one_repeat(self):
+        repeats, assignment = H2A.repeat_assignment(3, n_splits=5, repeated=False)
+        self.assertEqual(repeats, 1)
+        self.assertEqual(assignment, [0, 0, 0])
+
+    def test_a_fold_count_that_does_not_factor_is_refused(self):
+        with self.assertRaisesRegex(H2A.H2aError, "does not factor"):
+            H2A.repeat_assignment(7, n_splits=5, repeated=True)
+
+    def test_an_empty_design_is_refused(self):
+        with self.assertRaisesRegex(H2A.H2aError, "at least one fold"):
+            H2A.repeat_assignment(0, n_splits=5, repeated=True)
+
+    def test_the_declared_design_factors_into_the_frozen_parameters(self):
+        repeats, assignment = H2A.repeat_assignment(
+            H2A.OUTER_FOLDS * H2A.OUTER_REPEATS,
+            n_splits=H2A.OUTER_FOLDS, repeated=True)
+        self.assertEqual(repeats, H2A.OUTER_REPEATS)
+        self.assertEqual(len(set(assignment)), H2A.OUTER_REPEATS)
+
+    def test_every_repeat_slot_is_written_exactly_once_per_donor(self):
+        # Simulate the accumulation the runner performs and assert nothing is
+        # overwritten and nothing is left unfilled.
+        donors = 97
+        folds = H2A.repeated_folds(donors, n_splits=5, n_repeats=2, seed=1)
+        repeats, assignment = H2A.repeat_assignment(
+            len(folds), n_splits=5, repeated=True)
+        written = np.zeros((repeats, donors), dtype=int)
+        for fold_number, (_, test) in enumerate(folds):
+            written[assignment[fold_number], test] += 1
+        np.testing.assert_array_equal(written, np.ones((repeats, donors), dtype=int))
+
+    def test_collapsing_repeats_averages_per_donor_and_ignores_gaps(self):
+        block = np.array([[1.0, 4.0, np.nan], [3.0, 6.0, 8.0]])
+        np.testing.assert_allclose(
+            np.nanmean(block, axis=0), [2.0, 5.0, 8.0])
+
+
+class TestNoComparatorIsChosenOnTestFolds(unittest.TestCase):
+    """Picking the statistical comparator by its out-of-fold error uses the
+    test folds twice and credits the winner of three draws."""
+
+    def source(self):
+        return SCRIPT.read_text(encoding="utf-8")
+
+    def test_the_runner_no_longer_selects_a_best_statistical_arm(self):
+        text = self.source()
+        # The selection idiom itself must be gone, not merely renamed.
+        self.assertNotIn("best_statistical = min(", text)
+        self.assertNotIn("minus_best_statistical", text)
+        self.assertNotIn('contrasts[-1]["best_statistical_arm"]', text)
+
+    def test_the_reason_is_recorded_in_the_runner(self):
+        text = self.source()
+        self.assertIn("why_there_is_no_best_statistical_arm", text)
+        self.assertIn("uses the test folds twice", text.replace("\n", " ")
+                      .replace("   ", " ").replace("  ", " "))
+
+    def test_the_margin_must_hold_against_every_statistical_arm(self):
+        text = self.source()
+        self.assertIn("non_inferiority_against_every_statistical_arm", text)
+        self.assertIn("within_margin_against_all", text)
+
+    def test_the_three_statistical_arms_are_each_contrasted(self):
+        text = self.source()
+        for comparator in ("univariate_spearman", "lasso_entry_order",
+                           "xgboost_gain"):
+            self.assertIn(comparator, text)
+        self.assertIn('netpk_target_minus_{comparator}_k{k}', text)
+
+
 class TestRidgePath(unittest.TestCase):
     def reference(self, x_train, y_train, x_test, alpha):
         scaler = StandardScaler().fit(x_train)

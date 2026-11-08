@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """H2a: does a mechanistic ordering select better than a statistical one?
 
-Frozen by protocol version 1.4.1, section 5. The endpoint is measured
+Frozen by protocol version 1.4.3, section 5. The endpoint is measured
 microsomal cytochrome activity, which is `functional_in_vitro` and is therefore
 the functional analogue of H2, never pooled with a clinical pharmacokinetic
 result and never reported in the same effect column.
@@ -200,6 +200,24 @@ def repeated_folds(n, *, n_splits, n_repeats, seed):
             train = np.setdiff1d(np.arange(n), test)
             out.append((train, test))
     return out
+
+
+def repeat_assignment(n_folds, *, n_splits, repeated):
+    """Which repeat each fold belongs to.
+
+    Out-of-fold results must be stored per repeat. A donor appears in exactly
+    one test fold per repeat, so writing every fold into one vector per arm
+    lets the last repeat overwrite the others and silently reduces a design
+    declared as `n_splits` by `n_repeats` to a single pass.
+    """
+    if n_folds < 1:
+        raise H2aError("a design needs at least one fold")
+    if not repeated:
+        return 1, [0] * n_folds
+    if n_splits < 1 or n_folds % n_splits:
+        raise H2aError("fold count does not factor into the declared repeats")
+    repeats = n_folds // n_splits
+    return repeats, [index // n_splits for index in range(n_folds)]
 
 
 def centre_folds(centre):
@@ -533,16 +551,28 @@ def run_endpoint(endpoint, data, universe, orders, *, folds, fold_label, log):
     if "netpk_substrate_seeded" in orders[endpoint]:
         arm_names.append("netpk_substrate_seeded")
 
-    errors = {arm: {k: np.full(y.size, np.nan) for k in PANEL_SIZES}
-              for arm in arm_names}
-    errors["random_panel"] = {k: np.full((RANDOM_REPLICATIONS, y.size), np.nan)
-                              for k in PANEL_SIZES}
-    predictions = {arm: {k: np.full(y.size, np.nan) for k in PANEL_SIZES}
-                   for arm in arm_names}
-    fixed_arms = {"target_gene_only": np.full(y.size, np.nan),
-                  "baseline_age_sex": np.full(y.size, np.nan),
-                  "no_selection": np.full(y.size, np.nan)}
-    fixed_predictions = {arm: np.full(y.size, np.nan) for arm in fixed_arms}
+    # Every out-of-fold quantity is indexed by repeat as well as by donor.
+    # Writing into one vector per arm would make the second repeat overwrite the
+    # first, so a design declared as five folds by two repeats would silently
+    # report the last repeat alone. The donor's error is averaged across repeats
+    # before any loss or bootstrap, so a repeat never counts as an extra donor.
+    repeats, repeat_of = repeat_assignment(
+        len(donor_folds), n_splits=OUTER_FOLDS,
+        repeated=fold_label.endswith("repeats"))
+
+    def blank():
+        return {k: np.full((repeats, y.size), np.nan) for k in PANEL_SIZES}
+
+    errors = {arm: blank() for arm in arm_names}
+    errors["random_panel"] = {
+        k: np.full((repeats, RANDOM_REPLICATIONS, y.size), np.nan)
+        for k in PANEL_SIZES}
+    predictions = {arm: blank() for arm in arm_names}
+    fixed_arms = {name: np.full((repeats, y.size), np.nan)
+                  for name in ("target_gene_only", "baseline_age_sex",
+                               "no_selection")}
+    fixed_predictions = {arm: np.full((repeats, y.size), np.nan)
+                         for arm in fixed_arms}
     decoys_retained = {arm: {k: 0 for k in PANEL_SIZES} for arm in arm_names}
     selected_sets = {arm: {k: [] for k in PANEL_SIZES} for arm in arm_names}
 
@@ -571,28 +601,25 @@ def run_endpoint(endpoint, data, universe, orders, *, folds, fold_label, log):
                                     inner_folds=INNER_FOLDS,
                                     seed=SEED + fold_number)[0]
 
+        repeat = repeat_of[fold_number]
         for arm in arm_names:
             order = fold_orders[arm]
             for k in PANEL_SIZES:
                 chosen = order[:k]
                 predicted = predict(chosen)
-                predictions[arm][k][test] = predicted
-                errors[arm][k][test] = np.abs(predicted - y[test])
+                predictions[arm][k][repeat, test] = predicted
+                errors[arm][k][repeat, test] = np.abs(predicted - y[test])
                 decoys_retained[arm][k] += len(set(chosen) & decoy_names)
                 if fold_number == 0:
                     selected_sets[arm][k] = list(chosen)
 
         target = [g for g in orders[endpoint]["target_gene_only"] if g in position_of]
-        fixed_predictions["target_gene_only"][test] = predict(target)
-        fixed_arms["target_gene_only"][test] = np.abs(
-            fixed_predictions["target_gene_only"][test] - y[test])
-        fixed_predictions["baseline_age_sex"][test] = predict([])
-        fixed_arms["baseline_age_sex"][test] = np.abs(
-            fixed_predictions["baseline_age_sex"][test] - y[test])
-        every = [str(name) for name in names]
-        fixed_predictions["no_selection"][test] = predict(every)
-        fixed_arms["no_selection"][test] = np.abs(
-            fixed_predictions["no_selection"][test] - y[test])
+        for name, columns in (("target_gene_only", target),
+                              ("baseline_age_sex", []),
+                              ("no_selection", [str(n) for n in names])):
+            predicted = predict(columns)
+            fixed_predictions[name][repeat, test] = predicted
+            fixed_arms[name][repeat, test] = np.abs(predicted - y[test])
 
         rng = np.random.default_rng(SEED + 7919 * fold_number)
         for replication in range(RANDOM_REPLICATIONS):
@@ -600,16 +627,29 @@ def run_endpoint(endpoint, data, universe, orders, *, folds, fold_label, log):
             for k in PANEL_SIZES:
                 chosen = [str(names[i]) for i in draw[:k]]
                 predicted = predict(chosen)
-                errors["random_panel"][k][replication, test] = np.abs(
+                errors["random_panel"][k][repeat, replication, test] = np.abs(
                     predicted - y[test])
         log(f"    fold {fold_number + 1}/{len(donor_folds)} "
             f"({time.time() - started:.0f}s)")
 
+    def per_donor(block):
+        """Collapse the repeat dimension: one value per donor, averaged.
+
+        The donor is the independent unit. Averaging across repeats first keeps
+        it that way, so the bootstrap cannot treat a repeated measurement of the
+        same donor as a second donor.
+        """
+        return np.nanmean(np.asarray(block, dtype=np.float64), axis=0)
+
     summary = {
         "endpoint": endpoint,
         "fold_design": fold_label,
+        "repeats": repeats,
         "n_donors": int(y.size),
         "folds": len(donor_folds),
+        "analysis_unit": (
+            "one averaged absolute error per donor; repeats are averaged before "
+            "any loss or bootstrap, so a repeat is never a second donor"),
         "wrong_seed_label": orders[endpoint]["_wrong_seed_label"],
         "target_gene_count": len(orders[endpoint]["target_gene_only"]),
         "pathway_seed_count": orders[endpoint]["_pathway_seed_count"],
@@ -621,26 +661,35 @@ def run_endpoint(endpoint, data, universe, orders, *, folds, fold_label, log):
                                        for k in (1, 5, 20)}
                                  for arm in arm_names},
     }
+    donor_errors = {arm: {k: per_donor(errors[arm][k]) for k in PANEL_SIZES}
+                    for arm in arm_names}
+    donor_errors["random_panel"] = {
+        k: per_donor(errors["random_panel"][k].mean(axis=1))
+        for k in PANEL_SIZES}
+    fixed_errors = {arm: per_donor(block) for arm, block in fixed_arms.items()}
+
     for arm in arm_names:
         summary["losses"][arm] = {
-            str(k): loss_summary(errors[arm][k], y, predictions[arm][k])
+            str(k): loss_summary(donor_errors[arm][k], y,
+                                 per_donor(predictions[arm][k]))
             for k in PANEL_SIZES}
-    for arm, vector in fixed_arms.items():
+    for arm, block in fixed_arms.items():
         summary["losses"][arm] = {
-            "fixed": loss_summary(vector, y, fixed_predictions[arm])}
-    summary["losses"]["random_panel"] = {
-        str(k): {
-            "mae_mean_over_replications": float(
-                np.mean([np.mean(errors["random_panel"][k][r])
-                         for r in range(RANDOM_REPLICATIONS)])),
-            "mae_replication_2_5_pct": float(np.percentile(
-                [np.mean(errors["random_panel"][k][r])
-                 for r in range(RANDOM_REPLICATIONS)], 2.5)),
-            "mae_replication_97_5_pct": float(np.percentile(
-                [np.mean(errors["random_panel"][k][r])
-                 for r in range(RANDOM_REPLICATIONS)], 97.5)),
+            "fixed": loss_summary(fixed_errors[arm], y,
+                                  per_donor(fixed_predictions[arm]))}
+    summary["losses"]["random_panel"] = {}
+    for k in PANEL_SIZES:
+        # Each replication keeps its own out-of-fold error, averaged over
+        # repeats, so the spread below is across panels and not across folds.
+        by_replication = [float(np.nanmean(per_donor(
+            errors["random_panel"][k][:, replication, :])))
+            for replication in range(RANDOM_REPLICATIONS)]
+        summary["losses"]["random_panel"][str(k)] = {
+            "mae_mean_over_replications": float(np.mean(by_replication)),
+            "mae_replication_2_5_pct": float(np.percentile(by_replication, 2.5)),
+            "mae_replication_97_5_pct": float(np.percentile(by_replication, 97.5)),
             "replications": RANDOM_REPLICATIONS,
-        } for k in PANEL_SIZES}
+        }
 
     # ------------------------------------------------------------------
     # Destroyed-signal diagnostic.
@@ -660,8 +709,8 @@ def run_endpoint(endpoint, data, universe, orders, *, folds, fold_label, log):
     # ------------------------------------------------------------------
     target_gene = orders[endpoint]["target_gene_only"][0]
     destroyed = {"gene": target_gene,
-                 "blind_errors": np.full(y.size, np.nan),
-                 "univariate_errors": np.full(y.size, np.nan),
+                 "blind_errors": np.full((repeats, y.size), np.nan),
+                 "univariate_errors": np.full((repeats, y.size), np.nan),
                  "univariate_still_picked_the_dead_gene": 0,
                  "folds_examined": 0}
     for fold_number, (train, test) in enumerate(donor_folds):
@@ -684,11 +733,11 @@ def run_endpoint(endpoint, data, universe, orders, *, folds, fold_label, log):
                                     inner_folds=INNER_FOLDS,
                                     seed=SEED + fold_number)[0]
 
-        destroyed["blind_errors"][test] = np.abs(
+        destroyed["blind_errors"][repeat_of[fold_number], test] = np.abs(
             predict_on([target_gene]) - y[test])
         strength = _spearman_strength(wrecked[train], y[train])
         chosen = str(names[int(np.argmax(strength))])
-        destroyed["univariate_errors"][test] = np.abs(
+        destroyed["univariate_errors"][repeat_of[fold_number], test] = np.abs(
             predict_on([chosen]) - y[test])
         destroyed["univariate_still_picked_the_dead_gene"] += int(
             chosen == target_gene)
@@ -697,11 +746,13 @@ def run_endpoint(endpoint, data, universe, orders, *, folds, fold_label, log):
         "gene": target_gene,
         "folds_examined": destroyed["folds_examined"],
         "mechanistic_arm_k1_mae": (
-            float(np.nanmean(destroyed["blind_errors"]))
+            float(np.nanmean(per_donor(destroyed["blind_errors"])))
             if destroyed["folds_examined"] else None),
         "univariate_arm_k1_mae": (
-            float(np.nanmean(destroyed["univariate_errors"]))
+            float(np.nanmean(per_donor(destroyed["univariate_errors"])))
             if destroyed["folds_examined"] else None),
+        "folds_in_which_the_univariate_arm_could_have_been_fooled":
+            len(donor_folds),
         "univariate_still_picked_the_dead_gene":
             destroyed["univariate_still_picked_the_dead_gene"],
         "how_to_read": (
@@ -712,35 +763,66 @@ def run_endpoint(endpoint, data, universe, orders, *, folds, fold_label, log):
             "something else. This measures the cost of being outcome-blind."),
     }
 
+    # ------------------------------------------------------------------
+    # Contrasts.
+    #
+    # There is deliberately no "best statistical comparator" arm. Picking the
+    # statistical method with the lowest out-of-fold error and then comparing
+    # against it uses the test folds twice: the winner of three draws beats any
+    # single method by construction, so the comparator looks better than any of
+    # them really is. Each method is therefore contrasted separately, and the
+    # frozen non-inferiority margin must hold against EVERY one of them -- a
+    # strictly harder requirement than beating a test-chosen winner, and one
+    # that needs no extra computation.
+    # ------------------------------------------------------------------
+    STATISTICAL = ("univariate_spearman", "lasso_entry_order", "xgboost_gain")
     contrasts = []
     for k in PANEL_SIZES:
-        best_statistical = min(
-            ("univariate_spearman", "lasso_entry_order", "xgboost_gain"),
-            key=lambda arm: np.mean(errors[arm][k]))
+        for offset, comparator in enumerate(STATISTICAL):
+            contrasts.append(paired_contrast(
+                donor_errors["netpk_target_seeded"][k], donor_errors[comparator][k],
+                seed=SEED + 1000 * offset + k,
+                label=f"netpk_target_minus_{comparator}_k{k}"))
         contrasts.append(paired_contrast(
-            errors["netpk_target_seeded"][k], errors[best_statistical][k],
-            seed=SEED + k, label=f"netpk_target_seeded_minus_best_statistical_k{k}"))
-        contrasts[-1]["best_statistical_arm"] = best_statistical
+            donor_errors["netpk_target_seeded"][k],
+            donor_errors["netpk_wrong_mechanism"][k],
+            seed=SEED + 4000 + k, label=f"netpk_target_minus_wrong_mechanism_k{k}"))
         contrasts.append(paired_contrast(
-            errors["netpk_target_seeded"][k], errors["netpk_wrong_mechanism"][k],
-            seed=SEED + 100 + k, label=f"netpk_target_minus_wrong_mechanism_k{k}"))
+            donor_errors["netpk_target_seeded"][k], donor_errors["random_panel"][k],
+            seed=SEED + 5000 + k, label=f"netpk_target_minus_random_mean_k{k}"))
         contrasts.append(paired_contrast(
-            errors["netpk_target_seeded"][k],
-            errors["random_panel"][k].mean(axis=0),
-            seed=SEED + 200 + k, label=f"netpk_target_minus_random_mean_k{k}"))
+            donor_errors["netpk_target_seeded"][k], fixed_errors["target_gene_only"],
+            seed=SEED + 6000 + k, label=f"netpk_target_minus_target_only_k{k}"))
         contrasts.append(paired_contrast(
-            errors["netpk_target_seeded"][k], fixed_arms["target_gene_only"],
-            seed=SEED + 300 + k, label=f"netpk_target_minus_target_only_k{k}"))
-        contrasts.append(paired_contrast(
-            errors["netpk_pathway_seeded"][k], errors["netpk_target_seeded"][k],
-            seed=SEED + 400 + k, label=f"netpk_pathway_minus_target_seeded_k{k}"))
+            donor_errors["netpk_pathway_seeded"][k],
+            donor_errors["netpk_target_seeded"][k],
+            seed=SEED + 7000 + k, label=f"netpk_pathway_minus_target_seeded_k{k}"))
     contrasts.append(paired_contrast(
-        fixed_arms["target_gene_only"], fixed_arms["baseline_age_sex"],
-        seed=SEED + 500, label="target_only_minus_baseline"))
+        fixed_errors["target_gene_only"], fixed_errors["baseline_age_sex"],
+        seed=SEED + 8000, label="target_only_minus_baseline"))
     contrasts.append(paired_contrast(
-        fixed_arms["no_selection"], fixed_arms["baseline_age_sex"],
-        seed=SEED + 600, label="no_selection_minus_baseline"))
+        fixed_errors["no_selection"], fixed_errors["baseline_age_sex"],
+        seed=SEED + 8001, label="no_selection_minus_baseline"))
     summary["contrasts"] = contrasts
+
+    summary["non_inferiority_against_every_statistical_arm"] = {
+        str(k): {
+            "comparators": list(STATISTICAL),
+            "within_margin_against_all": all(
+                next(c for c in contrasts
+                     if c["label"] == f"netpk_target_minus_{comparator}_k{k}"
+                     )["non_inferior_within_margin"]
+                for comparator in STATISTICAL),
+            "worst_relative_upper_bound": max(
+                next(c for c in contrasts
+                     if c["label"] == f"netpk_target_minus_{comparator}_k{k}"
+                     )["relative_ci_high"]
+                for comparator in STATISTICAL),
+        } for k in PANEL_SIZES}
+    summary["why_there_is_no_best_statistical_arm"] = (
+        "Choosing the statistical comparator by its out-of-fold error would use "
+        "the test folds twice and credit the winner of three draws. Each method "
+        "is contrasted separately and the margin must hold against all three.")
     return summary
 
 
@@ -794,7 +876,7 @@ def main(argv=None) -> int:
 
     report = {
         "analysis": "H2a: mechanistic versus statistical selection, equal dimension",
-        "protocol_version": "1.4.2",
+        "protocol_version": "1.4.3",
         "run_on": date.today().isoformat(),
         "endpoint_class": "functional_in_vitro",
         "endpoint_class_note": (
