@@ -1,6 +1,6 @@
 # H2a — erratum: one endpoint withdrawn, and a platform defect that changes the reading
 
-**Erratum version:** 1.0.1
+**Erratum version:** 1.0.2
 **Date:** 2026-11-09
 **Applies to:** the frozen H2a run, protocol v1.4.3, merged result `reports/data/h2a_hlc_selection.json`
 **Status:** no H2a number is recomputed. One endpoint's mechanistic arms are withdrawn as uninterpretable, and one conclusion I reported is retracted.
@@ -43,19 +43,26 @@ Three probes carry `CYP2E1`: two human (`NM_000773`) and one macaque (`AY635465`
 
 **Version 1.0.0 qualified only the symbols the first fold recorded as selected, and judged a symbol by pooling the accessions of all probes behind it.** Both limits were real: the ten folds select far more than the first fold records, and the analysis picks one *particular* probe per symbol per fold, so a verdict on a symbol certifies nothing about the probe a fold used. The qualification is redone **per probe, over all 40,638 features, before any selection is consulted**, tracing `feature → accession → organism → symbol` for each.
 
-A probe is `identified_human` when both annotations point at the same human gene and the analysis's symbol matches it; `contradictory` when they disagree or the assigned gene is implausible for the symbol; `unverifiable` when neither assigns a gene.
+**Version 1.0.1's single `identified_human` verdict was itself too affirmative, and its conflict count was inflated.** Two further corrections, both from the same review:
 
-| probe verdict | probes | symbol status | symbols |
-|---|---:|---|---:|
-| identified human | 22,348 | all probes identified human | 15,647 |
-| contradictory | 7,049 | **no identified human probe** | **13,960** |
-| unverifiable | 6,268 | mixed, some probes unidentified | 1,248 |
-| human gene, symbol mismatch | 3,966 | technical control | 1,007 |
-| technical control | 1,007 | | |
+* the verdict covered two unequal situations — two annotations agreeing on a human gene, and **one** annotation with nothing to agree with it. A lone source is not a concordance, and counting both as identified turned *annotation-qualified candidates* into a claim about *demonstrated molecular identities*;
+* **two different accessions are not a conflict when they designate transcripts of the same gene.** Comparing accession strings manufactured conflicts out of an archive citing one transcript and a platform citing another. Accessions are now resolved to genes *before* anything is compared, using NCBI's own `gene2accession`, streamed over 291,554,102 rows and filtered to *Homo sapiens*, giving 2,107,223 accession-to-gene pairs in a local file with a recorded checksum.
 
-**Forty-four per cent of the candidate symbols have no probe whose human identity can be established.** That is far larger than the 1,007 control features found first, and it bears on every arm, not only the statistical ones.
+The verdicts are graded, strongest first, and the difference the second correction makes is large:
 
-**The nine target genes, checked individually.** Eight are `all_probes_identified_human`. `CYP2E1` is mixed and `CYP1A2` has `no_identified_human_probe`.
+| verdict | probes | what it establishes |
+|---|---:|---|
+| `concordant_human` | **23,261** | two annotations resolve to the same human gene |
+| `single_source_human` | 4,215 | one source names a human gene; nothing agrees or disagrees |
+| `conflicting` | **1,476** | the sources name different genes; identity unestablished |
+| `undetermined` | 10,679 | no source resolves the feature to a human gene |
+| `technical_control` | 1,007 | the array's own control feature |
+
+**The conflict count falls from about 7,000 to 1,476** once accessions are resolved rather than compared as strings. Version 1.0.1's figure was five times too high, and the claim that "44 % of candidate symbols have no probe whose human identity can be established" is withdrawn with it: **22,237 of 31,862 symbols carry at least one admissible probe, so about 30 % do not.** The direction of the finding is unchanged; its size was overstated.
+
+An example of the correction working, from the data: the CYP3A4 probe whose archive accession is `D00003` and whose platform accession is `NM_000776` was a "conflict" under the string rule. Both resolve to human gene 1576. It is concordant.
+
+**The nine target genes, checked individually under the graded rule.** Eight have admissible probes. `CYP1A2` has **none**: all four of its features are `conflicting`, because neither accession resolves to a human gene and the platform assigns a non-human one. The withdrawal of E1 therefore stands under the stricter and fairer rule, not only under the first one.
 
 **Per-fold traceability, which a symbol-level verdict cannot give.** For both mixed symbols the analysis actually used — `CYP2E1`, the target of one endpoint, and `CYP1A1`, which appears in the mechanistic expansion for another — the frozen highest-training-mean rule selected an `identified_human` probe in **10 of 10 folds**. The CYP2E1 result therefore rests on a human-identified probe in every fold, not merely on average.
 
@@ -97,6 +104,36 @@ Inadmissible selections per arm, out of the symbols that arm chose:
 
 **The third must not be read as favouring either side.** Restricting to the network pool removes technical probes that only a statistical arm could reach, which helps NetPK; it also removes real human biomarkers absent from the network, which hurts it. Restricting to qualified human probes removes the cross-species probes a statistical arm used, which helps NetPK; it leaves the uncharacterised loci, which it can still use. Each restriction moves the comparison in both directions at once, and no single one of them is the honest answer on its own. All three are reported.
 
+## E3.1 — The pools H2d will use, built by probe and then grouped
+
+Built at the **probe** level and only then grouped by the symbol the analysis
+uses, so a gene with one admissible and one inadmissible probe keeps the
+admissible one. Dropping such a gene whole would discard a real measurement
+because a *different* probe of the same gene is badly annotated — `CYP2E1` is
+exactly that case and keeps its two concordant probes.
+
+| pool | admits | symbols | probes | symbols keeping only some probes |
+|---|---|---:|---:|---:|
+| **A** qualified human | concordant + single source | 22,237 | 27,245 | 2,075 |
+| **A strict** | concordant only | 19,938 | 23,107 | 3,058 |
+| **B** = A ∩ network | concordant + single source | 11,092 | 14,647 | 1,383 |
+
+Every arm gets the **same** pool, the probe retained in each fold is traceable,
+and the absence of technical controls is asserted rather than assumed: the
+runner refuses to proceed if a control symbol survives into a pool.
+
+**Provenance is frozen, not summarised.** The committed file carries the rule
+version, the SHA-256 of the platform record, of the human gene reference and of
+the accession-to-gene map, and the **complete list of admissible feature
+identifiers** for each pool — not only counts. Every individual decision can be
+reconstructed from it.
+
+**Two sensitivities, with the undetermined stratum handled separately.** Pool A
+answers whether the comparison holds among analytically admissible variables;
+pool B answers it among variables both admissible *and* reachable by the
+mechanistic ordering. Neither is the honest answer alone, for the reason already
+recorded: each restriction moves the comparison in both directions at once.
+
 ## E4 — Status of this qualification, and the three levels it separates
 
 This is a **secondary analysis, posterior to the H2a run**. It does not requalify the frozen H2a result as confirmatory, changes no threshold, and introduces no selection rule chosen in the light of an inspected endpoint. It establishes which candidate variables can carry a biological reading at all, which is a question about the platform and not about any hypothesis.
@@ -105,11 +142,13 @@ Three levels have to be kept apart, and the H2a experience is what separates the
 
 | level | question | what went wrong here |
 |---|---|---|
-| analytical quality | is the announced biomarker the molecule actually measured? | 44 % of candidate symbols cannot be shown to measure a human gene |
+| analytical quality | is the announced biomarker the molecule actually measured? | about 30 % of candidate symbols carry no probe whose human identity can be established |
 | biological validity | does that molecule represent the supposed mechanism? | messenger RNA abundance need not represent enzyme activity |
 | predictive usefulness | does it add information about the phenotype? | the only question H2a was built to answer |
 
 A variable can pass the third and fail the first, which is exactly what the contested cytochrome probes did. A selection method cannot be judged on predictive usefulness alone when the first level is unsettled.
+
+**And the converse, which matters as much.** A probe whose identity is undetermined is **not** a probe whose measurement is wrong. It is a measurement whose biological meaning the available annotation does not pin down. A statistically informative variable can remain biologically undetermined, and the two questions are reported separately rather than merged into one verdict.
 
 ---
 

@@ -84,6 +84,9 @@ EXPRESSION_MEMBER = "expression.txt"
 FEATURES_MEMBER = "features.txt"
 PHENOTYPE_MEMBER = "phenotype.txt"
 EXPECTED_PROBES = 40638
+CONTROL_SYMBOL_PATTERN = __import__("re").compile(
+    r"^(NegCont|PosCont|Corner|DarkCorner|SpikeIn|GE_Bright|E1A_r60|ETG)",
+    __import__("re").IGNORECASE)
 EXPECTED_EXPRESSION_DONORS = 466
 AGE_ROW = "AGE_(YRS)"
 SEX_ROW = "GENDER"
@@ -142,12 +145,68 @@ def load_hlc(hlc_dir: Path):
     return {
         "values": expression.to_numpy(dtype=np.float64),
         "symbols": features["genesymbol"].fillna("").to_numpy(dtype=str),
+        "feature_ids": features["feature_id"].astype(str).to_numpy(dtype=str),
         "donors": donors,
         "age": age,
         "sex": sex,
         "centre": centre,
         "phenotype": phenotype,
     }
+
+
+def restrict_universe_to_qualified_pool(universe, data, pool_path, pool_name):
+    """Keep only the probes a graded identity qualification admits.
+
+    Applied at the **probe** level and only then grouped, so a gene with one
+    admissible and one inadmissible probe keeps the admissible one instead of
+    being dropped whole. The pool is produced by
+    `scripts/build_qualified_probe_pools.py`, which grades each feature by how
+    strongly two independent annotations agree on a human gene, resolves
+    accessions to genes before comparing them, and keeps the undetermined and
+    conflicting strata separate rather than deleting them.
+    """
+    pool = json.loads(Path(pool_path).read_text(encoding="utf-8"))
+    admissible = pool.get("admissible_features", {}).get(pool_name)
+    if not admissible:
+        raise H2aError(f"the pool file carries no admissible set named {pool_name!r}")
+    allowed = set(admissible)
+    position_of = {str(fid): index
+                   for index, fid in enumerate(data["feature_ids"])}
+    keep_positions = {position_of[fid] for fid in allowed if fid in position_of}
+    if not keep_positions:
+        raise H2aError("no admissible probe matches this expression table")
+
+    kept, dropped_probes = {}, 0
+    for symbol, positions in universe["by_symbol"].items():
+        surviving = [p for p in positions if p in keep_positions]
+        dropped_probes += len(positions) - len(surviving)
+        if surviving:
+            kept[symbol] = surviving
+    if not kept:
+        raise H2aError("restricting to the qualified pool left no candidate")
+
+    # A technical control carries no transcript, so its presence here would mean
+    # the pool was built wrongly. Checked rather than assumed.
+    controls = [s for s in kept if CONTROL_SYMBOL_PATTERN.match(s)]
+    if controls:
+        raise H2aError(
+            f"{len(controls)} technical control symbols survived the pool, "
+            f"starting with {controls[:3]}")
+
+    restricted = dict(universe)
+    restricted["by_symbol"] = kept
+    restricted["qualified_pool"] = {
+        "pool_file": Path(pool_path).name,
+        "pool_name": pool_name,
+        "rule_version": pool.get("rule_version"),
+        "admitted_verdicts": pool.get("pools", {}).get(pool_name, {}).get(
+            "admitted_verdicts"),
+        "symbols_before": len(universe["by_symbol"]),
+        "symbols_after": len(kept),
+        "probes_dropped": dropped_probes,
+        "technical_controls_present": 0,
+    }
+    return restricted
 
 
 def restrict_universe_to_network(universe, graph):
@@ -866,6 +925,12 @@ def main(argv=None) -> int:
     parser.add_argument("--endpoints", nargs="*", default=list(ENDPOINTS))
     parser.add_argument("--design", choices=("repeated", "centre"),
                         default="repeated")
+    parser.add_argument("--probe-pool", default=None,
+                        help="A qualified-probe-pool file; restricts every "
+                             "arm to the same analytically admissible "
+                             "probes.")
+    parser.add_argument("--pool-name", default="A_qualified_human",
+                        help="Which admissible set inside the pool file.")
     parser.add_argument("--restrict-to-network", action="store_true",
                         help="Sensitivity analysis: let every arm select "
                              "only from genes the public network contains, "
@@ -896,6 +961,14 @@ def main(argv=None) -> int:
     log(f"candidate genes: {len(universe['by_symbol'])}; "
         f"on the network: {len(universe['genes_on_network'])}; "
         f"decoys: {N_DECOYS}")
+    if args.probe_pool:
+        universe = restrict_universe_to_qualified_pool(
+            universe, data, args.probe_pool, args.pool_name)
+        log(f"QUALIFIED POOL {args.pool_name}: "
+            f"{universe['qualified_pool']['symbols_after']} symbols "
+            f"(was {universe['qualified_pool']['symbols_before']}), "
+            f"{universe['qualified_pool']['probes_dropped']} probes dropped, "
+            "no technical control present")
     if args.restrict_to_network:
         universe = restrict_universe_to_network(universe, graph)
         log(f"SENSITIVITY: restricted to the network -> "
@@ -939,6 +1012,7 @@ def main(argv=None) -> int:
             "candidate_genes_on_network": len(universe["genes_on_network"]),
             "decoy_block": N_DECOYS,
             "restricted_to_network": bool(args.restrict_to_network),
+            "qualified_pool": universe.get("qualified_pool"),
             "pool_asymmetry_note": (
                 "In the primary run every arm selects the same NUMBER of genes "
                 "but not from the same POOL: the mechanistic ordering reaches "
