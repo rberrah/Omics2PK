@@ -1011,7 +1011,7 @@ def main(argv=None) -> int:
 
     report = {
         "analysis": "H2a: mechanistic versus statistical selection, equal dimension",
-        "protocol_version": "1.4.5",
+        "protocol_version": "1.4.6",
         "run_on": date.today().isoformat(),
         "endpoint_class": "functional_in_vitro",
         "endpoint_class_note": (

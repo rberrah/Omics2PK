@@ -1,6 +1,6 @@
 # Omics2PK — five-objective validation protocol
 
-**Version:** 1.4.5
+**Version:** 1.4.6
 **Frozen:** 2026-11-08
 **Status:** frozen before execution of the Phase 2–5 runs. Any later change requires a new version number, a date, and a statement of what was changed and why. Thresholds must not be revised after seeing a result.
 
@@ -231,6 +231,49 @@ To measure the false-positive rate, **200 decoy features** are added: each is a 
 
 **Destroyed-signal diagnostic, added in v1.4.2 — this is the test that does expose the weakness.** The target gene's own column has its donor order permuted. The gene keeps its place in the mechanistic ordering while carrying no information at all, so a mechanistic arm must keep choosing it and must lose its advantage, while an arm that reads the endpoint should choose something else. Reported per endpoint: the mechanistic arm's MAE at `k = 1` on the wrecked matrix, the univariate arm's MAE on the same matrix, and how many folds the univariate arm still picked the dead gene. This measures the price of being outcome-blind and is the direct link to H4.
 
+**Corrected in v1.4.6, after running it: the diagnostic is interpretable only
+on an annotation-qualified universe.** The permutation destroys the signal in
+the one column that stands for the target gene. It cannot destroy it in a
+*differently named* feature that measures the same transcript, and this array
+contains such features. Measured on `CYP2D6_activity`:
+
+| universe | the univariate arm's replacement | |ρ| | MAE on the wrecked matrix |
+|---|---|---|---:|
+| unrestricted | `CYP2D17` in **10 of 10 folds** — verdict `conflicting`, identity establishable from no public source, refused by every qualified pool | 0.45–0.51 | 96.86 |
+| pool A | **nine different genes in ten folds**, all admissible | 0.27–0.32 | 108.88 |
+| *(reference: the clinical baseline is 109.64, the blind mechanistic arm 110.15)* | | | |
+
+`CYP2D17` is the name of a macaque CYP2D gene. Whatever its probe hybridises,
+it tracks the same measurement as the target column closely enough to replace
+it, so the unrestricted diagnostic let an arm "resist" a destroyed signal by
+finding **the same molecule under another name**. Under the qualified pool that
+feature is refused, the arm finds a different weak association in almost every
+fold, and it performs at the clinical baseline — like the blind arm.
+
+Three consequences, kept separate:
+
+* **What survives unconditionally** is the *detection* claim: the univariate arm
+  never selected the dead gene, in 100 folds across ten endpoints. An arm that
+  reads the endpoint notices that a column has stopped carrying information.
+* **What does not survive** is reading its lower error as robustness of the
+  *method*. On a qualified universe the recovery disappears, so the earlier
+  reading of this diagnostic as the mechanistic arm's main weakness was
+  conditional on an inadmissible duplicate and must not be repeated.
+* **No code is changed, and none should be.** The restriction repairs the
+  diagnostic by itself, because the duplicate lives in the refused stratum: on a
+  qualified universe every feature resolves to a gene and the single column
+  standing for the target gene is the only copy of it. Permuting "every feature
+  of the gene" would not have helped in the unrestricted universe, since the
+  duplicate is not annotated as that gene — which is the annotation problem
+  itself, not a parameter of the diagnostic.
+
+**And a consequence for H2d.** Where no admissible feature carries the target's
+signal, the destroyed-signal experiment cannot discriminate between arms: every
+arm is at the baseline, so a repair criterion that requires an interval to
+exclude zero fails for want of anything to find rather than for want of a method
+that could find it. That reading is mandatory wherever the criterion is reported
+unmet.
+
 ### 5.6 Analytical admissibility of the candidates, and the shared universe
 
 Added in v1.4.5, after the primary H2a run and **before** any pool-restricted
@@ -454,6 +497,8 @@ A result obtained on a functional or cell-line endpoint is never presented in th
 
 | 1.4.4 | 2026-11-08 | **Adds H2d, hybrid selection, and resolves a second label collision.** Knowledge proposes a shortlist of three times the budget from the outcome-blind ordering; the training donors then keep, demote or abstain, by partial rank correlation against the clinical baseline calibrated on a permutation null. Prompted by the H2a destroyed-signal result on one endpoint, so the rule is frozen in its own dated document which records that provenance, caps the generating endpoint at `exploratory`, makes the other nine the confirmatory set, and declares in advance the failure mode of collapsing onto the univariate selector. The review that proposed it called it "H2c", a label already used for the integration question, so it is H2d. No H2a number is recomputed or reinterpreted, and no threshold, margin, comparator or primary contrast changed. |
 | 1.4.5 | 2026-11-09 | **Adds §5.6: analytical admissibility of the candidate features, and the rule that H2a and H2d share one universe.** Prompted by two external reviews and by a result of the project's own: a gene symbol in this archive does not identify the molecule measured, so the candidate features are graded by how strongly two independent annotations agree on a human gene, with accessions resolved to genes before comparison, with a symbol that names a *different* human gene refused and an outdated name kept with the gene recorded beside it, and with the platform record checked for internal coherence before any agreement between sources is computed. Three pools are frozen, built feature by feature and only then grouped by symbol so a mixed gene keeps its admissible features, with the complete admissible lists, the refused strata and every source checksum committed. The pool applies to every arm or to none; the feature actually used is traced fold by fold and a selection outside the pool stops the run; the undetermined and conflicting strata are kept rather than deleted, and an undetermined feature is explicitly not a wrong measurement. `CYP1A2_activity` has no admissible feature under the stricter rule either, and its result stays withdrawn. The 200 decoys stay outside every pool. The limit that 4,929 admissible features carry a name the gene no longer has is declared rather than repaired, because re-keying the universe would be a methodological change. Specified after the primary H2a run and before any pool-restricted or H2d run; no primary number is recomputed and no threshold, margin, comparator or primary contrast changed. |
+
+| 1.4.6 | 2026-11-09 | **§5.5 corrected after running the destroyed-signal diagnostic: it is interpretable only on an annotation-qualified universe.** The permutation destroys the target gene's column, not a differently named feature measuring the same transcript, and this array has one. On `CYP2D6_activity` the univariate arm replaced the destroyed column with the feature annotated `CYP2D17` in 10 of 10 folds at |ρ| 0.45–0.51 — a feature whose identity no public source establishes and which every qualified pool refuses — reaching 96.86 against a clinical baseline of 109.64. Restricted to pool A the same arm picks nine different genes in ten folds at |ρ| 0.27–0.32 and lands at 108.88, beside the blind mechanistic arm's 110.15. The detection claim stands: the univariate arm never selected the dead gene in 100 folds. The reading of its lower error as methodological robustness does not, and is withdrawn. No code changes: the qualified pool repairs the diagnostic because the duplicate lives in the refused stratum. Where no admissible feature carries the target's signal, the experiment cannot discriminate between arms, and a repair criterion reported unmet must be read as "nothing to find", not "no method could find it". No threshold, margin, comparator or primary contrast changed. |
 
 
 ### Validity of the 1.1.0 amendment

@@ -527,7 +527,7 @@ def main(argv=None) -> int:
 
     report = {
         "analysis": "H2d: hybrid mechanistic selection",
-        "protocol_version": "1.4.5",
+        "protocol_version": "1.4.6",
         "prespecification": "OMICS2PK_H2D_HYBRID_SELECTION_PRESPECIFICATION_20261108.md v1.0.0",
         "erratum": "OMICS2PK_H2D_ERRATUM_20261108.md v1.0.2",
         "run_on": date.today().isoformat(),
