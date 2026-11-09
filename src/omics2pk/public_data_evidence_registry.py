@@ -252,7 +252,12 @@ def validate_entry(entry):
 
 
 KNOWLEDGE_SOURCE_ROLES = ("functional_network", "pathway_annotation",
-                          "chemical_gene_interaction")
+                          "chemical_gene_interaction",
+                          # Added in registry 1.10.0. An annotation reference
+                          # carries no participant and no outcome either, but it
+                          # decides what a measured feature is taken to be, so
+                          # it needs the same provenance as a network.
+                          "probe_annotation", "gene_reference")
 
 
 def validate_knowledge_source(entry):

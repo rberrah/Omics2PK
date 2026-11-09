@@ -527,6 +527,7 @@ def main(argv=None) -> int:
 
     report = {
         "analysis": "H2d: hybrid mechanistic selection",
+        "protocol_version": "1.4.5",
         "prespecification": "OMICS2PK_H2D_HYBRID_SELECTION_PRESPECIFICATION_20261108.md v1.0.0",
         "erratum": "OMICS2PK_H2D_ERRATUM_20261108.md v1.0.2",
         "run_on": date.today().isoformat(),
@@ -540,7 +541,12 @@ def main(argv=None) -> int:
         "validation_set_independence": VALIDATION_SET_INDEPENDENCE,
         "universe": {
             "candidate_genes": len(universe["by_symbol"]),
-            "candidate_genes_on_network": len(universe["genes_on_network"]),
+            # Derived from the kept candidates, not from the unrestricted
+            # universe: after a pool restriction some genes on the network are
+            # no longer candidates, and this field is exactly the mechanistic
+            # ordering's reach.
+            "candidate_genes_on_network": len(
+                set(universe["by_symbol"]) & set(universe["genes_on_network"])),
             "restricted_to_network": bool(args.restrict_to_network),
             "qualified_pool": universe.get("qualified_pool"),
             "same_pool_as_h2a": (

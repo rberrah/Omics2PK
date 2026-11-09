@@ -1,6 +1,6 @@
 {
   "registry_name": "PUBLIC_DATA_EVIDENCE_REGISTRY",
-  "version": "1.9.0",
+  "version": "1.10.0",
   "frozen_at": "2026-11-07",
   "scope": "Datasets admissible for the Omics2PK five-objective validation (H1-H5). A published article is not by itself an exploitable dataset.",
   "access_policy": {
@@ -1183,6 +1183,11 @@
         "hlc_syn4499"
       ],
       "does_not_change": "No H1 or H5 result. The H1 primary contrast on ARIANA and the H5 result on the potato-meal cohort are untouched; this amendment concerns only how H2 will be conducted and what prior-knowledge resources it may use."
+    },
+    {
+      "version": "1.10.0",
+      "date": "2026-11-09",
+      "change": "Registers the three annotation references the qualified probe pools depend on: the GEO GPL4372 platform record, NCBI's human gene_info, and the human subset of NCBI gene2accession. They were used before being registered, which is the gap this amendment closes: the pool file carried their checksums but the registry did not carry their provenance, so the project's source of truth for public data did not list what decides the identity of every measured feature. Two roles are added for them, `probe_annotation` and `gene_reference`. None is redistributable by any verified permission and none is committed; the GEO record's URL was re-downloaded and found byte-identical to the local artefact, so the stated URL is the one actually used. A knowledge source still supports no objective."
     }
   ],
   "knowledge_sources": [
@@ -1218,7 +1223,7 @@
       ],
       "carries_no_endpoint": true,
       "verified_this_session": true,
-      "redistribution_note": "Redistribution is permitted by the stated licence, but the project rule keeps source artefacts out of the repository regardless, so the file is acquired by script against its checksum."
+      "redistribution_note": "Redistribution is permitted by the stated licence, but the project rule keeps source artefacts out of the repository regardless, so the file is acquired by script against its checksum. Silence about terms is not permission."
     },
     {
       "key": "string_v12_human_protein_info",
@@ -1251,7 +1256,7 @@
       ],
       "carries_no_endpoint": true,
       "verified_this_session": true,
-      "redistribution_note": "Redistribution is permitted by the stated licence, but the project rule keeps source artefacts out of the repository regardless, so the file is acquired by script against its checksum."
+      "redistribution_note": "Redistribution is permitted by the stated licence, but the project rule keeps source artefacts out of the repository regardless, so the file is acquired by script against its checksum. Silence about terms is not permission."
     },
     {
       "key": "reactome_pathways_gmt",
@@ -1286,7 +1291,7 @@
       ],
       "carries_no_endpoint": true,
       "verified_this_session": true,
-      "redistribution_note": "Redistribution is permitted by the stated licence, but the project rule keeps source artefacts out of the repository regardless, so the file is acquired by script against its checksum."
+      "redistribution_note": "Redistribution is permitted by the stated licence, but the project rule keeps source artefacts out of the repository regardless, so the file is acquired by script against its checksum. Silence about terms is not permission."
     },
     {
       "key": "ctd_chemical_gene_interactions",
@@ -1321,6 +1326,112 @@
       "carries_no_endpoint": true,
       "verified_this_session": true,
       "redistribution_note": "Redistribution rights could not be verified, so they are treated as refused: the file is not committed, not attached and not mirrored. Only aggregate derived quantities leave the local machine. Silence from a provider is not permission."
+    },
+    {
+      "key": "geo_gpl4372_platform_record",
+      "label": "GEO platform GPL4372 record, the array's independent annotation",
+      "role": "probe_annotation",
+      "url": "https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GPL4372&targ=self&form=text&view=full",
+      "access_tier": "open_public",
+      "access_requirement": {
+        "type": "none",
+        "evidence": "Retrieved anonymously by HTTPS from the GEO accession display endpoint; no account and no terms click-through. Re-downloaded on the date below and found byte-identical to the local artefact, which is how this URL is known to be the one used.",
+        "verified_on": "2026-11-09"
+      },
+      "licence": "not verified",
+      "licence_verified": "NCBI's policy page does not state a single licence for submitter-supplied platform records, so no licence is asserted.",
+      "redistribution_permitted": null,
+      "redistribution_note": "Redistribution is not claimed. Nothing from this resource is committed to this repository: the registry and the pool file carry its SHA-256, its verified row counts and the derived decisions only, so the qualification can be reproduced from the source without the source being republished here. Silence about terms is not permission.",
+      "committed_to_this_repository": false,
+      "local_artifacts": [
+        {
+          "filename": "GPL4372_platform.txt",
+          "bytes": 2315426,
+          "sha256": "c6ad904f70396d682fc9ae594519440d80d0fbcccfd475f82439cecbfb727705"
+        }
+      ],
+      "structure_verified": {
+        "platform_table_present": true,
+        "columns_used": [
+          "ID",
+          "EntrezGeneID",
+          "GB_ACC"
+        ],
+        "features_matched_to_the_expression_table": 40638
+      },
+      "used_for": [
+        "The second, independent annotation of every array feature. Probe identity is graded by whether this record and the cohort archive's own annotation resolve to the same human gene, so a measurement's identity never rests on one source.",
+        "Its internal coherence is checked before any agreement is computed: where its accession and its EntrezGeneID name different genes it cannot confirm anything (610 features)."
+      ]
+    },
+    {
+      "key": "ncbi_human_gene_reference",
+      "label": "NCBI Gene, Homo sapiens gene_info",
+      "role": "gene_reference",
+      "url": "https://ftp.ncbi.nlm.nih.gov/gene/DATA/GENE_INFO/Mammalia/Homo_sapiens.gene_info.gz",
+      "access_tier": "open_public",
+      "access_requirement": {
+        "type": "none",
+        "evidence": "Retrieved anonymously over HTTPS from the NCBI FTP tree.",
+        "verified_on": "2026-11-08"
+      },
+      "licence": "not verified",
+      "licence_verified": "NCBI states that most of its data are in the public domain while some records carry third-party rights, so no licence is asserted for this file.",
+      "redistribution_permitted": null,
+      "redistribution_note": "Redistribution is not claimed. Nothing from this resource is committed to this repository: the registry and the pool file carry its SHA-256, its verified row counts and the derived decisions only, so the qualification can be reproduced from the source without the source being republished here. Silence about terms is not permission.",
+      "committed_to_this_repository": false,
+      "local_artifacts": [
+        {
+          "filename": "Homo_sapiens.gene_info.gz",
+          "bytes": 5201313,
+          "sha256": "bae1bc215ba98d7838cefecdbe096ae61fd0fe6119e77f23956ac2d85bd353dd"
+        }
+      ],
+      "structure_verified": {
+        "rows_including_header": 194064,
+        "columns_used": [
+          "GeneID",
+          "Symbol",
+          "Synonyms"
+        ]
+      },
+      "used_for": [
+        "Decides which gene identifiers are human genes at all, which is what makes a non-human assignment detectable rather than invisible.",
+        "Supplies each gene's approved symbol and listed synonyms, so a feature whose analysis symbol is the approved symbol or a listed synonym of a *different* gene is refused, while a symbol the reference no longer knows is treated as a stale alias and the accessions decide."
+      ]
+    },
+    {
+      "key": "ncbi_gene2accession_human_subset",
+      "label": "NCBI Gene, gene2accession filtered to Homo sapiens",
+      "role": "gene_reference",
+      "url": "https://ftp.ncbi.nlm.nih.gov/gene/DATA/gene2accession.gz",
+      "access_tier": "open_public",
+      "access_requirement": {
+        "type": "none",
+        "evidence": "Retrieved anonymously over HTTPS from the NCBI FTP tree.",
+        "verified_on": "2026-11-08"
+      },
+      "licence": "not verified",
+      "licence_verified": "as for the gene reference above, same policy page",
+      "redistribution_permitted": null,
+      "redistribution_note": "Redistribution is not claimed. Nothing from this resource is committed to this repository: the registry and the pool file carry its SHA-256, its verified row counts and the derived decisions only, so the qualification can be reproduced from the source without the source being republished here. The 4.7 GB source archive was streamed and filtered rather than stored, and was not retained; the derived table below is the artefact the qualification reads. Silence about terms is not permission.",
+      "committed_to_this_repository": false,
+      "local_artifacts": [
+        {
+          "filename": "human_accession_to_gene.tsv",
+          "bytes": 36992013,
+          "sha256": "2273a9dac48688ee40a3516011a1de88e5f9590d9a4877cce1499069b268f829"
+        }
+      ],
+      "structure_verified": {
+        "source_rows_streamed": 291554102,
+        "rows_kept_for_tax_id_9606": 2107223,
+        "distinct_accessions": 1308581,
+        "derivation": "filtered to tax_id 9606, accession version suffixes dropped, RNA, protein and genomic accessions kept"
+      },
+      "used_for": [
+        "Resolves an accession to a gene *before* anything is compared. Comparing accession strings instead treated an archive citing one transcript and a platform citing another as a contradiction, which inflated the conflict count about fivefold."
+      ]
     }
   ]
 }

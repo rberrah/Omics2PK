@@ -1033,7 +1033,12 @@ def main(argv=None) -> int:
         "network": dict(graph.provenance),
         "universe": {
             "candidate_genes": len(universe["by_symbol"]),
-            "candidate_genes_on_network": len(universe["genes_on_network"]),
+            # Derived from the kept candidates, not from the unrestricted
+            # universe: after a pool restriction some genes on the network are
+            # no longer candidates, and this field is exactly the mechanistic
+            # ordering's reach.
+            "candidate_genes_on_network": len(
+                set(universe["by_symbol"]) & set(universe["genes_on_network"])),
             "decoy_block": N_DECOYS,
             "restricted_to_network": bool(args.restrict_to_network),
             "qualified_pool": universe.get("qualified_pool"),

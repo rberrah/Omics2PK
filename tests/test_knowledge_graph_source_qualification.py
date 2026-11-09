@@ -153,10 +153,46 @@ class TestTheCommittedRegistry(unittest.TestCase):
         self.assertIn("knowledge_sources", summary)
 
     def test_the_four_sources_the_selector_needs_are_registered(self):
+        # Checked by key rather than by count: the registry also holds the
+        # annotation references that decide what a measured feature is, and a
+        # count would have to be edited every time one is added.
         summary = validate_registry()
-        self.assertEqual(len(summary["knowledge_sources"]), 4)
-        roles = {entry["role"] for entry in load_registry()["knowledge_sources"]}
+        self.assertGreaterEqual(len(summary["knowledge_sources"]), 4)
+        entries = {entry["key"]: entry
+                   for entry in load_registry()["knowledge_sources"]}
+        for key, role in (("string_v12_human_links", "functional_network"),
+                          ("string_v12_human_protein_info", "functional_network"),
+                          ("reactome_pathways_gmt", "pathway_annotation"),
+                          ("ctd_chemical_gene_interactions",
+                           "chemical_gene_interaction")):
+            self.assertIn(key, entries)
+            self.assertEqual(entries[key]["role"], role, key)
+        roles = {entry["role"] for entry in entries.values()}
         self.assertEqual(roles, set(KNOWLEDGE_SOURCE_ROLES))
+
+    def test_the_annotation_references_behind_the_pools_are_registered(self):
+        # They were used before being registered. The pool file carried their
+        # checksums while the registry, which is the source of truth for public
+        # data provenance, did not list what decides every feature's identity.
+        entries = {entry["key"]: entry
+                   for entry in load_registry()["knowledge_sources"]}
+        for key, role in (("geo_gpl4372_platform_record", "probe_annotation"),
+                          ("ncbi_human_gene_reference", "gene_reference"),
+                          ("ncbi_gene2accession_human_subset", "gene_reference")):
+            self.assertIn(key, entries)
+            self.assertEqual(entries[key]["role"], role, key)
+            self.assertTrue(entries[key]["used_for"], key)
+
+    def test_the_registered_checksums_are_the_ones_the_pools_were_built_from(self):
+        pools = json.loads(
+            (REPO_ROOT / "registry" / "QUALIFIED_PROBE_POOLS.json")
+            .read_text(encoding="utf-8"))
+        registered = {artifact["sha256"]
+                      for entry in load_registry()["knowledge_sources"]
+                      for artifact in entry["local_artifacts"]}
+        for field in ("platform_record", "human_gene_reference",
+                      "accession_to_gene_map"):
+            self.assertIn(pools["provenance"][field]["sha256"], registered, field)
 
     def test_no_registered_knowledge_source_is_committed(self):
         for entry in load_registry()["knowledge_sources"]:
@@ -175,11 +211,14 @@ class TestTheCommittedRegistry(unittest.TestCase):
             self.assertIn("not permission", entry["redistribution_note"].lower())
 
     def test_the_amendment_records_the_finding_before_any_endpoint_was_read(self):
-        amendments = load_registry()["amendments"]
-        latest = amendments[-1]
-        self.assertEqual(latest["version"], "1.9.0")
-        self.assertTrue(latest["made_before_any_run_on_the_affected_data"])
-        joined = " ".join(latest["corrections"]).lower()
+        # Found by version, not as "the last one": later amendments are expected
+        # and must not be able to hide this finding by appending to the list.
+        amendments = {entry["version"]: entry
+                      for entry in load_registry()["amendments"]}
+        self.assertIn("1.9.0", amendments)
+        recorded = amendments["1.9.0"]
+        self.assertTrue(recorded["made_before_any_run_on_the_affected_data"])
+        joined = " ".join(recorded["corrections"]).lower()
         self.assertIn("cannot be given a calibrated significance threshold", joined)
         self.assertIn("ranking", joined)
 
@@ -207,13 +246,21 @@ class TestQualificationReport(unittest.TestCase):
             self.assertFalse(entry["committed_to_this_repository"], key)
 
     def test_the_report_and_the_registry_agree_on_every_checksum(self):
+        # The report covers the selector's graph sources; the registry also
+        # holds the annotation references used elsewhere. Every checksum the
+        # report states must be registered, and the report must state one for
+        # each of its own sources -- a subset, not an equality, so adding a
+        # source to the registry cannot break this and dropping one from the
+        # registry still does.
         report = self.report()
         reported = {entry["bytes_verified"]["sha256"]
                     for entry in report["sources"].values()}
         registered = {artifact["sha256"]
                       for entry in load_registry()["knowledge_sources"]
                       for artifact in entry["local_artifacts"]}
-        self.assertEqual(reported, registered)
+        self.assertTrue(reported)
+        self.assertLessEqual(reported, registered)
+        self.assertEqual(len(reported), len(report["sources"]))
 
     def test_the_frozen_selector_parameters_are_recorded_with_the_sources(self):
         frozen = self.report()["frozen_selector_parameters"]
