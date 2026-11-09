@@ -1,11 +1,11 @@
 # H2d — hybrid mechanistic selection on the Human Liver Cohort
 
-**Document version:** 1.0.1
+**Document version:** 1.1.0
 **Date:** 2026-11-09
 **Prespecification:** `OMICS2PK_H2D_HYBRID_SELECTION_PRESPECIFICATION_20261108.md` v1.0.0
 **Erratum carried:** `OMICS2PK_H2D_ERRATUM_20261108.md` v1.0.2
 **Protocol:** `OMICS2PK_FIVE_OBJECTIVES_VALIDATION_PROTOCOL.md`, run under v1.4.5, read under v1.4.7 (which changed no computation)
-**Universe:** pool `A_qualified_human`, rule `probe-identity-1.1.0`, 21,634 candidate symbols
+**Universes:** pool `A_qualified_human` (21,634 candidate symbols) and pool `B_qualified_human_on_network` (11,030), both under rule `probe-identity-1.1.0`. Sections 1–8 report pool A; §10 compares the two.
 **Endpoint class:** `functional_in_vitro`. Nothing here can promote a clinical claim above `PARTIALLY_SUPPORTED`.
 
 **What the nine endpoints are, and are not.** They are nine endpoint
@@ -303,6 +303,100 @@ performance equivalent to statistical selectors.*
 hybrid selection NetPK's default selection method. It is a candidate
 **experimental module** for the question it actually answers — when should a
 mechanistic hypothesis be kept, and when should it be contested — and that is
-where it is proposed, pending the pool B comparison in §10 of a later version.
+where it is proposed. §10 narrows the feasibility claim further: of the two
+endpoints meeting the complete criterion, only one meets it in both universes.
 The selector, the threshold and the abstention rule are **not** modified in the
 light of these results.
+
+---
+
+## 10. Pool A against pool B, and what moves between them
+
+Pool B is pool A intersected with the genes the public network contains: 11,030
+candidate symbols instead of 21,634. Both runs are frozen, use the same folds,
+seeds and rule, and differ only in the candidate universe.
+
+### 10.1 The arms under test are unaffected; only the comparators move
+
+| arm | cells where pool A and pool B give the same MAE | largest relative change |
+|---|---:|---|
+| hybrid, at budget | **72 of 72** | 0.000 |
+| blind mechanistic | **72 of 72** | 0.000 |
+| univariate Spearman | 9 of 72 | 2.3 % |
+| LASSO entry order | 1 of 72 | 11.1 % |
+| XGBoost gain | 0 of 72 | 6.1 % |
+
+The hybrid and the blind arm are **numerically identical** in every one of the
+72 cells, and so are their contrasts against each other on the destroyed-signal
+test. That is not a coincidence and it is worth stating plainly: both draw their
+candidates from the mechanistic ordering, whose genes are network genes by
+construction, and pool B removes only genes the network does not contain. Those
+arms never selected such a gene, so nothing changes for them.
+
+**Every verdict that moves between pool A and pool B therefore moves because the
+comparator changed, not because the method under test did.** The A-to-B
+comparison measures how much each statistical selector relied on features
+outside the network; it is not a sensitivity analysis of the hybrid.
+
+### 10.2 The tallies
+
+| | pool A | pool B |
+|---|---:|---:|
+| non-inferior to all three statistical arms, at budget | 44/72 | 49/72 |
+| better than the blind arm, interval excluding zero | 10/72 | 10/72 |
+| worse than the univariate filter, interval excluding zero | 21/72 | 22/72 |
+| collapse onto the univariate selector | none (0.00) | none (worst 0.10, on CYP2B6) |
+| complete repair criterion met | CYP2C8, CYP2C9 | CYP2C8, **CYP2B6** |
+
+Descriptive counts at a nominal 95 % level per contrast, read under §3.1.
+
+### 10.3 The repair criterion is robust on one endpoint, not two
+
+| endpoint | against blind, both pools | against univariate, pool A | against univariate, pool B | criterion |
+|---|---|---|---|---|
+| **CYP2C8** | −17.2 % | −3.4 % [−5.8, −1.0] | −3.4 % [−5.8, −1.0] | **met in both** |
+| CYP2C9 | −9.8 % | +0.7 % [−3.4, +4.9] | +2.4 % [−1.7, +6.9] | met in A, inconclusive in B |
+| CYP2B6 | −4.3 % | +5.4 % [+2.2, +9.0] | +0.7 % [−1.3, +2.9] | not met in A, met in B |
+| CYP2A6 | −6.8 % | +4.0 % [+1.3, +6.7] | +4.0 % [+1.3, +6.7] | inconclusive in both |
+| CYP2C19 | −7.6 % | +4.5 % [+0.7, +8.7] | +4.5 % [+0.7, +8.7] | inconclusive in both |
+| CYP3A4 (midazolam) | −8.5 % | +12.2 % [+8.3, +16.6] | +9.0 % [+5.6, +12.6] | not met in both |
+| CYP3A4 (testosterone) | −7.7 % | +7.2 % [+3.6, +11.1] | +5.0 % [+1.8, +8.2] | not met in both |
+| CYP2E1 | −0.3 %, not detectable | +1.4 % | +1.0 % | undiscriminating in both |
+
+**Only CYP2C8 meets the complete criterion in both universes.** The column
+against the blind arm is identical in both, as §10.1 predicts, so every movement
+in the last column is a movement of the comparator:
+
+- **CYP2C9 loses the criterion in pool B** because the univariate arm got
+  *better* when its universe shrank — its destroyed-signal error falls from
+  245.88 to 241.75 — and the hybrid, unchanged at 247.62, slips from +0.7 % to
+  +2.4 %. The point estimate stays well inside the 5 % margin; it is the
+  interval that now runs past it, so the outcome is `INCONCLUSIVE`, not a
+  reversal.
+- **CYP2B6 gains the criterion in pool B** because the univariate arm got
+  *worse*: it loses `CYP2B7P1`, the same-family pseudogene it was falling back
+  on, which is admissible but absent from the network, and its error rises from
+  244.33 to 255.82. The hybrid did nothing differently.
+
+That second case is the one to keep in mind. A criterion that a method passes
+because its comparator lost a feature is not evidence about the method, and the
+pass is reported here only so that the asymmetry is visible. **The defensible
+feasibility claim is CYP2C8 alone**, where the hybrid is better than the
+univariate arm by 3.4 % with an interval excluding zero in both universes while
+repairing 17.2 % of the blind arm's loss.
+
+### 10.4 Stability of the rest
+
+Non-inferiority rises from 44 to 49 cells, concentrated on the two CYP3A4
+substrates (5→7 and 6→7) and CYP1A2 (1→2), for the same reason: the comparators
+lost reach. The count of cells where the hybrid beats its own blind arm is
+**10 of 72 in both pools**. Collapse does not occur in either. Abstention never
+fires in either.
+
+### 10.5 The generating endpoint under pool B
+
+`CYP2D6_activity`, capped at `exploratory`: the hybrid reaches 92.58 at `k = 100`
+against the blind arm's 97.23 and the univariate arm's 99.52, repairs nothing
+detectable on the destroyed-signal test (hybrid 107.56, blind 109.53, univariate
+108.20, all at the clinical baseline of 109.64), and does not collapse. Identical
+to pool A for the two mechanistic arms, as everywhere else.

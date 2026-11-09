@@ -1,7 +1,6 @@
 # H2a — mechanistic versus statistical selection on the Human Liver Cohort
 
-**Document version:** 1.0.0 (draft; the pool-restricted sections are filled as
-their runs complete)
+**Document version:** 1.1.0
 **Date:** 2026-11-09
 **Protocol:** `OMICS2PK_FIVE_OBJECTIVES_VALIDATION_PROTOCOL.md` v1.4.7
 **Erratum carried:** `OMICS2PK_H2A_ERRATUM_20261109.md` v1.0.3
@@ -276,9 +275,82 @@ it.
 the pool it has no feature to select: the arm fits age and sex alone. Its row is
 kept for completeness and excluded from any primary tally.
 
-### 4.3 Pool B, qualified and reachable
+### 4.3 Pool B: the comparison at identical candidates
 
-*(pending)*
+11,030 candidate symbols and 14,230 features — the intersection of the
+analytically admissible features with the genes the public network contains. It
+is the only universe that is **both** analytically admissible and reachable by
+the ordering — the network-only run of §4.1 is reachable but admits features
+whose identity is unestablished — so it is the fair test of **ordering quality**
+rather than of pool size.
+
+**49 of 80 non-inferiority cells.** And the answer to the question the pool was
+built to settle is negative:
+
+| universe | candidates | NetPK better than the univariate filter | worse | better than LASSO entry order | better than XGBoost gain | NI cells | superior to all three |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| unrestricted | 31,862 | **1**/80 | 24/80 | 31/80 | 27/80 | 45/80 | 1 |
+| network only | 11,182 | 1/80 | 21/80 | 31/80 | 22/80 | 51/80 | 0 |
+| pool A | 21,634 | **0**/80 | 21/80 | 31/80 | 20/80 | 47/80 | 0 |
+| **pool B** | 11,030 | **0**/80 | 21/80 | 31/80 | 24/80 | 49/80 | 0 |
+
+Counts of cells with a 95 % interval excluding zero, descriptive and
+unadjusted, read under the rule stated in §2.
+
+**Restricting the universe narrows the gap and never creates an advantage.**
+Non-inferiority rises from 45 to 49 cells, and NetPK remains at **zero** cells
+better than the univariate filter against 21 worse. Where the mechanistic
+ordering does have a real and strikingly stable advantage is against the other
+two statistical selectors: **31 of 80 cells against LASSO entry order, the same
+count in all four universes**, and 20 to 27 against XGBoost gain. The honest
+summary is therefore that mechanism-guided ordering beats two commonly used
+data-driven selectors and does not beat the simplest one.
+
+### 4.4 Stability of the verdict across the four universes
+
+| endpoint | unrestricted | network only | pool A | pool B |
+|---|---:|---:|---:|---:|
+| CYP1A2 | 0 | 0 | 1 | 1 |
+| CYP2A6 | 5 | 7 | 7 | 7 |
+| CYP2B6 | **8** | **8** | **8** | **8** |
+| CYP2C8 | 8 | 7 | 7 | 6 |
+| CYP2C9 | 1 | 0 | 1 | 1 |
+| CYP2C19 | **0** | **0** | **0** | **0** |
+| CYP2D6 | **8** | **8** | **8** | **8** |
+| CYP2E1 | 7 | 8 | 7 | 8 |
+| CYP3A4 (midazolam) | 3 | 6 | 3 | 6 |
+| CYP3A4 (testosterone) | 5 | 7 | 5 | 4 |
+
+**The endpoint-level verdict is stable on eight endpoints of ten.** CYP2B6 and
+CYP2D6 hold at 8 of 8 and CYP2C19 at 0 of 8 in every universe; CYP1A2, CYP2A6,
+CYP2C8, CYP2C9 and CYP2E1 move by at most one cell once any restriction is
+applied.
+
+**The two CYP3A4 substrates are where the universe matters, and they disagree
+with each other.** Under pool B midazolam rises to 6 cells while testosterone
+falls to 4. Two measurements of one enzyme, correlated at 0.841 on these donors,
+moving in opposite directions under the same restriction: that is evidence that
+these two estimates are unstable, not that the restriction has an effect on
+them. No conclusion is drawn from either.
+
+### 4.5 What the destroyed-signal numbers do across universes
+
+The univariate arm's error on a wrecked matrix changes with the universe exactly
+as the identity of its fallback predicts (§3.1), which is the clearest
+confirmation that the diagnostic measures what feature survives rather than
+what method is robust:
+
+| endpoint | unrestricted | network only | pool A | pool B | the fallback, and why it moves |
+|---|---:|---:|---:|---:|---|
+| CYP2D6 | 96.86 | 108.20 | 108.88 | 108.20 | `CYP2D17` is refused by both restrictions; nothing admissible replaces it |
+| CYP3A4 (midazolam) | 720.88 | 807.18 | 714.26 | 735.85 | `IL12B-AS1` is admissible but **absent from the network**, so pool A keeps it and the network restrictions do not |
+| CYP2B6 | 244.33 | 257.29 | 244.33 | 255.82 | `CYP2B7P1`, a pseudogene: admissible, not in the network |
+| CYP2A6 | 571.97 | 577.80 | 577.80 | 577.80 | the macaque names go, `CYP2A7` takes over, and it is in both |
+| CYP2C19 | 49.07 | 49.07 | 49.07 | 49.07 | `APOM`, admissible and on the network: unaffected |
+
+The blind mechanistic arm's error is **identical in all four universes** on every
+endpoint, which is expected: it selects the target transcript, and no
+restriction removes it except on CYP1A2.
 
 ---
 
