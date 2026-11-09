@@ -296,5 +296,123 @@ class TestQualificationDocument(unittest.TestCase):
         self.assertIn("What this changes in the registry", self.doc)
 
 
+class TestReadinessGateExecution(unittest.TestCase):
+    """The first execution of a gate that previously had no recorded verdict.
+
+    The first version of the runner invented its own `outcome_kind` vocabulary
+    and every source came back `ABSTAIN_NO_DRUG_SPECIFIC_OUTCOME` with zero
+    donor counts -- a report that looked plausible and said nothing. These tests
+    exist so that failure mode cannot recur silently.
+    """
+
+    VERDICT = REPO_ROOT / "reports" / "data" / (
+        "hepatic_multiview_readiness_verdict.json")
+    RUNNER = REPO_ROOT / "scripts" / (
+        "run_hepatic_multiview_readiness_on_registered_sources.py")
+
+    @classmethod
+    def setUpClass(cls):
+        if not cls.VERDICT.is_file():
+            raise unittest.SkipTest("the gate has not been executed yet")
+        cls.report = json.loads(cls.VERDICT.read_text(encoding="utf-8"))
+        cls.cases = {c["source_id"]: c for c in cls.report["cases"]}
+
+    def test_no_source_is_allowed_to_fit(self):
+        self.assertEqual(self.report["verdict"]["fit_allowed"], 0)
+        self.assertEqual(self.report["verdict"]["fit_allowed_sources"], [])
+        for source, row in self.cases.items():
+            self.assertFalse(row["fit_allowed"], source)
+
+    def test_the_cross_cohort_fusion_is_refused(self):
+        fusion = self.cases["INVALID_FUSION_hlc_rna_plus_wegler_protein"]
+        self.assertFalse(fusion["fit_allowed"])
+        self.assertEqual(fusion["status"], "ABSTAIN_NO_SAME_DONOR_INTERSECTION")
+        self.assertTrue(self.report["verdict"]["cross_cohort_fusion_refused"])
+
+    def test_the_fusion_case_was_given_real_donor_counts(self):
+        """A refusal on empty inputs would prove nothing about the gate."""
+        fusion = self.cases["INVALID_FUSION_hlc_rna_plus_wegler_protein"]
+        self.assertEqual(fusion["n_rna"], 466)
+        self.assertEqual(fusion["n_protein"], 15)
+        self.assertGreater(fusion["n_outcome"], 400)
+        self.assertEqual(fusion["n_complete_case"], 0)
+
+    def test_the_refusals_are_not_all_the_same_code(self):
+        """A uniform code across every source is the signature of a wrong input."""
+        codes = {row["status"] for row in self.cases.values()}
+        self.assertGreaterEqual(len(codes), 4, sorted(codes))
+
+    def test_each_refusal_cause_is_distinguished(self):
+        self.assertEqual(self.cases["hlc_syn4499"]["status"],
+                         "ABSTAIN_NO_MATCHED_PROTEIN")
+        self.assertEqual(self.cases["wegler_15_microsomes"]["status"],
+                         "ABSTAIN_NO_MATCHED_RNA")
+        self.assertEqual(self.cases["eatris_plus_v4"]["status"],
+                         "ABSTAIN_NO_DRUG_SPECIFIC_OUTCOME")
+        self.assertEqual(self.cases["grangeon_2025_cyp_protein"]["status"],
+                         "ABSTAIN_SOURCE_ROWS_NOT_ACQUIRED")
+
+    def test_layer_absent_is_not_reported_as_rows_missing(self):
+        """ARIANA's rows are held; it is the layer that does not exist."""
+        for source in ("ariana_metoprolol_47", "jarmusch_midazolam"):
+            row = self.cases[source]
+            self.assertTrue(row["inputs"]["source_rows_acquired"], source)
+            self.assertEqual(row["status"], "ABSTAIN_NO_MATCHED_RNA", source)
+
+    def test_hlc_is_credited_with_the_transcriptome_it_has(self):
+        row = self.cases["hlc_syn4499"]
+        self.assertEqual(row["n_rna"], 466)
+        self.assertEqual(row["n_protein"], 0)
+        self.assertGreater(row["n_outcome"], 400)
+
+    def test_eatris_rna_and_protein_are_recorded_as_same_donor(self):
+        row = self.cases["eatris_plus_v4"]
+        self.assertTrue(row["inputs"]["rna_donors_supplied"])
+        self.assertTrue(row["inputs"]["protein_donors_supplied"])
+        self.assertIn("88 individuals carry both", row["note"])
+
+    def test_the_eatris_compartment_limit_travels_with_its_verdict(self):
+        row = self.cases["eatris_plus_v4"]
+        self.assertIn("BLOOD", row["compartment"])
+        self.assertIn("Not hepatic", row["compartment"])
+
+    def test_the_gate_does_not_claim_to_test_compartment(self):
+        self.assertIn("does NOT test tissue compartment",
+                      self.report["how_to_read"])
+
+    def test_an_abstain_is_called_a_result_not_a_failure(self):
+        self.assertIn("recorded scientific result",
+                      self.report["how_to_read"])
+
+    def test_the_runner_probes_the_accepted_vocabulary_before_running(self):
+        source = self.RUNNER.read_text(encoding="utf-8")
+        self.assertIn("def check_outcome_vocabulary", source)
+        self.assertIn("check_outcome_vocabulary()", source)
+        self.assertIn("would report a uniform refusal that means nothing",
+                      source)
+
+    def test_the_accepted_vocabulary_is_the_gate_s_own(self):
+        from omics2pk.hepatic_multiview_readiness import (
+            assess_same_donor_hepatic_multiview as gate)
+
+        probe = dict(source_id="probe", rna_donors=["a"], protein_donors=["a"],
+                     outcome_donors=["a"], source_rows_acquired=True)
+        for kind in ("drug_specific_clint", "drug_specific_metabolic_activity",
+                     "clinical_pk"):
+            self.assertNotEqual(gate(outcome_kind=kind, **probe).status,
+                                "ABSTAIN_NO_DRUG_SPECIFIC_OUTCOME", kind)
+        self.assertEqual(gate(outcome_kind="invented", **probe).status,
+                         "ABSTAIN_NO_DRUG_SPECIFIC_OUTCOME")
+
+    def test_the_runner_refuses_to_write_if_a_fusion_were_allowed(self):
+        source = self.RUNNER.read_text(encoding="utf-8")
+        self.assertIn("refusing to write a report", source)
+
+    def test_the_headline_states_the_gap_rather_than_a_capability(self):
+        headline = self.report["headline"]
+        self.assertIn("No registered source permits", headline)
+        self.assertIn("EATRIS-Plus is the", headline)
+
+
 if __name__ == "__main__":
     unittest.main()
