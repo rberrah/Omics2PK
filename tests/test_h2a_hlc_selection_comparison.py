@@ -9,6 +9,9 @@ them needs the source archive, so they run wherever the repository runs.
 from __future__ import annotations
 
 import importlib.util
+import json
+import shutil
+import tempfile
 import types
 import unittest
 from pathlib import Path
@@ -334,6 +337,8 @@ def fake_data(values, symbols, *, age=None, sex=None):
     return {
         "values": values,
         "symbols": np.asarray(symbols, dtype=str),
+        "feature_ids": np.array([f"f{position}" for position in
+                                 range(values.shape[0])], dtype=str),
         "donors": np.array([f"{1 + i % 3}11{i:04d}" for i in range(n)]),
         "age": np.full(n, 50.0) if age is None else np.asarray(age, dtype=float),
         "sex": np.zeros(n) if sex is None else np.asarray(sex, dtype=float),
@@ -413,6 +418,139 @@ class TestFoldMatrix(unittest.TestCase):
         self.assertEqual(list(names), ["AAA1", "ZZZ9"])
         np.testing.assert_array_equal(is_decoy, [False, True])
         self.assertEqual(int(is_decoy.sum()), 1)
+
+
+class TestTheProbeBehindEachSelectionIsTraceable(unittest.TestCase):
+    """A gene symbol does not identify the measurement.
+
+    The probe standing for a gene is chosen per training fold, so a selection
+    recorded as a symbol cannot be checked against a probe-level qualification
+    afterwards. `fold_matrix` therefore records which feature it actually used.
+    """
+
+    def universe(self, data):
+        by_symbol = {}
+        for position, symbol in enumerate(data["symbols"]):
+            if symbol:
+                by_symbol.setdefault(str(symbol), []).append(position)
+        return {"by_symbol": by_symbol, "genes_on_network": [],
+                "decoy_symbols": [],
+                "decoy_values": np.zeros((0, data["values"].shape[1]))}
+
+    def test_the_feature_actually_used_is_recorded(self):
+        values = np.array([[1.0, 1.0, 1.0, 1.0],
+                           [5.0, 5.0, 5.0, 5.0],
+                           [2.0, 2.0, 2.0, 2.0]])
+        data = fake_data(values, ["AAA1", "AAA1", "BBB2"])
+        chosen = {}
+        H2A.fold_matrix(data, self.universe(data), np.array([0, 1, 2]),
+                        np.arange(4), chosen=chosen)
+        self.assertEqual(chosen, {"AAA1": "f1", "BBB2": "f2"})
+
+    def test_a_different_training_fold_can_use_a_different_probe(self):
+        values = np.array([[9.0, 9.0, 0.0, 0.0],
+                           [1.0, 1.0, 99.0, 99.0]])
+        data = fake_data(values, ["AAA1", "AAA1"])
+        first, second = {}, {}
+        H2A.fold_matrix(data, self.universe(data), np.array([0, 1]),
+                        np.arange(4), chosen=first)
+        H2A.fold_matrix(data, self.universe(data), np.array([2, 3]),
+                        np.arange(4), chosen=second)
+        self.assertEqual(first["AAA1"], "f0")
+        self.assertEqual(second["AAA1"], "f1")
+
+    def test_a_decoy_is_recorded_as_having_no_feature(self):
+        data = fake_data(np.array([[1.0, 2.0, 3.0, 4.0]]), ["AAA1"])
+        universe = self.universe(data)
+        universe["decoy_symbols"] = ["ZZZ9"]
+        universe["decoy_values"] = np.array([[4.0, 3.0, 2.0, 1.0]])
+        chosen = {}
+        H2A.fold_matrix(data, universe, np.array([0, 1, 2]), np.arange(4),
+                        chosen=chosen)
+        self.assertEqual(chosen["ZZZ9"], H2A.DECOY_FEATURE_ID)
+        self.assertNotEqual(chosen["AAA1"], H2A.DECOY_FEATURE_ID)
+
+    def test_nothing_is_recorded_when_no_dictionary_is_passed(self):
+        data = fake_data(np.ones((1, 4)), ["AAA1"])
+        matrix, names, _ = H2A.fold_matrix(data, self.universe(data),
+                                           np.array([0, 1, 2]), np.arange(4))
+        self.assertEqual(list(names), ["AAA1"])
+
+
+class TestTheQualifiedPoolRestriction(unittest.TestCase):
+    """Every arm must select from the same analytically admissible probes."""
+
+    def pool_file(self, admissible, name="A_qualified_human"):
+        directory = tempfile.mkdtemp()
+        path = Path(directory) / "pools.json"
+        path.write_text(json.dumps({
+            "rule_version": "probe-identity-1.0.0",
+            "pools": {name: {"admitted_verdicts": ["concordant_human"]}},
+            "admissible_features": {name: list(admissible)},
+        }), encoding="utf-8")
+        self.addCleanup(shutil.rmtree, directory, ignore_errors=True)
+        return path
+
+    def data_and_universe(self):
+        values = np.arange(20.0).reshape(5, 4)
+        data = fake_data(values, ["AAA1", "AAA1", "BBB2", "CCC3", "NegCont_1"])
+        by_symbol = {}
+        for position, symbol in enumerate(data["symbols"]):
+            by_symbol.setdefault(str(symbol), []).append(position)
+        universe = {"by_symbol": by_symbol, "genes_on_network": [],
+                    "decoy_symbols": [], "decoy_values": np.zeros((0, 4))}
+        return data, universe
+
+    def test_a_mixed_gene_keeps_its_admissible_probe(self):
+        data, universe = self.data_and_universe()
+        path = self.pool_file(["f1", "f2"])
+        restricted = H2A.restrict_universe_to_qualified_pool(
+            universe, data, path, "A_qualified_human")
+        self.assertEqual(restricted["by_symbol"]["AAA1"], [1])
+        self.assertEqual(restricted["by_symbol"]["BBB2"], [2])
+        self.assertNotIn("CCC3", restricted["by_symbol"])
+        # One probe of the mixed gene, the whole inadmissible gene and the
+        # control probe: three probes dropped, one gene kept in part.
+        self.assertEqual(restricted["qualified_pool"]["probes_dropped"], 3)
+
+    def test_a_technical_control_in_the_pool_stops_the_run(self):
+        data, universe = self.data_and_universe()
+        path = self.pool_file(["f1", "f4"])
+        with self.assertRaisesRegex(H2A.H2aError, "technical control"):
+            H2A.restrict_universe_to_qualified_pool(
+                universe, data, path, "A_qualified_human")
+
+    def test_an_unknown_pool_name_is_refused_rather_than_ignored(self):
+        data, universe = self.data_and_universe()
+        path = self.pool_file(["f1"])
+        with self.assertRaisesRegex(H2A.H2aError, "no admissible set named"):
+            H2A.restrict_universe_to_qualified_pool(
+                universe, data, path, "B_qualified_human_on_network")
+        with self.assertRaisesRegex(H2A.H2aError, "no admissible set named"):
+            H2A.qualified_pool_features(path, "B_qualified_human_on_network")
+
+    def test_the_feature_set_is_exposed_for_a_selection_level_audit(self):
+        path = self.pool_file(["f1", "f2"])
+        self.assertEqual(H2A.qualified_pool_features(path, "A_qualified_human"),
+                         {"f1", "f2"})
+
+    def test_the_restriction_records_what_it_removed(self):
+        data, universe = self.data_and_universe()
+        path = self.pool_file(["f1", "f2"])
+        record = H2A.restrict_universe_to_qualified_pool(
+            universe, data, path, "A_qualified_human")["qualified_pool"]
+        self.assertEqual(record["pool_name"], "A_qualified_human")
+        self.assertEqual(record["rule_version"], "probe-identity-1.0.0")
+        self.assertEqual(record["symbols_before"], 4)
+        self.assertEqual(record["symbols_after"], 2)
+        self.assertEqual(record["technical_controls_present"], 0)
+
+    def test_a_pool_matching_nothing_stops_the_run(self):
+        data, universe = self.data_and_universe()
+        path = self.pool_file(["not_on_this_array"])
+        with self.assertRaisesRegex(H2A.H2aError, "no admissible probe"):
+            H2A.restrict_universe_to_qualified_pool(
+                universe, data, path, "A_qualified_human")
 
 
 class TestBaselineMatrix(unittest.TestCase):

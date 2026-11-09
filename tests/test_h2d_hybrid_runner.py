@@ -12,6 +12,9 @@ designed after seeing one endpoint, so that endpoint cannot confirm it.
 from __future__ import annotations
 
 import importlib.util
+import inspect
+import subprocess
+import sys
 import unittest
 from pathlib import Path
 
@@ -198,6 +201,67 @@ class TestNothingDivergesFromH2a(unittest.TestCase):
         source = RUNNER.read_text(encoding="utf-8")
         self.assertIn("destroyed_signal_repair", source)
         self.assertIn("hybrid_kept_the_dead_gene", source)
+
+
+class TestTheQualifiedPoolIsSharedWithH2a(unittest.TestCase):
+    """H2a and H2d are comparable only on one universe.
+
+    The probe behind a selection is chosen per training fold, so restricting the
+    universe is not enough on its own: the feature each arm actually used has to
+    be checked against the pool, fold by fold, rather than assumed admissible
+    because its gene symbol was.
+    """
+
+    def source(self):
+        return RUNNER.read_text(encoding="utf-8")
+
+    def test_the_runner_offers_the_same_pool_flags_as_h2a(self):
+        done = subprocess.run([sys.executable, str(RUNNER), "--help"],
+                              capture_output=True, text=True)
+        self.assertEqual(done.returncode, 0, done.stderr)
+        for flag in ("--probe-pool", "--pool-name", "--restrict-to-network"):
+            self.assertIn(flag, done.stdout, flag)
+
+    def test_the_default_pool_name_matches_the_h2a_default(self):
+        done = subprocess.run([sys.executable, str(RUNNER), "--help"],
+                              capture_output=True, text=True)
+        self.assertIn("A_qualified_human", done.stdout)
+
+    def test_the_endpoint_runner_receives_the_admissible_feature_set(self):
+        parameters = inspect.signature(H2D.run_endpoint).parameters
+        self.assertIn("pool_features", parameters)
+        self.assertIsNone(parameters["pool_features"].default)
+
+    def test_the_restriction_reuses_the_h2a_code_rather_than_a_copy(self):
+        source = self.source()
+        self.assertIn("H2A.qualified_pool_features", source)
+        self.assertIn("H2A.restrict_universe_to_qualified_pool", source)
+        self.assertIn("H2A.restrict_universe_to_network", source)
+
+    def test_the_feature_used_for_each_selection_is_traced(self):
+        source = self.source()
+        self.assertIn("chosen=chosen_feature", source)
+        self.assertIn("probe_traceability", source)
+        self.assertIn("features_used_by_the_hybrid_and_the_target", source)
+        self.assertIn("not traceable from the gene symbol alone", source)
+
+    def test_a_selection_outside_the_pool_stops_the_run(self):
+        source = self.source()
+        self.assertIn("outside the qualified pool", source)
+        self.assertIn("raise H2dError", source)
+
+    def test_the_report_records_the_pool_so_a_comparison_can_be_checked(self):
+        source = self.source()
+        self.assertIn('"qualified_pool": universe.get("qualified_pool")', source)
+        self.assertIn("same_pool_as_h2a", source)
+        self.assertIn("an unrestricted H2d", source)
+
+    def test_a_decoy_selection_is_counted_and_not_called_inadmissible(self):
+        # A decoy has no feature at all; counting it as a pool violation would
+        # confuse a selection error with an annotation problem.
+        source = self.source()
+        self.assertIn("H2A.DECOY_FEATURE_ID", source)
+        self.assertIn("decoy_selections", source)
 
 
 class TestTheErratumExistsAndWeakensNothing(unittest.TestCase):

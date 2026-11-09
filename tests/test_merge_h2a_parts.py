@@ -214,6 +214,99 @@ class TestTheVoidControlIsDeclared(unittest.TestCase):
         self.assertEqual(merged["wrong_mechanism_control_audit"]["valid_count"], 9)
 
 
+def h2d_part(endpoints, **overrides):
+    """A batch shaped like an H2d report: no protocol version, no network."""
+    body = {
+        "analysis": "H2d: hybrid mechanistic selection",
+        "endpoint_class": "functional_in_vitro",
+        "generating_endpoint": "CYP2D6_activity",
+        "validation_set_independence": {"dependence_index_not_a_replication_count": 3.55},
+        "frozen": {"hybrid": {"oversample": 3}},
+        "universe": {"candidate_genes": 22237,
+                     "qualified_pool": {"pool_name": "A_qualified_human"}},
+        "run_on": "2026-11-09",
+        "endpoints": {name: {"endpoint": name,
+                             "fold_design": "5_fold_x2_repeats",
+                             "repeats": 2} for name in endpoints},
+    }
+    body.update(overrides)
+    return body
+
+
+class TestTheGateDoesNotDependOnWhichAnalysisRan(unittest.TestCase):
+    """The named-field list could not see a field a report had just gained.
+
+    The qualified pool lives inside `universe`, so a merge across two different
+    pools would have passed a list that checked `universe` by name only if the
+    rest of `universe` happened to agree. Every top-level field except the
+    endpoint results and the run date is now compared.
+    """
+
+    def test_batches_of_another_analysis_merge_under_their_own_expected_set(self):
+        nine = [e for e in ALL if e != "CYP2D6_activity"]
+        with TemporaryDirectory() as tmp:
+            first = write(tmp, "a.json", h2d_part(nine[:5]))
+            second = write(tmp, "b.json", h2d_part(nine[5:]))
+            merged = MERGE.merge([first, second], expected=tuple(nine))
+        self.assertEqual(merged["endpoints_merged"], 9)
+        self.assertEqual(merged["endpoints_missing"], [])
+
+    def test_the_generating_endpoint_is_refused_when_it_is_not_expected(self):
+        nine = [e for e in ALL if e != "CYP2D6_activity"]
+        with TemporaryDirectory() as tmp:
+            only = write(tmp, "a.json", h2d_part(nine + ["CYP2D6_activity"]))
+            with self.assertRaisesRegex(MERGE.MergeError, "unexpected endpoints"):
+                MERGE.merge([only], expected=tuple(nine))
+
+    def test_two_different_qualified_pools_are_refused(self):
+        with TemporaryDirectory() as tmp:
+            first = write(tmp, "a.json", h2d_part(["CYP2A6_activity"]))
+            other = h2d_part(["CYP2B6_activity"])
+            other["universe"]["qualified_pool"]["pool_name"] = "B_qualified_human_on_network"
+            second = write(tmp, "b.json", other)
+            with self.assertRaisesRegex(MERGE.MergeError, "universe"):
+                MERGE.merge([first, second],
+                            expected=("CYP2A6_activity", "CYP2B6_activity"))
+
+    def test_a_field_absent_from_the_reference_is_still_compared(self):
+        with TemporaryDirectory() as tmp:
+            first = write(tmp, "a.json", h2d_part(["CYP2A6_activity"]))
+            other = h2d_part(["CYP2B6_activity"])
+            other["an_extra_declaration"] = "only in this batch"
+            second = write(tmp, "b.json", other)
+            with self.assertRaisesRegex(MERGE.MergeError, "an_extra_declaration"):
+                MERGE.merge([first, second],
+                            expected=("CYP2A6_activity", "CYP2B6_activity"))
+
+    def test_a_batch_without_the_frozen_block_is_refused(self):
+        with TemporaryDirectory() as tmp:
+            body = h2d_part(["CYP2A6_activity"])
+            del body["frozen"]
+            only = write(tmp, "a.json", body)
+            with self.assertRaisesRegex(MERGE.MergeError, "declares no"):
+                MERGE.merge([only], expected=("CYP2A6_activity",))
+
+    def test_a_run_crossing_midnight_is_not_an_inconsistency(self):
+        with TemporaryDirectory() as tmp:
+            first = write(tmp, "a.json", h2d_part(["CYP2A6_activity"]))
+            second = write(tmp, "b.json",
+                           h2d_part(["CYP2B6_activity"], run_on="2026-11-10"))
+            merged = MERGE.merge([first, second],
+                                 expected=("CYP2A6_activity", "CYP2B6_activity"))
+        self.assertEqual({entry["run_on"] for entry in merged["merged_from"]},
+                         {"2026-11-09", "2026-11-10"})
+
+    def test_an_unauditable_rotation_is_declared_absent_not_passed(self):
+        with TemporaryDirectory() as tmp:
+            only = write(tmp, "a.json", h2d_part(["CYP2A6_activity"]))
+            merged = MERGE.merge([only], expected=("CYP2A6_activity",))
+        audit = merged["wrong_mechanism_control_audit"]
+        self.assertIn("not_applicable", audit)
+        self.assertNotIn("valid_count", audit)
+        self.assertIn("absent rather than reported as passed",
+                      audit["not_applicable"])
+
+
 class TestAgainstTheRealBatches(unittest.TestCase):
     """Runs only on the batch files that exist, so it cannot block a fresh clone."""
 

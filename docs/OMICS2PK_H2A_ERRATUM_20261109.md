@@ -1,6 +1,6 @@
 # H2a — erratum: one endpoint withdrawn, and a platform defect that changes the reading
 
-**Erratum version:** 1.0.2
+**Erratum version:** 1.0.3
 **Date:** 2026-11-09
 **Applies to:** the frozen H2a run, protocol v1.4.3, merged result `reports/data/h2a_hlc_selection.json`
 **Status:** no H2a number is recomputed. One endpoint's mechanistic arms are withdrawn as uninterpretable, and one conclusion I reported is retracted.
@@ -52,13 +52,18 @@ The verdicts are graded, strongest first, and the difference the second correcti
 
 | verdict | probes | what it establishes |
 |---|---:|---|
-| `concordant_human` | **23,261** | two annotations resolve to the same human gene |
-| `single_source_human` | 4,215 | one source names a human gene; nothing agrees or disagrees |
-| `conflicting` | **1,476** | the sources name different genes; identity unestablished |
+| `concordant_human` | **22,279** | two annotations resolve to the same human gene |
+| `single_source_human` | 4,018 | one source names a human gene; nothing agrees or disagrees |
+| `symbol_names_another_gene` | 572 | the accessions resolve to one gene, the analysis's symbol belongs to another |
+| `platform_self_contradictory` | 610 | the platform's accession and its gene assignment name different genes |
+| `conflicting` | **1,473** | the sources name different genes; identity unestablished |
 | `undetermined` | 10,679 | no source resolves the feature to a human gene |
 | `technical_control` | 1,007 | the array's own control feature |
 
-**The conflict count falls from about 7,000 to 1,476** once accessions are resolved rather than compared as strings. Version 1.0.1's figure was five times too high, and the claim that "44 % of candidate symbols have no probe whose human identity can be established" is withdrawn with it: **22,237 of 31,862 symbols carry at least one admissible probe, so about 30 % do not.** The direction of the finding is unchanged; its size was overstated.
+The last two refusals were added in version 1.0.3 and are described in §E3.2;
+the counts above are the final ones, after both.
+
+**The conflict count falls from about 7,000 to under 1,500** once accessions are resolved rather than compared as strings. Version 1.0.1's figure was five times too high, and the claim that "44 % of candidate symbols have no probe whose human identity can be established" is withdrawn with it: **21,634 of 31,862 symbols carry at least one admissible probe, so about a third do not.** The direction of the finding is unchanged; its size was overstated.
 
 An example of the correction working, from the data: the CYP3A4 probe whose archive accession is `D00003` and whose platform accession is `NM_000776` was a "conflict" under the string rule. Both resolve to human gene 1576. It is concordant.
 
@@ -114,9 +119,9 @@ exactly that case and keeps its two concordant probes.
 
 | pool | admits | symbols | probes | symbols keeping only some probes |
 |---|---|---:|---:|---:|
-| **A** qualified human | concordant + single source | 22,237 | 27,245 | 2,075 |
-| **A strict** | concordant only | 19,938 | 23,107 | 3,058 |
-| **B** = A ∩ network | concordant + single source | 11,092 | 14,647 | 1,383 |
+| **A** qualified human | concordant + single source | 21,634 | 26,066 | 2,383 |
+| **A strict** | concordant only | 19,352 | 22,125 | 3,231 |
+| **B** = A ∩ network | concordant + single source | 11,030 | 14,230 | 1,626 |
 
 Every arm gets the **same** pool, the probe retained in each fold is traceable,
 and the absence of technical controls is asserted rather than assumed: the
@@ -134,6 +139,62 @@ pool B answers it among variables both admissible *and* reachable by the
 mechanistic ordering. Neither is the honest answer alone, for the reason already
 recorded: each restriction moves the comparison in both directions at once.
 
+## E3.2 — Two identity rules the graded version still got wrong
+
+Both were found by review of the graded version, before any pool-restricted run
+and before H2d. Neither changes an H2a number already obtained; both change
+which features a pool admits.
+
+**A verdict must not attribute a measurement to the wrong gene.** Version 1.0.2
+could return `concordant_human` while `symbol_matches_gene` was `False`, and
+the pool then grouped that feature under the symbol *the analysis uses*. That
+is the same error as the withdrawn target in §E1, one level up: the identity is
+established, and then assigned to the wrong name.
+
+The repair is not to refuse every mismatch, because the mismatches are not one
+population. Measured over the array, among the features the graded rule
+admitted:
+
+| the analysis's symbol is | features | treatment |
+|---|---:|---|
+| the **approved symbol** of a different human gene | 493 | refused |
+| a **listed synonym** of a different human gene | 139 | refused |
+| **unknown to the current gene reference** — a clone or locus placeholder such as `FLJ13197`, `MGC45416`, `DKFZP564J102`, or `15-Sep`, a symbol a spreadsheet turned into a date | 5,268 | kept, with the gene's current symbol recorded beside it |
+
+`CHKA` against *TCIRG1*, `RHCE` against *RHD*, `IFITM2` against *IFITM1*,
+`PLCE1` against *PLCE1-AS2*: these are competing claims and the feature is
+refused. `MGC33948` against *C11orf65* is not a competing claim — no other
+human gene carries that name — so the accessions decide and the measurement
+stands. **Refusing both groups would have discarded about five thousand real
+measurements for a naming-vintage reason.** After the platform rule below takes
+precedence on the overlap, 572 features are refused on this ground and 4,929
+admissible features carry an outdated name, each listed in the registry with
+the gene its accessions resolve to.
+
+**That leaves a declared limit, not a repair.** The analysis universe is keyed
+on the array's own symbols, so a mechanistic ordering keyed on current gene
+symbols cannot reach those 4,929 features under the names the array gives them.
+Re-keying the universe to current symbols would make roughly five thousand
+further measurements reachable by the mechanistic arms and is therefore a
+methodological change, not a correction; it is **not** done here, and the limit
+is stated so it is not mistaken for an absence.
+
+**The platform record can contradict itself.** Its accession and its
+`EntrezGeneID` sometimes name different genes. Version 1.0.2 computed the
+agreement between sources first, so an archive agreeing with *one* of the
+platform's two fields was reported as a concordance between sources even when
+the platform's other field named a different gene — including a non-human one,
+which is the macaque-probe failure mode of §E1. Internal coherence is now
+checked **before** any agreement is computed, and a record that contradicts
+itself confirms nothing: **610 features**, of which **607** the previous rule
+admitted.
+
+**The decoy block is unaffected and stays separate.** The 200 null variables
+carry the symbols of network genes the array does not measure, so no decoy is
+ever a pool member, and the feature identifier recorded for a decoy selection is
+a reserved marker rather than a probe. A decoy selection is counted as a
+selection error, never as an annotation problem.
+
 ## E4 — Status of this qualification, and the three levels it separates
 
 This is a **secondary analysis, posterior to the H2a run**. It does not requalify the frozen H2a result as confirmatory, changes no threshold, and introduces no selection rule chosen in the light of an inspected endpoint. It establishes which candidate variables can carry a biological reading at all, which is a question about the platform and not about any hypothesis.
@@ -142,7 +203,7 @@ Three levels have to be kept apart, and the H2a experience is what separates the
 
 | level | question | what went wrong here |
 |---|---|---|
-| analytical quality | is the announced biomarker the molecule actually measured? | about 30 % of candidate symbols carry no probe whose human identity can be established |
+| analytical quality | is the announced biomarker the molecule actually measured? | about a third of candidate symbols carry no probe whose human identity can be established |
 | biological validity | does that molecule represent the supposed mechanism? | messenger RNA abundance need not represent enzyme activity |
 | predictive usefulness | does it add information about the phenotype? | the only question H2a was built to answer |
 

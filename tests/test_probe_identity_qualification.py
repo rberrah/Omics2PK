@@ -24,6 +24,7 @@ from omics2pk.probe_identity_qualification import (
     build_probe_pool,
     qualify_probe,
     summarise,
+    symbol_to_gene_index,
 )
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -40,13 +41,15 @@ ACCESSIONS = {
     "NM_017460": ["1576"],
     "D00003": ["1576"],
 }
+SYMBOLS = symbol_to_gene_index(HUMAN)
 
 
 def grade(feature="f1", **kwargs):
     base = {"symbol": "", "archive_accession": "", "platform_accession": "",
             "platform_entrez": "",
             "accession_to_human_genes": ACCESSIONS,
-            "human_gene_symbols": HUMAN}
+            "human_gene_symbols": HUMAN,
+            "symbol_to_human_genes": SYMBOLS}
     base.update(kwargs)
     return qualify_probe(feature, **base)
 
@@ -105,11 +108,97 @@ class TestTheEvidenceIsGraded(unittest.TestCase):
     def test_a_control_needs_no_annotation(self):
         self.assertEqual(grade(symbol="NegCont_7").verdict, "technical_control")
 
-    def test_a_symbol_that_disagrees_with_the_gene_is_flagged_not_rejected(self):
-        identity = grade(symbol="SOMETHINGELSE", archive_accession="NM_000106",
+    def test_a_symbol_naming_another_gene_is_refused(self):
+        # Two mutually exclusive claims: the accessions say gene 1565, the
+        # analysis calls the column by the approved symbol of gene 1571.
+        # Grouping it under that symbol would attribute the measurement to the
+        # wrong gene, which is how the withdrawn target slipped through.
+        identity = grade(symbol="CYP2E1", archive_accession="NM_000106",
+                         platform_accession="NM_000106", platform_entrez="1565")
+        self.assertEqual(identity.verdict, "symbol_names_another_gene")
+        self.assertFalse(identity.admissible)
+        self.assertIn("wrong gene", identity.reason)
+
+    def test_a_symbol_that_is_another_genes_synonym_is_also_refused(self):
+        identity = grade(symbol="CYP3A3", archive_accession="NM_000106",
+                         platform_accession="NM_000106", platform_entrez="1565")
+        self.assertEqual(identity.verdict, "symbol_names_another_gene")
+
+    def test_a_stale_alias_keeps_the_measurement_and_names_the_gene(self):
+        # No other human gene carries this name, so there is no competing
+        # claim: the accessions decide and the gene is recorded beside it.
+        identity = grade(symbol="FLJ99999", archive_accession="NM_000106",
                          platform_accession="NM_000106", platform_entrez="1565")
         self.assertEqual(identity.verdict, "concordant_human")
+        self.assertTrue(identity.admissible)
         self.assertFalse(identity.symbol_matches_gene)
+        self.assertTrue(identity.symbol_is_a_stale_alias)
+        self.assertEqual(identity.human_symbol, "CYP2D6")
+
+    def test_the_same_rule_applies_to_a_single_source_identity(self):
+        refused = grade(symbol="CYP2E1", archive_accession="NM_000106")
+        self.assertEqual(refused.verdict, "symbol_names_another_gene")
+        kept = grade(symbol="MGC99999", archive_accession="NM_000106")
+        self.assertEqual(kept.verdict, "single_source_human")
+        self.assertTrue(kept.symbol_is_a_stale_alias)
+
+    def test_without_a_symbol_reference_a_mismatch_is_refused(self):
+        # A rule that cannot tell a stale alias from a competing claim must not
+        # assume the harmless case.
+        identity = grade(symbol="FLJ99999", archive_accession="NM_000106",
+                         platform_accession="NM_000106", platform_entrez="1565",
+                         symbol_to_human_genes=None)
+        self.assertEqual(identity.verdict, "symbol_names_another_gene")
+        self.assertIn("cannot be cleared", identity.reason)
+
+    def test_a_matching_symbol_is_never_a_stale_alias(self):
+        identity = grade(symbol="CYP2D6", archive_accession="NM_000106",
+                         platform_accession="NM_000106", platform_entrez="1565")
+        self.assertFalse(identity.symbol_is_a_stale_alias)
+
+
+class TestThePlatformMustAgreeWithItself(unittest.TestCase):
+    """A record that contradicts itself cannot confirm another source.
+
+    The earlier order of tests computed the agreement between sources first, so
+    an archive agreeing with one of the platform's two fields was reported as a
+    concordance even when the platform's other field named a different gene.
+    """
+
+    def test_a_platform_contradicting_itself_cannot_confirm_the_archive(self):
+        identity = grade(symbol="CYP3A4", archive_accession="NM_017460",
+                         platform_accession="NM_017460", platform_entrez="1571")
+        self.assertEqual(identity.verdict, "platform_self_contradictory")
+        self.assertFalse(identity.admissible)
+        self.assertIn("contradicts itself", identity.reason)
+
+    def test_a_non_human_assignment_against_its_own_human_accession(self):
+        identity = grade(symbol="CYP3A4", archive_accession="NM_017460",
+                         platform_accession="NM_017460",
+                         platform_entrez="479559")
+        self.assertEqual(identity.verdict, "platform_self_contradictory")
+
+    def test_one_platform_field_alone_is_not_a_contradiction(self):
+        identity = grade(symbol="CYP2D6", archive_accession="ZZ999999",
+                         platform_accession="ZZ999999", platform_entrez="1565")
+        self.assertEqual(identity.verdict, "single_source_human")
+
+    def test_an_agreeing_platform_record_is_unaffected(self):
+        identity = grade(symbol="CYP3A4", archive_accession="D00003",
+                         platform_accession="NM_017460", platform_entrez="1576")
+        self.assertEqual(identity.verdict, "concordant_human")
+
+    def test_neither_new_verdict_is_admissible_by_default(self):
+        for verdict in ("symbol_names_another_gene",
+                        "platform_self_contradictory"):
+            self.assertIn(verdict, VERDICTS)
+            self.assertNotIn(verdict, ADMISSIBLE_BY_DEFAULT)
+
+    def test_the_symbol_index_carries_approved_names_and_synonyms(self):
+        index = symbol_to_gene_index(HUMAN)
+        self.assertEqual(index["CYP2D6"], ("1565",))
+        self.assertEqual(index["CYP3A3"], ("1576",))
+        self.assertNotIn("FLJ99999", index)
 
     def test_a_listed_synonym_counts_as_a_match(self):
         identity = grade(symbol="CPD6", archive_accession="NM_000106",
@@ -185,6 +274,14 @@ class TestTheSummaryRefusesToOverclaim(unittest.TestCase):
             grade("f4", symbol="NegCont_2"),
         ]
 
+    def test_it_counts_the_measurements_kept_under_an_outdated_name(self):
+        overview = summarise(self.many())
+        self.assertIn("admissible_under_a_stale_alias", overview)
+        text = overview["what_a_stale_alias_means"]
+        self.assertIn("not the gene's current symbol", text)
+        self.assertIn("cannot reach the feature", text)
+        self.assertIn("not a defect of the", text)
+
     def test_it_says_what_identified_does_not_mean(self):
         text = summarise(self.many())["what_identified_does_not_mean"]
         self.assertIn("hybridisation specificity", text)
@@ -214,7 +311,42 @@ class TestTheCommittedPools(unittest.TestCase):
             self.assertEqual(len(provenance[key]["sha256"]), 64, key)
 
     def test_the_rule_version_is_recorded(self):
-        self.assertEqual(self.pools()["rule_version"], "probe-identity-1.0.0")
+        self.assertEqual(self.pools()["rule_version"], "probe-identity-1.1.0")
+
+    def test_the_two_new_refusals_are_counted_and_listed(self):
+        pools = self.pools()
+        counts = pools["overview"]["counts_by_verdict"]
+        for verdict, key in (
+                ("symbol_names_another_gene", "symbol_names_another_gene_features"),
+                ("platform_self_contradictory",
+                 "platform_self_contradictory_features")):
+            self.assertGreater(counts[verdict], 0, verdict)
+            self.assertEqual(len(pools[key]), counts[verdict], key)
+
+    def test_no_admissible_feature_sits_in_a_refused_stratum(self):
+        pools = self.pools()
+        refused = set()
+        for key in ("conflicting_features", "undetermined_features",
+                    "symbol_names_another_gene_features",
+                    "platform_self_contradictory_features"):
+            refused |= set(pools[key])
+        for name, features in pools["admissible_features"].items():
+            self.assertFalse(refused & set(features), name)
+
+    def test_a_measurement_kept_under_an_outdated_name_names_its_gene(self):
+        pools = self.pools()
+        rows = pools["stale_alias_features"]
+        self.assertEqual(len(rows),
+                         pools["overview"]["admissible_under_a_stale_alias"])
+        admissible = set(pools["admissible_features"]["A_qualified_human"])
+        for feature, analysis_symbol, current_symbol in rows[:200]:
+            self.assertIn(feature, admissible)
+            self.assertTrue(current_symbol)
+            self.assertNotEqual(analysis_symbol, current_symbol)
+
+    def test_every_verdict_is_accounted_for(self):
+        counts = self.pools()["overview"]["counts_by_verdict"]
+        self.assertEqual(sum(counts.values()), 40638)
 
     def test_the_complete_admissible_list_is_committed_not_just_a_summary(self):
         features = self.pools()["admissible_features"]
@@ -244,6 +376,18 @@ class TestTheCommittedPools(unittest.TestCase):
         features = self.pools()["admissible_features"]
         self.assertTrue(set(features["A_strict_concordant_only"])
                         <= set(features["A_qualified_human"]))
+
+    def test_the_nine_target_genes_keep_what_the_evidence_allows(self):
+        # Eight targets keep at least one feature; the mixed one keeps its
+        # admissible features instead of being dropped whole; the withdrawn one
+        # keeps none. Checked against the committed lists, not recomputed.
+        pools = self.pools()
+        admissible = set(pools["admissible_features"]["A_qualified_human"])
+        for feature in ("10025909551", "10033668556"):  # CYP2E1, concordant
+            self.assertIn(feature, admissible, feature)
+        self.assertNotIn("10033668877", admissible)  # CYP2E1, conflicting
+        for feature in ("10033668809", "10033668817"):  # CYP1A2
+            self.assertNotIn(feature, admissible, feature)
 
     def test_the_four_probes_of_the_withdrawn_target_are_all_inadmissible(self):
         pools = self.pools()

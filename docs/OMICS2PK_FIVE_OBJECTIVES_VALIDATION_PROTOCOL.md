@@ -1,6 +1,6 @@
 # Omics2PK — five-objective validation protocol
 
-**Version:** 1.4.4
+**Version:** 1.4.5
 **Frozen:** 2026-11-08
 **Status:** frozen before execution of the Phase 2–5 runs. Any later change requires a new version number, a date, and a statement of what was changed and why. Thresholds must not be revised after seeing a result.
 
@@ -231,6 +231,116 @@ To measure the false-positive rate, **200 decoy features** are added: each is a 
 
 **Destroyed-signal diagnostic, added in v1.4.2 — this is the test that does expose the weakness.** The target gene's own column has its donor order permuted. The gene keeps its place in the mechanistic ordering while carrying no information at all, so a mechanistic arm must keep choosing it and must lose its advantage, while an arm that reads the endpoint should choose something else. Reported per endpoint: the mechanistic arm's MAE at `k = 1` on the wrecked matrix, the univariate arm's MAE on the same matrix, and how many folds the univariate arm still picked the dead gene. This measures the price of being outcome-blind and is the direct link to H4.
 
+### 5.6 Analytical admissibility of the candidates, and the shared universe
+
+Added in v1.4.5, after the primary H2a run and **before** any pool-restricted
+run or any H2d run. It changes no threshold, margin, comparator or primary
+contrast, and recomputes no primary number.
+
+**The finding that forced it.** A gene symbol in this archive's annotation does
+not identify the molecule measured. Checking the archive's own annotation
+against the independent platform record for all 40,638 features, with
+accessions resolved to genes through NCBI's public accession-to-gene map before
+anything is compared, gives:
+
+| verdict | features | what is established |
+|---|---:|---|
+| `concordant_human` | 22,279 | two independent annotations resolve to the same human gene |
+| `single_source_human` | 4,018 | one source names a human gene; nothing agrees or disagrees with it |
+| `symbol_names_another_gene` | 572 | the accessions resolve to one gene while the analysis's symbol is the approved symbol or a listed synonym of another |
+| `platform_self_contradictory` | 610 | the platform's accession and its own gene assignment name different genes |
+| `conflicting` | 1,473 | the sources name different genes; identity unestablished |
+| `undetermined` | 10,679 | no source resolves the feature to a human gene |
+| `technical_control` | 1,007 | the array's own control feature |
+
+**Two of these refusals exist because the first graded version was still too
+permissive**, and both were corrected before any pool-restricted run:
+
+- a verdict must not attribute a measurement to the wrong gene. Where the
+  analysis's symbol is the approved symbol or a listed synonym of a *different*
+  human gene, the claims are mutually exclusive and the feature is refused.
+  Where the symbol is simply unknown to the current gene reference — a clone or
+  locus placeholder, or a symbol a spreadsheet turned into a date — it carries
+  no competing claim, the accessions decide, and the measurement is kept with
+  the gene's current symbol recorded beside it. The two groups are of very
+  different size, 632 against 5,268, so refusing both would have discarded
+  about five thousand real measurements for a naming-vintage reason;
+- the platform record can contradict itself, its accession naming one gene and
+  its gene assignment another. Internal coherence is checked **before** any
+  agreement between sources is computed, because a record that contradicts
+  itself cannot confirm the archive. 610 features, 607 of which the previous
+  rule admitted.
+
+**A declared limit that follows, and is not repaired here.** 4,929 admissible
+features carry a name the gene no longer has. The analysis universe is keyed on
+the array's own symbols, so a mechanistic ordering keyed on current gene symbols
+cannot reach those features under those names. Re-keying the universe would make
+roughly five thousand further measurements reachable by the mechanistic arms,
+which is a methodological change rather than a correction; it is not done, and
+the limit is recorded so it is not mistaken for an absence.
+
+No verdict checks hybridisation specificity, because neither source distributes
+the oligonucleotide sequence. "Identified" therefore means **identified by
+annotation**, and the corollary is stated with equal force: **an undetermined
+feature is not a wrong measurement.** It is a measurement whose biological
+meaning the available annotation does not pin down, and a statistically
+informative variable can remain biologically undetermined. Analytical quality
+and predictive usefulness are reported separately and never merged.
+
+**The pools, frozen.** Built at the **feature** level and only then grouped by
+the symbol an analysis uses, so a gene with one admissible and one inadmissible
+feature keeps the admissible one; dropping the gene whole would discard a real
+measurement because a *different* feature of the same gene is badly annotated.
+
+| pool | admits | symbols | features |
+|---|---|---:|---:|
+| **A** qualified human | concordant + single source | 21,634 | 26,066 |
+| **A strict** | concordant only | 19,352 | 22,125 |
+| **B** = A ∩ network | concordant + single source | 11,030 | 14,230 |
+
+The admissible feature identifiers, the rule version and the SHA-256 of every
+source are committed in `registry/QUALIFIED_PROBE_POOLS.json`, so each
+individual decision is reconstructible rather than summarised.
+
+**How a pool is used, frozen.**
+
+- The pool applies to **every arm** of a comparison, never to one of them. A
+  restriction applied to the mechanistic arm alone would change the comparison
+  rather than qualify it.
+- The feature standing for a gene is chosen per training fold (§5.4), so a
+  selection recorded as a symbol is not traceable to a measurement. The feature
+  actually used is recorded fold by fold and checked against the pool; a
+  selected feature outside the pool stops the run instead of being reported.
+- A technical control carries no transcript, so its survival into a pool is a
+  construction error. Its absence is asserted by the runner, not assumed.
+- **H2a and H2d are comparable only on one universe.** Any text comparing them
+  must cite runs carrying the same pool file and pool name. An unrestricted
+  result and a pool-restricted result are not comparable.
+- The `undetermined` and `conflicting` strata are kept and reported, never
+  deleted. Each analysis states which strata it admits.
+- **The 200 decoy features are not pool members and never become one.** A decoy
+  carries the symbol of a network gene the array does not measure, so it cannot
+  intersect a pool; the identifier recorded for a decoy selection is a reserved
+  marker rather than a feature. A decoy selection is a selection error and is
+  counted separately from any annotation problem.
+
+**Status of the pool-restricted runs.** The primary H2a run stands as executed
+on the unrestricted universe, under protocol v1.4.3, and is not recomputed. The
+pool-restricted runs are **prespecified sensitivity analyses**: pool A answers
+whether the comparison holds among analytically admissible variables, pool B
+answers it among variables both admissible and reachable by the mechanistic
+ordering. Neither is the honest answer on its own, because each restriction
+moves the comparison in both directions at once — it removes unannotated
+features a statistical arm could exploit, and it removes candidates from every
+arm.
+
+**One endpoint loses its target.** `CYP1A2_activity` has **no admissible
+feature**: all four of its features are `conflicting`. Its H2a result is
+withdrawn, it is excluded from the pool-restricted primary tables, and the
+activity measurement remains usable only as a **secondary** endpoint for
+mechanisms other than its own transcript. The withdrawal holds under the
+stricter and fairer rule, not only under the first one.
+
 ### Criteria
 
 - Final MAE at equal panel dimension; selection frequency over repeated folds; Jaccard stability between selections; false-positive rate on null variables; causal-variable recovery in synthetic known-truth experiments; ability to reject the deliberately wrong panel; abstention rate when evidence is insufficient.
@@ -343,6 +453,8 @@ A result obtained on a functional or cell-line endpoint is never presented in th
 | 1.4.3 | 2026-11-08 | **Two implementation defects corrected after external review, before any H2a result was reported.** (1) The repeated cross-validation overwrote itself: out-of-fold errors were stored in one vector per arm, so with five folds by two repeats each donor was written twice and the reported losses came from the last repeat alone. Results are now stored per repeat and averaged per donor before any loss or bootstrap, which also keeps the donor as the independent unit. (2) The non-inferiority criterion named "the best statistical comparator", and the implementation chose it by out-of-fold error -- using the test folds twice and crediting the winner of three draws. The three statistical methods are now contrasted separately and the 5 % margin must hold against every one of them. The run in progress was stopped and discarded rather than reported. No threshold, margin, comparator or primary contrast was weakened. §5.3 also splits the second question in two at the review's request: H2a is relabelled as contextualised mechanistic selection rather than autonomous discovery, since the endpoint's label supplies the enzyme; the new H2b asks whether the chain can identify the mechanism from the drug instead, evaluated as mechanism recovery against an independently curated consensus so the ground truth does not come from the chain's own input; the integration question keeps its content and becomes H2c. |
 
 | 1.4.4 | 2026-11-08 | **Adds H2d, hybrid selection, and resolves a second label collision.** Knowledge proposes a shortlist of three times the budget from the outcome-blind ordering; the training donors then keep, demote or abstain, by partial rank correlation against the clinical baseline calibrated on a permutation null. Prompted by the H2a destroyed-signal result on one endpoint, so the rule is frozen in its own dated document which records that provenance, caps the generating endpoint at `exploratory`, makes the other nine the confirmatory set, and declares in advance the failure mode of collapsing onto the univariate selector. The review that proposed it called it "H2c", a label already used for the integration question, so it is H2d. No H2a number is recomputed or reinterpreted, and no threshold, margin, comparator or primary contrast changed. |
+| 1.4.5 | 2026-11-09 | **Adds §5.6: analytical admissibility of the candidate features, and the rule that H2a and H2d share one universe.** Prompted by two external reviews and by a result of the project's own: a gene symbol in this archive does not identify the molecule measured, so the candidate features are graded by how strongly two independent annotations agree on a human gene, with accessions resolved to genes before comparison, with a symbol that names a *different* human gene refused and an outdated name kept with the gene recorded beside it, and with the platform record checked for internal coherence before any agreement between sources is computed. Three pools are frozen, built feature by feature and only then grouped by symbol so a mixed gene keeps its admissible features, with the complete admissible lists, the refused strata and every source checksum committed. The pool applies to every arm or to none; the feature actually used is traced fold by fold and a selection outside the pool stops the run; the undetermined and conflicting strata are kept rather than deleted, and an undetermined feature is explicitly not a wrong measurement. `CYP1A2_activity` has no admissible feature under the stricter rule either, and its result stays withdrawn. The 200 decoys stay outside every pool. The limit that 4,929 admissible features carry a name the gene no longer has is declared rather than repaired, because re-keying the universe would be a methodological change. Specified after the primary H2a run and before any pool-restricted or H2d run; no primary number is recomputed and no threshold, margin, comparator or primary contrast changed. |
+
 
 ### Validity of the 1.1.0 amendment
 

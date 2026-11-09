@@ -154,6 +154,20 @@ def load_hlc(hlc_dir: Path):
     }
 
 
+# A decoy column carries a network gene's symbol and a real probe's values with
+# the donors shuffled. It is measured on nothing, so it has no feature.
+DECOY_FEATURE_ID = "decoy_no_feature"
+
+
+def qualified_pool_features(pool_path, pool_name):
+    """The admissible feature identifiers of one named pool, as a set."""
+    pool = json.loads(Path(pool_path).read_text(encoding="utf-8"))
+    admissible = pool.get("admissible_features", {}).get(pool_name)
+    if not admissible:
+        raise H2aError(f"the pool file carries no admissible set named {pool_name!r}")
+    return set(admissible)
+
+
 def restrict_universe_to_qualified_pool(universe, data, pool_path, pool_name):
     """Keep only the probes a graded identity qualification admits.
 
@@ -318,11 +332,16 @@ def centre_folds(centre):
 # --------------------------------------------------------------------------
 # Per-fold feature matrix
 # --------------------------------------------------------------------------
-def fold_matrix(data, universe, train, donor_index):
+def fold_matrix(data, universe, train, donor_index, chosen=None):
     """Assemble the candidate matrix with every choice made on `train` only.
 
     Returns the matrix over all donors in `donor_index`, the gene name of each
     column, and a mask marking the decoy columns.
+
+    When a dict is passed as `chosen`, it is filled with the feature identifier
+    actually used for each symbol in this fold, so any selection can be traced
+    back to the probe it was measured on and checked against the qualified
+    pool. A decoy column has no feature identifier and is recorded as such.
     """
     values = data["values"][:, donor_index]
     names: list[str] = []
@@ -349,6 +368,8 @@ def fold_matrix(data, universe, train, donor_index):
         names.append(symbol)
         columns.append(row)
         is_decoy.append(False)
+        if chosen is not None:
+            chosen[symbol] = str(data["feature_ids"][best_position])
 
     for symbol, row in zip(universe["decoy_symbols"], universe["decoy_values"]):
         column = row[donor_index].copy()
@@ -358,6 +379,8 @@ def fold_matrix(data, universe, train, donor_index):
         names.append(symbol)
         columns.append(column)
         is_decoy.append(True)
+        if chosen is not None:
+            chosen[symbol] = DECOY_FEATURE_ID
 
     matrix = np.column_stack(columns)
     return matrix, np.asarray(names, dtype=object), np.asarray(is_decoy, dtype=bool)
@@ -930,7 +953,8 @@ def main(argv=None) -> int:
                              "arm to the same analytically admissible "
                              "probes.")
     parser.add_argument("--pool-name", default="A_qualified_human",
-                        help="Which admissible set inside the pool file.")
+                        help="Which admissible set inside the pool file "
+                             "(default: %(default)s).")
     parser.add_argument("--restrict-to-network", action="store_true",
                         help="Sensitivity analysis: let every arm select "
                              "only from genes the public network contains, "
@@ -987,7 +1011,7 @@ def main(argv=None) -> int:
 
     report = {
         "analysis": "H2a: mechanistic versus statistical selection, equal dimension",
-        "protocol_version": "1.4.3",
+        "protocol_version": "1.4.5",
         "run_on": date.today().isoformat(),
         "endpoint_class": "functional_in_vitro",
         "endpoint_class_note": (

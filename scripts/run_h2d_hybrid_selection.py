@@ -117,7 +117,7 @@ class H2dError(RuntimeError):
 
 
 def run_endpoint(endpoint, data, universe, orders, *, folds, fold_label,
-                 exploratory, log):
+                 exploratory, log, pool_features=None):
     import pandas as pd
 
     y_all = pd.to_numeric(data["phenotype"].loc[endpoint],
@@ -164,10 +164,34 @@ def run_endpoint(endpoint, data, universe, orders, *, folds, fold_label,
     blind_order = orders[endpoint]["netpk_target_seeded"]
     target_gene = orders[endpoint]["target_gene_only"][0]
 
+    # Probe-level traceability. The probe standing for a gene is chosen on
+    # training donors only, so the choice can differ between folds and a
+    # selection is not traceable from the gene symbol alone. Every feature any
+    # arm actually used is checked against the qualified pool, and the features
+    # behind the hybrid's own panels are recorded fold by fold.
+    trace = {"features_by_symbol": {}, "selections_examined": 0,
+             "outside_the_pool": {}, "decoy_selections": 0}
+
+    def note(symbols, *, chosen, record):
+        for symbol in symbols:
+            feature = chosen.get(symbol)
+            trace["selections_examined"] += 1
+            if feature is None:
+                continue
+            if feature == H2A.DECOY_FEATURE_ID:
+                trace["decoy_selections"] += 1
+            elif pool_features is not None and feature not in pool_features:
+                trace["outside_the_pool"][symbol] = feature
+            if record:
+                counts = trace["features_by_symbol"].setdefault(symbol, {})
+                counts[feature] = counts.get(feature, 0) + 1
+
     started = time.time()
     for fold_number, (train, test) in enumerate(donor_folds):
         repeat = repeat_of[fold_number]
-        matrix, names, _ = H2A.fold_matrix(data, universe, train, keep)
+        chosen_feature = {}
+        matrix, names, _ = H2A.fold_matrix(data, universe, train, keep,
+                                           chosen=chosen_feature)
         position_of = {str(name): index for index, name in enumerate(names)}
         clinical = H2A.baseline_matrix(data, keep, train)
         statistical = H2A.statistical_orders(matrix[train], names, y[train],
@@ -186,6 +210,7 @@ def run_endpoint(endpoint, data, universe, orders, *, folds, fold_label,
             selection = select_hybrid(blind_order, position_of, matrix[train],
                                       y[train], clinical[train], budget=k)
             kept = list(selection.retained)
+            note(kept, chosen=chosen_feature, record=True)
             retained_counts[k].append(len(kept))
             abstentions[k] += int(selection.abstained)
             if fold_number == 0:
@@ -196,12 +221,15 @@ def run_endpoint(endpoint, data, universe, orders, *, folds, fold_label,
             errors["hybrid_at_budget"][k][repeat, test] = np.abs(predicted - y[test])
 
             blind = [g for g in blind_order if g in position_of][:k]
+            note(blind, chosen=chosen_feature, record=False)
             blind_predicted = predict(blind)
             predictions["blind_mechanistic"][k][repeat, test] = blind_predicted
             errors["blind_mechanistic"][k][repeat, test] = np.abs(
                 blind_predicted - y[test])
 
             for arm in STATISTICAL:
+                note(statistical[arm][:max(k, len(kept))],
+                     chosen=chosen_feature, record=False)
                 at_budget = predict(statistical[arm][:k])
                 predictions[arm][k][repeat, test] = at_budget
                 errors[arm][k][repeat, test] = np.abs(at_budget - y[test])
@@ -219,6 +247,7 @@ def run_endpoint(endpoint, data, universe, orders, *, folds, fold_label,
         # Destroyed-signal check, the observation that produced this rule. The
         # hybrid must demote the dead gene where the blind arm cannot.
         if target_gene in position_of:
+            note([target_gene], chosen=chosen_feature, record=True)
             wrecked = matrix.copy()
             column = position_of[target_gene]
             # Permute WITHIN each block. A single permutation over all donors
@@ -262,12 +291,33 @@ def run_endpoint(endpoint, data, universe, orders, *, folds, fold_label,
         "n_donors": int(y.size),
         "folds": len(donor_folds),
         "target_gene": target_gene,
+        "target_gene_available_in_folds": destroyed["folds_examined"],
         "losses_at_budget": {},
         "losses_at_matched_dimension": {},
         "retained": {},
         "agreement_with_univariate": {},
         "demoted_on_first_fold": demoted_examples,
+        "probe_traceability": {
+            "probe_choice_rule": (
+                "The probe standing for a gene is chosen on training donors "
+                "only, by the highest mean among the probes passing the "
+                "missingness rule, so it can differ between folds. A selection "
+                "is therefore not traceable from the gene symbol alone."),
+            "qualified_pool_applied": pool_features is not None,
+            "selections_checked": trace["selections_examined"],
+            "selected_features_outside_the_pool": dict(
+                sorted(trace["outside_the_pool"].items())),
+            "decoy_selections": trace["decoy_selections"],
+            "features_used_by_the_hybrid_and_the_target": {
+                symbol: dict(sorted(counts.items()))
+                for symbol, counts in sorted(trace["features_by_symbol"].items())},
+        },
     }
+    if pool_features is not None and trace["outside_the_pool"]:
+        raise H2dError(
+            f"{endpoint}: {len(trace['outside_the_pool'])} selected features "
+            "are outside the qualified pool, so the restriction did not hold: "
+            f"{sorted(trace['outside_the_pool'].items())[:3]}")
     if exploratory:
         summary["why_exploratory"] = (
             "This endpoint's destroyed-signal result generated the hybrid "
@@ -353,6 +403,19 @@ def run_endpoint(endpoint, data, universe, orders, *, folds, fold_label,
                      )["non_inferior_within_margin"] for arm in STATISTICAL),
         } for k in sizes}
 
+    if not destroyed["folds_examined"]:
+        # Under a qualified pool an endpoint can lose its own transcript. The
+        # diagnostic that generated this hypothesis then cannot be run, and
+        # saying so is not the same as reporting that it passed.
+        summary["destroyed_signal_repair"] = {
+            "gene": target_gene,
+            "not_assessable": (
+                f"{target_gene} has no admissible feature in this universe, so "
+                "its donor order cannot be permuted and the destroyed-signal "
+                "diagnostic cannot be run for this endpoint. The endpoint is "
+                "kept as a secondary analysis of other mechanisms; its own "
+                "transcript is not a measurable predictor here."),
+        }
     if destroyed["folds_examined"]:
         blind_errors = per_donor(destroyed["blind"])
         hybrid_errors_wrecked = per_donor(destroyed["hybrid"])
@@ -403,6 +466,17 @@ def main(argv=None) -> int:
     parser.add_argument("--endpoints", nargs="*", default=None)
     parser.add_argument("--design", choices=("repeated", "centre"),
                         default="repeated")
+    parser.add_argument("--probe-pool", default=None,
+                        help="A qualified-probe-pool file. Restricts every "
+                             "arm to the same analytically admissible probes, "
+                             "exactly as the H2a sensitivity runs do, so the "
+                             "two analyses share one universe.")
+    parser.add_argument("--pool-name", default="A_qualified_human",
+                        help="Which admissible set inside the pool file "
+                             "(default: %(default)s).")
+    parser.add_argument("--restrict-to-network", action="store_true",
+                        help="Sensitivity analysis: let every arm select only "
+                             "from genes the public network contains.")
     args = parser.parse_args(argv)
 
     def log(message):
@@ -423,6 +497,22 @@ def main(argv=None) -> int:
         knowledge / "9606.protein.links.v12.0.txt.gz")
     data = H2A.load_hlc(Path(args.hlc))
     universe = H2A.build_universe(data, graph, np.random.default_rng(H2A.SEED))
+    pool_features = None
+    if args.probe_pool:
+        pool_features = H2A.qualified_pool_features(args.probe_pool,
+                                                    args.pool_name)
+        universe = H2A.restrict_universe_to_qualified_pool(
+            universe, data, args.probe_pool, args.pool_name)
+        log(f"QUALIFIED POOL {args.pool_name}: "
+            f"{universe['qualified_pool']['symbols_after']} symbols "
+            f"(was {universe['qualified_pool']['symbols_before']}), "
+            f"{universe['qualified_pool']['probes_dropped']} probes dropped, "
+            "no technical control present")
+    if args.restrict_to_network:
+        universe = H2A.restrict_universe_to_network(universe, graph)
+        log(f"SENSITIVITY: restricted to the network -> "
+            f"{universe['candidates_after_restriction']} candidates "
+            f"(was {universe['candidates_before_restriction']})")
     orders = H2A.mechanistic_orders(graph, knowledge)
     log(f"network {graph.n_nodes} nodes; candidates "
         f"{len(universe['by_symbol'])}; endpoints {len(endpoints)}")
@@ -448,6 +538,17 @@ def main(argv=None) -> int:
             "and cannot promote the clinical claim above PARTIALLY_SUPPORTED."),
         "generating_endpoint": GENERATING_ENDPOINT,
         "validation_set_independence": VALIDATION_SET_INDEPENDENCE,
+        "universe": {
+            "candidate_genes": len(universe["by_symbol"]),
+            "candidate_genes_on_network": len(universe["genes_on_network"]),
+            "restricted_to_network": bool(args.restrict_to_network),
+            "qualified_pool": universe.get("qualified_pool"),
+            "same_pool_as_h2a": (
+                "H2a and H2d are only comparable when both run on the same "
+                "universe. The pool file and pool name recorded here must "
+                "match the H2a run the comparison cites; an unrestricted H2d "
+                "result is not comparable with a pool-restricted H2a result."),
+        },
         "frozen": {
             "hybrid": dict(HYBRID_FROZEN),
             "inherited_from_h2a": {
@@ -472,7 +573,8 @@ def main(argv=None) -> int:
         report["endpoints"][endpoint] = run_endpoint(
             endpoint, data, universe, orders, folds=folds,
             fold_label=fold_label,
-            exploratory=(endpoint == GENERATING_ENDPOINT), log=log)
+            exploratory=(endpoint == GENERATING_ENDPOINT), log=log,
+            pool_features=pool_features)
 
     out = Path(args.out)
     out.parent.mkdir(parents=True, exist_ok=True)

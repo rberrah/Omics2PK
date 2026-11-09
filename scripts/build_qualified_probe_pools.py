@@ -46,9 +46,10 @@ from omics2pk.probe_identity_qualification import (  # noqa: E402
     build_probe_pool,
     qualify_probe,
     summarise,
+    symbol_to_gene_index,
 )
 
-RULE_VERSION = "probe-identity-1.0.0"
+RULE_VERSION = "probe-identity-1.1.0"
 EXPECTED_PROBES = 40638
 CHUNK = 1 << 20
 
@@ -151,6 +152,10 @@ def main(argv=None) -> int:
     accession_path = Path(args.accession_map)
 
     human_genes = read_human_genes(gene_info_path)
+    # The symbol index decides whether a symbol that disagrees with the
+    # resolved gene is a competing claim or merely a name the reference no
+    # longer knows. Built from the same gene reference as the verdicts.
+    symbol_index = symbol_to_gene_index(human_genes)
     accession_to_genes = read_accession_map(accession_path)
     archive = read_archive(Path(args.hlc))
     platform = read_platform(platform_path)
@@ -162,7 +167,8 @@ def main(argv=None) -> int:
             feature_id, symbol=symbol, archive_accession=accession,
             platform_accession=platform_accession, platform_entrez=entrez,
             accession_to_human_genes=accession_to_genes,
-            human_gene_symbols=human_genes))
+            human_gene_symbols=human_genes,
+            symbol_to_human_genes=symbol_index))
 
     overview = summarise(identities)
     pool_a = build_probe_pool(identities, admit=ADMISSIBLE_BY_DEFAULT)
@@ -187,6 +193,13 @@ def main(argv=None) -> int:
                           if i.verdict == "undetermined")
     conflicting = sorted(i.feature_id for i in identities
                          if i.verdict == "conflicting")
+    wrong_gene = sorted(i.feature_id for i in identities
+                        if i.verdict == "symbol_names_another_gene")
+    incoherent = sorted(i.feature_id for i in identities
+                        if i.verdict == "platform_self_contradictory")
+    stale_alias = sorted(
+        (i.feature_id, i.symbol, i.human_symbol)
+        for i in identities if i.symbol_is_a_stale_alias)
 
     report = {
         "report": "Graded probe identity and the qualified pools",
@@ -216,6 +229,9 @@ def main(argv=None) -> int:
         "strata_kept_separate": {
             "undetermined_probes": len(undetermined),
             "conflicting_probes": len(conflicting),
+            "symbol_names_another_gene_probes": len(wrong_gene),
+            "platform_self_contradictory_probes": len(incoherent),
+            "admissible_under_a_stale_alias": len(stale_alias),
             "why": ("Neither stratum is deleted. An undetermined probe is not a "
                     "wrong measurement, only one whose biological meaning the "
                     "available annotation does not pin down, and dropping the "
@@ -229,6 +245,9 @@ def main(argv=None) -> int:
         },
         "undetermined_features": undetermined,
         "conflicting_features": conflicting,
+        "symbol_names_another_gene_features": wrong_gene,
+        "platform_self_contradictory_features": incoherent,
+        "stale_alias_features": [list(row) for row in stale_alias],
     }
 
     out = Path(args.out)

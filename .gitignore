@@ -42,3 +42,5 @@ reports/*_files/
 reports/*_cache/
 reports/data/h2a_part_*.json
 reports/data/h2a_net_part_*.json
+reports/data/h2a_pool*_part_*.json
+reports/data/h2d_part_*.json
