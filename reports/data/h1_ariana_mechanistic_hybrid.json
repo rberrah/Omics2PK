@@ -1,0 +1,1219 @@
+{
+  "activity_score_alignment": {
+    "fraction_interpolated": 0.5106382978723404,
+    "n_patients_interpolated": 24,
+    "n_patients_on_grid": 23,
+    "observed_scores": [
+      0.0,
+      0.25,
+      1.0,
+      1.25,
+      2.0,
+      3.0
+    ],
+    "published_grid": [
+      0.0,
+      0.5,
+      1.25,
+      1.5,
+      2.0,
+      3.0
+    ],
+    "published_relative_activity": [
+      0.0,
+      0.19,
+      0.64,
+      0.72,
+      1.0,
+      2.13
+    ],
+    "rule_applied": "monotone linear interpolation between the published grid points, constant extrapolation beyond activity score 3",
+    "scores_absent_from_the_published_grid": [
+      0.25,
+      1.0
+    ],
+    "this_is_a_decision_not_a_published_value": "An interpolated relative activity is not a value Rüdesheim 2020 reports. It is declared here because protocol §8 forbids aligning activity-score conventions silently. Reading an arm's result as evidence about the published mapping is therefore not admissible for the interpolated share of the cohort."
+  },
+  "arms": {
+    "hybrid": {
+      "residual_design": [
+        "Age (years)",
+        "male sex",
+        "weight",
+        "BMI",
+        "Daily Dose Metoprolol",
+        "AS",
+        "CYP2D6 inhibitor intake",
+        "lnMR OH-solanidine/solanidine",
+        "lnMR SSDA/solanidine"
+      ],
+      "residual_target": "log observed minus log structural prediction, computed on the training patients of the outer fold only",
+      "ridge_penalty_chosen_per_fold": {
+        "max": 56.23413251903491,
+        "median": 1.3891397050194614,
+        "min": 0.05623413251903491
+      },
+      "structural_base": "P1, the published-coefficient PopPK arm",
+      "training_log_residual_sd_per_fold": {
+        "max": 0.8519779329747585,
+        "median": 0.806528758852693,
+        "min": 0.6725502285847302
+      }
+    },
+    "hybrid_secondary": {
+      "residual_design": [
+        "lnMR OH-solanidine/solanidine",
+        "lnMR SSDA/solanidine"
+      ],
+      "residual_target": "log observed minus log structural prediction, computed on the training patients of the outer fold only",
+      "ridge_penalty_chosen_per_fold": {
+        "max": 10.0,
+        "median": 0.5623413251903491,
+        "min": 0.001
+      },
+      "structural_base": "P1, the published-coefficient PopPK arm",
+      "training_log_residual_sd_per_fold": {
+        "max": 0.8519779329747585,
+        "median": 0.806528758852693,
+        "min": 0.6725502285847302
+      }
+    },
+    "mechanistic": {
+      "folds_where_the_inhibitor_free_requirement_was_relaxed": 0,
+      "locked_baseline_clearance_L_per_h": {
+        "M4_mechanistic_pgx": {
+          "max": 127.28171702622987,
+          "median": 109.01557077734313,
+          "min": 102.24932601361498
+        },
+        "M4c_backbone_only": {
+          "max": 73.92659589109115,
+          "median": 66.18742277542319,
+          "min": 60.54661781646373
+        },
+        "M5_mechanistic_pgx_omic": {
+          "max": 108.78732275260903,
+          "median": 93.60159052699808,
+          "min": 88.57458898283258
+        },
+        "M5c_mechanistic_omic_only": {
+          "max": 91.25154328305369,
+          "median": 76.06451469013652,
+          "min": 68.77702221207899
+        }
+      },
+      "omic_reference_patients_per_fold": {
+        "max": 14,
+        "median": 13.0,
+        "min": 10
+      },
+      "what_is_fitted_on_the_cohort": "one parameter per arm per fold: the reference apparent clearance, by least squares on the training patients' log residuals, locked before the test fold is touched"
+    },
+    "poppk_covariate": {
+      "convergence_cross_check": {
+        "how": "each fold's gradient-based fit is refitted with a derivative-free method from its own solution; the largest disagreement in any coefficient is recorded. A solver's own success flag is not used as evidence: the objective is differentiated by finite differences, so a tight gradient tolerance is unreachable at a perfectly good optimum.",
+        "max_parameter_disagreement_over_all_fits": 2.1296115004787453e-07,
+        "tolerance": 0.0001
+      },
+      "estimated_coefficients_across_folds": {
+        "P2_poppk_estimated_coefficients": {
+          "activity_score": {
+            "cv_percent": 13.546187047143658,
+            "median": 0.5261711169593141,
+            "q1": 0.44419907890476446,
+            "q3": 0.568245156785768
+          },
+          "log_cl0": {
+            "cv_percent": 2.4140563332021476,
+            "median": 4.5151267745559505,
+            "q1": 4.501611292296334,
+            "q3": 4.599810789733629
+          },
+          "sex": {
+            "cv_percent": 20.560610382814026,
+            "median": 0.5537511303694207,
+            "q1": 0.49115788704936947,
+            "q3": 0.6538810021839632
+          }
+        },
+        "P3_poppk_estimated_plus_omic": {
+          "activity_score": {
+            "cv_percent": 60.00883776571203,
+            "median": 0.2167582833824683,
+            "q1": 0.16412177636813785,
+            "q3": 0.2639828864330978
+          },
+          "log_cl0": {
+            "cv_percent": 2.815022613732006,
+            "median": 4.441571450295366,
+            "q1": 4.4145480293771975,
+            "q3": 4.515188727380379
+          },
+          "omic": {
+            "cv_percent": 20.785414839954566,
+            "median": 0.24904815052964052,
+            "q1": 0.2148253698283838,
+            "q3": 0.2806176401957564
+          },
+          "sex": {
+            "cv_percent": 16.88287249614276,
+            "median": 0.567917858975133,
+            "q1": 0.4798263185493109,
+            "q3": 0.6481126044684751
+          }
+        }
+      },
+      "fits_failing_the_convergence_cross_check": 0,
+      "how_to_read_a_wide_cv": "A coefficient whose fold-to-fold CV exceeds 100 % is not identified at this sample size. That is an argument for fixing it from the literature, not a result about the covariate.",
+      "published_values_for_comparison": {
+        "activity_score": "not a free power in the published arm: the mechanistic relation (1 - f_m) + f_m * a_rel with f_m = 0.8",
+        "omic": "not published as a clearance coefficient; its mechanistic counterpart is f_m * gamma = 0.8",
+        "sex": 0.572
+      }
+    },
+    "what_each_arm_is": {
+      "HY_poppk_published_plus_ml_residual": "protocol HY: P1's structural prediction plus a ridge model of its log residual, fitted inside the training fold",
+      "HYc_residual_on_the_omic_block_only": "HY variant whose residual stage sees only the two solanidine ratios. Secondary, declared before the run.",
+      "M4_mechanistic_pgx": "protocol M4: mechanistic structure plus genotype and phenoconversion, all coefficients literature-fixed",
+      "M4c_backbone_only": "structural control: no CYP2D6 information at all. Not a protocol arm; it exists so that M4's own content is readable.",
+      "M5_mechanistic_pgx_omic": "protocol M5: M4 plus the omic module, geometric blend at the fixed weight 0.5",
+      "M5c_mechanistic_omic_only": "the omic module substituting for the genotype. Secondary.",
+      "P1_poppk_published_coefficients": "protocol P1. At ARIANA's covariate set this is the SAME model as M4: identical structure, identical published coefficients, identical single free parameter. The report measures their agreement rather than asserting it.",
+      "P2_poppk_estimated_coefficients": "protocol P2: the same covariates with the sex and CYP2D6 coefficients estimated on the training fold",
+      "P3_poppk_estimated_plus_omic": "protocol P3: P2 plus the omic as an estimated coefficient"
+    }
+  },
+  "cohort": "ariana_metoprolol_47",
+  "configuration": {
+    "backbone": {
+      "ka": 0.0475,
+      "key": "FDA2006_ER",
+      "name": "FDA 2006 Toprol-XL, two-compartment oral extended release",
+      "q": 741.0,
+      "role": "primary scenario",
+      "source": "FDA 019962s033 (2006)",
+      "structure": "2C",
+      "tlag": 0.818,
+      "v_ref": 180.0,
+      "vp": 661.0
+    },
+    "dosing_assumption": "two equal daily doses, tau = 12 h, trough drawn at 12 h. The source documents neither clock time nor time since the last dose, so this is an assumption, not a measurement.",
+    "omic_panel": {
+      "columns": [
+        "lnMR OH-solanidine/solanidine"
+      ],
+      "key": "oh_only"
+    },
+    "why_this_backbone_is_primary": "47.5 and 95 mg unit doses are the German succinate extended-release presentations. The argument is pharmaceutical, never the observed loss; both immediate-release backbones run as structural sensitivity.",
+    "why_this_panel_is_primary": "4-OH-solanidine has an authentic synthesised standard; SSDA is semi-quantitative without one. The prior ARIANA bundle promoted OH+SSDA to primary on the observed loss, which is a result-guided choice and is carried here as a sensitivity."
+  },
+  "free_parameters_fitted_on_this_cohort": {
+    "HY_poppk_published_plus_ml_residual": "1 structural + the ridge penalty and coefficients of the residual stage, all fitted inside the training fold",
+    "M4_mechanistic_pgx": 1,
+    "M4c_backbone_only": 1,
+    "M5_mechanistic_pgx_omic": 1,
+    "M5c_mechanistic_omic_only": 1,
+    "P1_poppk_published_coefficients": 1,
+    "P2_poppk_estimated_coefficients": 3,
+    "P3_poppk_estimated_plus_omic": 4
+  },
+  "how_to_read_the_sensitivity": "These sweeps use a reduced bootstrap and are descriptive only. Their purpose is to show whether the key secondary's direction survives the transfer assumptions, not to choose a value: the published values were fixed before the sweep and are not changed after it.",
+  "key_secondary_contrast": {
+    "definition": "M5_mechanistic_pgx_omic versus M4_mechanistic_pgx, mean absolute error on the observed trough, identical folds to the primary contrast",
+    "designated_in": "protocol §4, key secondary",
+    "exploratory_success_criterion": {
+      "relative_improvement": 0.16751997463730528,
+      "threshold": "at least 10% relative MAE improvement with a descriptive 95 % interval excluding zero, and no reversal on both robustness co-criteria",
+      "threshold_met": true
+    },
+    "influence": {
+      "mean_gain_by_endpoint_quartile": {
+        "Q1": 6.132527084438011,
+        "Q2": 6.264229745739001,
+        "Q3": 5.507603471604213,
+        "Q4": 8.493750073383556
+      },
+      "n_improved": 34,
+      "n_worsened": 13,
+      "net_gain": 310.51309475623833,
+      "reading": "A net gain concentrated in a handful of patients, or present in only one endpoint quartile, is reported as such and caps the status at PARTIALLY_SUPPORTED per protocol section 2.1.",
+      "share_of_net_gain_from_five_most_improved": 0.7819298578507937
+    },
+    "primary_loss": {
+      "best_case_relative_in_interval": -0.3114920529990302,
+      "descriptive_95_interval": [
+        -12.28464000647329,
+        -1.260717019380713
+      ],
+      "direction": "improvement",
+      "excludes_a_prespecified_size_benefit": false,
+      "how_to_read": "interval_excludes_zero false means no effect was DETECTED, never that there is none. excludes_a_prespecified_size_benefit true means a benefit of at least 10% is incompatible with the interval; false means the design cannot rule one out, which is INCONCLUSIVE rather than NOT_SUPPORTED.",
+      "interval_excludes_zero": true,
+      "mean_difference": -6.606661590558263,
+      "n_bootstrap": 2000,
+      "n_independent_patients": 47,
+      "relative_change_vs_baseline": -0.16751997463730528
+    },
+    "reported": "unadjusted and labelled secondary, per protocol §9",
+    "reversal_rule": {
+      "log_mae_reversed": false,
+      "primary_improved": true,
+      "rule": "If the primary loss improves while BOTH robustness co-criteria reverse, the status caps at PARTIALLY_SUPPORTED and the influence analysis becomes mandatory.",
+      "status_capped_at_partially_supported": false,
+      "trimmed_mae_reversed": false
+    },
+    "robustness_co_criteria": {
+      "log_mae": {
+        "best_case_relative_in_interval": -0.3239113038917269,
+        "descriptive_95_interval": [
+          -0.1965923853622765,
+          -0.03145857321211198
+        ],
+        "direction": "improvement",
+        "excludes_a_prespecified_size_benefit": false,
+        "how_to_read": "interval_excludes_zero false means no effect was DETECTED, never that there is none. excludes_a_prespecified_size_benefit true means a benefit of at least 10% is incompatible with the interval; false means the design cannot rule one out, which is INCONCLUSIVE rather than NOT_SUPPORTED.",
+        "interval_excludes_zero": true,
+        "mean_difference": -0.10903727265943948,
+        "n_bootstrap": 2000,
+        "n_independent_patients": 47,
+        "relative_change_vs_baseline": -0.17965296618601345
+      },
+      "trimmed_mae_10pct": {
+        "baseline_trimmed_mae": 25.921374245554926,
+        "mean_difference": -4.084189089353611,
+        "new_trimmed_mae": 21.837185156201315
+      }
+    }
+  },
+  "literature_constants": [
+    {
+      "estimated_on_ariana": false,
+      "fixed_coefficient": "one- or two-compartment oral steady state, tau = 12 h; ka, V/F and the distribution terms per backbone (see BACKBONES)",
+      "module": "structural backbone",
+      "source": "Chai et al. 2026 Clin Transl Sci doi 10.1111/cts.70677; Eugene 2016 doi 10.19070/2167-910X-1600035; FDA 019962s033 (2006) Toprol-XL"
+    },
+    {
+      "estimated_on_ariana": false,
+      "fixed_coefficient": "fraction metabolised by CYP2D6 f_m = 0.80; relative catalytic activity 0 / 0.19 / 0.64 / 0.72 / 1.00 / 2.13 at activity score 0 / 0.5 / 1.25 / 1.5 / 2 / 3",
+      "module": "CYP2D6 genotype",
+      "source": "Rüdesheim et al. 2020 Pharmaceutics 12:1200 doi 10.3390/pharmaceutics12121200, Table 3"
+    },
+    {
+      "estimated_on_ariana": false,
+      "fixed_coefficient": "activity score reduced by 0.54 per documented CYP2D6 substrate/inhibitor",
+      "module": "phenoconversion",
+      "source": "Müller/Sarömba et al. 2025 Br J Clin Pharmacol, external geriatric cohort n=88, PMC12272519"
+    },
+    {
+      "estimated_on_ariana": false,
+      "fixed_coefficient": "relative activity = exp(gamma * (lnMR_i - lnMR_reference)), gamma = 1, capped at the published ultrarapid activity 2.13",
+      "module": "omic CYP2D6 phenotype",
+      "source": "Medwid et al. 2024 Clin Pharmacol Ther doi 10.1002/cpt.3380; Müller et al. 2024 doi 10.1002/cpt.3106"
+    },
+    {
+      "estimated_on_ariana": false,
+      "fixed_coefficient": "CL/F proportional to (weight/70)^0.75; V/F to (weight/70)^1",
+      "module": "allometry",
+      "source": "Anderson & Holford, standard allometric scaling"
+    },
+    {
+      "estimated_on_ariana": false,
+      "fixed_coefficient": "CL/F male = CL/F female * exp(0.572)",
+      "module": "sex",
+      "source": "Eugene 2016 doi 10.19070/2167-910X-1600035"
+    }
+  ],
+  "losses": {
+    "HY_poppk_published_plus_ml_residual": {
+      "bias": -11.229941890160097,
+      "log_mae": 0.5272385769789951,
+      "mae": 35.518092803290855,
+      "n_patients": 47,
+      "p20_fraction_within_20pct": 0.2765957446808511,
+      "rmse": 52.50109807380592,
+      "trimmed_mae_10pct": 24.897639212395895
+    },
+    "HYc_residual_on_the_omic_block_only": {
+      "bias": -0.7496165734894226,
+      "log_mae": 0.5624128110782476,
+      "mae": 41.010767774314886,
+      "n_patients": 47,
+      "p20_fraction_within_20pct": 0.2553191489361702,
+      "rmse": 61.18714662933002,
+      "trimmed_mae_10pct": 29.369921582079364
+    },
+    "M4_mechanistic_pgx": {
+      "bias": -15.197268088039014,
+      "log_mae": 0.6069327714107532,
+      "mae": 39.43805271498062,
+      "n_patients": 47,
+      "p20_fraction_within_20pct": 0.3191489361702128,
+      "rmse": 63.870130270509264,
+      "trimmed_mae_10pct": 25.921374245554926
+    },
+    "M4c_backbone_only": {
+      "bias": -21.82300280248576,
+      "log_mae": 0.7565222966438319,
+      "mae": 50.755644394247525,
+      "n_patients": 47,
+      "p20_fraction_within_20pct": 0.1702127659574468,
+      "rmse": 88.56425311378555,
+      "trimmed_mae_10pct": 33.327672069375055
+    },
+    "M5_mechanistic_pgx_omic": {
+      "bias": -14.63159565563666,
+      "log_mae": 0.49789549875131367,
+      "mae": 32.83139112442235,
+      "n_patients": 47,
+      "p20_fraction_within_20pct": 0.2553191489361702,
+      "rmse": 53.10883811794224,
+      "trimmed_mae_10pct": 21.837185156201315
+    },
+    "M5c_mechanistic_omic_only": {
+      "bias": -8.226814828865752,
+      "log_mae": 0.49046747688773107,
+      "mae": 32.46749974160959,
+      "n_patients": 47,
+      "p20_fraction_within_20pct": 0.2127659574468085,
+      "rmse": 47.90567098459039,
+      "trimmed_mae_10pct": 23.647279745444045
+    },
+    "P1_poppk_published_coefficients": {
+      "bias": -15.19726808803901,
+      "log_mae": 0.6069327714107532,
+      "mae": 39.43805271498062,
+      "n_patients": 47,
+      "p20_fraction_within_20pct": 0.3191489361702128,
+      "rmse": 63.870130270509264,
+      "trimmed_mae_10pct": 25.921374245554926
+    },
+    "P2_poppk_estimated_coefficients": {
+      "bias": -19.404150405155857,
+      "log_mae": 0.6522933564642606,
+      "mae": 43.20297687942345,
+      "n_patients": 47,
+      "p20_fraction_within_20pct": 0.19148936170212766,
+      "rmse": 70.28982745570093,
+      "trimmed_mae_10pct": 28.73110199071203
+    },
+    "P3_poppk_estimated_plus_omic": {
+      "bias": -8.838357279367385,
+      "log_mae": 0.6232386488182617,
+      "mae": 42.95251304817892,
+      "n_patients": 47,
+      "p20_fraction_within_20pct": 0.2127659574468085,
+      "rmse": 70.99297145266367,
+      "trimmed_mae_10pct": 28.416217956563145
+    }
+  },
+  "map_be": "excluded by construction: one observation per patient makes conditioning on it and predicting it circular",
+  "multiplicity": {
+    "other_secondary_family_size": 7,
+    "rule": "One primary contrast for the whole programme, already reported elsewhere. The key secondary here is reported unadjusted and labelled secondary, as protocol §9 prescribes; every other contrast is exploratory and carries a Bonferroni-adjusted interval alongside its nominal one. Fold repetition is never additional independent subjects.",
+    "which_lose_their_interval_on_adjustment": [
+      "M4_vs_backbone_only",
+      "P2_vs_P1"
+    ],
+    "which_other_secondaries_survive_adjustment": []
+  },
+  "nlme": "not claimed: between-subject and residual variability are not separately identifiable from one observation per subject",
+  "objective": "H1 key secondary and hybrid arm",
+  "omic_panel_sensitivity": {
+    "oh_and_ssda": {
+      "M4_log_mae": 0.6069327714107532,
+      "M4_mae": 39.43805271498062,
+      "M5_log_mae": 0.45331725217510305,
+      "M5_mae": 31.692921554921035,
+      "interval_excludes_zero": true,
+      "relative_change": -0.19638726120769093
+    },
+    "oh_only": {
+      "M4_log_mae": 0.6069327714107532,
+      "M4_mae": 39.43805271498062,
+      "M5_log_mae": 0.49789549875131367,
+      "M5_mae": 32.83139112442235,
+      "interval_excludes_zero": true,
+      "relative_change": -0.16751997463730528
+    },
+    "ssda_only": {
+      "M4_log_mae": 0.6069327714107532,
+      "M4_mae": 39.43805271498062,
+      "M5_log_mae": 0.44923436075078166,
+      "M5_mae": 32.78045115582899,
+      "interval_excludes_zero": false,
+      "relative_change": -0.16881161976394254
+    }
+  },
+  "other_secondary_contrasts": {
+    "HY_vs_M5": {
+      "exploratory_success_criterion": {
+        "relative_improvement": -0.08183331826198302,
+        "threshold": "at least 10% relative MAE improvement with a descriptive 95 % interval excluding zero, and no reversal on both robustness co-criteria",
+        "threshold_met": false
+      },
+      "influence": {
+        "mean_gain_by_endpoint_quartile": {
+          "Q1": 2.6688453675045114,
+          "Q2": -2.155423183254135,
+          "Q3": -2.6780029561364533,
+          "Q4": -8.537952735620054
+        },
+        "n_improved": 24,
+        "n_worsened": 23,
+        "net_gain": -126.27497890681946,
+        "reading": "A net gain concentrated in a handful of patients, or present in only one endpoint quartile, is reported as such and caps the status at PARTIALLY_SUPPORTED per protocol section 2.1.",
+        "share_of_net_gain_from_five_most_improved": -1.2578932206257185
+      },
+      "multiplicity_adjusted": {
+        "family_size": 7,
+        "interval": [
+          -5.9829131851928095,
+          12.87292291458748
+        ],
+        "interval_excludes_zero": false,
+        "level": "99.29 %",
+        "method": "Bonferroni across the contrasts of this family, applied to the percentiles of the same paired patient bootstrap",
+        "relative_interval_vs_baseline": [
+          -0.182231485791118,
+          0.39209191184749015
+        ]
+      },
+      "not_a_fair_arm_comparison": "HY's residual stage uses the primary contrast's M3 design, which contains both solanidine ratios, while M5 uses the primary panel ['lnMR OH-solanidine/solanidine']. The two arms therefore see different amounts of omic information and this contrast is descriptive only. It is reported because the design was declared before the run, not because it answers which arm is better.",
+      "primary_loss": {
+        "best_case_relative_in_interval": -0.11563419395081527,
+        "descriptive_95_interval": [
+          -3.7964314489565294,
+          10.03489092756157
+        ],
+        "direction": "degradation",
+        "excludes_a_prespecified_size_benefit": false,
+        "how_to_read": "interval_excludes_zero false means no effect was DETECTED, never that there is none. excludes_a_prespecified_size_benefit true means a benefit of at least 10% is incompatible with the interval; false means the design cannot rule one out, which is INCONCLUSIVE rather than NOT_SUPPORTED.",
+        "interval_excludes_zero": false,
+        "mean_difference": 2.686701678868499,
+        "n_bootstrap": 2000,
+        "n_independent_patients": 47,
+        "relative_change_vs_baseline": 0.08183331826198302
+      },
+      "reversal_rule": {
+        "log_mae_reversed": true,
+        "primary_improved": false,
+        "rule": "If the primary loss improves while BOTH robustness co-criteria reverse, the status caps at PARTIALLY_SUPPORTED and the influence analysis becomes mandatory.",
+        "status_capped_at_partially_supported": false,
+        "trimmed_mae_reversed": true
+      },
+      "robustness_co_criteria": {
+        "log_mae": {
+          "best_case_relative_in_interval": -0.10377840220134561,
+          "descriptive_95_interval": [
+            -0.0516707993236534,
+            0.1207057130673073
+          ],
+          "direction": "degradation",
+          "excludes_a_prespecified_size_benefit": false,
+          "how_to_read": "interval_excludes_zero false means no effect was DETECTED, never that there is none. excludes_a_prespecified_size_benefit true means a benefit of at least 10% is incompatible with the interval; false means the design cannot rule one out, which is INCONCLUSIVE rather than NOT_SUPPORTED.",
+          "interval_excludes_zero": false,
+          "mean_difference": 0.029343078227681493,
+          "n_bootstrap": 2000,
+          "n_independent_patients": 47,
+          "relative_change_vs_baseline": 0.058934210695360444
+        },
+        "trimmed_mae_10pct": {
+          "baseline_trimmed_mae": 21.837185156201315,
+          "mean_difference": 3.0604540561945797,
+          "new_trimmed_mae": 24.897639212395895
+        }
+      }
+    },
+    "HY_vs_P1": {
+      "exploratory_success_criterion": {
+        "relative_improvement": 0.09939537177505631,
+        "threshold": "at least 10% relative MAE improvement with a descriptive 95 % interval excluding zero, and no reversal on both robustness co-criteria",
+        "threshold_met": false
+      },
+      "influence": {
+        "mean_gain_by_endpoint_quartile": {
+          "Q1": 8.801372451942521,
+          "Q2": 4.108806562484887,
+          "Q3": 2.8296005154677544,
+          "Q4": -0.044202662236499414
+        },
+        "n_improved": 31,
+        "n_worsened": 16,
+        "net_gain": 184.23811584941907,
+        "reading": "A net gain concentrated in a handful of patients, or present in only one endpoint quartile, is reported as such and caps the status at PARTIALLY_SUPPORTED per protocol section 2.1.",
+        "share_of_net_gain_from_five_most_improved": 1.5869838075396898
+      },
+      "multiplicity_adjusted": {
+        "family_size": 7,
+        "interval": [
+          -17.239224993152035,
+          9.821351843838892
+        ],
+        "interval_excludes_zero": false,
+        "level": "99.29 %",
+        "method": "Bonferroni across the contrasts of this family, applied to the percentiles of the same paired patient bootstrap",
+        "relative_interval_vs_baseline": [
+          -0.43712160734050853,
+          0.24903237273954534
+        ]
+      },
+      "primary_loss": {
+        "best_case_relative_in_interval": -0.3526628643803145,
+        "descriptive_95_interval": [
+          -13.908336636046906,
+          5.871122398145158
+        ],
+        "direction": "improvement",
+        "excludes_a_prespecified_size_benefit": false,
+        "how_to_read": "interval_excludes_zero false means no effect was DETECTED, never that there is none. excludes_a_prespecified_size_benefit true means a benefit of at least 10% is incompatible with the interval; false means the design cannot rule one out, which is INCONCLUSIVE rather than NOT_SUPPORTED.",
+        "interval_excludes_zero": false,
+        "mean_difference": -3.9199599116897677,
+        "n_bootstrap": 2000,
+        "n_independent_patients": 47,
+        "relative_change_vs_baseline": -0.09939537177505631
+      },
+      "reversal_rule": {
+        "log_mae_reversed": false,
+        "primary_improved": true,
+        "rule": "If the primary loss improves while BOTH robustness co-criteria reverse, the status caps at PARTIALLY_SUPPORTED and the influence analysis becomes mandatory.",
+        "status_capped_at_partially_supported": false,
+        "trimmed_mae_reversed": false
+      },
+      "robustness_co_criteria": {
+        "log_mae": {
+          "best_case_relative_in_interval": -0.3154689588207168,
+          "descriptive_95_interval": [
+            -0.1914684494711224,
+            0.05127201529831263
+          ],
+          "direction": "improvement",
+          "excludes_a_prespecified_size_benefit": false,
+          "how_to_read": "interval_excludes_zero false means no effect was DETECTED, never that there is none. excludes_a_prespecified_size_benefit true means a benefit of at least 10% is incompatible with the interval; false means the design cannot rule one out, which is INCONCLUSIVE rather than NOT_SUPPORTED.",
+          "interval_excludes_zero": false,
+          "mean_difference": -0.07969419443175806,
+          "n_bootstrap": 2000,
+          "n_independent_patients": 47,
+          "relative_change_vs_baseline": -0.13130646125190612
+        },
+        "trimmed_mae_10pct": {
+          "baseline_trimmed_mae": 25.921374245554926,
+          "mean_difference": -1.0237350331590314,
+          "new_trimmed_mae": 24.897639212395895
+        }
+      }
+    },
+    "HYc_omic_residual_vs_P1": {
+      "exploratory_success_criterion": {
+        "relative_improvement": -0.0398781113940968,
+        "threshold": "at least 10% relative MAE improvement with a descriptive 95 % interval excluding zero, and no reversal on both robustness co-criteria",
+        "threshold_met": false
+      },
+      "influence": {
+        "mean_gain_by_endpoint_quartile": {
+          "Q1": 11.201368559029289,
+          "Q2": -5.739571284022204,
+          "Q3": -13.212898730519058,
+          "Q4": 1.1130031994509373
+        },
+        "n_improved": 27,
+        "n_worsened": 20,
+        "net_gain": -73.91760778871017,
+        "reading": "A net gain concentrated in a handful of patients, or present in only one endpoint quartile, is reported as such and caps the status at PARTIALLY_SUPPORTED per protocol section 2.1.",
+        "share_of_net_gain_from_five_most_improved": -5.009321321586862
+      },
+      "multiplicity_adjusted": {
+        "family_size": 7,
+        "interval": [
+          -17.971159755781333,
+          19.39561863602708
+        ],
+        "interval_excludes_zero": false,
+        "level": "99.29 %",
+        "method": "Bonferroni across the contrasts of this family, applied to the percentiles of the same paired patient bootstrap",
+        "relative_interval_vs_baseline": [
+          -0.45568070730213694,
+          0.49179960218115987
+        ]
+      },
+      "primary_loss": {
+        "best_case_relative_in_interval": -0.31128350377035885,
+        "descriptive_95_interval": [
+          -12.276415230999282,
+          14.859334117200408
+        ],
+        "direction": "degradation",
+        "excludes_a_prespecified_size_benefit": false,
+        "how_to_read": "interval_excludes_zero false means no effect was DETECTED, never that there is none. excludes_a_prespecified_size_benefit true means a benefit of at least 10% is incompatible with the interval; false means the design cannot rule one out, which is INCONCLUSIVE rather than NOT_SUPPORTED.",
+        "interval_excludes_zero": false,
+        "mean_difference": 1.572715059334259,
+        "n_bootstrap": 2000,
+        "n_independent_patients": 47,
+        "relative_change_vs_baseline": 0.0398781113940968
+      },
+      "reversal_rule": {
+        "log_mae_reversed": false,
+        "primary_improved": false,
+        "rule": "If the primary loss improves while BOTH robustness co-criteria reverse, the status caps at PARTIALLY_SUPPORTED and the influence analysis becomes mandatory.",
+        "status_capped_at_partially_supported": false,
+        "trimmed_mae_reversed": true
+      },
+      "robustness_co_criteria": {
+        "log_mae": {
+          "best_case_relative_in_interval": -0.23948591002210864,
+          "descriptive_95_interval": [
+            -0.14535184708354468,
+            0.062366048376464395
+          ],
+          "direction": "improvement",
+          "excludes_a_prespecified_size_benefit": false,
+          "how_to_read": "interval_excludes_zero false means no effect was DETECTED, never that there is none. excludes_a_prespecified_size_benefit true means a benefit of at least 10% is incompatible with the interval; false means the design cannot rule one out, which is INCONCLUSIVE rather than NOT_SUPPORTED.",
+          "interval_excludes_zero": false,
+          "mean_difference": -0.044519960332505513,
+          "n_bootstrap": 2000,
+          "n_independent_patients": 47,
+          "relative_change_vs_baseline": -0.07335237513872157
+        },
+        "trimmed_mae_10pct": {
+          "baseline_trimmed_mae": 25.921374245554926,
+          "mean_difference": 3.448547336524438,
+          "new_trimmed_mae": 29.369921582079364
+        }
+      }
+    },
+    "M4_vs_backbone_only": {
+      "exploratory_success_criterion": {
+        "relative_improvement": 0.22298193263702532,
+        "threshold": "at least 10% relative MAE improvement with a descriptive 95 % interval excluding zero, and no reversal on both robustness co-criteria",
+        "threshold_met": true
+      },
+      "influence": {
+        "mean_gain_by_endpoint_quartile": {
+          "Q1": 4.950611607549063,
+          "Q2": 11.097074858915018,
+          "Q3": -5.9632084570610795,
+          "Q4": 35.16751230596866
+        },
+        "n_improved": 26,
+        "n_worsened": 21,
+        "net_gain": 531.926808925545,
+        "reading": "A net gain concentrated in a handful of patients, or present in only one endpoint quartile, is reported as such and caps the status at PARTIALLY_SUPPORTED per protocol section 2.1.",
+        "share_of_net_gain_from_five_most_improved": 0.8821859135747888
+      },
+      "multiplicity_adjusted": {
+        "family_size": 7,
+        "interval": [
+          -33.76806807663731,
+          0.5338979072595684
+        ],
+        "interval_excludes_zero": false,
+        "level": "99.29 %",
+        "method": "Bonferroni across the contrasts of this family, applied to the percentiles of the same paired patient bootstrap",
+        "relative_interval_vs_baseline": [
+          -0.6653066566221051,
+          0.010518985890760923
+        ]
+      },
+      "primary_loss": {
+        "best_case_relative_in_interval": -0.4880696260111726,
+        "descriptive_95_interval": [
+          -24.77228837745646,
+          -1.2135578833049632
+        ],
+        "direction": "improvement",
+        "excludes_a_prespecified_size_benefit": false,
+        "how_to_read": "interval_excludes_zero false means no effect was DETECTED, never that there is none. excludes_a_prespecified_size_benefit true means a benefit of at least 10% is incompatible with the interval; false means the design cannot rule one out, which is INCONCLUSIVE rather than NOT_SUPPORTED.",
+        "interval_excludes_zero": true,
+        "mean_difference": -11.317591679266913,
+        "n_bootstrap": 2000,
+        "n_independent_patients": 47,
+        "relative_change_vs_baseline": -0.22298193263702532
+      },
+      "reversal_rule": {
+        "log_mae_reversed": false,
+        "primary_improved": true,
+        "rule": "If the primary loss improves while BOTH robustness co-criteria reverse, the status caps at PARTIALLY_SUPPORTED and the influence analysis becomes mandatory.",
+        "status_capped_at_partially_supported": false,
+        "trimmed_mae_reversed": false
+      },
+      "robustness_co_criteria": {
+        "log_mae": {
+          "best_case_relative_in_interval": -0.3807167688265755,
+          "descriptive_95_interval": [
+            -0.28802072432349973,
+            -0.021742300125189618
+          ],
+          "direction": "improvement",
+          "excludes_a_prespecified_size_benefit": false,
+          "how_to_read": "interval_excludes_zero false means no effect was DETECTED, never that there is none. excludes_a_prespecified_size_benefit true means a benefit of at least 10% is incompatible with the interval; false means the design cannot rule one out, which is INCONCLUSIVE rather than NOT_SUPPORTED.",
+          "interval_excludes_zero": true,
+          "mean_difference": -0.14958952523307875,
+          "n_bootstrap": 2000,
+          "n_independent_patients": 47,
+          "relative_change_vs_baseline": -0.19773313476245763
+        },
+        "trimmed_mae_10pct": {
+          "baseline_trimmed_mae": 33.327672069375055,
+          "mean_difference": -7.406297823820129,
+          "new_trimmed_mae": 25.921374245554926
+        }
+      }
+    },
+    "M5c_omic_only_vs_M4": {
+      "exploratory_success_criterion": {
+        "relative_improvement": 0.17674688514028092,
+        "threshold": "at least 10% relative MAE improvement with a descriptive 95 % interval excluding zero, and no reversal on both robustness co-criteria",
+        "threshold_met": false
+      },
+      "influence": {
+        "mean_gain_by_endpoint_quartile": {
+          "Q1": 9.892371770182425,
+          "Q2": 6.299545426341342,
+          "Q3": 7.173811276635337,
+          "Q4": 4.460566124739185
+        },
+        "n_improved": 28,
+        "n_worsened": 19,
+        "net_gain": 327.61598974843815,
+        "reading": "A net gain concentrated in a handful of patients, or present in only one endpoint quartile, is reported as such and caps the status at PARTIALLY_SUPPORTED per protocol section 2.1.",
+        "share_of_net_gain_from_five_most_improved": 1.257494045828927
+      },
+      "multiplicity_adjusted": {
+        "family_size": 7,
+        "interval": [
+          -22.04304040069078,
+          5.2437967732704145
+        ],
+        "interval_excludes_zero": false,
+        "level": "99.29 %",
+        "method": "Bonferroni across the contrasts of this family, applied to the percentiles of the same paired patient bootstrap",
+        "relative_interval_vs_baseline": [
+          -0.5589282148385001,
+          0.1329628724614628
+        ]
+      },
+      "primary_loss": {
+        "best_case_relative_in_interval": -0.4757260287460866,
+        "descriptive_95_interval": [
+          -18.76170819957655,
+          2.9512765947255812
+        ],
+        "direction": "improvement",
+        "excludes_a_prespecified_size_benefit": false,
+        "how_to_read": "interval_excludes_zero false means no effect was DETECTED, never that there is none. excludes_a_prespecified_size_benefit true means a benefit of at least 10% is incompatible with the interval; false means the design cannot rule one out, which is INCONCLUSIVE rather than NOT_SUPPORTED.",
+        "interval_excludes_zero": false,
+        "mean_difference": -6.970552973371024,
+        "n_bootstrap": 2000,
+        "n_independent_patients": 47,
+        "relative_change_vs_baseline": -0.17674688514028092
+      },
+      "reversal_rule": {
+        "log_mae_reversed": false,
+        "primary_improved": true,
+        "rule": "If the primary loss improves while BOTH robustness co-criteria reverse, the status caps at PARTIALLY_SUPPORTED and the influence analysis becomes mandatory.",
+        "status_capped_at_partially_supported": false,
+        "trimmed_mae_reversed": false
+      },
+      "robustness_co_criteria": {
+        "log_mae": {
+          "best_case_relative_in_interval": -0.4336758020455961,
+          "descriptive_95_interval": [
+            -0.26321205642931483,
+            0.02105956886580354
+          ],
+          "direction": "improvement",
+          "excludes_a_prespecified_size_benefit": false,
+          "how_to_read": "interval_excludes_zero false means no effect was DETECTED, never that there is none. excludes_a_prespecified_size_benefit true means a benefit of at least 10% is incompatible with the interval; false means the design cannot rule one out, which is INCONCLUSIVE rather than NOT_SUPPORTED.",
+          "interval_excludes_zero": false,
+          "mean_difference": -0.11646529452302205,
+          "n_bootstrap": 2000,
+          "n_independent_patients": 47,
+          "relative_change_vs_baseline": -0.19189158998995948
+        },
+        "trimmed_mae_10pct": {
+          "baseline_trimmed_mae": 25.921374245554926,
+          "mean_difference": -2.2740945001108805,
+          "new_trimmed_mae": 23.647279745444045
+        }
+      }
+    },
+    "P2_vs_P1": {
+      "exploratory_success_criterion": {
+        "relative_improvement": -0.09546425102811215,
+        "threshold": "at least 10% relative MAE improvement with a descriptive 95 % interval excluding zero, and no reversal on both robustness co-criteria",
+        "threshold_met": false
+      },
+      "influence": {
+        "mean_gain_by_endpoint_quartile": {
+          "Q1": -0.32837127543275607,
+          "Q2": -1.1870110292364755,
+          "Q3": -0.3431137650975759,
+          "Q4": -12.986374493403979
+        },
+        "n_improved": 18,
+        "n_worsened": 29,
+        "net_gain": -176.951435728813,
+        "reading": "A net gain concentrated in a handful of patients, or present in only one endpoint quartile, is reported as such and caps the status at PARTIALLY_SUPPORTED per protocol section 2.1.",
+        "share_of_net_gain_from_five_most_improved": -0.2853010274148363
+      },
+      "multiplicity_adjusted": {
+        "family_size": 7,
+        "interval": [
+          -0.3416343370846378,
+          10.01807709742964
+        ],
+        "interval_excludes_zero": false,
+        "level": "99.29 %",
+        "method": "Bonferroni across the contrasts of this family, applied to the percentiles of the same paired patient bootstrap",
+        "relative_interval_vs_baseline": [
+          -0.008662555921653489,
+          0.2540205818433894
+        ]
+      },
+      "primary_loss": {
+        "best_case_relative_in_interval": 0.013819982308010705,
+        "descriptive_95_interval": [
+          0.5450331907834257,
+          7.597945189238758
+        ],
+        "direction": "degradation",
+        "excludes_a_prespecified_size_benefit": true,
+        "how_to_read": "interval_excludes_zero false means no effect was DETECTED, never that there is none. excludes_a_prespecified_size_benefit true means a benefit of at least 10% is incompatible with the interval; false means the design cannot rule one out, which is INCONCLUSIVE rather than NOT_SUPPORTED.",
+        "interval_excludes_zero": true,
+        "mean_difference": 3.76492416444283,
+        "n_bootstrap": 2000,
+        "n_independent_patients": 47,
+        "relative_change_vs_baseline": 0.09546425102811215
+      },
+      "reversal_rule": {
+        "log_mae_reversed": true,
+        "primary_improved": false,
+        "rule": "If the primary loss improves while BOTH robustness co-criteria reverse, the status caps at PARTIALLY_SUPPORTED and the influence analysis becomes mandatory.",
+        "status_capped_at_partially_supported": false,
+        "trimmed_mae_reversed": true
+      },
+      "robustness_co_criteria": {
+        "log_mae": {
+          "best_case_relative_in_interval": 0.016880439546369003,
+          "descriptive_95_interval": [
+            0.010245291956509417,
+            0.08427695712212954
+          ],
+          "direction": "degradation",
+          "excludes_a_prespecified_size_benefit": true,
+          "how_to_read": "interval_excludes_zero false means no effect was DETECTED, never that there is none. excludes_a_prespecified_size_benefit true means a benefit of at least 10% is incompatible with the interval; false means the design cannot rule one out, which is INCONCLUSIVE rather than NOT_SUPPORTED.",
+          "interval_excludes_zero": true,
+          "mean_difference": 0.04536058505350743,
+          "n_bootstrap": 2000,
+          "n_independent_patients": 47,
+          "relative_change_vs_baseline": 0.0747374127583709
+        },
+        "trimmed_mae_10pct": {
+          "baseline_trimmed_mae": 25.921374245554926,
+          "mean_difference": 2.8097277451571046,
+          "new_trimmed_mae": 28.73110199071203
+        }
+      }
+    },
+    "P3_vs_P1": {
+      "exploratory_success_criterion": {
+        "relative_improvement": -0.089113434646415,
+        "threshold": "at least 10% relative MAE improvement with a descriptive 95 % interval excluding zero, and no reversal on both robustness co-criteria",
+        "threshold_met": false
+      },
+      "influence": {
+        "mean_gain_by_endpoint_quartile": {
+          "Q1": 4.840541221146403,
+          "Q2": 2.629432676438105,
+          "Q3": -19.70310256411886,
+          "Q4": -1.3127215821224674
+        },
+        "n_improved": 26,
+        "n_worsened": 21,
+        "net_gain": -165.1796356603199,
+        "reading": "A net gain concentrated in a handful of patients, or present in only one endpoint quartile, is reported as such and caps the status at PARTIALLY_SUPPORTED per protocol section 2.1.",
+        "share_of_net_gain_from_five_most_improved": -1.5650945290784968
+      },
+      "multiplicity_adjusted": {
+        "family_size": 7,
+        "interval": [
+          -12.778102136459434,
+          27.365850387370482
+        ],
+        "interval_excludes_zero": false,
+        "level": "99.29 %",
+        "method": "Bonferroni across the contrasts of this family, applied to the percentiles of the same paired patient bootstrap",
+        "relative_interval_vs_baseline": [
+          -0.324004388066697,
+          0.6938945638402555
+        ]
+      },
+      "primary_loss": {
+        "best_case_relative_in_interval": -0.2204617707427702,
+        "descriptive_95_interval": [
+          -8.694582936191344,
+          19.662242523088505
+        ],
+        "direction": "degradation",
+        "excludes_a_prespecified_size_benefit": false,
+        "how_to_read": "interval_excludes_zero false means no effect was DETECTED, never that there is none. excludes_a_prespecified_size_benefit true means a benefit of at least 10% is incompatible with the interval; false means the design cannot rule one out, which is INCONCLUSIVE rather than NOT_SUPPORTED.",
+        "interval_excludes_zero": false,
+        "mean_difference": 3.5144603331982953,
+        "n_bootstrap": 2000,
+        "n_independent_patients": 47,
+        "relative_change_vs_baseline": 0.089113434646415
+      },
+      "reversal_rule": {
+        "log_mae_reversed": true,
+        "primary_improved": false,
+        "rule": "If the primary loss improves while BOTH robustness co-criteria reverse, the status caps at PARTIALLY_SUPPORTED and the influence analysis becomes mandatory.",
+        "status_capped_at_partially_supported": false,
+        "trimmed_mae_reversed": true
+      },
+      "robustness_co_criteria": {
+        "log_mae": {
+          "best_case_relative_in_interval": -0.15855332936459984,
+          "descriptive_95_interval": [
+            -0.09623121160765853,
+            0.14010425159934417
+          ],
+          "direction": "degradation",
+          "excludes_a_prespecified_size_benefit": false,
+          "how_to_read": "interval_excludes_zero false means no effect was DETECTED, never that there is none. excludes_a_prespecified_size_benefit true means a benefit of at least 10% is incompatible with the interval; false means the design cannot rule one out, which is INCONCLUSIVE rather than NOT_SUPPORTED.",
+          "interval_excludes_zero": false,
+          "mean_difference": 0.016305877407508614,
+          "n_bootstrap": 2000,
+          "n_independent_patients": 47,
+          "relative_change_vs_baseline": 0.026866035540653487
+        },
+        "trimmed_mae_10pct": {
+          "baseline_trimmed_mae": 25.921374245554926,
+          "mean_difference": 2.494843711008219,
+          "new_trimmed_mae": 28.416217956563145
+        }
+      }
+    }
+  },
+  "p1_and_m4_are_the_same_model": {
+    "claim": "Protocol §3 lists P1 (PopPK with published covariate coefficients, 1 free parameter) and M4 (fixed-coefficient mechanistic model plus PGx) as separate arms. At ARIANA's covariate set they are the same model, so this is a property of the arm table and not a coding shortcut.",
+    "consequence": "'HY versus P1' is therefore also 'HY versus M4', and P3 versus P1 is the fix-versus-estimate comparison at identical structure.",
+    "max_absolute_log_difference": 5.773159728050814e-15,
+    "two_independent_code_paths": true
+  },
+  "prohibited_predictor_absent": "lnMR OH-metoprolol/metoprolol",
+  "protocol_version": "1.4.7",
+  "report_version": "1.0.0",
+  "source_sha256": "7397b13e43cd546b93f83a20b2dc84b6d49e97633173d56711c39973beedfe37",
+  "status_ceiling": "exploratory. This cohort has been analysed repeatedly by this project, so no ARIANA result may be reported as confirmatory, however favourable it is.",
+  "structural_sensitivity": {
+    "Chai2026_IR": {
+      "M4_log_mae": 0.6099471975744667,
+      "M4_mae": 37.81549130807623,
+      "M5_log_mae": 0.4781842640221194,
+      "M5_mae": 30.430240243012943,
+      "interval_excludes_zero": true,
+      "relative_change": -0.1952969751178672
+    },
+    "Eugene2016_IR": {
+      "M4_log_mae": 0.6104502049891116,
+      "M4_mae": 39.94720458058412,
+      "M5_log_mae": 0.5111775022399156,
+      "M5_mae": 39.880282738057254,
+      "interval_excludes_zero": false,
+      "relative_change": -0.0016752572108487292
+    },
+    "FDA2006_ER": {
+      "M4_log_mae": 0.6069327714107532,
+      "M4_mae": 39.43805271498062,
+      "M5_log_mae": 0.49789549875131367,
+      "M5_mae": 32.83139112442235,
+      "interval_excludes_zero": true,
+      "relative_change": -0.16751997463730528
+    }
+  },
+  "target": "c(Metoprolol)[ng/ml]",
+  "target_is": "observed pre-dose metoprolol concentration, ng/mL. NOT an AUC, NOT a clearance, NOT a steady-state exposure metric.",
+  "transferred_constant_sensitivity": {
+    "activity_score_decrement_per_inhibitor": {
+      "0": {
+        "M4_log_mae": 0.641564479277584,
+        "M4_mae": 42.60637790280094,
+        "M5_log_mae": 0.5313104746690986,
+        "M5_mae": 35.01089398808736,
+        "interval_excludes_zero": true,
+        "relative_change": -0.178271054442632
+      },
+      "0.54": {
+        "M4_log_mae": 0.6069327714107532,
+        "M4_mae": 39.43805271498062,
+        "M5_log_mae": 0.49789549875131367,
+        "M5_mae": 32.83139112442235,
+        "interval_excludes_zero": true,
+        "relative_change": -0.16751997463730528
+      },
+      "1": {
+        "M4_log_mae": 0.6394376526958513,
+        "M4_mae": 42.501021686799085,
+        "M5_log_mae": 0.5322573807080584,
+        "M5_mae": 38.0863534261077,
+        "interval_excludes_zero": false,
+        "relative_change": -0.10387205025856111
+      },
+      "3": {
+        "M4_log_mae": 0.6599669422711515,
+        "M4_mae": 40.94340177860341,
+        "M5_log_mae": 0.5717582629359469,
+        "M5_mae": 37.50691981638411,
+        "interval_excludes_zero": false,
+        "relative_change": -0.08393249737287727
+      }
+    },
+    "fraction_metabolised_by_cyp2d6": {
+      "0.6": {
+        "M4_log_mae": 0.6492739453879333,
+        "M4_mae": 44.14788340540597,
+        "M5_log_mae": 0.5773067548069939,
+        "M5_mae": 40.51683687668922,
+        "interval_excludes_zero": true,
+        "relative_change": -0.08224735250324884
+      },
+      "0.7": {
+        "M4_log_mae": 0.6223838291975956,
+        "M4_mae": 41.80551975566722,
+        "M5_log_mae": 0.5360667440080019,
+        "M5_mae": 37.33710010327455,
+        "interval_excludes_zero": true,
+        "relative_change": -0.10688587723602985
+      },
+      "0.8": {
+        "M4_log_mae": 0.6069327714107532,
+        "M4_mae": 39.43805271498062,
+        "M5_log_mae": 0.49789549875131367,
+        "M5_mae": 32.83139112442235,
+        "interval_excludes_zero": true,
+        "relative_change": -0.16751997463730528
+      },
+      "0.9": {
+        "M4_log_mae": 0.6089975781261339,
+        "M4_mae": 37.87737373202143,
+        "M5_log_mae": 0.4974480057849934,
+        "M5_mae": 35.34464975111874,
+        "interval_excludes_zero": false,
+        "relative_change": -0.06686640945123243
+      }
+    },
+    "genotype_omic_weight": {
+      "0": {
+        "M4_log_mae": 0.6069327714107532,
+        "M4_mae": 39.43805271498062,
+        "M5_log_mae": 0.6069328687232396,
+        "M5_mae": 39.43807316545474,
+        "interval_excludes_zero": false,
+        "relative_change": 5.185467515817537e-07
+      },
+      "0.25": {
+        "M4_log_mae": 0.6069327714107532,
+        "M4_mae": 39.43805271498062,
+        "M5_log_mae": 0.5409913108713318,
+        "M5_mae": 36.034043211339146,
+        "interval_excludes_zero": true,
+        "relative_change": -0.0863128189477888
+      },
+      "0.5": {
+        "M4_log_mae": 0.6069327714107532,
+        "M4_mae": 39.43805271498062,
+        "M5_log_mae": 0.49789549875131367,
+        "M5_mae": 32.83139112442235,
+        "interval_excludes_zero": true,
+        "relative_change": -0.16751997463730528
+      },
+      "0.75": {
+        "M4_log_mae": 0.6069327714107532,
+        "M4_mae": 39.43805271498062,
+        "M5_log_mae": 0.48671283886525424,
+        "M5_mae": 32.166319263823425,
+        "interval_excludes_zero": true,
+        "relative_change": -0.18438368404520655
+      },
+      "1": {
+        "M4_log_mae": 0.6069327714107532,
+        "M4_mae": 39.43805271498062,
+        "M5_log_mae": 0.4904675025051445,
+        "M5_mae": 32.46751776503584,
+        "interval_excludes_zero": false,
+        "relative_change": -0.17674642813429295
+      }
+    },
+    "omic_exponent_gamma": {
+      "0.25": {
+        "M4_log_mae": 0.6069327714107532,
+        "M4_mae": 39.43805271498062,
+        "M5_log_mae": 0.5887974764597117,
+        "M5_mae": 37.61298644443766,
+        "interval_excludes_zero": false,
+        "relative_change": -0.046276784600211895
+      },
+      "0.5": {
+        "M4_log_mae": 0.6069327714107532,
+        "M4_mae": 39.43805271498062,
+        "M5_log_mae": 0.5514514293284902,
+        "M5_mae": 35.81927664457195,
+        "interval_excludes_zero": false,
+        "relative_change": -0.09175848758460832
+      },
+      "0.75": {
+        "M4_log_mae": 0.6069327714107532,
+        "M4_mae": 39.43805271498062,
+        "M5_log_mae": 0.5190168260367266,
+        "M5_mae": 34.0282170606894,
+        "interval_excludes_zero": true,
+        "relative_change": -0.1371729911055239
+      },
+      "1": {
+        "M4_log_mae": 0.6069327714107532,
+        "M4_mae": 39.43805271498062,
+        "M5_log_mae": 0.49789549875131367,
+        "M5_mae": 32.83139112442235,
+        "interval_excludes_zero": true,
+        "relative_change": -0.16751997463730528
+      }
+    },
+    "salt_dose_equivalence": {
+      "1": {
+        "M4_log_mae": 0.6069327714107532,
+        "M4_mae": 39.43805271498062,
+        "M5_log_mae": 0.49789549875131367,
+        "M5_mae": 32.83139112442235,
+        "interval_excludes_zero": true,
+        "relative_change": -0.16751997463730528
+      },
+      "1.0526": {
+        "M4_log_mae": 0.6068165412195928,
+        "M4_mae": 39.4238967651892,
+        "M5_log_mae": 0.49765897347887517,
+        "M5_mae": 32.80237246762743,
+        "interval_excludes_zero": true,
+        "relative_change": -0.1679571234928885
+      }
+    }
+  },
+  "validation": {
+    "bootstrap": {
+      "n": 2000,
+      "unit": "patients; fold repetition is never additional subjects"
+    },
+    "fold_fingerprint_sha256": "0cd3597f0d5fc08d0e7e3746139dd324d367d020e57691a2fb211f1bc3cd2eea",
+    "folds_identical_to_the_primary_contrast": true,
+    "how_identity_is_guaranteed": "the fold list comes from the primary runner's own make_folds, imported rather than reimplemented, and its frozen constants are checked before the run",
+    "inner_folds": 3,
+    "outer_folds": 5,
+    "outer_repeats": 2,
+    "seed": 20261107
+  },
+  "what_this_cannot_establish": [
+    "No replication cohort exists for the solanidine axis in public data, so no result here can be upgraded beyond exploratory.",
+    "The galenic form and the exact time since the last dose are not documented in the source; every prediction assumes tau = 12 h.",
+    "SSDA is semi-quantitative without an authentic analytical standard, so any panel containing it carries an unquantified identification uncertainty.",
+    "The omic module's validation against the OH-metoprolol phenotype is internal to these 47 patients, one laboratory and one assay.",
+    "24 of 47 patients receive an interpolated relative activity that the published table does not contain."
+  ]
+}
