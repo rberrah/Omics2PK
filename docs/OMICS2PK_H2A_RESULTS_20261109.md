@@ -3,7 +3,7 @@
 **Document version:** 1.0.0 (draft; the pool-restricted sections are filled as
 their runs complete)
 **Date:** 2026-11-09
-**Protocol:** `OMICS2PK_FIVE_OBJECTIVES_VALIDATION_PROTOCOL.md` v1.4.6
+**Protocol:** `OMICS2PK_FIVE_OBJECTIVES_VALIDATION_PROTOCOL.md` v1.4.7
 **Erratum carried:** `OMICS2PK_H2A_ERRATUM_20261109.md` v1.0.3
 **Endpoint class:** `functional_in_vitro` — measured microsomal activity, never
 pooled with a clinical pharmacokinetic result
@@ -115,7 +115,7 @@ for H4 and is reported there as well.
 
 ---
 
-## 3. The destroyed-signal diagnostic: the robust finding
+## 3. The destroyed-signal diagnostic, and what it actually measures
 
 The target gene's donor order is permuted. The gene keeps its place in the
 mechanistic ordering while carrying no information at all, so an outcome-blind
@@ -142,55 +142,71 @@ arm was **never once fooled, in 100 folds**: it never selected the dead gene.
 
 The table above was first read as the price of being outcome-blind: the arm that
 reads the endpoint notices the destruction *and recovers*, the blind arm cannot.
-The first half is right. The second was an artefact of the candidate universe,
-and naming it took one diagnostic run rather than an argument.
+The first half is right. The second cannot be read from the number at all, and
+establishing that took naming the feature each arm fell back on, fold by fold,
+on every endpoint and in both universes.
 
-On `CYP2D6_activity`, the feature the univariate arm selected in place of the
-destroyed column was the same one in **10 folds out of 10**: the feature
-annotated **`CYP2D17`**, the name of a macaque CYP2D gene, with |ρ| between 0.45
-and 0.51. Its verdict is `conflicting` — its identity can be established from no
-public source — and every qualified pool refuses it.
+| endpoint | replacement, unrestricted | replacement, pool A | what it is |
+|---|---|---|---|
+| CYP2A6 | `CYP2A24` 6/10, `CYP2A23` 4/10 — refused | **`CYP2A7` 10/10 — admissible** | a human paralogue sharing about 95 % of its sequence with the target |
+| CYP2B6 | `CYP2B7P1` 10/10 — admissible | `CYP2B7P1` 10/10 — admissible | a pseudogene of the same family |
+| CYP2D6 | `CYP2D17` 10/10 — refused | *no stable replacement*: `F11` 2/10 | a macaque CYP2D name; nothing admissible takes its place |
+| CYP3A4 (midazolam) | `LOC285626` 6/10, `CYP3A64` 4/10 | `LOC285626` 10/10 — admissible | `IL12B-AS1`, an antisense RNA of a pro-inflammatory cytokine |
+| CYP3A4 (testosterone) | `LOC285626` 10/10 | `LOC285626` 10/10 | the same |
+| CYP2C19 | `APOM` 9/10 — admissible | `APOM` 9/10 | a different gene, stable across folds |
+| CYP2C9 | `AMT` 6/10 — admissible | `AMT` 6/10 | a different gene, semi-stable |
+| CYP1A2 | `LAMB3` 4/10, `PON3` 3/10, `F5` 1/10 | **not assessable** | fold-specific; no admissible target feature under the pool |
+| CYP2C8 | `CYP3A4` 4/10, `SLC27A5` 3/10 | `CYP3A4` 5/10 | fold-specific |
+| CYP2E1 | `ACAT2` 3/10, … | `HSD17B4` 3/10 | fold-specific, \|ρ\| ≤ 0.38 |
 
-| universe | the replacement it chose | \|ρ\| | MAE on the wrecked matrix |
-|---|---|---|---:|
-| unrestricted | `CYP2D17`, in 10 of 10 folds | 0.45–0.51 | **96.86** |
-| pool A | nine **different** genes in ten folds, all admissible | 0.27–0.32 | **108.88** |
-| *reference* | clinical baseline 109.64 · blind mechanistic arm 110.15 | | |
+Three regimes, not one, and they do not mean the same thing:
 
-Permuting a gene's column does not permute a **differently named feature that
-measures the same transcript**. The unrestricted diagnostic therefore allowed an
-arm to "resist" a destroyed signal by finding the same molecule under another
-name. Once that feature is refused, the same arm finds a different weak
-association in almost every fold and performs at the clinical baseline, exactly
-like the blind mechanistic arm.
+1. **A plausible duplicate of the destroyed transcript.** Permuting a gene's
+   column does not permute a *differently named* feature that measures the same
+   molecule. On CYP2D6 that feature is `CYP2D17`, refused by every qualified
+   pool, and once it is gone nothing admissible replaces it: the arm drops to
+   108.88 against a baseline of 109.64, beside the blind arm's 110.15. On CYP2A6
+   and CYP2B6 the duplicate is **admissible** — a human paralogue and a
+   pseudogene of the same family — and **no annotation-based qualification can
+   expose it**, because establishing cross-hybridisation needs the
+   oligonucleotide sequence, which no source distributes. That limit is
+   structural.
+2. **A different gene with a stable association.** On CYP2C19 the replacement is
+   `APOM` in 9 folds of 10; on both CYP3A4 substrates it is `IL12B-AS1` in 10 of
+   10, at |ρ| ≈ 0.6 against midazolam hydroxylation. The suppression of CYP3A4
+   by inflammation is documented in the literature, which makes the observation
+   coherent; **this analysis establishes no mechanism** and the finding is
+   hypothesis-generating only. It is not an annotation artefact.
+3. **A fold-specific pick at noise level.** On CYP1A2, CYP2C8 and CYP2E1 the arm
+   finds a different weak association in almost every fold.
 
-Three things follow, and they must not be merged:
+What follows, kept apart:
 
-1. **The detection claim stands.** The univariate arm never selected the dead
-   gene, in 100 folds across ten endpoints. Reading the endpoint lets a selector
-   notice that a column has stopped carrying information.
-2. **The robustness reading is withdrawn.** The lower error was not recovery
-   through independent biology; on a qualified universe it disappears. Any
-   earlier statement that this diagnostic exposes the mechanistic arm's main
-   weakness was conditional on an inadmissible duplicate.
-3. **This is a defect of the diagnostic, not of the univariate method.** An
-   outcome-reading filter that finds the same molecule under another name is
-   doing its job; what the diagnostic claimed to measure is not what it
-   measured. No code was changed to repair it: the qualified pool repairs it by
-   itself, because the duplicate lives in the refused stratum. In the
-   unrestricted universe no parameter of the diagnostic could have repaired it,
-   since the duplicate is not annotated as the target gene — which is the
-   annotation problem itself.
+- **The detection claim stands.** In 100 folds across ten endpoints the
+  univariate arm never selected the dead gene. Reading the endpoint lets a
+  selector notice that a column has stopped carrying information.
+- **The robustness reading is withdrawn.** The number is compatible with all
+  three regimes, so on its own it supports none of them. Any earlier statement
+  in this project that the diagnostic exposes the mechanistic arm's main
+  weakness was reporting a mixture of three phenomena as one.
+- **A qualified pool is necessary and not sufficient.** It removes the
+  duplicates annotation can see, and only those. An intermediate version of this
+  document claimed the pool repairs the diagnostic; that was a generalisation
+  from CYP2D6 alone and is withdrawn — the same error, from the same cause, as
+  the inflated conflict count: one case taken for the population.
+- **The diagnostic is reportable only with its replacement named**, which
+  `scripts/name_destroyed_signal_replacement.py` does and the two committed
+  artefacts record. It changes no arm, loss, margin or contrast.
 
-**Consequence for H2d, stated here so it travels with the result.** Where no
-admissible feature carries the target's signal, this experiment cannot
+**Consequence for H2d.** Where no admissible feature carries the target's
+signal — CYP2D6 under pool A is exactly that case — this experiment cannot
 discriminate between arms: all of them sit at the baseline, so a repair
 criterion requiring an interval to exclude zero fails for want of anything to
 find, not for want of a method that could find it.
 
-This diagnostic is what generated the H2d hybrid hypothesis — on one endpoint,
-which is why that endpoint cannot confirm it, and now also under a universe
-whose duplicate has since been refused.
+This diagnostic is what generated the H2d hybrid hypothesis, on one endpoint,
+which is why that endpoint cannot confirm it — and the duplicate behind its
+original reading has since been refused.
 
 ---
 
@@ -214,7 +230,40 @@ reported.
 
 ### 4.2 Pool A, the qualified human features
 
-*(pending)*
+21,634 candidate symbols and 26,066 admissible features, every arm selecting
+from the same pool, under rule `probe-identity-1.1.0`.
+
+**47 of 80 non-inferiority cells**, against 45 unrestricted and 51 restricted to
+the network alone. The ranking of endpoints barely moves: non-inferiority at
+every panel size on CYP2B6 and CYP2D6, at none on CYP2C19.
+
+| endpoint | NI cells (of 8) | NetPK best MAE | univariate best MAE | baseline |
+|---|---:|---:|---:|---:|
+| CYP1A2 *(no admissible target)* | 1 | 434.61 | 419.55 | 492.43 |
+| CYP2A6 | 7 | 572.28 | 572.28 | 645.41 |
+| CYP2B6 | **8** | 236.75 | 237.99 | 270.37 |
+| CYP2C8 | 7 | 51.13 | 50.85 | 62.66 |
+| CYP2C9 | 1 | 237.44 | 232.47 | 273.65 |
+| CYP2C19 | 0 | 48.31 | 45.96 | 55.52 |
+| CYP2D6 | **8** | 91.43 | 91.43 | 109.64 |
+| CYP2E1 | 7 | 1330.46 | 1302.16 | 1337.24 |
+| CYP3A4 (midazolam) | 3 | 726.61 | 714.52 | 872.13 |
+| CYP3A4 (testosterone) | 5 | 3181.27 | 3133.52 | 3628.37 |
+
+**A second wrong-mechanism control goes void under the pool, and the reason is
+worth recording.** Unrestricted, 9 of 10 controls are valid and 1 is void
+because the frozen rotation sends CYP3A4 (midazolam) to the other CYP3A4
+substrate. Under pool A, **8 are valid and 2 void**: the rotation sends CYP3A4
+(testosterone) to CYP1A2, which no longer has an admissible feature, so the
+wrong-seeded walk falls back on a neighbour that turns out to be CYP3A4 itself —
+the target arm's own gene. The control then compares an arm against itself and
+says nothing. It is declared by the merge script rather than noticed by eye in a
+table of near-identical numbers, and the frozen rotation is not re-run to repair
+it.
+
+**CYP1A2's target-only arm equals the baseline exactly** (492.43), because under
+the pool it has no feature to select: the arm fits age and sex alone. Its row is
+kept for completeness and excluded from any primary tally.
 
 ### 4.3 Pool B, qualified and reachable
 
