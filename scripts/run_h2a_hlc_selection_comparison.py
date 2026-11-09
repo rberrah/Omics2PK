@@ -852,26 +852,46 @@ def run_endpoint(endpoint, data, universe, orders, *, folds, fold_label, log):
         destroyed["univariate_still_picked_the_dead_gene"] += int(
             chosen == target_gene)
         destroyed["folds_examined"] += 1
+    examined = destroyed["folds_examined"]
     summary["destroyed_signal_diagnostic"] = {
         "gene": target_gene,
-        "folds_examined": destroyed["folds_examined"],
+        "folds_examined": examined,
         "mechanistic_arm_k1_mae": (
             float(np.nanmean(per_donor(destroyed["blind_errors"])))
-            if destroyed["folds_examined"] else None),
+            if examined else None),
         "univariate_arm_k1_mae": (
             float(np.nanmean(per_donor(destroyed["univariate_errors"])))
-            if destroyed["folds_examined"] else None),
+            if examined else None),
+        # With no fold examined these counters are not zero findings, they are
+        # no findings. Reporting "0 of 10 folds fooled" for a test that never
+        # ran would read as a test the arm passed.
         "folds_in_which_the_univariate_arm_could_have_been_fooled":
-            len(donor_folds),
+            (len(donor_folds) if examined else None),
         "univariate_still_picked_the_dead_gene":
-            destroyed["univariate_still_picked_the_dead_gene"],
+            (destroyed["univariate_still_picked_the_dead_gene"]
+             if examined else None),
         "how_to_read": (
             "The target gene's donor order is permuted, so it carries no "
             "information while keeping its place in the mechanistic ordering. "
             "The mechanistic arm must keep choosing it and must therefore lose "
             "its advantage; an arm that reads the endpoint should choose "
-            "something else. This measures the cost of being outcome-blind."),
+            "something else."),
+        "what_the_number_alone_does_not_tell_you": (
+            "A lower error for the arm that reads the endpoint is compatible "
+            "with three incompatible situations, and this cohort contains all "
+            "three: a non-human duplicate of the destroyed transcript, an "
+            "admissible paralogue whose probe plausibly measures the same "
+            "transcript, and a different gene whose association may be real. "
+            "The replacement must be named before the number is read, which "
+            "scripts/name_destroyed_signal_replacement.py does. See protocol "
+            "section 5.5 as amended in 1.4.7."),
     }
+    if not examined:
+        summary["destroyed_signal_diagnostic"]["not_assessable"] = (
+            f"{target_gene} has no feature in this universe, so its donor "
+            "order cannot be permuted and this diagnostic did not run for this "
+            "endpoint. Its counters are null rather than zero: nothing was "
+            "examined, so nothing was resisted.")
 
     # ------------------------------------------------------------------
     # Contrasts.
@@ -1011,7 +1031,7 @@ def main(argv=None) -> int:
 
     report = {
         "analysis": "H2a: mechanistic versus statistical selection, equal dimension",
-        "protocol_version": "1.4.6",
+        "protocol_version": "1.4.7",
         "run_on": date.today().isoformat(),
         "endpoint_class": "functional_in_vitro",
         "endpoint_class_note": (

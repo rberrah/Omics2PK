@@ -1,6 +1,6 @@
 # Omics2PK — five-objective validation protocol
 
-**Version:** 1.4.6
+**Version:** 1.4.7
 **Frozen:** 2026-11-08
 **Status:** frozen before execution of the Phase 2–5 runs. Any later change requires a new version number, a date, and a statement of what was changed and why. Thresholds must not be revised after seeing a result.
 
@@ -250,22 +250,49 @@ finding **the same molecule under another name**. Under the qualified pool that
 feature is refused, the arm finds a different weak association in almost every
 fold, and it performs at the clinical baseline — like the blind arm.
 
-Three consequences, kept separate:
+**Corrected again in v1.4.7, and the correction is of this protocol's own
+reasoning.** Version 1.4.6 concluded from `CYP2D6_activity` alone that "the
+qualified pool repairs the diagnostic". That generalised from a **single
+realisation**, which is the error §5.6 and the mission brief both forbid, and
+two further endpoints refute it. What the replacement is has to be measured
+endpoint by endpoint, and on this cohort it takes three different forms:
+
+| endpoint | replacement, by the univariate arm | folds | identity | recovery under pool A |
+|---|---|---:|---|---|
+| `CYP2D6_activity` | `CYP2D17` | 10/10 | `conflicting`; the name of a macaque CYP2D gene | **disappears**: 108.88 against a baseline of 109.64 |
+| `CYP2A6_activity` | `CYP2A24`, `CYP2A23`, then `CYP2A7` | 10/10 | macaque names refused, then an **admissible human paralogue** | **persists** |
+| `CYP3A4M_activity` | `LOC285626`, resolving to `IL12B-AS1` | 10/10 | admissible, under a stale alias | **persists**: 714.26 against 720.88 |
+
+`CYP2A7` shares about 95 % of its sequence with `CYP2A6`. It is a real human
+gene with an identity of its own, so **no annotation-based qualification can
+expose it as a duplicate of the target transcript**, and none should pretend to:
+establishing cross-hybridisation needs the oligonucleotide sequence, which no
+source distributes. That limit is structural, not a parameter.
+
+`IL12B-AS1` is not a duplicate at all. It is an antisense RNA of a
+pro-inflammatory cytokine, chosen in ten folds of ten at |ρ| ≈ 0.6 against
+midazolam hydroxylation. The suppression of CYP3A4 by inflammation is documented
+in the literature; **this analysis establishes no mechanism** and the
+observation is hypothesis-generating only, but it is a stable association rather
+than an annotation artefact.
+
+Four consequences, kept separate:
 
 * **What survives unconditionally** is the *detection* claim: the univariate arm
   never selected the dead gene, in 100 folds across ten endpoints. An arm that
   reads the endpoint notices that a column has stopped carrying information.
 * **What does not survive** is reading its lower error as robustness of the
-  *method*. On a qualified universe the recovery disappears, so the earlier
-  reading of this diagnostic as the mechanistic arm's main weakness was
-  conditional on an inadmissible duplicate and must not be repeated.
-* **No code is changed, and none should be.** The restriction repairs the
-  diagnostic by itself, because the duplicate lives in the refused stratum: on a
-  qualified universe every feature resolves to a gene and the single column
-  standing for the target gene is the only copy of it. Permuting "every feature
-  of the gene" would not have helped in the unrestricted universe, since the
-  duplicate is not annotated as that gene — which is the annotation problem
-  itself, not a parameter of the diagnostic.
+  *method*. The number is compatible with three incompatible situations, so on
+  its own it supports none of them.
+* **The diagnostic is therefore reported only with its replacement named**, per
+  fold, with that feature's identity stratum, by
+  `scripts/name_destroyed_signal_replacement.py`. That script changes no arm,
+  loss, margin or contrast: it records a choice the runs already made
+  internally. A destroyed-signal number quoted without the replacement named is
+  not a reportable result.
+* **A qualified pool removes the duplicates annotation can see, and only
+  those.** It is necessary and not sufficient, and the earlier claim that it
+  repairs the diagnostic is withdrawn.
 
 **And a consequence for H2d.** Where no admissible feature carries the target's
 signal, the destroyed-signal experiment cannot discriminate between arms: every
@@ -499,6 +526,8 @@ A result obtained on a functional or cell-line endpoint is never presented in th
 | 1.4.5 | 2026-11-09 | **Adds §5.6: analytical admissibility of the candidate features, and the rule that H2a and H2d share one universe.** Prompted by two external reviews and by a result of the project's own: a gene symbol in this archive does not identify the molecule measured, so the candidate features are graded by how strongly two independent annotations agree on a human gene, with accessions resolved to genes before comparison, with a symbol that names a *different* human gene refused and an outdated name kept with the gene recorded beside it, and with the platform record checked for internal coherence before any agreement between sources is computed. Three pools are frozen, built feature by feature and only then grouped by symbol so a mixed gene keeps its admissible features, with the complete admissible lists, the refused strata and every source checksum committed. The pool applies to every arm or to none; the feature actually used is traced fold by fold and a selection outside the pool stops the run; the undetermined and conflicting strata are kept rather than deleted, and an undetermined feature is explicitly not a wrong measurement. `CYP1A2_activity` has no admissible feature under the stricter rule either, and its result stays withdrawn. The 200 decoys stay outside every pool. The limit that 4,929 admissible features carry a name the gene no longer has is declared rather than repaired, because re-keying the universe would be a methodological change. Specified after the primary H2a run and before any pool-restricted or H2d run; no primary number is recomputed and no threshold, margin, comparator or primary contrast changed. |
 
 | 1.4.6 | 2026-11-09 | **§5.5 corrected after running the destroyed-signal diagnostic: it is interpretable only on an annotation-qualified universe.** The permutation destroys the target gene's column, not a differently named feature measuring the same transcript, and this array has one. On `CYP2D6_activity` the univariate arm replaced the destroyed column with the feature annotated `CYP2D17` in 10 of 10 folds at |ρ| 0.45–0.51 — a feature whose identity no public source establishes and which every qualified pool refuses — reaching 96.86 against a clinical baseline of 109.64. Restricted to pool A the same arm picks nine different genes in ten folds at |ρ| 0.27–0.32 and lands at 108.88, beside the blind mechanistic arm's 110.15. The detection claim stands: the univariate arm never selected the dead gene in 100 folds. The reading of its lower error as methodological robustness does not, and is withdrawn. No code changes: the qualified pool repairs the diagnostic because the duplicate lives in the refused stratum. Where no admissible feature carries the target's signal, the experiment cannot discriminate between arms, and a repair criterion reported unmet must be read as "nothing to find", not "no method could find it". No threshold, margin, comparator or primary contrast changed. |
+
+| 1.4.7 | 2026-11-09 | **Withdraws v1.4.6's own generalisation, made from one endpoint.** v1.4.6 concluded from `CYP2D6_activity` that a qualified pool repairs the destroyed-signal diagnostic. Two further endpoints refute it: on `CYP2A6_activity` the replacement becomes `CYP2A7`, an admissible human paralogue sharing about 95 % of its sequence with the target, which no annotation-based qualification can expose as a duplicate because establishing cross-hybridisation needs an oligonucleotide sequence no source distributes; on `CYP3A4M_activity` it is `IL12B-AS1`, not a duplicate at all but an antisense RNA of a pro-inflammatory cytokine chosen in ten folds of ten at |ρ| ≈ 0.6, a stable association whose mechanism this analysis does not establish. The diagnostic's number is therefore compatible with three incompatible situations and is reportable only with the replacement named per fold, which `scripts/name_destroyed_signal_replacement.py` does without touching any arm, loss, margin or contrast. The detection claim is unaffected: the univariate arm never selected the dead gene in 100 folds. A qualified pool removes the duplicates annotation can see and only those: necessary, not sufficient. No threshold, margin, comparator or primary contrast changed. |
 
 
 ### Validity of the 1.1.0 amendment
