@@ -73,7 +73,7 @@ jobs:
             tests/test_functional_omics.py \
             | grep -c '::' || true)
           echo "collected $count pytest tests"
-          if [ "$count" -lt 700 ]; then
-            echo "ERROR: expected at least 700 collected tests, got $count." >&2
+          if [ "$count" -lt 725 ]; then
+            echo "ERROR: expected at least 725 collected tests, got $count." >&2
             exit 1
           fi

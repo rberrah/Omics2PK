@@ -16,6 +16,7 @@ and no test can be made to pass by looking at a result.
 from __future__ import annotations
 
 import importlib.util
+import json
 import re
 import sys
 import unittest
@@ -718,6 +719,80 @@ class TestRunnerGovernance(unittest.TestCase):
         self.assertIn("stopping before any model is fitted", source)
 
 
+class TestContrastAssembly(unittest.TestCase):
+    """The first execution reported the primary contrast as NOT_EVALUABLE.
+
+    The arms had all been fitted; the guard looked for the key `"real"` inside
+    the dictionary of arms instead of the dictionary of settings, so the
+    comparator was never found. These tests exist because that bug was silent:
+    it produced a well-formed refusal rather than an error.
+    """
+
+    def setUp(self):
+        self.runner = load_runner()
+        rng = np.random.default_rng(4)
+        self.y = np.abs(rng.normal(loc=100.0, scale=20.0, size=30))
+        better = np.abs(rng.normal(loc=8.0, scale=2.0, size=30))
+        worse = better + np.abs(rng.normal(loc=4.0, scale=1.0, size=30))
+        much_worse = worse + np.abs(rng.normal(loc=6.0, scale=1.0, size=30))
+        self.errors = {"E": {
+            "real": {"F5": np.vstack([better, better]),
+                     "F1": np.vstack([worse, worse]),
+                     "F2": np.vstack([worse, worse])},
+            "rewired_null_00": {"F5": np.vstack([much_worse, much_worse])}}}
+
+    def test_a_contrast_between_two_fitted_arms_is_computed(self):
+        out = self.runner.contrast(self.errors, "E", "F5", "F1", self.y,
+                                   family_size=1)
+        self.assertNotIn("status", out)
+        self.assertLess(out["delta_mae"], 0.0)
+        self.assertEqual(out["n_donors"], 30)
+        self.assertEqual(out["label"], "F5_vs_F1")
+
+    def test_a_control_arm_is_contrasted_against_the_real_comparator(self):
+        out = self.runner.contrast(self.errors, "E", "F5", "F1", self.y,
+                                   family_size=1, setting="rewired_null_00")
+        self.assertNotIn("status", out)
+        self.assertGreater(out["delta_mae"], 0.0,
+                           "the perturbed arm should be worse here")
+
+    def test_a_genuinely_absent_arm_is_refused_and_named(self):
+        out = self.runner.contrast(self.errors, "E", "F4p", "F1", self.y,
+                                   family_size=1)
+        self.assertEqual(out["status"], "NOT_EVALUABLE")
+        self.assertIn("F4p", out["reason"])
+        self.assertNotIn("F1", out["reason"])
+
+    def test_a_genuinely_absent_comparator_is_refused_and_named(self):
+        out = self.runner.contrast(self.errors, "E", "F5", "F0", self.y,
+                                   family_size=1)
+        self.assertEqual(out["status"], "NOT_EVALUABLE")
+        self.assertIn("F0", out["reason"])
+
+    def test_the_three_part_success_criterion_is_applied_not_just_reported(self):
+        out = self.runner.contrast(self.errors, "E", "F5", "F1", self.y,
+                                   family_size=1)
+        self.assertEqual(
+            out["meets_relative_threshold"],
+            out["relative"] <= -FO.FROZEN["relative_mae_threshold"])
+        self.assertIn("reversal_on_trimmed_mae", out)
+        self.assertIn("interval_excludes_zero", out)
+
+    def test_a_tiny_difference_does_not_meet_the_threshold(self):
+        errors = {"E": {"real": {
+            "F5": np.vstack([np.full(30, 10.0), np.full(30, 10.0)]),
+            "F1": np.vstack([np.full(30, 10.1), np.full(30, 10.1)])}}}
+        out = self.runner.contrast(errors, "E", "F5", "F1", self.y,
+                                   family_size=1)
+        self.assertLess(out["delta_mae"], 0.0)
+        self.assertFalse(out["meets_relative_threshold"])
+
+    def test_the_status_ceiling_is_attached_to_every_contrast(self):
+        out = self.runner.contrast(self.errors, "E", "F5", "F1", self.y,
+                                   family_size=1)
+        self.assertEqual(out["status_ceiling"], "exploratory")
+
+
 class TestNoClinicalClaim(unittest.TestCase):
     """Nothing here may be presented as a transfer to clinical pharmacokinetics."""
 
@@ -843,6 +918,113 @@ class TestPrespecificationContent(unittest.TestCase):
 
     def test_the_f2_arm_is_declared_narrower_than_f5(self):
         self.assertIn("`F2` is therefore the narrower arm", self.text)
+
+
+class TestResultsAreReportedHonestly(unittest.TestCase):
+    """The results document must not overstate, understate or quietly repair."""
+
+    RESULTS = REPO_ROOT / "docs" / (
+        "OMICS2PK_F_SERIES_FUNCTIONAL_OMICS_RESULTS_20261109.md")
+    ARTEFACT = REPO_ROOT / "reports" / "data" / (
+        "f_series_hlc_functional_omics.json")
+
+    @classmethod
+    def setUpClass(cls):
+        if not cls.RESULTS.is_file():
+            raise unittest.SkipTest("the F-series has not been run yet")
+        cls.text = cls.RESULTS.read_text(encoding="utf-8")
+        cls.report = json.loads(cls.ARTEFACT.read_text(encoding="utf-8"))
+
+    def test_the_document_reports_the_primary_contrast_the_artefact_carries(self):
+        primary = self.report["predictive_performance"]["primary_contrast"]
+        self.assertEqual(primary["label"], "F5_vs_F1")
+        self.assertEqual(primary["endpoint"], FO.PRIMARY_ENDPOINT)
+        self.assertNotIn("status", primary,
+                         "the primary contrast must be computed, not refused")
+        self.assertIn(f"{primary['comparator']['mae']:.2f}", self.text)
+        self.assertIn(f"{primary['arm']['mae']:.2f}", self.text)
+
+    def test_a_failed_primary_contrast_is_not_written_as_a_success(self):
+        primary = self.report["predictive_performance"]["primary_contrast"]
+        if not primary.get("meets_relative_threshold"):
+            self.assertIn("The primary contrast fails", self.text)
+
+    def test_the_status_ceiling_is_stated_in_the_document(self):
+        self.assertIn("`exploratory`", self.text)
+        self.assertEqual(self.report["status_ceiling"], "exploratory")
+
+    def test_the_clinical_transfer_is_stated_as_not_evaluated(self):
+        self.assertEqual(self.report["clinical_pk_transfer"], "NOT_EVALUATED")
+        self.assertIn("NOT_EVALUATED", self.text)
+
+    def test_the_identity_check_is_reported_as_an_identity(self):
+        check = self.report["analytical_validity"]["algebraic_identity_check"]
+        self.assertTrue(check[FO.PRIMARY_ENDPOINT]["identity_holds"])
+        self.assertIn("algebraic identity", self.text)
+
+    def test_the_document_records_its_own_defects(self):
+        self.assertIn("defects in this experiment's own execution", self.text)
+        self.assertIn("NOT_EVALUABLE", self.text)
+
+    def test_the_undefined_contrast_is_reported_without_an_interval(self):
+        self.assertIn("reported\n   descriptively without an interval", self.text)
+
+    def test_the_biology_block_is_not_read_as_biology(self):
+        self.assertIn("a statement about the design, not about CollecTRI",
+                      self.text)
+
+    def test_the_rewired_null_reading_is_stated_both_ways(self):
+        """The F4p and F5 nulls point different ways; both must be reported."""
+        self.assertIn("lies inside that\n   range", self.text)
+        self.assertIn("One asymmetry, reported because it is real", self.text)
+
+    def test_the_limits_section_refuses_the_overreach(self):
+        self.assertIn("That CollecTRI's signs are wrong", self.text)
+        self.assertIn("That a functional layer cannot help in general",
+                      self.text)
+
+    def test_the_timing_caveat_is_recorded(self):
+        self.assertIn("fold_cumulative_seconds", self.report)
+        self.assertIn("how_to_read_runtime", self.report)
+
+
+class TestCollinearityDiagnostic(unittest.TestCase):
+    """The post-hoc diagnostic must stay labelled as post-hoc."""
+
+    SCRIPT = REPO_ROOT / "scripts" / (
+        "diagnose_f_series_activity_collinearity.py")
+    OUT = REPO_ROOT / "reports" / "data" / "f_series_activity_collinearity.json"
+
+    def test_the_script_exists_and_declares_itself_post_hoc(self):
+        source = self.SCRIPT.read_text(encoding="utf-8")
+        self.assertIn("POST_HOC_DIAGNOSTIC", source)
+        self.assertIn("changes no arm", source)
+
+    def test_it_produces_no_performance_number(self):
+        source = self.SCRIPT.read_text(encoding="utf-8")
+        for forbidden in ("delta_mae", "meets_relative_threshold",
+                          "primary_contrast"):
+            self.assertNotIn(forbidden, source)
+
+    def test_its_artefact_is_labelled_and_states_it_changes_nothing(self):
+        if not self.OUT.is_file():
+            self.skipTest("the diagnostic has not been run yet")
+        report = json.loads(self.OUT.read_text(encoding="utf-8"))
+        self.assertEqual(report["label"], "POST_HOC_DIAGNOSTIC")
+        self.assertIn("No arm, loss, threshold or contrast is affected",
+                      report["changes_no_result"])
+        self.assertEqual(report["endpoint"], FO.PRIMARY_ENDPOINT)
+
+    def test_it_measures_identifiability_rather_than_asserting_it(self):
+        if not self.OUT.is_file():
+            self.skipTest("the diagnostic has not been run yet")
+        report = json.loads(self.OUT.read_text(encoding="utf-8"))
+        self.assertIn("condition_number", report["design"])
+        self.assertIn("effective_rank_shannon", report["design"])
+        self.assertGreater(report["n_activity_columns"],
+                           report["design"]["effective_rank_shannon"],
+                           "a design whose effective rank equals its width "
+                           "would not support the document's reading")
 
 
 if __name__ == "__main__":

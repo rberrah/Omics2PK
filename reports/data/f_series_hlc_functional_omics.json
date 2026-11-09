@@ -1,0 +1,2503 @@
+{
+  "analytical_validity": {
+    "activity_settings_per_fold": 102,
+    "algebraic_identity_check": {
+      "CYP2A6_activity": {
+        "folds_compared": 10,
+        "identity_holds": true,
+        "max_absolute_prediction_difference": 0.0,
+        "tolerance": 1e-08,
+        "what_it_means": "A full sign inversion negates every activity and ridge answers by negating one coefficient, so the predictions must be identical. This is an algebraic identity, not a control, and it is reported here to show the implementation is the model the prespecification describes."
+      },
+      "CYP2B6_activity": {
+        "folds_compared": 10,
+        "identity_holds": true,
+        "max_absolute_prediction_difference": 0.0,
+        "tolerance": 1e-08,
+        "what_it_means": "A full sign inversion negates every activity and ridge answers by negating one coefficient, so the predictions must be identical. This is an algebraic identity, not a control, and it is reported here to show the implementation is the model the prespecification describes."
+      },
+      "CYP2C19_activity": {
+        "folds_compared": 10,
+        "identity_holds": true,
+        "max_absolute_prediction_difference": 0.0,
+        "tolerance": 1e-08,
+        "what_it_means": "A full sign inversion negates every activity and ridge answers by negating one coefficient, so the predictions must be identical. This is an algebraic identity, not a control, and it is reported here to show the implementation is the model the prespecification describes."
+      },
+      "CYP2C8_activity": {
+        "folds_compared": 10,
+        "identity_holds": true,
+        "max_absolute_prediction_difference": 0.0,
+        "tolerance": 1e-08,
+        "what_it_means": "A full sign inversion negates every activity and ridge answers by negating one coefficient, so the predictions must be identical. This is an algebraic identity, not a control, and it is reported here to show the implementation is the model the prespecification describes."
+      },
+      "CYP2C9_activity": {
+        "folds_compared": 10,
+        "identity_holds": true,
+        "max_absolute_prediction_difference": 0.0,
+        "tolerance": 1e-08,
+        "what_it_means": "A full sign inversion negates every activity and ridge answers by negating one coefficient, so the predictions must be identical. This is an algebraic identity, not a control, and it is reported here to show the implementation is the model the prespecification describes."
+      },
+      "CYP2D6_activity": {
+        "folds_compared": 10,
+        "identity_holds": true,
+        "max_absolute_prediction_difference": 0.0,
+        "tolerance": 1e-08,
+        "what_it_means": "A full sign inversion negates every activity and ridge answers by negating one coefficient, so the predictions must be identical. This is an algebraic identity, not a control, and it is reported here to show the implementation is the model the prespecification describes."
+      },
+      "CYP2E1_activity": {
+        "folds_compared": 10,
+        "identity_holds": true,
+        "max_absolute_prediction_difference": 0.0,
+        "tolerance": 1e-08,
+        "what_it_means": "A full sign inversion negates every activity and ridge answers by negating one coefficient, so the predictions must be identical. This is an algebraic identity, not a control, and it is reported here to show the implementation is the model the prespecification describes."
+      },
+      "CYP3A4M_activity": {
+        "folds_compared": 10,
+        "identity_holds": true,
+        "max_absolute_prediction_difference": 0.0,
+        "tolerance": 1e-08,
+        "what_it_means": "A full sign inversion negates every activity and ridge answers by negating one coefficient, so the predictions must be identical. This is an algebraic identity, not a control, and it is reported here to show the implementation is the model the prespecification describes."
+      },
+      "CYP3A4T_activity": {
+        "folds_compared": 10,
+        "identity_holds": true,
+        "max_absolute_prediction_difference": 0.0,
+        "tolerance": 1e-08,
+        "what_it_means": "A full sign inversion negates every activity and ridge answers by negating one coefficient, so the predictions must be identical. This is an algebraic identity, not a control, and it is reported here to show the implementation is the model the prespecification describes."
+      }
+    },
+    "cytochrome_guards": {
+      "how_to_read": "refused_by_resolved_alias counts probes whose array symbol is not a cytochrome but whose resolved gene is. Excluding by array symbol alone would leave those probes in the regulons.",
+      "refused_by_array_symbol": 100,
+      "refused_by_resolved_alias": 4,
+      "refused_feature_ids": [
+        "10023804922",
+        "10023805339",
+        "10023808798",
+        "10023808927",
+        "10023810111",
+        "10023810397",
+        "10023810616",
+        "10023811586",
+        "10023811897",
+        "10023811936",
+        "10023812692",
+        "10023812802",
+        "10023813117",
+        "10023813770",
+        "10023815674",
+        "10023816096",
+        "10023816149",
+        "10023817309",
+        "10023820631",
+        "10023820911",
+        "10023821067",
+        "10023821660",
+        "10023821799",
+        "10023822237",
+        "10023822987",
+        "10023824066",
+        "10023824109",
+        "10023824400",
+        "10023825398",
+        "10023826722",
+        "10023827250",
+        "10023830325",
+        "10023833467",
+        "10023839365",
+        "10023850263",
+        "10025903552",
+        "10025906634",
+        "10025906751",
+        "10025907218",
+        "10025907498",
+        "10025907510",
+        "10025907877",
+        "10025908099",
+        "10025909290",
+        "10025909551",
+        "10025909722",
+        "10025910200",
+        "10025910554",
+        "10025911076",
+        "10025912014",
+        "10025912556",
+        "10025925479",
+        "10025925787",
+        "10025930032",
+        "10025931782",
+        "10025931874",
+        "10026391205",
+        "10031920007",
+        "10031920370",
+        "10031920478",
+        "10033668429",
+        "10033668452",
+        "10033668469",
+        "10033668485",
+        "10033668502",
+        "10033668504",
+        "10033668511",
+        "10033668518",
+        "10033668529",
+        "10033668532",
+        "10033668556",
+        "10033668581",
+        "10033668591",
+        "10033668594",
+        "10033668605",
+        "10033668613",
+        "10033668624",
+        "10033668626",
+        "10033668648",
+        "10033668664",
+        "10033668681",
+        "10033668689",
+        "10033668695",
+        "10033668713",
+        "10033668715",
+        "10033668742",
+        "10033668746",
+        "10033668783",
+        "10033668806",
+        "10033668808",
+        "10033668810",
+        "10033668814",
+        "10033668834",
+        "10033668843",
+        "10033668852",
+        "10033668854",
+        "10033668886",
+        "10033668891",
+        "10033668903",
+        "10033668930",
+        "10033668962",
+        "10033669006",
+        "10033669028",
+        "10033669040"
+      ],
+      "resolved_alias_examples": [
+        {
+          "array_symbol": "FLJ20359",
+          "feature_id": "10023850263",
+          "resolved_symbol": "CYP2W1"
+        },
+        {
+          "array_symbol": "FLJ39501",
+          "feature_id": "10025907498",
+          "resolved_symbol": "CYP4F22"
+        },
+        {
+          "array_symbol": "FLJ16008",
+          "feature_id": "10025931782",
+          "resolved_symbol": "CYP27C1"
+        },
+        {
+          "array_symbol": "FLJ39501",
+          "feature_id": "10033668695",
+          "resolved_symbol": "CYP4F22"
+        }
+      ]
+    },
+    "donors_with_endpoint_and_expression": {
+      "CYP1A2_activity": 398,
+      "CYP2A6_activity": 397,
+      "CYP2B6_activity": 398,
+      "CYP2C19_activity": 398,
+      "CYP2C8_activity": 387,
+      "CYP2C9_activity": 398,
+      "CYP2D6_activity": 397,
+      "CYP2E1_activity": 398,
+      "CYP3A4M_activity": 397,
+      "CYP3A4T_activity": 397
+    },
+    "fold_fingerprint_sha256": "0ab8377a8db3959e718bb55cf937c761d3500285ca1819587d426b0b992d7bb1",
+    "network": {
+      "file": "collectri.tsv",
+      "rows": 64516,
+      "rows_naming_collectri": 64516,
+      "sha256": "062529d997ef6ff2d599030f5d155810fb076d3c68d482366172b148553fb878"
+    },
+    "no_individual_data_written": true,
+    "not_evaluable": {
+      "CYP1A2_activity": {
+        "reasons": {
+          "F1/F2/F5": "the target enzyme has no admissible probe, so no arm carrying its transcript can be built; this is not a negative result"
+        },
+        "verdict": {
+          "F0": "EVALUABLE",
+          "F1": "NOT_EVALUABLE",
+          "F2": "NOT_EVALUABLE",
+          "F4p": "EVALUABLE",
+          "F5": "NOT_EVALUABLE"
+        }
+      }
+    },
+    "probe_choice_trace_fold_0": {
+      "cytochrome_genes": 51,
+      "fold": 0,
+      "scoring_genes": 21549,
+      "scoring_probe_examples": {
+        "1-Sep": "10023835937",
+        "10-Sep": "10025910349",
+        "101F6": "10025905576"
+      }
+    },
+    "probe_pool": {
+      "admissible_probes": 26066,
+      "cytochrome_symbols": 51,
+      "file": "QUALIFIED_PROBE_POOLS.json",
+      "pool_name": "A_qualified_human",
+      "refused_by_resolved_alias": 4,
+      "rule_version": "probe-identity-1.1.0",
+      "scoring_symbols": 21580
+    },
+    "repeats": 2,
+    "signed_network_audit": {
+      "cytochrome_targets_removed": true,
+      "dropped_conflicting_duplicate": 120,
+      "dropped_cytochrome_target": 811,
+      "dropped_sign_indeterminate": 2590,
+      "duplicate_rows_collapsed": 2004,
+      "edges_retained": 58991,
+      "how_to_read": "dropped_cytochrome_target is the circularity guard at the edge level; it must be positive on the real network, because every study enzyme has recorded regulators.",
+      "rows_read": 64516
+    },
+    "union_of_evaluable_regulators": 100
+  },
+  "arms": {
+    "F0": "age and sex",
+    "F1": "F0 + the target enzyme's own transcript (primary comparator)",
+    "F2": "F1 + the evaluable regulators' own transcripts",
+    "F4p": "F0 + regulator activities from cytochrome-free regulons",
+    "F5": "F1 + regulator activities (primary arm)"
+  },
+  "biological_relevance": {
+    "candidate_and_evaluable_counts": {
+      "CYP1A2_activity": {
+        "candidate_regulators": 31,
+        "enzyme": "CYP1A2",
+        "evaluable_regulators": 30,
+        "regulator_transcripts_for_F2": 17
+      },
+      "CYP2A6_activity": {
+        "candidate_regulators": 12,
+        "enzyme": "CYP2A6",
+        "evaluable_regulators": 11,
+        "regulator_transcripts_for_F2": 11
+      },
+      "CYP2B6_activity": {
+        "candidate_regulators": 43,
+        "enzyme": "CYP2B6",
+        "evaluable_regulators": 42,
+        "regulator_transcripts_for_F2": 30
+      },
+      "CYP2C19_activity": {
+        "candidate_regulators": 10,
+        "enzyme": "CYP2C19",
+        "evaluable_regulators": 10,
+        "regulator_transcripts_for_F2": 10
+      },
+      "CYP2C8_activity": {
+        "candidate_regulators": 7,
+        "enzyme": "CYP2C8",
+        "evaluable_regulators": 7,
+        "regulator_transcripts_for_F2": 7
+      },
+      "CYP2C9_activity": {
+        "candidate_regulators": 21,
+        "enzyme": "CYP2C9",
+        "evaluable_regulators": 19,
+        "regulator_transcripts_for_F2": 18
+      },
+      "CYP2D6_activity": {
+        "candidate_regulators": 5,
+        "enzyme": "CYP2D6",
+        "evaluable_regulators": 5,
+        "regulator_transcripts_for_F2": 5
+      },
+      "CYP2E1_activity": {
+        "candidate_regulators": 15,
+        "enzyme": "CYP2E1",
+        "evaluable_regulators": 15,
+        "regulator_transcripts_for_F2": 13
+      },
+      "CYP3A4M_activity": {
+        "candidate_regulators": 50,
+        "enzyme": "CYP3A4",
+        "evaluable_regulators": 49,
+        "regulator_transcripts_for_F2": 38
+      },
+      "CYP3A4T_activity": {
+        "candidate_regulators": 50,
+        "enzyme": "CYP3A4",
+        "evaluable_regulators": 49,
+        "regulator_transcripts_for_F2": 38
+      }
+    },
+    "coefficient_sign_agreement": {
+      "agreement_fraction": 0.30612244897959184,
+      "binomial_p_two_sided": 0.009399241523873059,
+      "coefficient_sign_agrees": 15,
+      "coefficient_sign_disagrees": 34,
+      "endpoint": "CYP3A4M_activity",
+      "no_recorded_sign": 0,
+      "regulators_with_a_recorded_sign": 49,
+      "what_it_is_not": "Sign agreement is a statement about direction, not about prediction. It never upgrades the predictive block, and a model can agree with every recorded sign while predicting no better than the transcript alone."
+    },
+    "refused_regulators": {
+      "CYP1A2_activity": {
+        "AHRR": {
+          "admissible_members": 1,
+          "members": 1,
+          "reason": "fewer than 5 admissible members"
+        }
+      },
+      "CYP2A6_activity": {
+        "UBP1": {
+          "admissible_members": 0,
+          "members": 0,
+          "reason": "no regulon survived the sign and cytochrome rules"
+        }
+      },
+      "CYP2B6_activity": {
+        "UBP1": {
+          "admissible_members": 0,
+          "members": 0,
+          "reason": "no regulon survived the sign and cytochrome rules"
+        }
+      },
+      "CYP2C9_activity": {
+        "NCOA6": {
+          "admissible_members": 3,
+          "members": 3,
+          "reason": "fewer than 5 admissible members"
+        },
+        "SUPT20H": {
+          "admissible_members": 4,
+          "members": 4,
+          "reason": "fewer than 5 admissible members"
+        }
+      },
+      "CYP3A4M_activity": {
+        "NCOA6": {
+          "admissible_members": 3,
+          "members": 3,
+          "reason": "fewer than 5 admissible members"
+        }
+      },
+      "CYP3A4T_activity": {
+        "NCOA6": {
+          "admissible_members": 3,
+          "members": 3,
+          "reason": "fewer than 5 admissible members"
+        }
+      }
+    },
+    "regulon_sizes": {
+      "CYP3A4M_activity": {
+        "CEBPA": {
+          "admissible_members": 194,
+          "members": 214
+        },
+        "CEBPB": {
+          "admissible_members": 376,
+          "members": 417
+        },
+        "CEBPG": {
+          "admissible_members": 184,
+          "members": 199
+        },
+        "DBP": {
+          "admissible_members": 27,
+          "members": 30
+        },
+        "ESR1": {
+          "admissible_members": 486,
+          "members": 562
+        },
+        "FOXA2": {
+          "admissible_members": 112,
+          "members": 122
+        },
+        "FOXA3": {
+          "admissible_members": 8,
+          "members": 8
+        },
+        "FOXM1": {
+          "admissible_members": 86,
+          "members": 90
+        },
+        "HDAC1": {
+          "admissible_members": 73,
+          "members": 79
+        },
+        "HNF1A": {
+          "admissible_members": 133,
+          "members": 143
+        },
+        "HNF4A": {
+          "admissible_members": 229,
+          "members": 250
+        },
+        "HR": {
+          "admissible_members": 76,
+          "members": 88
+        },
+        "MYC": {
+          "admissible_members": 670,
+          "members": 785
+        },
+        "NCOA1": {
+          "admissible_members": 70,
+          "members": 82
+        },
+        "NCOA2": {
+          "admissible_members": 53,
+          "members": 62
+        },
+        "NCOR1": {
+          "admissible_members": 54,
+          "members": 59
+        },
+        "NCOR2": {
+          "admissible_members": 52,
+          "members": 55
+        },
+        "NFIL3": {
+          "admissible_members": 29,
+          "members": 33
+        },
+        "NFKB1": {
+          "admissible_members": 784,
+          "members": 896
+        },
+        "NFKB1_NFKB2": {
+          "admissible_members": 692,
+          "members": 789
+        },
+        "NFKB1_REL": {
+          "admissible_members": 692,
+          "members": 789
+        },
+        "NFKB1_RELA": {
+          "admissible_members": 692,
+          "members": 789
+        },
+        "NFKB1_RELB": {
+          "admissible_members": 692,
+          "members": 789
+        },
+        "NFKB2": {
+          "admissible_members": 707,
+          "members": 804
+        },
+        "NFKB2_REL": {
+          "admissible_members": 692,
+          "members": 789
+        },
+        "NFKB2_RELA": {
+          "admissible_members": 692,
+          "members": 789
+        },
+        "NFKB2_RELB": {
+          "admissible_members": 692,
+          "members": 789
+        },
+        "NR0B2": {
+          "admissible_members": 70,
+          "members": 82
+        },
+        "NR1H3": {
+          "admissible_members": 104,
+          "members": 118
+        },
+        "NR1I2": {
+          "admissible_members": 163,
+          "members": 208
+        },
+        "NR1I3": {
+          "admissible_members": 39,
+          "members": 46
+        },
+        "NR2F1": {
+          "admissible_members": 55,
+          "members": 59
+        },
+        "NR2F2": {
+          "admissible_members": 69,
+          "members": 73
+        },
+        "NR3C1": {
+          "admissible_members": 243,
+          "members": 268
+        },
+        "ONECUT1": {
+          "admissible_members": 26,
+          "members": 32
+        },
+        "PPARA": {
+          "admissible_members": 220,
+          "members": 246
+        },
+        "REL": {
+          "admissible_members": 702,
+          "members": 802
+        },
+        "RELA": {
+          "admissible_members": 802,
+          "members": 914
+        },
+        "RELA_RELB": {
+          "admissible_members": 692,
+          "members": 789
+        },
+        "RELB": {
+          "admissible_members": 703,
+          "members": 801
+        },
+        "REL_RELA": {
+          "admissible_members": 692,
+          "members": 789
+        },
+        "REL_RELB": {
+          "admissible_members": 692,
+          "members": 789
+        },
+        "RXRA": {
+          "admissible_members": 96,
+          "members": 103
+        },
+        "SP1": {
+          "admissible_members": 1162,
+          "members": 1296
+        },
+        "SP3": {
+          "admissible_members": 386,
+          "members": 425
+        },
+        "THRA": {
+          "admissible_members": 69,
+          "members": 77
+        },
+        "TP53": {
+          "admissible_members": 697,
+          "members": 827
+        },
+        "USF1": {
+          "admissible_members": 195,
+          "members": 214
+        },
+        "VDR": {
+          "admissible_members": 110,
+          "members": 125
+        }
+      }
+    }
+  },
+  "built_on": "2026-11-09",
+  "clinical_pk_transfer": "NOT_EVALUATED",
+  "clinical_pk_transfer_reason": "This cohort has no dose, no concentration and no time. Nothing here was scaled to a clearance or an exposure, and no simulated concentration appears in this artefact. Closing the chain needs individual transcriptome and individual concentration-time pharmacokinetics in the same publicly downloadable subjects, which the project's registry does not contain.",
+  "endpoint_class": "functional_in_vitro",
+  "fold_cumulative_seconds": {
+    "fold_01": 27.2,
+    "fold_02": 53.7,
+    "fold_03": 76.9,
+    "fold_04": 103.6,
+    "fold_05": 127.4,
+    "fold_06": 153.5,
+    "fold_07": 179.5,
+    "fold_08": 203.9,
+    "fold_09": 228.5,
+    "fold_10": 252.8
+  },
+  "frozen": {
+    "control_replicates": 20,
+    "donor_floor": 50,
+    "identity_check_fraction": 1.0,
+    "identity_check_tolerance": 1e-08,
+    "inner_folds": 3,
+    "max_probe_missing_fraction": 0.2,
+    "n_bootstrap": 2000,
+    "outer_folds": 5,
+    "outer_repeats": 2,
+    "perturbation_fractions": [
+      0.25,
+      0.5,
+      0.75
+    ],
+    "prespecification": "docs/OMICS2PK_F_SERIES_FUNCTIONAL_OMICS_PRESPECIFICATION_20261109.md",
+    "prespecification_version": "1.0.0",
+    "regulator_floor": 5,
+    "regulon_floor": 5,
+    "relative_mae_threshold": 0.1,
+    "ridge_alphas": [
+      0.01,
+      0.1,
+      1.0,
+      10.0,
+      100.0,
+      1000.0
+    ],
+    "seed": 20261109,
+    "status_ceiling": "exploratory",
+    "trim_fraction": 0.1
+  },
+  "generated_utc": "2026-11-09T19:42:59+00:00",
+  "how_to_read_runtime": "runtime_seconds is wall clock and therefore includes any time the process spent suspended, which on a laptop can exceed the computation by two orders of magnitude. fold_cumulative_seconds is the cumulative time at the end of each outer fold and is the figure to read for cost: a fold that took far longer than its neighbours did not do more work. Neither number affects any result -- the run is fully determined by the frozen seeds.",
+  "predictive_performance": {
+    "arm_losses": {
+      "CYP1A2_activity": {
+        "F0": {
+          "endpoint_mean": 695.9854275531758,
+          "mae": 492.22931735016226,
+          "n_donors": 398,
+          "trimmed_mae": 392.72436159406595
+        },
+        "F4p": {
+          "endpoint_mean": 695.9854275531758,
+          "mae": 465.25525193462977,
+          "n_donors": 398,
+          "trimmed_mae": 369.4638778956153
+        }
+      },
+      "CYP2A6_activity": {
+        "F0": {
+          "endpoint_mean": 1015.3089943183023,
+          "mae": 644.5446133714219,
+          "n_donors": 397,
+          "trimmed_mae": 470.17110654207374
+        },
+        "F1": {
+          "endpoint_mean": 1015.3089943183023,
+          "mae": 571.057136936335,
+          "n_donors": 397,
+          "trimmed_mae": 399.41318069308807
+        },
+        "F2": {
+          "endpoint_mean": 1015.3089943183023,
+          "mae": 608.9512029335121,
+          "n_donors": 397,
+          "trimmed_mae": 436.4239038881086
+        },
+        "F4p": {
+          "endpoint_mean": 1015.3089943183023,
+          "mae": 636.0213754399197,
+          "n_donors": 397,
+          "trimmed_mae": 461.1402656101116
+        },
+        "F5": {
+          "endpoint_mean": 1015.3089943183023,
+          "mae": 588.0273473213897,
+          "n_donors": 397,
+          "trimmed_mae": 415.55403868533506
+        }
+      },
+      "CYP2B6_activity": {
+        "F0": {
+          "endpoint_mean": 352.42307127743726,
+          "mae": 269.11277323511143,
+          "n_donors": 398,
+          "trimmed_mae": 174.45106176300726
+        },
+        "F1": {
+          "endpoint_mean": 352.42307127743726,
+          "mae": 240.8911902775621,
+          "n_donors": 398,
+          "trimmed_mae": 149.7421754678208
+        },
+        "F2": {
+          "endpoint_mean": 352.42307127743726,
+          "mae": 244.2669116865502,
+          "n_donors": 398,
+          "trimmed_mae": 154.36631394420777
+        },
+        "F4p": {
+          "endpoint_mean": 352.42307127743726,
+          "mae": 261.53959019756894,
+          "n_donors": 398,
+          "trimmed_mae": 167.46071783483416
+        },
+        "F5": {
+          "endpoint_mean": 352.42307127743726,
+          "mae": 246.14253078214801,
+          "n_donors": 398,
+          "trimmed_mae": 156.57544543300563
+        }
+      },
+      "CYP2C19_activity": {
+        "F0": {
+          "endpoint_mean": 52.715527906927136,
+          "mae": 55.574928633618065,
+          "n_donors": 398,
+          "trimmed_mae": 38.81865201562059
+        },
+        "F1": {
+          "endpoint_mean": 52.715527906927136,
+          "mae": 51.28662811406888,
+          "n_donors": 398,
+          "trimmed_mae": 35.73176983453688
+        },
+        "F2": {
+          "endpoint_mean": 52.715527906927136,
+          "mae": 51.16187021384547,
+          "n_donors": 398,
+          "trimmed_mae": 36.01427934301343
+        },
+        "F4p": {
+          "endpoint_mean": 52.715527906927136,
+          "mae": 51.87264938253853,
+          "n_donors": 398,
+          "trimmed_mae": 36.14430461875693
+        },
+        "F5": {
+          "endpoint_mean": 52.715527906927136,
+          "mae": 51.08938283034745,
+          "n_donors": 398,
+          "trimmed_mae": 35.62423012026899
+        }
+      },
+      "CYP2C8_activity": {
+        "F0": {
+          "endpoint_mean": 84.3766366343721,
+          "mae": 62.627504661024844,
+          "n_donors": 387,
+          "trimmed_mae": 46.081007174691315
+        },
+        "F1": {
+          "endpoint_mean": 84.3766366343721,
+          "mae": 53.180678053851736,
+          "n_donors": 387,
+          "trimmed_mae": 37.75311860693337
+        },
+        "F2": {
+          "endpoint_mean": 84.3766366343721,
+          "mae": 53.224642104097114,
+          "n_donors": 387,
+          "trimmed_mae": 37.75587490496227
+        },
+        "F4p": {
+          "endpoint_mean": 84.3766366343721,
+          "mae": 54.11979808322178,
+          "n_donors": 387,
+          "trimmed_mae": 38.82205548684183
+        },
+        "F5": {
+          "endpoint_mean": 84.3766366343721,
+          "mae": 52.681424668489335,
+          "n_donors": 387,
+          "trimmed_mae": 37.495754892680374
+        }
+      },
+      "CYP2C9_activity": {
+        "F0": {
+          "endpoint_mean": 521.1575265849422,
+          "mae": 273.59147080533336,
+          "n_donors": 398,
+          "trimmed_mae": 217.0886341429178
+        },
+        "F1": {
+          "endpoint_mean": 521.1575265849422,
+          "mae": 248.80026199478914,
+          "n_donors": 398,
+          "trimmed_mae": 196.44308327524655
+        },
+        "F2": {
+          "endpoint_mean": 521.1575265849422,
+          "mae": 236.9575050385814,
+          "n_donors": 398,
+          "trimmed_mae": 186.73515918324907
+        },
+        "F4p": {
+          "endpoint_mean": 521.1575265849422,
+          "mae": 244.9033846807433,
+          "n_donors": 398,
+          "trimmed_mae": 194.8289997413807
+        },
+        "F5": {
+          "endpoint_mean": 521.1575265849422,
+          "mae": 237.82172653013455,
+          "n_donors": 398,
+          "trimmed_mae": 187.45693032064403
+        }
+      },
+      "CYP2D6_activity": {
+        "F0": {
+          "endpoint_mean": 174.56184832579342,
+          "mae": 109.43132513081612,
+          "n_donors": 397,
+          "trimmed_mae": 86.97125039842251
+        },
+        "F1": {
+          "endpoint_mean": 174.56184832579342,
+          "mae": 91.18730918001872,
+          "n_donors": 397,
+          "trimmed_mae": 69.82263409223823
+        },
+        "F2": {
+          "endpoint_mean": 174.56184832579342,
+          "mae": 90.28736398307083,
+          "n_donors": 397,
+          "trimmed_mae": 68.4385392840648
+        },
+        "F4p": {
+          "endpoint_mean": 174.56184832579342,
+          "mae": 106.75900601405078,
+          "n_donors": 397,
+          "trimmed_mae": 84.00347277930615
+        },
+        "F5": {
+          "endpoint_mean": 174.56184832579342,
+          "mae": 92.70376907944782,
+          "n_donors": 397,
+          "trimmed_mae": 70.93758645412827
+        }
+      },
+      "CYP2E1_activity": {
+        "F0": {
+          "endpoint_mean": 2309.4908053269096,
+          "mae": 1336.943981081895,
+          "n_donors": 398,
+          "trimmed_mae": 877.4578975260907
+        },
+        "F1": {
+          "endpoint_mean": 2309.4908053269096,
+          "mae": 1349.8113886500219,
+          "n_donors": 398,
+          "trimmed_mae": 887.1333169785455
+        },
+        "F2": {
+          "endpoint_mean": 2309.4908053269096,
+          "mae": 1353.8939095584187,
+          "n_donors": 398,
+          "trimmed_mae": 884.9545885708083
+        },
+        "F4p": {
+          "endpoint_mean": 2309.4908053269096,
+          "mae": 1329.163421502148,
+          "n_donors": 398,
+          "trimmed_mae": 865.1643923357428
+        },
+        "F5": {
+          "endpoint_mean": 2309.4908053269096,
+          "mae": 1340.2732578227524,
+          "n_donors": 398,
+          "trimmed_mae": 872.9443131394339
+        }
+      },
+      "CYP3A4M_activity": {
+        "F0": {
+          "endpoint_mean": 1392.1005846011535,
+          "mae": 876.7447183580625,
+          "n_donors": 397,
+          "trimmed_mae": 649.7779887352447
+        },
+        "F1": {
+          "endpoint_mean": 1392.1005846011535,
+          "mae": 728.8200005220118,
+          "n_donors": 397,
+          "trimmed_mae": 518.2532790081966
+        },
+        "F2": {
+          "endpoint_mean": 1392.1005846011535,
+          "mae": 761.7548764208159,
+          "n_donors": 397,
+          "trimmed_mae": 536.2580489488591
+        },
+        "F4p": {
+          "endpoint_mean": 1392.1005846011535,
+          "mae": 827.5625273571948,
+          "n_donors": 397,
+          "trimmed_mae": 603.4763961020259
+        },
+        "F5": {
+          "endpoint_mean": 1392.1005846011535,
+          "mae": 738.7019408822274,
+          "n_donors": 397,
+          "trimmed_mae": 525.1594454511504
+        }
+      },
+      "CYP3A4T_activity": {
+        "F0": {
+          "endpoint_mean": 5922.835668374348,
+          "mae": 3632.4751057026297,
+          "n_donors": 397,
+          "trimmed_mae": 2730.647172424115
+        },
+        "F1": {
+          "endpoint_mean": 5922.835668374348,
+          "mae": 3190.659132530154,
+          "n_donors": 397,
+          "trimmed_mae": 2315.336236157323
+        },
+        "F2": {
+          "endpoint_mean": 5922.835668374348,
+          "mae": 3236.554032169343,
+          "n_donors": 397,
+          "trimmed_mae": 2344.4831062281946
+        },
+        "F4p": {
+          "endpoint_mean": 5922.835668374348,
+          "mae": 3457.1075424056303,
+          "n_donors": 397,
+          "trimmed_mae": 2562.9671343630803
+        },
+        "F5": {
+          "endpoint_mean": 5922.835668374348,
+          "mae": 3138.8937186946287,
+          "n_donors": 397,
+          "trimmed_mae": 2263.9743216048455
+        }
+      }
+    },
+    "control_reading": "A gain the rewired null reproduces is refuted by its own control. Flat performance across sign_perturbation fractions means any gain came from the gene list, not from the signs.",
+    "controls": {
+      "CYP1A2_activity": {
+        "algebraic_identity_check": {
+          "F4p": {
+            "mae_max": 465.25525193462977,
+            "mae_mean": 465.25525193462977,
+            "mae_min": 465.25525193462977,
+            "replicates": 1
+          }
+        },
+        "donor_permuted": {
+          "F4p": {
+            "mae_max": 497.3909799776446,
+            "mae_mean": 493.2665759004546,
+            "mae_min": 488.35767219319615,
+            "replicates": 20
+          }
+        },
+        "rewired_null": {
+          "F4p": {
+            "mae_max": 473.61327487004263,
+            "mae_mean": 456.083795046088,
+            "mae_min": 441.9347669226036,
+            "replicates": 20
+          }
+        },
+        "sign_perturbation_0.25": {
+          "F4p": {
+            "mae_max": 461.2741415667954,
+            "mae_mean": 450.05093436149974,
+            "mae_min": 442.16215605639667,
+            "replicates": 20
+          }
+        },
+        "sign_perturbation_0.50": {
+          "F4p": {
+            "mae_max": 476.91769367643343,
+            "mae_mean": 453.8021340152962,
+            "mae_min": 433.46328873876445,
+            "replicates": 20
+          }
+        },
+        "sign_perturbation_0.75": {
+          "F4p": {
+            "mae_max": 463.42204544777206,
+            "mae_mean": 451.70023511014904,
+            "mae_min": 443.1826515462505,
+            "replicates": 20
+          }
+        }
+      },
+      "CYP2A6_activity": {
+        "algebraic_identity_check": {
+          "F4p": {
+            "mae_max": 636.0213754399197,
+            "mae_mean": 636.0213754399197,
+            "mae_min": 636.0213754399197,
+            "replicates": 1
+          },
+          "F5": {
+            "mae_max": 588.0273473213897,
+            "mae_mean": 588.0273473213897,
+            "mae_min": 588.0273473213897,
+            "replicates": 1
+          }
+        },
+        "donor_permuted": {
+          "F4p": {
+            "mae_max": 649.4826913468988,
+            "mae_mean": 647.0199189680444,
+            "mae_min": 642.9035652507557,
+            "replicates": 20
+          },
+          "F5": {
+            "mae_max": 603.7410005370084,
+            "mae_mean": 590.6035410605782,
+            "mae_min": 580.0691666535967,
+            "replicates": 20
+          }
+        },
+        "rewired_null": {
+          "F4p": {
+            "mae_max": 648.3235721568541,
+            "mae_mean": 641.9908859807776,
+            "mae_min": 638.1981015561372,
+            "replicates": 20
+          },
+          "F5": {
+            "mae_max": 606.0421677503058,
+            "mae_mean": 592.2128650727329,
+            "mae_min": 585.5402885181475,
+            "replicates": 20
+          }
+        },
+        "sign_perturbation_0.25": {
+          "F4p": {
+            "mae_max": 645.466932075611,
+            "mae_mean": 637.219507801851,
+            "mae_min": 629.5786358242111,
+            "replicates": 20
+          },
+          "F5": {
+            "mae_max": 613.2036902021885,
+            "mae_mean": 591.6223317172519,
+            "mae_min": 565.5934630827155,
+            "replicates": 20
+          }
+        },
+        "sign_perturbation_0.50": {
+          "F4p": {
+            "mae_max": 646.1413286724517,
+            "mae_mean": 637.2381477952891,
+            "mae_min": 627.3708494704653,
+            "replicates": 20
+          },
+          "F5": {
+            "mae_max": 607.6581878630928,
+            "mae_mean": 594.6374301762272,
+            "mae_min": 580.8402053569804,
+            "replicates": 20
+          }
+        },
+        "sign_perturbation_0.75": {
+          "F4p": {
+            "mae_max": 643.9904401530291,
+            "mae_mean": 637.119719336257,
+            "mae_min": 620.3118069374133,
+            "replicates": 20
+          },
+          "F5": {
+            "mae_max": 622.2514351371358,
+            "mae_mean": 595.3461574871717,
+            "mae_min": 576.5287194143242,
+            "replicates": 20
+          }
+        }
+      },
+      "CYP2B6_activity": {
+        "algebraic_identity_check": {
+          "F4p": {
+            "mae_max": 261.53959019756894,
+            "mae_mean": 261.53959019756894,
+            "mae_min": 261.53959019756894,
+            "replicates": 1
+          },
+          "F5": {
+            "mae_max": 246.14253078214801,
+            "mae_mean": 246.14253078214801,
+            "mae_min": 246.14253078214801,
+            "replicates": 1
+          }
+        },
+        "donor_permuted": {
+          "F4p": {
+            "mae_max": 273.0631842423045,
+            "mae_mean": 270.95050382435215,
+            "mae_min": 268.1527430155092,
+            "replicates": 20
+          },
+          "F5": {
+            "mae_max": 256.10085885373184,
+            "mae_mean": 250.61114503277412,
+            "mae_min": 245.97460993209148,
+            "replicates": 20
+          }
+        },
+        "rewired_null": {
+          "F4p": {
+            "mae_max": 269.0492388392127,
+            "mae_mean": 264.7300912721016,
+            "mae_min": 261.8780525056469,
+            "replicates": 20
+          },
+          "F5": {
+            "mae_max": 257.70442802189393,
+            "mae_mean": 251.84668762409297,
+            "mae_min": 247.06326299753962,
+            "replicates": 20
+          }
+        },
+        "sign_perturbation_0.25": {
+          "F4p": {
+            "mae_max": 266.06475037016173,
+            "mae_mean": 260.54106241668944,
+            "mae_min": 255.8245442742428,
+            "replicates": 20
+          },
+          "F5": {
+            "mae_max": 250.67553136394878,
+            "mae_mean": 246.5946059119073,
+            "mae_min": 239.19828818039028,
+            "replicates": 20
+          }
+        },
+        "sign_perturbation_0.50": {
+          "F4p": {
+            "mae_max": 264.57663919491745,
+            "mae_mean": 261.19249278476667,
+            "mae_min": 257.1150332680414,
+            "replicates": 20
+          },
+          "F5": {
+            "mae_max": 256.6074264791765,
+            "mae_mean": 250.22095106241673,
+            "mae_min": 245.0243538104155,
+            "replicates": 20
+          }
+        },
+        "sign_perturbation_0.75": {
+          "F4p": {
+            "mae_max": 267.4156987573937,
+            "mae_mean": 261.1039623030213,
+            "mae_min": 254.93930081314576,
+            "replicates": 20
+          },
+          "F5": {
+            "mae_max": 253.40176863811956,
+            "mae_mean": 247.8527729076555,
+            "mae_min": 237.16786563184212,
+            "replicates": 20
+          }
+        }
+      },
+      "CYP2C19_activity": {
+        "algebraic_identity_check": {
+          "F4p": {
+            "mae_max": 51.87264938253853,
+            "mae_mean": 51.87264938253853,
+            "mae_min": 51.87264938253853,
+            "replicates": 1
+          },
+          "F5": {
+            "mae_max": 51.08938283034745,
+            "mae_mean": 51.08938283034745,
+            "mae_min": 51.08938283034745,
+            "replicates": 1
+          }
+        },
+        "donor_permuted": {
+          "F4p": {
+            "mae_max": 56.102986224197956,
+            "mae_mean": 55.640355150519596,
+            "mae_min": 54.85661237731172,
+            "replicates": 20
+          },
+          "F5": {
+            "mae_max": 53.07153450120558,
+            "mae_mean": 52.141547807430584,
+            "mae_min": 50.91816563414868,
+            "replicates": 20
+          }
+        },
+        "rewired_null": {
+          "F4p": {
+            "mae_max": 53.31539948182333,
+            "mae_mean": 51.68688517707134,
+            "mae_min": 49.77267837383115,
+            "replicates": 20
+          },
+          "F5": {
+            "mae_max": 51.36201031594768,
+            "mae_mean": 50.44702922859965,
+            "mae_min": 49.101257288056324,
+            "replicates": 20
+          }
+        },
+        "sign_perturbation_0.25": {
+          "F4p": {
+            "mae_max": 52.80296505554482,
+            "mae_mean": 51.0538630714103,
+            "mae_min": 49.36357292411613,
+            "replicates": 20
+          },
+          "F5": {
+            "mae_max": 52.062753377257785,
+            "mae_mean": 50.3648369436724,
+            "mae_min": 49.29455681654228,
+            "replicates": 20
+          }
+        },
+        "sign_perturbation_0.50": {
+          "F4p": {
+            "mae_max": 53.05209604307835,
+            "mae_mean": 51.067463067238336,
+            "mae_min": 48.74635304281384,
+            "replicates": 20
+          },
+          "F5": {
+            "mae_max": 52.28307579078909,
+            "mae_mean": 50.120507553390475,
+            "mae_min": 48.18096233229494,
+            "replicates": 20
+          }
+        },
+        "sign_perturbation_0.75": {
+          "F4p": {
+            "mae_max": 54.222622054319665,
+            "mae_mean": 51.13896039520757,
+            "mae_min": 49.45073135992428,
+            "replicates": 20
+          },
+          "F5": {
+            "mae_max": 51.54167197066426,
+            "mae_mean": 50.3677756082873,
+            "mae_min": 49.02525471092257,
+            "replicates": 20
+          }
+        }
+      },
+      "CYP2C8_activity": {
+        "algebraic_identity_check": {
+          "F4p": {
+            "mae_max": 54.11979808322178,
+            "mae_mean": 54.11979808322178,
+            "mae_min": 54.11979808322178,
+            "replicates": 1
+          },
+          "F5": {
+            "mae_max": 52.681424668489335,
+            "mae_mean": 52.681424668489335,
+            "mae_min": 52.681424668489335,
+            "replicates": 1
+          }
+        },
+        "donor_permuted": {
+          "F4p": {
+            "mae_max": 63.50827111206829,
+            "mae_mean": 63.04216059155253,
+            "mae_min": 61.606320333902104,
+            "replicates": 20
+          },
+          "F5": {
+            "mae_max": 54.5655430629961,
+            "mae_mean": 54.07097347735195,
+            "mae_min": 53.255465178645544,
+            "replicates": 20
+          }
+        },
+        "rewired_null": {
+          "F4p": {
+            "mae_max": 60.00074262258804,
+            "mae_mean": 58.093456423530654,
+            "mae_min": 55.85022669398386,
+            "replicates": 20
+          },
+          "F5": {
+            "mae_max": 54.738717164749914,
+            "mae_mean": 53.276342629156794,
+            "mae_min": 51.902510900147206,
+            "replicates": 20
+          }
+        },
+        "sign_perturbation_0.25": {
+          "F4p": {
+            "mae_max": 57.07924149103896,
+            "mae_mean": 55.13442043544025,
+            "mae_min": 52.93506807216228,
+            "replicates": 20
+          },
+          "F5": {
+            "mae_max": 53.86913426810794,
+            "mae_mean": 52.98936996715472,
+            "mae_min": 51.447343385503885,
+            "replicates": 20
+          }
+        },
+        "sign_perturbation_0.50": {
+          "F4p": {
+            "mae_max": 60.02128484302609,
+            "mae_mean": 56.64386264006458,
+            "mae_min": 54.20638005080833,
+            "replicates": 20
+          },
+          "F5": {
+            "mae_max": 54.742443732457645,
+            "mae_mean": 52.96284549618624,
+            "mae_min": 51.48144882427915,
+            "replicates": 20
+          }
+        },
+        "sign_perturbation_0.75": {
+          "F4p": {
+            "mae_max": 56.75183182931244,
+            "mae_mean": 55.18490500616824,
+            "mae_min": 52.616573306026346,
+            "replicates": 20
+          },
+          "F5": {
+            "mae_max": 53.82988970889638,
+            "mae_mean": 52.830453352373425,
+            "mae_min": 50.91390576351902,
+            "replicates": 20
+          }
+        }
+      },
+      "CYP2C9_activity": {
+        "algebraic_identity_check": {
+          "F4p": {
+            "mae_max": 244.9033846807433,
+            "mae_mean": 244.9033846807433,
+            "mae_min": 244.9033846807433,
+            "replicates": 1
+          },
+          "F5": {
+            "mae_max": 237.82172653013455,
+            "mae_mean": 237.82172653013455,
+            "mae_min": 237.82172653013455,
+            "replicates": 1
+          }
+        },
+        "donor_permuted": {
+          "F4p": {
+            "mae_max": 281.5452228158791,
+            "mae_mean": 278.7484965203428,
+            "mae_min": 274.15865192407983,
+            "replicates": 20
+          },
+          "F5": {
+            "mae_max": 255.4398224512891,
+            "mae_mean": 252.42708675871486,
+            "mae_min": 248.27716124666853,
+            "replicates": 20
+          }
+        },
+        "rewired_null": {
+          "F4p": {
+            "mae_max": 257.72679657230964,
+            "mae_mean": 249.4304528129926,
+            "mae_min": 238.53134346397678,
+            "replicates": 20
+          },
+          "F5": {
+            "mae_max": 246.61540969748722,
+            "mae_mean": 240.65866479577306,
+            "mae_min": 232.6089561786458,
+            "replicates": 20
+          }
+        },
+        "sign_perturbation_0.25": {
+          "F4p": {
+            "mae_max": 256.97493212788925,
+            "mae_mean": 244.01268003468144,
+            "mae_min": 236.56139406154765,
+            "replicates": 20
+          },
+          "F5": {
+            "mae_max": 246.18459043968844,
+            "mae_mean": 238.4705103573463,
+            "mae_min": 233.18456202234043,
+            "replicates": 20
+          }
+        },
+        "sign_perturbation_0.50": {
+          "F4p": {
+            "mae_max": 253.16967840447205,
+            "mae_mean": 243.171572171529,
+            "mae_min": 234.16326153539555,
+            "replicates": 20
+          },
+          "F5": {
+            "mae_max": 244.48364230712255,
+            "mae_mean": 237.18258690826457,
+            "mae_min": 229.76239515054502,
+            "replicates": 20
+          }
+        },
+        "sign_perturbation_0.75": {
+          "F4p": {
+            "mae_max": 251.93836051698753,
+            "mae_mean": 242.9235602235562,
+            "mae_min": 234.23674241634058,
+            "replicates": 20
+          },
+          "F5": {
+            "mae_max": 243.84275419566092,
+            "mae_mean": 237.28606856066943,
+            "mae_min": 230.75420812484623,
+            "replicates": 20
+          }
+        }
+      },
+      "CYP2D6_activity": {
+        "algebraic_identity_check": {
+          "F4p": {
+            "mae_max": 106.75900601405078,
+            "mae_mean": 106.75900601405078,
+            "mae_min": 106.75900601405078,
+            "replicates": 1
+          },
+          "F5": {
+            "mae_max": 92.70376907944782,
+            "mae_mean": 92.70376907944782,
+            "mae_min": 92.70376907944782,
+            "replicates": 1
+          }
+        },
+        "donor_permuted": {
+          "F4p": {
+            "mae_max": 109.8458645023935,
+            "mae_mean": 109.59549540680484,
+            "mae_min": 108.71770186180264,
+            "replicates": 20
+          },
+          "F5": {
+            "mae_max": 93.75315472059131,
+            "mae_mean": 92.38053533998153,
+            "mae_min": 90.86666683174148,
+            "replicates": 20
+          }
+        },
+        "rewired_null": {
+          "F4p": {
+            "mae_max": 109.94757896819168,
+            "mae_mean": 108.83100209764055,
+            "mae_min": 107.53191555124742,
+            "replicates": 20
+          },
+          "F5": {
+            "mae_max": 93.00665909743464,
+            "mae_mean": 91.52294232642858,
+            "mae_min": 89.32791968053243,
+            "replicates": 20
+          }
+        },
+        "sign_perturbation_0.25": {
+          "F4p": {
+            "mae_max": 109.16363651789622,
+            "mae_mean": 107.64033585800243,
+            "mae_min": 105.58550226383348,
+            "replicates": 20
+          },
+          "F5": {
+            "mae_max": 93.24314802798497,
+            "mae_mean": 92.0169351041441,
+            "mae_min": 90.41165846798685,
+            "replicates": 20
+          }
+        },
+        "sign_perturbation_0.50": {
+          "F4p": {
+            "mae_max": 110.44327622544542,
+            "mae_mean": 108.24766420938644,
+            "mae_min": 106.56774345310988,
+            "replicates": 20
+          },
+          "F5": {
+            "mae_max": 92.69463771564395,
+            "mae_mean": 91.3979438032612,
+            "mae_min": 89.23362191729058,
+            "replicates": 20
+          }
+        },
+        "sign_perturbation_0.75": {
+          "F4p": {
+            "mae_max": 109.11655002628211,
+            "mae_mean": 107.6511682376176,
+            "mae_min": 106.1089018979593,
+            "replicates": 20
+          },
+          "F5": {
+            "mae_max": 93.3424757732731,
+            "mae_mean": 91.85054240766652,
+            "mae_min": 90.03879421939233,
+            "replicates": 20
+          }
+        }
+      },
+      "CYP2E1_activity": {
+        "algebraic_identity_check": {
+          "F4p": {
+            "mae_max": 1329.163421502148,
+            "mae_mean": 1329.163421502148,
+            "mae_min": 1329.163421502148,
+            "replicates": 1
+          },
+          "F5": {
+            "mae_max": 1340.2732578227524,
+            "mae_mean": 1340.2732578227524,
+            "mae_min": 1340.2732578227524,
+            "replicates": 1
+          }
+        },
+        "donor_permuted": {
+          "F4p": {
+            "mae_max": 1359.9661175474705,
+            "mae_mean": 1345.1882918640943,
+            "mae_min": 1329.984301249651,
+            "replicates": 20
+          },
+          "F5": {
+            "mae_max": 1373.2722202661432,
+            "mae_mean": 1357.566393320198,
+            "mae_min": 1343.3783552769428,
+            "replicates": 20
+          }
+        },
+        "rewired_null": {
+          "F4p": {
+            "mae_max": 1358.6277563362466,
+            "mae_mean": 1343.869725211632,
+            "mae_min": 1330.503509457078,
+            "replicates": 20
+          },
+          "F5": {
+            "mae_max": 1370.0390064037708,
+            "mae_mean": 1356.0571275054558,
+            "mae_min": 1343.575893566402,
+            "replicates": 20
+          }
+        },
+        "sign_perturbation_0.25": {
+          "F4p": {
+            "mae_max": 1341.5203536722813,
+            "mae_mean": 1334.3945905412904,
+            "mae_min": 1323.2064345357182,
+            "replicates": 20
+          },
+          "F5": {
+            "mae_max": 1353.6645441127473,
+            "mae_mean": 1346.126165044779,
+            "mae_min": 1336.4389170696973,
+            "replicates": 20
+          }
+        },
+        "sign_perturbation_0.50": {
+          "F4p": {
+            "mae_max": 1353.2170568613526,
+            "mae_mean": 1339.1355914771952,
+            "mae_min": 1322.7364147768933,
+            "replicates": 20
+          },
+          "F5": {
+            "mae_max": 1363.2409467871003,
+            "mae_mean": 1351.18801350708,
+            "mae_min": 1335.0281614773255,
+            "replicates": 20
+          }
+        },
+        "sign_perturbation_0.75": {
+          "F4p": {
+            "mae_max": 1344.4668369693654,
+            "mae_mean": 1335.6253678801695,
+            "mae_min": 1324.2369232182987,
+            "replicates": 20
+          },
+          "F5": {
+            "mae_max": 1355.530877987297,
+            "mae_mean": 1347.2329974186923,
+            "mae_min": 1335.7555020422633,
+            "replicates": 20
+          }
+        }
+      },
+      "CYP3A4M_activity": {
+        "algebraic_identity_check": {
+          "F4p": {
+            "mae_max": 827.5625273571948,
+            "mae_mean": 827.5625273571948,
+            "mae_min": 827.5625273571948,
+            "replicates": 1
+          },
+          "F5": {
+            "mae_max": 738.7019408822274,
+            "mae_mean": 738.7019408822274,
+            "mae_min": 738.7019408822274,
+            "replicates": 1
+          }
+        },
+        "donor_permuted": {
+          "F4p": {
+            "mae_max": 891.2959684801453,
+            "mae_mean": 882.0753143049549,
+            "mae_min": 873.4473418589005,
+            "replicates": 20
+          },
+          "F5": {
+            "mae_max": 760.5371888469921,
+            "mae_mean": 752.0929674218777,
+            "mae_min": 737.0829956016466,
+            "replicates": 20
+          }
+        },
+        "rewired_null": {
+          "F4p": {
+            "mae_max": 845.4967517782778,
+            "mae_mean": 830.3837664557738,
+            "mae_min": 815.6817763510692,
+            "replicates": 20
+          },
+          "F5": {
+            "mae_max": 786.450807096914,
+            "mae_mean": 769.1603958840717,
+            "mae_min": 745.0162578357617,
+            "replicates": 20
+          }
+        },
+        "sign_perturbation_0.25": {
+          "F4p": {
+            "mae_max": 837.9085867649884,
+            "mae_mean": 821.9053953618331,
+            "mae_min": 806.8788723493284,
+            "replicates": 20
+          },
+          "F5": {
+            "mae_max": 760.5748490426051,
+            "mae_mean": 745.5586030742882,
+            "mae_min": 728.4039238653035,
+            "replicates": 20
+          }
+        },
+        "sign_perturbation_0.50": {
+          "F4p": {
+            "mae_max": 838.096982472938,
+            "mae_mean": 823.6639133990017,
+            "mae_min": 805.2415679769728,
+            "replicates": 20
+          },
+          "F5": {
+            "mae_max": 791.5563539420873,
+            "mae_mean": 764.7644547881195,
+            "mae_min": 739.7566176010312,
+            "replicates": 20
+          }
+        },
+        "sign_perturbation_0.75": {
+          "F4p": {
+            "mae_max": 842.5687421784861,
+            "mae_mean": 828.1918998248286,
+            "mae_min": 816.9253346914178,
+            "replicates": 20
+          },
+          "F5": {
+            "mae_max": 765.1020875924145,
+            "mae_mean": 748.049455619591,
+            "mae_min": 729.9474071969031,
+            "replicates": 20
+          }
+        }
+      },
+      "CYP3A4T_activity": {
+        "algebraic_identity_check": {
+          "F4p": {
+            "mae_max": 3457.1075424056303,
+            "mae_mean": 3457.1075424056303,
+            "mae_min": 3457.1075424056303,
+            "replicates": 1
+          },
+          "F5": {
+            "mae_max": 3138.8937186946287,
+            "mae_mean": 3138.8937186946287,
+            "mae_min": 3138.8937186946287,
+            "replicates": 1
+          }
+        },
+        "donor_permuted": {
+          "F4p": {
+            "mae_max": 3733.019293336329,
+            "mae_mean": 3693.1508867514954,
+            "mae_min": 3666.0078824392263,
+            "replicates": 20
+          },
+          "F5": {
+            "mae_max": 3325.086445219783,
+            "mae_mean": 3284.9145404428336,
+            "mae_min": 3225.621834158896,
+            "replicates": 20
+          }
+        },
+        "rewired_null": {
+          "F4p": {
+            "mae_max": 3567.6665167058336,
+            "mae_mean": 3517.153607911058,
+            "mae_min": 3451.357797844165,
+            "replicates": 20
+          },
+          "F5": {
+            "mae_max": 3290.8170245952965,
+            "mae_mean": 3228.097845974013,
+            "mae_min": 3126.710300836054,
+            "replicates": 20
+          }
+        },
+        "sign_perturbation_0.25": {
+          "F4p": {
+            "mae_max": 3561.162459555244,
+            "mae_mean": 3478.5788656805394,
+            "mae_min": 3347.955781314298,
+            "replicates": 20
+          },
+          "F5": {
+            "mae_max": 3266.0056472767615,
+            "mae_mean": 3184.0036612188264,
+            "mae_min": 3096.1889158085773,
+            "replicates": 20
+          }
+        },
+        "sign_perturbation_0.50": {
+          "F4p": {
+            "mae_max": 3546.922311023208,
+            "mae_mean": 3485.2301337024815,
+            "mae_min": 3376.3371032344703,
+            "replicates": 20
+          },
+          "F5": {
+            "mae_max": 3372.2801653376478,
+            "mae_mean": 3238.1820376088535,
+            "mae_min": 3098.043796932306,
+            "replicates": 20
+          }
+        },
+        "sign_perturbation_0.75": {
+          "F4p": {
+            "mae_max": 3590.8430194925877,
+            "mae_mean": 3495.056557234659,
+            "mae_min": 3376.1607595226674,
+            "replicates": 20
+          },
+          "F5": {
+            "mae_max": 3244.1071718557473,
+            "mae_mean": 3185.1728637904316,
+            "mae_min": 3100.9183262241922,
+            "replicates": 20
+          }
+        }
+      }
+    },
+    "key_secondary_contrasts": [
+      {
+        "alpha": 0.025,
+        "arm": {
+          "mae": 827.5625273571948,
+          "trimmed_mae": 603.4763961020259
+        },
+        "ci_high": 138.00338772377853,
+        "ci_low": 57.05015177546442,
+        "comparator": {
+          "mae": 728.8200005220118,
+          "trimmed_mae": 518.2532790081966
+        },
+        "delta_mae": 98.74252683518287,
+        "endpoint": "CYP3A4M_activity",
+        "family_size": 2,
+        "how_to_read": "delta_mae negative means the first arm has the smaller error. interval_excludes_zero false means no difference was DETECTED, never that there is none. Success needs all three of: relative reduction at least the frozen threshold, interval excluding zero, and no reversal on both robustness co-criteria.",
+        "interval_excludes_zero": true,
+        "label": "F4p_vs_F1",
+        "meets_relative_threshold": false,
+        "n_donors": 397,
+        "predicted_endpoint_mean": 1392.1005846011535,
+        "relative": 0.13548273478288095,
+        "relative_ci_high": 0.1959492045218935,
+        "relative_ci_low": 0.07862571061386123,
+        "reversal_on_trimmed_mae": true,
+        "setting": "real",
+        "status_ceiling": "exploratory"
+      },
+      {
+        "alpha": 0.025,
+        "arm": {
+          "mae": 738.7019408822274,
+          "trimmed_mae": 525.1594454511504
+        },
+        "ci_high": 6.621146613218669,
+        "ci_low": -56.02596423908073,
+        "comparator": {
+          "mae": 761.7548764208159,
+          "trimmed_mae": 536.2580489488591
+        },
+        "delta_mae": -23.05293553858838,
+        "endpoint": "CYP3A4M_activity",
+        "family_size": 2,
+        "how_to_read": "delta_mae negative means the first arm has the smaller error. interval_excludes_zero false means no difference was DETECTED, never that there is none. Success needs all three of: relative reduction at least the frozen threshold, interval excluding zero, and no reversal on both robustness co-criteria.",
+        "interval_excludes_zero": false,
+        "label": "F5_vs_F2",
+        "meets_relative_threshold": false,
+        "n_donors": 397,
+        "predicted_endpoint_mean": 1392.1005846011535,
+        "relative": -0.03026293136042001,
+        "relative_ci_high": 0.008549795965946745,
+        "relative_ci_low": -0.07157934990788631,
+        "reversal_on_trimmed_mae": false,
+        "setting": "real",
+        "status_ceiling": "exploratory"
+      }
+    ],
+    "other_secondary_contrasts": [
+      {
+        "alpha": 0.0071428571428571435,
+        "arm": {
+          "mae": 588.0273473213897,
+          "trimmed_mae": 415.55403868533506
+        },
+        "ci_high": 36.351736762682016,
+        "ci_low": -3.4097319305679257,
+        "comparator": {
+          "mae": 571.057136936335,
+          "trimmed_mae": 399.41318069308807
+        },
+        "delta_mae": 16.97021038505471,
+        "endpoint": "CYP2A6_activity",
+        "family_size": 7,
+        "how_to_read": "delta_mae negative means the first arm has the smaller error. interval_excludes_zero false means no difference was DETECTED, never that there is none. Success needs all three of: relative reduction at least the frozen threshold, interval excluding zero, and no reversal on both robustness co-criteria.",
+        "interval_excludes_zero": false,
+        "label": "F5_vs_F1",
+        "meets_relative_threshold": false,
+        "n_donors": 397,
+        "predicted_endpoint_mean": 1015.3089943183023,
+        "relative": 0.029717184651781442,
+        "relative_ci_high": 0.0661410052817726,
+        "relative_ci_low": -0.006021510184454247,
+        "reversal_on_trimmed_mae": true,
+        "setting": "real",
+        "status_ceiling": "exploratory"
+      },
+      {
+        "alpha": 0.0071428571428571435,
+        "arm": {
+          "mae": 246.14253078214801,
+          "trimmed_mae": 156.57544543300563
+        },
+        "ci_high": 16.69020293525478,
+        "ci_low": -6.791754122043347,
+        "comparator": {
+          "mae": 240.8911902775621,
+          "trimmed_mae": 149.7421754678208
+        },
+        "delta_mae": 5.25134050458599,
+        "endpoint": "CYP2B6_activity",
+        "family_size": 7,
+        "how_to_read": "delta_mae negative means the first arm has the smaller error. interval_excludes_zero false means no difference was DETECTED, never that there is none. Success needs all three of: relative reduction at least the frozen threshold, interval excluding zero, and no reversal on both robustness co-criteria.",
+        "interval_excludes_zero": false,
+        "label": "F5_vs_F1",
+        "meets_relative_threshold": false,
+        "n_donors": 398,
+        "predicted_endpoint_mean": 352.42307127743726,
+        "relative": 0.021799637000154456,
+        "relative_ci_high": 0.07563089385358347,
+        "relative_ci_low": -0.02628388607177763,
+        "reversal_on_trimmed_mae": true,
+        "setting": "real",
+        "status_ceiling": "exploratory"
+      },
+      {
+        "alpha": 0.0071428571428571435,
+        "arm": {
+          "mae": 52.681424668489335,
+          "trimmed_mae": 37.495754892680374
+        },
+        "ci_high": 1.804911256938662,
+        "ci_low": -2.7655501121597483,
+        "comparator": {
+          "mae": 53.180678053851736,
+          "trimmed_mae": 37.75311860693337
+        },
+        "delta_mae": -0.4992533853624113,
+        "endpoint": "CYP2C8_activity",
+        "family_size": 7,
+        "how_to_read": "delta_mae negative means the first arm has the smaller error. interval_excludes_zero false means no difference was DETECTED, never that there is none. Success needs all three of: relative reduction at least the frozen threshold, interval excluding zero, and no reversal on both robustness co-criteria.",
+        "interval_excludes_zero": false,
+        "label": "F5_vs_F1",
+        "meets_relative_threshold": false,
+        "n_donors": 387,
+        "predicted_endpoint_mean": 84.3766366343721,
+        "relative": -0.00938787175403928,
+        "relative_ci_high": 0.03448607506519238,
+        "relative_ci_low": -0.050354168265455024,
+        "reversal_on_trimmed_mae": false,
+        "setting": "real",
+        "status_ceiling": "exploratory"
+      },
+      {
+        "alpha": 0.0071428571428571435,
+        "arm": {
+          "mae": 237.82172653013455,
+          "trimmed_mae": 187.45693032064403
+        },
+        "ci_high": 1.2088911547857604,
+        "ci_low": -22.23525899520933,
+        "comparator": {
+          "mae": 248.80026199478914,
+          "trimmed_mae": 196.44308327524655
+        },
+        "delta_mae": -10.978535464654637,
+        "endpoint": "CYP2C9_activity",
+        "family_size": 7,
+        "how_to_read": "delta_mae negative means the first arm has the smaller error. interval_excludes_zero false means no difference was DETECTED, never that there is none. Success needs all three of: relative reduction at least the frozen threshold, interval excluding zero, and no reversal on both robustness co-criteria.",
+        "interval_excludes_zero": false,
+        "label": "F5_vs_F1",
+        "meets_relative_threshold": false,
+        "n_donors": 398,
+        "predicted_endpoint_mean": 521.1575265849422,
+        "relative": -0.04412589993528452,
+        "relative_ci_high": 0.005075782703709424,
+        "relative_ci_low": -0.09055653826590507,
+        "reversal_on_trimmed_mae": false,
+        "setting": "real",
+        "status_ceiling": "exploratory"
+      },
+      {
+        "alpha": 0.0071428571428571435,
+        "arm": {
+          "mae": 51.08938283034745,
+          "trimmed_mae": 35.62423012026899
+        },
+        "ci_high": 1.7217525734958614,
+        "ci_low": -2.03928317879711,
+        "comparator": {
+          "mae": 51.28662811406888,
+          "trimmed_mae": 35.73176983453688
+        },
+        "delta_mae": -0.1972452837214305,
+        "endpoint": "CYP2C19_activity",
+        "family_size": 7,
+        "how_to_read": "delta_mae negative means the first arm has the smaller error. interval_excludes_zero false means no difference was DETECTED, never that there is none. Success needs all three of: relative reduction at least the frozen threshold, interval excluding zero, and no reversal on both robustness co-criteria.",
+        "interval_excludes_zero": false,
+        "label": "F5_vs_F1",
+        "meets_relative_threshold": false,
+        "n_donors": 398,
+        "predicted_endpoint_mean": 52.715527906927136,
+        "relative": -0.003845939789270771,
+        "relative_ci_high": 0.03404004567367336,
+        "relative_ci_low": -0.04054983845686355,
+        "reversal_on_trimmed_mae": false,
+        "setting": "real",
+        "status_ceiling": "exploratory"
+      },
+      {
+        "alpha": 0.0071428571428571435,
+        "arm": {
+          "mae": 92.70376907944782,
+          "trimmed_mae": 70.93758645412827
+        },
+        "ci_high": 2.973161588238992,
+        "ci_low": 0.040807649419797,
+        "comparator": {
+          "mae": 91.18730918001872,
+          "trimmed_mae": 69.82263409223823
+        },
+        "delta_mae": 1.5164598994291125,
+        "endpoint": "CYP2D6_activity",
+        "family_size": 7,
+        "how_to_read": "delta_mae negative means the first arm has the smaller error. interval_excludes_zero false means no difference was DETECTED, never that there is none. Success needs all three of: relative reduction at least the frozen threshold, interval excluding zero, and no reversal on both robustness co-criteria.",
+        "interval_excludes_zero": true,
+        "label": "F5_vs_F1",
+        "meets_relative_threshold": false,
+        "n_donors": 397,
+        "predicted_endpoint_mean": 174.56184832579342,
+        "relative": 0.01663016392374702,
+        "relative_ci_high": 0.033239006874932864,
+        "relative_ci_low": 0.0004567510957784592,
+        "reversal_on_trimmed_mae": true,
+        "setting": "real",
+        "status_ceiling": "exploratory"
+      },
+      {
+        "alpha": 0.0071428571428571435,
+        "arm": {
+          "mae": 1340.2732578227524,
+          "trimmed_mae": 872.9443131394339
+        },
+        "ci_high": 9.806942964685366,
+        "ci_low": -30.52697553456717,
+        "comparator": {
+          "mae": 1349.8113886500219,
+          "trimmed_mae": 887.1333169785455
+        },
+        "delta_mae": -9.538130827269383,
+        "endpoint": "CYP2E1_activity",
+        "family_size": 7,
+        "how_to_read": "delta_mae negative means the first arm has the smaller error. interval_excludes_zero false means no difference was DETECTED, never that there is none. Success needs all three of: relative reduction at least the frozen threshold, interval excluding zero, and no reversal on both robustness co-criteria.",
+        "interval_excludes_zero": false,
+        "label": "F5_vs_F1",
+        "meets_relative_threshold": false,
+        "n_donors": 398,
+        "predicted_endpoint_mean": 2309.4908053269096,
+        "relative": -0.007066269337680349,
+        "relative_ci_high": 0.007473418972329226,
+        "relative_ci_low": -0.02400821932750832,
+        "reversal_on_trimmed_mae": false,
+        "setting": "real",
+        "status_ceiling": "exploratory"
+      },
+      {
+        "endpoint": "CYP1A2_activity",
+        "label": "F4p_vs_F1",
+        "reason": "no prediction for F1",
+        "setting": "real",
+        "status": "NOT_EVALUABLE"
+      },
+      {
+        "alpha": 0.00625,
+        "arm": {
+          "mae": 636.0213754399197,
+          "trimmed_mae": 461.1402656101116
+        },
+        "ci_high": 98.75311729533311,
+        "ci_low": 32.788238804386296,
+        "comparator": {
+          "mae": 571.057136936335,
+          "trimmed_mae": 399.41318069308807
+        },
+        "delta_mae": 64.9642385035847,
+        "endpoint": "CYP2A6_activity",
+        "family_size": 8,
+        "how_to_read": "delta_mae negative means the first arm has the smaller error. interval_excludes_zero false means no difference was DETECTED, never that there is none. Success needs all three of: relative reduction at least the frozen threshold, interval excluding zero, and no reversal on both robustness co-criteria.",
+        "interval_excludes_zero": true,
+        "label": "F4p_vs_F1",
+        "meets_relative_threshold": false,
+        "n_donors": 397,
+        "predicted_endpoint_mean": 1015.3089943183023,
+        "relative": 0.11376136344624183,
+        "relative_ci_high": 0.19043701744385844,
+        "relative_ci_low": 0.05424095193272636,
+        "reversal_on_trimmed_mae": true,
+        "setting": "real",
+        "status_ceiling": "exploratory"
+      },
+      {
+        "alpha": 0.00625,
+        "arm": {
+          "mae": 261.53959019756894,
+          "trimmed_mae": 167.46071783483416
+        },
+        "ci_high": 37.36370555203139,
+        "ci_low": 5.357473188064598,
+        "comparator": {
+          "mae": 240.8911902775621,
+          "trimmed_mae": 149.7421754678208
+        },
+        "delta_mae": 20.648399920006927,
+        "endpoint": "CYP2B6_activity",
+        "family_size": 8,
+        "how_to_read": "delta_mae negative means the first arm has the smaller error. interval_excludes_zero false means no difference was DETECTED, never that there is none. Success needs all three of: relative reduction at least the frozen threshold, interval excluding zero, and no reversal on both robustness co-criteria.",
+        "interval_excludes_zero": true,
+        "label": "F4p_vs_F1",
+        "meets_relative_threshold": false,
+        "n_donors": 398,
+        "predicted_endpoint_mean": 352.42307127743726,
+        "relative": 0.08571670842846191,
+        "relative_ci_high": 0.15941275796431428,
+        "relative_ci_low": 0.021645448319903962,
+        "reversal_on_trimmed_mae": true,
+        "setting": "real",
+        "status_ceiling": "exploratory"
+      },
+      {
+        "alpha": 0.00625,
+        "arm": {
+          "mae": 54.11979808322178,
+          "trimmed_mae": 38.82205548684183
+        },
+        "ci_high": 4.113610107530329,
+        "ci_low": -2.2582108942209356,
+        "comparator": {
+          "mae": 53.180678053851736,
+          "trimmed_mae": 37.75311860693337
+        },
+        "delta_mae": 0.9391200293700486,
+        "endpoint": "CYP2C8_activity",
+        "family_size": 8,
+        "how_to_read": "delta_mae negative means the first arm has the smaller error. interval_excludes_zero false means no difference was DETECTED, never that there is none. Success needs all three of: relative reduction at least the frozen threshold, interval excluding zero, and no reversal on both robustness co-criteria.",
+        "interval_excludes_zero": false,
+        "label": "F4p_vs_F1",
+        "meets_relative_threshold": false,
+        "n_donors": 387,
+        "predicted_endpoint_mean": 84.3766366343721,
+        "relative": 0.017659045798909867,
+        "relative_ci_high": 0.08110243606067548,
+        "relative_ci_low": -0.04355488207472877,
+        "reversal_on_trimmed_mae": true,
+        "setting": "real",
+        "status_ceiling": "exploratory"
+      },
+      {
+        "alpha": 0.00625,
+        "arm": {
+          "mae": 244.9033846807433,
+          "trimmed_mae": 194.8289997413807
+        },
+        "ci_high": 10.33230524348619,
+        "ci_low": -17.506769301930717,
+        "comparator": {
+          "mae": 248.80026199478914,
+          "trimmed_mae": 196.44308327524655
+        },
+        "delta_mae": -3.8968773140459017,
+        "endpoint": "CYP2C9_activity",
+        "family_size": 8,
+        "how_to_read": "delta_mae negative means the first arm has the smaller error. interval_excludes_zero false means no difference was DETECTED, never that there is none. Success needs all three of: relative reduction at least the frozen threshold, interval excluding zero, and no reversal on both robustness co-criteria.",
+        "interval_excludes_zero": false,
+        "label": "F4p_vs_F1",
+        "meets_relative_threshold": false,
+        "n_donors": 398,
+        "predicted_endpoint_mean": 521.1575265849422,
+        "relative": -0.01566267367567128,
+        "relative_ci_high": 0.04400623892049975,
+        "relative_ci_low": -0.07077133391495298,
+        "reversal_on_trimmed_mae": false,
+        "setting": "real",
+        "status_ceiling": "exploratory"
+      },
+      {
+        "alpha": 0.00625,
+        "arm": {
+          "mae": 51.87264938253853,
+          "trimmed_mae": 36.14430461875693
+        },
+        "ci_high": 3.3789427754781505,
+        "ci_low": -2.034887226622028,
+        "comparator": {
+          "mae": 51.28662811406888,
+          "trimmed_mae": 35.73176983453688
+        },
+        "delta_mae": 0.5860212684696489,
+        "endpoint": "CYP2C19_activity",
+        "family_size": 8,
+        "how_to_read": "delta_mae negative means the first arm has the smaller error. interval_excludes_zero false means no difference was DETECTED, never that there is none. Success needs all three of: relative reduction at least the frozen threshold, interval excluding zero, and no reversal on both robustness co-criteria.",
+        "interval_excludes_zero": false,
+        "label": "F4p_vs_F1",
+        "meets_relative_threshold": false,
+        "n_donors": 398,
+        "predicted_endpoint_mean": 52.715527906927136,
+        "relative": 0.011426394949698248,
+        "relative_ci_high": 0.06827727050674962,
+        "relative_ci_low": -0.03890539776032857,
+        "reversal_on_trimmed_mae": true,
+        "setting": "real",
+        "status_ceiling": "exploratory"
+      },
+      {
+        "alpha": 0.00625,
+        "arm": {
+          "mae": 106.75900601405078,
+          "trimmed_mae": 84.00347277930615
+        },
+        "ci_high": 23.705962648568512,
+        "ci_low": 6.58171921194288,
+        "comparator": {
+          "mae": 91.18730918001872,
+          "trimmed_mae": 69.82263409223823
+        },
+        "delta_mae": 15.57169683403206,
+        "endpoint": "CYP2D6_activity",
+        "family_size": 8,
+        "how_to_read": "delta_mae negative means the first arm has the smaller error. interval_excludes_zero false means no difference was DETECTED, never that there is none. Success needs all three of: relative reduction at least the frozen threshold, interval excluding zero, and no reversal on both robustness co-criteria.",
+        "interval_excludes_zero": true,
+        "label": "F4p_vs_F1",
+        "meets_relative_threshold": false,
+        "n_donors": 397,
+        "predicted_endpoint_mean": 174.56184832579342,
+        "relative": 0.17076605257965202,
+        "relative_ci_high": 0.27327516094877025,
+        "relative_ci_low": 0.07229993069338987,
+        "reversal_on_trimmed_mae": true,
+        "setting": "real",
+        "status_ceiling": "exploratory"
+      },
+      {
+        "alpha": 0.00625,
+        "arm": {
+          "mae": 1329.163421502148,
+          "trimmed_mae": 865.1643923357428
+        },
+        "ci_high": -0.11552963595525143,
+        "ci_low": -43.24689891740698,
+        "comparator": {
+          "mae": 1349.8113886500219,
+          "trimmed_mae": 887.1333169785455
+        },
+        "delta_mae": -20.647967147873953,
+        "endpoint": "CYP2E1_activity",
+        "family_size": 8,
+        "how_to_read": "delta_mae negative means the first arm has the smaller error. interval_excludes_zero false means no difference was DETECTED, never that there is none. Success needs all three of: relative reduction at least the frozen threshold, interval excluding zero, and no reversal on both robustness co-criteria.",
+        "interval_excludes_zero": true,
+        "label": "F4p_vs_F1",
+        "meets_relative_threshold": false,
+        "n_donors": 398,
+        "predicted_endpoint_mean": 2309.4908053269096,
+        "relative": -0.015296927645961316,
+        "relative_ci_high": -8.703349839474693e-05,
+        "relative_ci_low": -0.03455513798645287,
+        "reversal_on_trimmed_mae": false,
+        "setting": "real",
+        "status_ceiling": "exploratory"
+      },
+      {
+        "alpha": 0.0071428571428571435,
+        "arm": {
+          "mae": 588.0273473213897,
+          "trimmed_mae": 415.55403868533506
+        },
+        "ci_high": 2.9473966448123385,
+        "ci_low": -42.144085731401866,
+        "comparator": {
+          "mae": 608.9512029335121,
+          "trimmed_mae": 436.4239038881086
+        },
+        "delta_mae": -20.923855612122416,
+        "endpoint": "CYP2A6_activity",
+        "family_size": 7,
+        "how_to_read": "delta_mae negative means the first arm has the smaller error. interval_excludes_zero false means no difference was DETECTED, never that there is none. Success needs all three of: relative reduction at least the frozen threshold, interval excluding zero, and no reversal on both robustness co-criteria.",
+        "interval_excludes_zero": false,
+        "label": "F5_vs_F2",
+        "meets_relative_threshold": false,
+        "n_donors": 397,
+        "predicted_endpoint_mean": 1015.3089943183023,
+        "relative": -0.03436047997167184,
+        "relative_ci_high": 0.005142260739114898,
+        "relative_ci_low": -0.07094848375311143,
+        "reversal_on_trimmed_mae": false,
+        "setting": "real",
+        "status_ceiling": "exploratory"
+      },
+      {
+        "alpha": 0.0071428571428571435,
+        "arm": {
+          "mae": 246.14253078214801,
+          "trimmed_mae": 156.57544543300563
+        },
+        "ci_high": 13.143511461702147,
+        "ci_low": -9.19364237441834,
+        "comparator": {
+          "mae": 244.2669116865502,
+          "trimmed_mae": 154.36631394420777
+        },
+        "delta_mae": 1.875619095597815,
+        "endpoint": "CYP2B6_activity",
+        "family_size": 7,
+        "how_to_read": "delta_mae negative means the first arm has the smaller error. interval_excludes_zero false means no difference was DETECTED, never that there is none. Success needs all three of: relative reduction at least the frozen threshold, interval excluding zero, and no reversal on both robustness co-criteria.",
+        "interval_excludes_zero": false,
+        "label": "F5_vs_F2",
+        "meets_relative_threshold": false,
+        "n_donors": 398,
+        "predicted_endpoint_mean": 352.42307127743726,
+        "relative": 0.007678563922749632,
+        "relative_ci_high": 0.05475894238525929,
+        "relative_ci_low": -0.03760431920024925,
+        "reversal_on_trimmed_mae": true,
+        "setting": "real",
+        "status_ceiling": "exploratory"
+      },
+      {
+        "alpha": 0.0071428571428571435,
+        "arm": {
+          "mae": 52.681424668489335,
+          "trimmed_mae": 37.495754892680374
+        },
+        "ci_high": 1.684273735444511,
+        "ci_low": -2.696768671447727,
+        "comparator": {
+          "mae": 53.224642104097114,
+          "trimmed_mae": 37.75587490496227
+        },
+        "delta_mae": -0.5432174356077809,
+        "endpoint": "CYP2C8_activity",
+        "family_size": 7,
+        "how_to_read": "delta_mae negative means the first arm has the smaller error. interval_excludes_zero false means no difference was DETECTED, never that there is none. Success needs all three of: relative reduction at least the frozen threshold, interval excluding zero, and no reversal on both robustness co-criteria.",
+        "interval_excludes_zero": false,
+        "label": "F5_vs_F2",
+        "meets_relative_threshold": false,
+        "n_donors": 387,
+        "predicted_endpoint_mean": 84.3766366343721,
+        "relative": -0.010206126601008468,
+        "relative_ci_high": 0.03281121731142401,
+        "relative_ci_low": -0.049539680602613725,
+        "reversal_on_trimmed_mae": false,
+        "setting": "real",
+        "status_ceiling": "exploratory"
+      },
+      {
+        "alpha": 0.0071428571428571435,
+        "arm": {
+          "mae": 237.82172653013455,
+          "trimmed_mae": 187.45693032064403
+        },
+        "ci_high": 11.329910576727844,
+        "ci_low": -10.327767999394426,
+        "comparator": {
+          "mae": 236.9575050385814,
+          "trimmed_mae": 186.73515918324907
+        },
+        "delta_mae": 0.8642214915531159,
+        "endpoint": "CYP2C9_activity",
+        "family_size": 7,
+        "how_to_read": "delta_mae negative means the first arm has the smaller error. interval_excludes_zero false means no difference was DETECTED, never that there is none. Success needs all three of: relative reduction at least the frozen threshold, interval excluding zero, and no reversal on both robustness co-criteria.",
+        "interval_excludes_zero": false,
+        "label": "F5_vs_F2",
+        "meets_relative_threshold": false,
+        "n_donors": 398,
+        "predicted_endpoint_mean": 521.1575265849422,
+        "relative": 0.0036471581324778192,
+        "relative_ci_high": 0.047940835675758575,
+        "relative_ci_low": -0.0436636045977138,
+        "reversal_on_trimmed_mae": true,
+        "setting": "real",
+        "status_ceiling": "exploratory"
+      },
+      {
+        "alpha": 0.0071428571428571435,
+        "arm": {
+          "mae": 51.08938283034745,
+          "trimmed_mae": 35.62423012026899
+        },
+        "ci_high": 2.350345535507737,
+        "ci_low": -2.5688429877292434,
+        "comparator": {
+          "mae": 51.16187021384547,
+          "trimmed_mae": 36.01427934301343
+        },
+        "delta_mae": -0.07248738349801181,
+        "endpoint": "CYP2C19_activity",
+        "family_size": 7,
+        "how_to_read": "delta_mae negative means the first arm has the smaller error. interval_excludes_zero false means no difference was DETECTED, never that there is none. Success needs all three of: relative reduction at least the frozen threshold, interval excluding zero, and no reversal on both robustness co-criteria.",
+        "interval_excludes_zero": false,
+        "label": "F5_vs_F2",
+        "meets_relative_threshold": false,
+        "n_donors": 398,
+        "predicted_endpoint_mean": 52.715527906927136,
+        "relative": -0.0014168243497555964,
+        "relative_ci_high": 0.046121537681417954,
+        "relative_ci_low": -0.049062881333161945,
+        "reversal_on_trimmed_mae": false,
+        "setting": "real",
+        "status_ceiling": "exploratory"
+      },
+      {
+        "alpha": 0.0071428571428571435,
+        "arm": {
+          "mae": 92.70376907944782,
+          "trimmed_mae": 70.93758645412827
+        },
+        "ci_high": 5.047490738227409,
+        "ci_low": -0.2100973202730772,
+        "comparator": {
+          "mae": 90.28736398307083,
+          "trimmed_mae": 68.4385392840648
+        },
+        "delta_mae": 2.4164050963769723,
+        "endpoint": "CYP2D6_activity",
+        "family_size": 7,
+        "how_to_read": "delta_mae negative means the first arm has the smaller error. interval_excludes_zero false means no difference was DETECTED, never that there is none. Success needs all three of: relative reduction at least the frozen threshold, interval excluding zero, and no reversal on both robustness co-criteria.",
+        "interval_excludes_zero": false,
+        "label": "F5_vs_F2",
+        "meets_relative_threshold": false,
+        "n_donors": 397,
+        "predicted_endpoint_mean": 174.56184832579342,
+        "relative": 0.026763491476282947,
+        "relative_ci_high": 0.05801581145600163,
+        "relative_ci_low": -0.002349649794634125,
+        "reversal_on_trimmed_mae": true,
+        "setting": "real",
+        "status_ceiling": "exploratory"
+      },
+      {
+        "alpha": 0.0071428571428571435,
+        "arm": {
+          "mae": 1340.2732578227524,
+          "trimmed_mae": 872.9443131394339
+        },
+        "ci_high": 11.64995110958809,
+        "ci_low": -37.66419975413867,
+        "comparator": {
+          "mae": 1353.8939095584187,
+          "trimmed_mae": 884.9545885708083
+        },
+        "delta_mae": -13.620651735666236,
+        "endpoint": "CYP2E1_activity",
+        "family_size": 7,
+        "how_to_read": "delta_mae negative means the first arm has the smaller error. interval_excludes_zero false means no difference was DETECTED, never that there is none. Success needs all three of: relative reduction at least the frozen threshold, interval excluding zero, and no reversal on both robustness co-criteria.",
+        "interval_excludes_zero": false,
+        "label": "F5_vs_F2",
+        "meets_relative_threshold": false,
+        "n_donors": 398,
+        "predicted_endpoint_mean": 2309.4908053269096,
+        "relative": -0.01006035379840707,
+        "relative_ci_high": 0.008994508570561166,
+        "relative_ci_low": -0.029433181425394382,
+        "reversal_on_trimmed_mae": false,
+        "setting": "real",
+        "status_ceiling": "exploratory"
+      }
+    ],
+    "primary_contrast": {
+      "alpha": 0.05,
+      "arm": {
+        "mae": 738.7019408822274,
+        "trimmed_mae": 525.1594454511504
+      },
+      "ci_high": 28.233325142200975,
+      "ci_low": -9.031259386163958,
+      "comparator": {
+        "mae": 728.8200005220118,
+        "trimmed_mae": 518.2532790081966
+      },
+      "delta_mae": 9.88194036021555,
+      "endpoint": "CYP3A4M_activity",
+      "family_size": 1,
+      "how_to_read": "delta_mae negative means the first arm has the smaller error. interval_excludes_zero false means no difference was DETECTED, never that there is none. Success needs all three of: relative reduction at least the frozen threshold, interval excluding zero, and no reversal on both robustness co-criteria.",
+      "interval_excludes_zero": false,
+      "label": "F5_vs_F1",
+      "meets_relative_threshold": false,
+      "n_donors": 397,
+      "predicted_endpoint_mean": 1392.1005846011535,
+      "relative": 0.013558821592626004,
+      "relative_ci_high": 0.0398585988253773,
+      "relative_ci_low": -0.012127817715578968,
+      "reversal_on_trimmed_mae": true,
+      "setting": "real",
+      "status_ceiling": "exploratory"
+    },
+    "same_enzyme_replicate": {
+      "alpha": 0.05,
+      "arm": {
+        "mae": 3138.8937186946287,
+        "trimmed_mae": 2263.9743216048455
+      },
+      "ci_high": 58.655596751669144,
+      "ci_low": -153.29344308145835,
+      "comparator": {
+        "mae": 3190.659132530154,
+        "trimmed_mae": 2315.336236157323
+      },
+      "delta_mae": -51.7654138355258,
+      "endpoint": "CYP3A4T_activity",
+      "family_size": 1,
+      "how_to_read": "delta_mae negative means the first arm has the smaller error. interval_excludes_zero false means no difference was DETECTED, never that there is none. Success needs all three of: relative reduction at least the frozen threshold, interval excluding zero, and no reversal on both robustness co-criteria.",
+      "independence": "NOT an independent validation: the same microsomes from the same donors, a second reaction of the same enzyme",
+      "interval_excludes_zero": false,
+      "label": "F5_vs_F1",
+      "meets_relative_threshold": false,
+      "n_donors": 397,
+      "predicted_endpoint_mean": 5922.835668374348,
+      "relative": -0.01622405016811572,
+      "relative_ci_high": 0.01880605181487814,
+      "relative_ci_low": -0.04775108409699404,
+      "reversal_on_trimmed_mae": false,
+      "setting": "real",
+      "status_ceiling": "exploratory"
+    }
+  },
+  "prespecification": "docs/OMICS2PK_F_SERIES_FUNCTIONAL_OMICS_PRESPECIFICATION_20261109.md",
+  "prespecification_sha256": "026b1d10ec485bf6c333e421ac043692d2f702582ed576988cec513c7e45012b",
+  "prespecification_version": "1.0.0",
+  "report": "F-series: signed regulatory activities versus the target transcript",
+  "reserved_unimplemented_arms": {
+    "F3": "pathway footprints (PROGENy): none of its 14 footprints is a xenobiotic-metabolism pathway, so no column would have a stated mechanistic relation to a cytochrome"
+  },
+  "runtime_seconds": 258.4,
+  "status_ceiling": "exploratory",
+  "status_ceiling_reason": "The Human Liver Cohort has been inspected repeatedly by this project (H2a, H2d, the probe-pool construction, the destroyed-signal diagnostic). Every F-series result is exploratory whatever its direction."
+}

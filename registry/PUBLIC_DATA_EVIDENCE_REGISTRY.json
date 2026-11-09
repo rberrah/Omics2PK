@@ -1475,7 +1475,7 @@
       ],
       "carries_no_endpoint": true,
       "verified_this_session": true,
-      "redistribution_note": "Not redistributed. The file is acquired by its recorded URL and checked against the checksum above."
+      "redistribution_note": "Not redistributed. The file is acquired by its recorded URL and checked against the checksum above. Silence about terms is not permission: the licence was not verified, so nothing here assumes a right to republish this network or any file derived from it."
     }
   ]
 }

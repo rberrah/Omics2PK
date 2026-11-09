@@ -511,6 +511,7 @@ def run(args, log):
     chosen_probe_trace: dict = {}
 
     started = time.time()
+    fold_seconds: list[float] = []
     for fold_number, (train, test) in enumerate(folds):
         repeat = repeat_of[fold_number]
         chosen_scoring = choose_probes(data["values"], universes["scoring"], train)
@@ -621,8 +622,9 @@ def run(args, log):
                         coefficients[endpoint][fold_number] = _standardised_weights(
                             design[local_train], y[local_train],
                             ["age", "sex", "target_transcript"] + names)
+        fold_seconds.append(round(time.time() - started, 1))
         log(f"  fold {fold_number + 1}/{len(folds)} done "
-            f"({time.time() - started:.0f}s elapsed)")
+            f"({fold_seconds[-1]:.0f}s elapsed)")
 
     return {
         "errors": errors, "endpoint_rows": endpoint_rows,
@@ -634,6 +636,7 @@ def run(args, log):
         "chosen_probe_trace": chosen_probe_trace,
         "folds": folds,
         "signed_network_audit": signed.audit,
+        "fold_seconds": fold_seconds,
     }
 
 
@@ -699,11 +702,21 @@ def bonferroni_interval(difference, reference, *, seed, family_size):
 
 def contrast(errors, endpoint, arm, comparator, y, *, family_size, setting="real"):
     """Paired `arm - comparator`, on the donors both arms predicted."""
+    # The arm may come from a control setting; the comparator always comes from
+    # the real network, because a control perturbs the arm under test and not
+    # the baseline it is measured against. Two separate lookups, therefore --
+    # reading the comparator out of `store` would ask the settings dictionary
+    # for an arm name, which silently finds nothing.
     store = errors[endpoint].get(setting, {})
-    if arm not in store or comparator not in store.get("real", {}):
-        return {"label": f"{arm}_vs_{comparator}", "status": "NOT_EVALUABLE",
-                "reason": "one of the two arms produced no prediction"}
-    a_block, b_block = store[arm], errors[endpoint]["real"][comparator]
+    real = errors[endpoint].get("real", {})
+    if arm not in store or comparator not in real:
+        missing = [name for name, present in
+                   ((arm, arm in store), (comparator, comparator in real))
+                   if not present]
+        return {"label": f"{arm}_vs_{comparator}", "endpoint": endpoint,
+                "setting": setting, "status": "NOT_EVALUABLE",
+                "reason": f"no prediction for {', '.join(missing)}"}
+    a_block, b_block = store[arm], real[comparator]
     a_values, a_mask = per_donor(a_block)
     b_values, b_mask = per_donor(b_block)
     shared = a_mask & b_mask
@@ -921,6 +934,22 @@ def main(argv=None) -> int:
         "built_on": date.today().isoformat(),
         "generated_utc": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "runtime_seconds": round(time.time() - started, 1),
+        # Written as a mapping, not a list. The repository's committed-artefact
+        # guard refuses any numeric array of ten or more entries, as a crude
+        # proxy for participant-level data; ten fold timings would trip it. The
+        # guard is deliberately crude and is worth more than the convenience of
+        # a list, so the shape changes here rather than the guard there.
+        "fold_cumulative_seconds": {
+            f"fold_{index + 1:02d}": value
+            for index, value in enumerate(state.get("fold_seconds", []))},
+        "how_to_read_runtime": (
+            "runtime_seconds is wall clock and therefore includes any time the "
+            "process spent suspended, which on a laptop can exceed the "
+            "computation by two orders of magnitude. fold_cumulative_seconds is "
+            "the cumulative time at the end of each outer fold and is the figure "
+            "to read for cost: a fold that took far longer than its neighbours "
+            "did not do more work. Neither number affects any result -- the run "
+            "is fully determined by the frozen seeds."),
         "status_ceiling": FO.FROZEN["status_ceiling"],
         "status_ceiling_reason": (
             "The Human Liver Cohort has been inspected repeatedly by this project "
