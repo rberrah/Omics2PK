@@ -1,6 +1,6 @@
 {
   "registry_name": "PUBLIC_DATA_EVIDENCE_REGISTRY",
-  "version": "1.11.0",
+  "version": "1.12.0",
   "frozen_at": "2026-11-07",
   "scope": "Datasets admissible for the Omics2PK five-objective validation (H1-H5). A published article is not by itself an exploitable dataset.",
   "access_policy": {
@@ -789,7 +789,7 @@
       "citation": "Wegler C et al. 2021.",
       "pmcid": "PMC8041379",
       "access_tier": "open_public",
-      "access_note": "Published supplement (Data S1/S2) is the stated source of donor-level values.",
+      "access_note": "CORRECTED 2026-11-09. PRIDE PXD014131 is licensed CC0 and, despite being flagged submissionType PARTIAL, carries the processed MaxQuant output with PER-SAMPLE intensities: Hom, Mic, Hep and Pellet proteinGroups.txt plus the peptide tables and the raw-file-to-donor mapping in the four experimentaldesigntemplate.txt files. Individual-level quantitative proteomics is therefore publicly retrievable without the article supplement. The measured intrinsic clearance for the five drugs is NOT in the deposit and still has to come from the article.",
       "n_analysed": 15,
       "omics_layers": [
         {
@@ -807,16 +807,37 @@
         "H5"
       ],
       "status": "PARTIAL",
-      "open_requirement": "Donor-level table extraction, units and SHA-256 not re-verified in this session.",
-      "verified_this_session": false,
+      "open_requirement": "The proteinGroups.txt matrices (9 to 25 MB each) are not yet downloaded and their checksums are not recorded. The intrinsic-clearance values for the five drugs still require extraction from the article and separate qualification.",
+      "verified_this_session": true,
       "inherited_from": [
         "docs/WEGLER_SOURCE_STRUCTURE_RESULTS_20261016.md",
         "docs/E3_PUBLIC_DATA_PIVOT_SILVEIRA_CLOSED_TO_WEGLER54_20261018.md"
       ],
       "caveats": [
         "15 donors cannot support high-dimensional selection; parsimony budgets must stay very small.",
-        "No measured RNA, so no transcript-to-protein comparison inside this cohort."
-      ]
+        "No measured RNA, so no transcript-to-protein comparison inside this cohort.",
+        "The low-speed pellet preparation covers only 5 of the 15 donors, so any four-preparation comparison is limited to donors 1, 7, 11, 12 and 15.",
+        "Protein quantification is label-free MaxQuant LFQ from two proteases per donor; combining the two protease runs is an analysis decision, not a property of the deposit."
+      ],
+      "original_repository": "PRIDE PXD014131 (proteomics); the article for intrinsic clearance",
+      "licence": "CC0 (PRIDE deposit)",
+      "individual_level_data_released": true,
+      "donor_structure_verified": {
+        "homogenate": 15,
+        "microsomes": 15,
+        "hepatocytes": 15,
+        "low_speed_pellet": 5,
+        "pellet_donors": [
+          1,
+          7,
+          11,
+          12,
+          15
+        ],
+        "proteases_per_donor": 2,
+        "source": "the four experimentaldesigntemplate.txt files, downloaded over the deposited FTP locations and parsed"
+      },
+      "verification_method": "PRIDE API v3 project record and file manifest read (100 files: 83 raw, 17 processed); the four experimental-design templates downloaded and parsed to recover the per-preparation donor counts and the sample naming."
     },
     {
       "key": "latham_tki_donors",
@@ -1029,6 +1050,194 @@
       "verified_this_session": true,
       "verification_method": "docs/EXTERNAL_DATA_ACQUISITION_MATRIX_20261024.md read and each entry's minimum next source classified against the access policy.",
       "consequence": "The project's remaining open questions cannot be answered by acquisition in this phase. They must be answered with data already in hand, or abstained from."
+    },
+    {
+      "key": "eatris_plus_v4",
+      "label": "EATRIS-Plus multi-omics human reference cohort, v4",
+      "citation": "EATRIS-Plus Flagship in Personalised Medicine; 't Hoen P-B, van Gool A, Kulkarni P, de Visser C et al.",
+      "doi": "10.5281/zenodo.19136013",
+      "original_repository": "Zenodo record 19136013",
+      "data_availability_statement": "Zenodo access_right open, files unrestricted; retrieved anonymously by HTTPS with no account and no terms click-through.",
+      "access_tier": "open_public",
+      "access_requirement": {
+        "type": "none",
+        "verified_on": "2026-11-09",
+        "evidence": "Zenodo API reports access_right open and serves the files without authentication."
+      },
+      "licence": "MIT",
+      "individual_level_data_released": true,
+      "n_enrolled": 127,
+      "n_analysed": 125,
+      "biological_unit": "healthy adult volunteer, one biobank (all identifiers carry the CZC prefix: a single site)",
+      "matrix": "human blood only (508 aliquots, about four per person). NO liver, NO intestine, no tissue of drug metabolism.",
+      "sampling_time": "single draw per person; no drug administered, so no time-since-dose exists",
+      "local_artifacts": [
+        {
+          "filename": "EATRIS_PLUS_mudata.h5mu",
+          "bytes": 141704166,
+          "sha256": "a764a6cd7246edbd5c3a4c4ce166cd2517dc93eaa11834f2d1e8530245581c7c"
+        }
+      ],
+      "omics_layers": [
+        {
+          "layer": "transcriptomics_mRNA",
+          "individuals": 90,
+          "features": 16386,
+          "identification_quality": "mRNA-seq of blood; leukocyte transcriptome, not hepatic"
+        },
+        {
+          "layer": "methylomics_EM_seq",
+          "individuals": 117,
+          "features": 100000
+        },
+        {
+          "layer": "miRNA_seq_mature",
+          "individuals": 89,
+          "features": 2130
+        },
+        {
+          "layer": "miRNA_qRT_PCR",
+          "individuals": 86,
+          "features": 179
+        },
+        {
+          "layer": "proteomics_targeted",
+          "individuals": 125,
+          "features": 1393
+        },
+        {
+          "layer": "proteomics_ipp",
+          "individuals": 123,
+          "features": 6831,
+          "identification_quality": "plasma proteome, not hepatic"
+        },
+        {
+          "layer": "lipidomics_negative",
+          "individuals": 125,
+          "features": 164
+        },
+        {
+          "layer": "lipidomics_positive",
+          "individuals": 125,
+          "features": 196
+        },
+        {
+          "layer": "lipidomics_spline",
+          "individuals": 124,
+          "features": 257
+        },
+        {
+          "layer": "metabolomics_acylcarnitines",
+          "individuals": 125,
+          "features": 33
+        },
+        {
+          "layer": "metabolomics_aminoacids",
+          "individuals": 125,
+          "features": 46
+        },
+        {
+          "layer": "metabolomics_vlcfa",
+          "individuals": 125,
+          "features": 5
+        }
+      ],
+      "complete_case_by_layer_count": {
+        "all_12_layers": 55,
+        "11_layers_without_miRNA_qRT_PCR": 79,
+        "10_layers_without_both_miRNA": 79,
+        "9_layers_without_miRNA_and_without_mRNA": 114,
+        "note": "Measured from the deposited h5mu obs indices. 55 individuals carry all twelve layers, 32 carry eleven, 25 carry ten, 13 carry nine, none fewer than nine."
+      },
+      "genotypes": null,
+      "comedication": null,
+      "endpoint": null,
+      "dose_regimen": null,
+      "formulation": null,
+      "objectives_supported": [],
+      "status": "ACQUIRED",
+      "verified_this_session": true,
+      "verification_method": "Zenodo API record read for licence, access right and file manifest; the 141,704,166-byte h5mu downloaded and its SHA-256 computed; its twelve modalities, their obs indices and the 24 person-level variables enumerated directly from the HDF5; the complete-case intersections computed from those indices.",
+      "open_requirement": "The second deposited container (mae_experiments.h5, 116 MB), the R object and the RDF serialisation were not downloaded and carry no recorded checksum.",
+      "prior_analysis_exposure": "none by this project",
+      "caveats": [
+        "NO pharmacological endpoint of any kind: no drug, no dose, no concentration, no time, no enzyme activity. The only outcome-like variables are demographics and eleven haematology indices.",
+        "Supports NO objective in H1-H5. It is registered because it is the first genuinely multi-layer individual-level cohort in reach, usable for methodological work on layer complementarity, modality reconstruction and parsimony with a declared non-pharmacological target.",
+        "Blood only. A leukocyte transcriptome and a plasma proteome do not measure hepatic drug-metabolising activity, so no result from this cohort may be presented as evidence about drug metabolism or pharmacokinetics.",
+        "The ISA workbook claims 128 rows (127 individuals) for EVERY assay sheet. The deposited data does not agree: the union is 125 individuals and the mRNA layer covers 90, miRNA-mature 89, miRNA-qRT-PCR 86. Sizing an analysis from the ISA sheet would over-count by up to 41 individuals on the transcriptome.",
+        "Single biobank, so no centre effect to adjust for and no internal replication either.",
+        "The twelve-layer complete case is 55 individuals against 127,620 features, so p over n is extreme and any supervised analysis must be treated accordingly."
+      ]
+    },
+    {
+      "key": "grangeon_2025_cyp_protein",
+      "label": "Grangeon 2025 absolute quantitative proteomics of 16 CYP450s and 2 CES",
+      "citation": "Grangeon A et al. Protein Levels of 16 Cytochrome P450s and 2 Carboxyl Esterases Using Absolute Quantitative Proteomics. Pharmaceuticals 2025, 18(12), 1789.",
+      "doi": "10.3390/ph18121789",
+      "pmid": "41471278",
+      "pmcid": "PMC12735975",
+      "original_repository": "PeptideAtlas PASS05929 (mass spectrometry); the article supplement for the tables",
+      "data_availability_statement": "The original contributions presented in this study are included in the article/Supplementary Materials. Further inquiries can be directed to the corresponding author. No repository is named for the numeric tables.",
+      "access_tier": "open_public",
+      "licence": "CC BY 4.0",
+      "individual_level_data_released": false,
+      "n_analysed": 16,
+      "biological_unit": "commercial human liver microsome donor (HLM01-16 genotyped, HLM17-24 not), human hepatocyte donor (HHEP01-20), cryopreserved human intestinal mucosa donor (4)",
+      "matrix": "human liver microsomes, human hepatocytes, cryopreserved human intestinal mucosa",
+      "omics_layers": [
+        {
+          "layer": "proteomics_absolute_MRM",
+          "analytes": "16 CYP450 isoforms and 2 carboxylesterases",
+          "identification_quality": "targeted MRM with labelled internal standards; method validation reported",
+          "individual_values_published": false
+        }
+      ],
+      "genotypes": {
+        "available": true,
+        "genes": [
+          "CYP2C9",
+          "CYP2C19",
+          "CYP2D6",
+          "CYP3A5"
+        ],
+        "individual_values_published": true,
+        "source": "Supplementary Table S1, page 1 of the supplementary PDF",
+        "measured_coverage": "CYP2C9, CYP2C19 and CYP2D6 are called for HLM01 to HLM10 only (10 of 16; HLM11-16 are Unknown). CYP3A5 is called for 11 donors and every one is 3A5*3/*3, so the CYP3A5 genotype has zero variance and carries no information."
+      },
+      "endpoint": {
+        "name": "probe-substrate CYP450 activity, supplier-provided, correlated against protein content",
+        "endpoint_class": "functional_in_vitro",
+        "individual_values_published": false
+      },
+      "objectives_supported": [],
+      "status": "ABSTAIN",
+      "abstain_reason": "No per-donor protein abundance and no per-donor activity value is published anywhere. Main-text Table 2 gives N, mean and SD and min-max; Table 3 is a CORRELATION table with columns CYP450, Probe, r, p, N, not an activity table; Figure 1 plots individual donors without listing values. The entire supplement is one nine-page PDF whose only per-donor table is the genotype table, which covers 10 of 16 donors for three genes and is zero-variance for the fourth. Recovering individual values would require digitising scatter figures, which is the forbidden reconstruction of individual tables from published aggregates.",
+      "usable_as": "published_comparator",
+      "published_comparator_content": {
+        "statistic": "Spearman correlation between absolutely quantified protein content and probe-substrate activity in the SAME donors",
+        "hlm_n": 16,
+        "hhep_n": 20,
+        "hlm_r_range": [
+          0.65,
+          0.9794
+        ],
+        "hlm_r_median": 0.9441,
+        "hhep_r_range": [
+          0.2915,
+          0.8015
+        ],
+        "used_in": "docs/OMICS2PK_PUBLIC_SOURCE_QUALIFICATION_20261109.md section 4 and reports/data/rna_versus_protein_activity_correlation.json"
+      },
+      "verified_this_session": true,
+      "verification_method": "PMC full text read for the data-availability statement, table structure and donor counts; the supplement retrieved through the Europe PMC supplementaryFiles endpoint after MDPI returned HTTP 403 and PMC an interstitial page; the nine-page supplementary PDF opened and every page classified; Table S1 transcribed in full; Tables 3A and 3B transcribed verbatim from the article.",
+      "prior_analysis_exposure": "none by this project",
+      "caveats": [
+        "Activity values were provided by the supplier, not measured by the authors, so the activity side of every published correlation is of unstated provenance.",
+        "n = 16 and n = 20, so each published r carries a wide interval that the article does not report.",
+        "The cross-references to the supplementary tables are internally inconsistent: the Appendix cites Table S1 for peptide sequences and Table S2 for precision, while the supplement numbers them the other way.",
+        "The main text reports a value for HLM011, a label that does not match the HLM01-24 naming scheme used elsewhere.",
+        "Donor counts are stated inconsistently: the Methods describe HLM01-24 plus two 150-donor pools, while the Discussion refers to all 26 donors."
+      ]
     }
   ],
   "phase1_findings": {
@@ -1193,6 +1402,11 @@
       "version": "1.11.0",
       "date": "2026-11-09",
       "change": "Two records, neither of which changes any dataset's status. (1) Registers CollecTRI as served by the OmniPath web service, the signed regulatory network the F-series arms are built from. Its licence is composite and was NOT verified, so no redistribution is assumed and the file stays out of the repository; what was verified is that the recorded URL returns a response byte-identical to the local artefact, so the registry carries a reproducible download rather than a reconstructed one. The structural counts the frozen rules depend on are recorded with it, including that 822 of its 64,516 edges have a cytochrome target and are removed before any score is computed. (2) Records the re-verification of the ARIANA workbook on 2026-11-09: the file was absent from local disk, was re-downloaded from its public GitHub repository, and its SHA-256 matched the registered value bit-for-bit. The registered checksum is therefore the checksum of the file the ARIANA runs read. A knowledge source still supports no objective."
+    },
+    {
+      "version": "1.12.0",
+      "date": "2026-11-09",
+      "change": "Qualifies three candidate sources against their authoritative endpoints rather than their abstracts, and corrects one existing entry. (1) Registers EATRIS-Plus v4 (Zenodo 19136013, MIT, open): 12 individual-level omic modalities, union 125 individuals, 127,620 features, complete case 55 at twelve layers, 79 at eleven and 114 at nine without the transcriptome. It supports NO objective in H1-H5 because it is blood-only with no pharmacological endpoint of any kind, and that is recorded as a caveat rather than left implicit. The ISA workbook claim of 127 individuals per assay is contradicted by the deposited data and the discrepancy is registered. (2) Registers Grangeon 2025 as ABSTAIN, usable only as a published comparator: no per-donor protein abundance and no per-donor activity value is published, the only per-donor table is a genotype table covering 10 of 16 donors for three genes with a zero-variance fourth, and recovering values would mean digitising scatter figures. Its published protein-to-activity Spearman correlations are recorded as comparator content. (3) CORRECTS wegler_15, which understated its own source: PRIDE PXD014131 is CC0 and carries per-sample MaxQuant matrices for four liver preparations with the donor mapping deposited, so individual-level proteomics does not depend on the article supplement. Donor structure verified as 15/15/15/5. No objective admissibility changed and no threshold, margin, comparator or primary contrast moved."
     }
   ],
   "knowledge_sources": [
