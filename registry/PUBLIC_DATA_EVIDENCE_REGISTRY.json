@@ -1,6 +1,6 @@
 {
   "registry_name": "PUBLIC_DATA_EVIDENCE_REGISTRY",
-  "version": "1.10.0",
+  "version": "1.11.0",
   "frozen_at": "2026-11-07",
   "scope": "Datasets admissible for the Omics2PK five-objective validation (H1-H5). A published article is not by itself an exploitable dataset.",
   "access_policy": {
@@ -1188,6 +1188,11 @@
       "version": "1.10.0",
       "date": "2026-11-09",
       "change": "Registers the three annotation references the qualified probe pools depend on: the GEO GPL4372 platform record, NCBI's human gene_info, and the human subset of NCBI gene2accession. They were used before being registered, which is the gap this amendment closes: the pool file carried their checksums but the registry did not carry their provenance, so the project's source of truth for public data did not list what decides the identity of every measured feature. Two roles are added for them, `probe_annotation` and `gene_reference`. None is redistributable by any verified permission and none is committed; the GEO record's URL was re-downloaded and found byte-identical to the local artefact, so the stated URL is the one actually used. A knowledge source still supports no objective."
+    },
+    {
+      "version": "1.11.0",
+      "date": "2026-11-09",
+      "change": "Two records, neither of which changes any dataset's status. (1) Registers CollecTRI as served by the OmniPath web service, the signed regulatory network the F-series arms are built from. Its licence is composite and was NOT verified, so no redistribution is assumed and the file stays out of the repository; what was verified is that the recorded URL returns a response byte-identical to the local artefact, so the registry carries a reproducible download rather than a reconstructed one. The structural counts the frozen rules depend on are recorded with it, including that 822 of its 64,516 edges have a cytochrome target and are removed before any score is computed. (2) Records the re-verification of the ARIANA workbook on 2026-11-09: the file was absent from local disk, was re-downloaded from its public GitHub repository, and its SHA-256 matched the registered value bit-for-bit. The registered checksum is therefore the checksum of the file the ARIANA runs read. A knowledge source still supports no objective."
     }
   ],
   "knowledge_sources": [
@@ -1432,6 +1437,45 @@
       "used_for": [
         "Resolves an accession to a gene *before* anything is compared. Comparing accession strings instead treated an archive citing one transcript and a platform citing another as a contradiction, which inflated the conflict count about fivefold."
       ]
+    },
+    {
+      "key": "collectri_omnipath",
+      "label": "CollecTRI signed transcriptional regulatory network, served by the OmniPath web service",
+      "role": "signed_regulatory_network",
+      "url": "https://omnipathdb.org/interactions?datasets=collectri&genesymbols=yes&fields=sources",
+      "access_tier": "open_public",
+      "access_requirement": {
+        "type": "none",
+        "evidence": "Retrieved anonymously by HTTPS; no account, no token, no terms click-through. The URL recorded here was re-fetched on 2026-11-09 and the response was byte-identical to the local artefact, so the stated URL is the one actually used and not a reconstruction.",
+        "verified_on": "2026-11-09"
+      },
+      "licence": "composite and NOT independently verified",
+      "licence_verified": "Not verified. OmniPath redistributes each component resource under that resource's own terms, and its resource list includes licences that forbid derivatives. No redistribution is assumed, no licence is claimed, and the artefact is not committed. Silence about terms is not permission.",
+      "redistribution_permitted": false,
+      "committed_to_this_repository": false,
+      "local_artifacts": [
+        {
+          "filename": "collectri.tsv",
+          "bytes": 9013026,
+          "sha256": "062529d997ef6ff2d599030f5d155810fb076d3c68d482366172b148553fb878"
+        }
+      ],
+      "structure_verified": {
+        "rows": 64516,
+        "rows_whose_sources_field_names_collectri": 64516,
+        "rows_not_directed": 0,
+        "distinct_complex_regulators": 25,
+        "consensus_sign_determinate": 61926,
+        "consensus_sign_indeterminate_dropped": 2590,
+        "edges_with_a_cytochrome_target": 822,
+        "signed_edges_retained_after_the_frozen_rules": 58991
+      },
+      "used_for": [
+        "Signed regulons for the F-series functional-omics arms, frozen by docs/OMICS2PK_F_SERIES_FUNCTIONAL_OMICS_PRESPECIFICATION_20261109.md. Every cytochrome is removed from every regulon before any activity score is computed, because each study enzyme is a member of its own candidate regulators' regulons and scoring it into its own predictor would be circular."
+      ],
+      "carries_no_endpoint": true,
+      "verified_this_session": true,
+      "redistribution_note": "Not redistributed. The file is acquired by its recorded URL and checked against the checksum above."
     }
   ]
 }

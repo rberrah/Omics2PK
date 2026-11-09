@@ -257,7 +257,16 @@ KNOWLEDGE_SOURCE_ROLES = ("functional_network", "pathway_annotation",
                           # carries no participant and no outcome either, but it
                           # decides what a measured feature is taken to be, so
                           # it needs the same provenance as a network.
-                          "probe_annotation", "gene_reference")
+                          "probe_annotation", "gene_reference",
+                          # Added in registry 1.11.0. A signed regulatory
+                          # network is distinct from a functional network in the
+                          # one way that matters for an inference: an edge
+                          # carries a direction AND a sign, so the resource
+                          # asserts whether one gene raises or lowers another
+                          # rather than only that they are associated. That
+                          # assertion is what the F-series tests, so it is not
+                          # filed under the same role as an unsigned network.
+                          "signed_regulatory_network")
 
 
 def validate_knowledge_source(entry):
