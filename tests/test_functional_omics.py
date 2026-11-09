@@ -983,6 +983,25 @@ class TestResultsAreReportedHonestly(unittest.TestCase):
         self.assertIn("That a functional layer cannot help in general",
                       self.text)
 
+    def test_the_absent_gain_is_not_written_as_an_absent_benefit(self):
+        """The interval excludes 10 %; it does not exclude 1 %."""
+        primary = self.report["predictive_performance"]["primary_contrast"]
+        self.assertGreater(primary["relative_ci_low"],
+                           -FO.FROZEN["relative_mae_threshold"])
+        self.assertIn("they do *not*\n  exclude a smaller benefit", self.text)
+        self.assertNotIn("**does not reduce** the error", self.text)
+
+    def test_the_rewired_null_is_called_exploratory_not_proof(self):
+        """20 replicates cannot establish absence; the document must say so."""
+        self.assertIn("No network-specific advantage was detected", self.text)
+        self.assertIn("1/21", self.text)
+        self.assertNotIn("is not specific\n  to the network's gene membership",
+                         self.text)
+
+    def test_the_report_carries_a_change_log_for_its_amendments(self):
+        self.assertIn("## 10. Change log", self.text)
+        self.assertIn("| 1.1.0 | 2026-11-09 |", self.text)
+
     def test_the_timing_caveat_is_recorded(self):
         self.assertIn("fold_cumulative_seconds", self.report)
         self.assertIn("how_to_read_runtime", self.report)

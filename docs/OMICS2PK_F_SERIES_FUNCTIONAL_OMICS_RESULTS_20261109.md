@@ -290,16 +290,30 @@ freeze exists to make visible.
 **Establishes, on 397 donors, one cohort, exploratory and not upgradeable:**
 
 - Adding signed CollecTRI transcription-factor activities to a liver CYP3A4
-  transcript **does not reduce** the error of predicted microsomal CYP3A4
-  activity. The data **exclude** an improvement of the prespecified 10 %.
+  transcript **does not produce the gain the prespecification required**. The
+  point estimate is a 1.36 % degradation and the data **exclude** an
+  improvement of the prespecified 10 %. **Amended in 1.1.0:** they do *not*
+  exclude a smaller benefit — the relative interval is [−1.21 %, +3.99 %], so a
+  reduction of up to about 1.2 % remains compatible with this run. The earlier
+  wording, "does not reduce the error", overstated that; what is established is
+  the absence of a gain of the specified size, not the absence of any gain.
 - Those activities are **significantly worse** than the target transcript when
   used in its place (+13.55 %, interval excluding zero), and on three further
   enzymes.
 - Regulon-weighted aggregation is **not distinguishable** from putting the same
   regulators' transcripts in the model.
-- A **size-and-sign-matched random network scores as well as CollecTRI** for
-  the activity-only arm, so the information those scores carry is not specific
-  to the network's gene membership.
+- **No network-specific advantage was detected** for the activity-only arm: a
+  size-and-sign-matched random network scores 830.38 on average over 20
+  replicates, range [815.68, 845.50], and the real network's 827.56 lies inside
+  that range. **Amended in 1.1.0:** the earlier wording inferred from this that
+  "the information those scores carry is not specific to the network's gene
+  membership". Twenty replicates do not support that inference. They are an
+  **exploratory** control whose finest one-sided rank statistic is 1/21 ≈ 0.048,
+  so a network-specific effect smaller than that resolution cannot be excluded;
+  and the `F5` arm points the other way, where the real network beats all twenty
+  nulls (rank p ≤ 1/21, nominally significant, uncorrected, at the resolution
+  floor). The defensible statement is "not detected at this resolution", not
+  "absent".
 - The scores are nonetheless **not noise**: destroying the expression-to-donor
   link costs 55 MAE.
 - **Individual coefficient signs on these columns are not interpretable**:
@@ -351,3 +365,12 @@ Three specific consequences, stated so they can be argued with:
 
 A negative result under a published freeze is a result. This one is reported
 with its controls, its defects and its limits, and it is not upgradeable.
+
+---
+
+## 10. Change log
+
+| Version | Date | Change |
+|---|---|---|
+| 1.0.0 | 2026-11-09 | First report of the frozen run (commit `d491152`). |
+| 1.1.0 | 2026-11-09 | **Two claims in §8 narrowed after external review, both because they said more than the measurement supports. No number changed and no conclusion reversed.** (1) "Does not reduce the error" is withdrawn: the relative interval [−1.21 %, +3.99 %] excludes the prespecified 10 % gain but **not** a benefit of up to about 1.2 %. The established statement is the absence of a gain of the specified size. (2) The inference that the activity scores carry no network-specific information is withdrawn. Twenty rewired-null replicates are an exploratory control with a finest one-sided rank statistic of 1/21 ≈ 0.048; an effect below that resolution cannot be excluded, and the `F5` arm points the other way (real better than all twenty nulls, rank p ≤ 1/21, uncorrected). "Not detected at this resolution" replaces "not specific". Both corrections tighten the negative conclusion rather than weakening it: the primary contrast still fails, and §9's consequences are unaffected. |
