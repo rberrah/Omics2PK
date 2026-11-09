@@ -75,6 +75,17 @@ the test folds twice, so no "best statistical arm" exists in this report.
 **45 of 80 cells.** Non-inferiority holds at every panel size on three endpoints
 (CYP2B6, CYP2C8, CYP2D6) and at none on two (CYP1A2, CYP2C19).
 
+**How this count may be read, and how it may not.** 80 cells are not 80
+experiments: the eight panel sizes are nested, every cell uses the same 387 to
+398 donors, and the endpoints are correlated, with a spectral dependence index
+of about 3.55 for the ten measurements. Each interval is a 95 % bootstrap
+interval on one paired contrast. Protocol §9 places every H2 comparison in the
+**exploratory** class and requires Bonferroni adjustment within a family sharing
+an endpoint, with the nominal level stated; the counts here are therefore
+**descriptive summaries at a nominal 95 % level per contrast**, and no
+confirmatory claim is made from any of them. What they support is a direction
+and a spread, not a pass rate.
+
 ### 2.1 Superiority, stated per comparator rather than in one word
 
 | comparator | cells where NetPK is better with an interval excluding zero (of 80) |

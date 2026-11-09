@@ -1,6 +1,6 @@
 # H2d — hybrid mechanistic selection on the Human Liver Cohort
 
-**Document version:** 1.0.0
+**Document version:** 1.0.1
 **Date:** 2026-11-09
 **Prespecification:** `OMICS2PK_H2D_HYBRID_SELECTION_PRESPECIFICATION_20261108.md` v1.0.0
 **Erratum carried:** `OMICS2PK_H2D_ERRATUM_20261108.md` v1.0.2
@@ -46,6 +46,14 @@ top-`k` is **0.00 at every panel size from 5 upward, on all nine endpoints**
 (0.0–1.0 at `k = 1`, where every arm picks the same single transcript and
 equality means nothing). The hybrid selects genuinely different panels.
 
+**This is a control that passed, not evidence of mechanistic utility.** A
+different panel can predict as well, better or worse; difference alone says
+nothing about whether the knowledge contributed information. The question "did
+the mechanism add anything?" is answered in §3 and §4, where the comparison is
+against error, not against overlap — and the honest summary of those sections is
+that the knowledge adds something to *its own blind ordering* on a minority of
+cells and nothing to the univariate filter.
+
 ---
 
 ## 3. Prediction: non-inferior in three cells of five, better than its own blind arm in one of seven
@@ -68,9 +76,12 @@ equality means nothing). The hybrid selects genuinely different panels.
 Three readings, all needed:
 
 - **Non-inferiority holds in 44 cells of 72**, and identically at matched
-  dimension, which matters because the hybrid is allowed to retain fewer
-  variables than its budget (see §5) and crediting selection quality for
-  dimension reduction would be a hidden advantage.
+  dimension. The identity is **expected, not corroborating**: the hybrid filled
+  its budget in every fold of every endpoint except a few of CYP2E1's at
+  `k = 100`, so the two comparisons are made at the same dimension, and the
+  matched-dimension loss is numerically identical to the budget loss in **71
+  cells of 72**. The matched-dimension column exists to catch a hidden advantage
+  that did not arise here, because the hybrid never became smaller (§5).
 - **Against its own blind arm the hybrid is better in 10 cells and worse in 3.**
   The retention step is therefore a real improvement on knowledge alone in a
   minority of cells and a real cost in a smaller one — not a uniform gain.
@@ -79,6 +90,29 @@ Three readings, all needed:
   undetermined. The worse cells concentrate on CYP2C19 (8 of 8) and CYP2E1 (6 of
   8). The simplest outcome-reading selector remains the arm to beat, and the
   hybrid does not beat it.
+
+### 3.1 How these counts may be read, and how they may not
+
+**72 cells are not 72 experiments.** The eight panel sizes are nested, every
+cell uses the same 387 to 398 donors, and the endpoints are correlated — the
+dependence index recorded in the header is about 3.55 for ten endpoint
+measurements. Each interval is a 95 % bootstrap interval on **one** paired
+contrast, computed on 2,000 resamples of donor-level errors.
+
+Protocol §9 places every H2 comparison in the **exploratory** class and requires
+Bonferroni adjustment within a family sharing an endpoint, with the nominal
+level stated. The counts in the table above are therefore **descriptive
+summaries at a nominal 95 % level per contrast**, and no confirmatory claim is
+made from any of them: not from 44 of 72, not from 10 of 72, not from 21 of 72.
+The frozen run reports unadjusted 95 % intervals and stores no bootstrap draws,
+so an adjusted interval cannot be recovered from it after the fact; that is a
+limit of this run, stated rather than worked around.
+
+What the counts legitimately support is a **direction and a spread**: the hybrid
+is usually within the margin of the statistical arms, it improves on its own
+blind ordering in a minority of cells, and it loses to the univariate filter on
+two endpoints in most of their cells. Each individual endpoint's repair contrast
+in §4 is a single prespecified test and is read as such.
 
 ---
 
@@ -146,7 +180,7 @@ explained away.
 
 ---
 
-## 5. Abstention was never exercised, so H2d says nothing about it
+## 5. Neither abstention nor parsimony was demonstrated
 
 One of the three capabilities the hybrid was meant to demonstrate is recognising
 when its mechanistic knowledge is insufficient. **It never fired.** Across nine
@@ -161,11 +195,25 @@ order, and the panel refills. The retention step is doing work — on CYP2C9 at
 UGT1A4, PPIG and UGT1A1, that is the blind arm's **entire** panel, and replaced
 all ten — but it never runs out of candidates that pass its null.
 
-**Consequence.** H2d supplies evidence about parsimony and about resistance to a
-destroyed signal. It supplies **no evidence at all** about abstention, and no
-text may claim the rule abstains appropriately on the basis of this run. Testing
-abstention needs a design where the mechanistic shortlist genuinely contains
-nothing informative, which this cohort's endpoints do not provide.
+**Two consequences, and the second was missing from version 1.0.0.**
+
+- **No evidence at all about abstention.** No text may claim the rule abstains
+  appropriately on the basis of this run. Testing abstention needs a design
+  where the mechanistic shortlist genuinely contains nothing informative, which
+  this cohort's endpoints do not provide.
+- **No evidence about parsimony either.** The hybrid does not reduce the number
+  of variables: it fills `k` almost always, so what it changes is *which* `k`
+  genes are used, not *how many*. A claim that hybrid selection buys parsimony
+  would be unsupported here, and the matched-dimension column cannot support it
+  either, for the reason given in §3.
+
+**A measurement this run cannot give.** How much of the mechanistic ordering
+survives retention is not recoverable from the committed report: the runner
+stores at most ten demoted examples for the first fold of each panel size, not
+the count of demotions per fold. The one visible case is striking — on CYP2C9 at
+`k = 10` the blind arm's entire top ten was demoted and replaced — and it raises
+the right question, which is how much of the initial knowledge the hybrid
+actually keeps. The run as frozen cannot answer it, and no answer is implied.
 
 ---
 
@@ -230,3 +278,31 @@ arm actually used was therefore checked against the pool, fold by fold:
 - Not a demonstrated calibration of the retention null. The prespecification's
   120 draws across four regimes are a sanity check, not a calibration proof, and
   the erratum says so.
+- Not parsimony, and not abstention (§5).
+- Not a confirmatory reading of any cell count (§3.1).
+
+---
+
+## 9. Provisional verdict
+
+**What is established.** The hybrid recognises, systematically and on every
+endpoint, that a transcript the mechanistic ordering insists on has lost its
+information, where the blind arm keeps privileging it. That is a targeted
+feasibility proof of **mechanistic revision**, and the complete repair criterion
+is met on two of eight assessable endpoints.
+
+**What is not.** No general predictive superiority: the hybrid is non-inferior
+to the statistical arms in most cells and detectably worse than the univariate
+filter on two endpoints in most of theirs. No parsimony. No abstention.
+
+**The admissible form of words**, which this document adopts: *hybrid selection
+mitigates a weakness of the blind mechanistic ordering, without guaranteeing
+performance equivalent to statistical selectors.*
+
+**What follows for the programme.** This is not a justification for making
+hybrid selection NetPK's default selection method. It is a candidate
+**experimental module** for the question it actually answers — when should a
+mechanistic hypothesis be kept, and when should it be contested — and that is
+where it is proposed, pending the pool B comparison in §10 of a later version.
+The selector, the threshold and the abstention rule are **not** modified in the
+light of these results.
