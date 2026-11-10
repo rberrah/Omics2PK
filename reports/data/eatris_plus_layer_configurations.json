@@ -1,0 +1,293 @@
+{
+  "candidate_target_layers": {
+    "acylcarnitines": {
+      "biochemically_adjacent_families": [
+        "lipidome"
+      ],
+      "features": 33,
+      "individuals": 125,
+      "same_family_sibling": "aminoacids"
+    },
+    "proteins": {
+      "biochemically_adjacent_families": [],
+      "features": 1393,
+      "individuals": 125,
+      "same_family_sibling": "proteomics-ipp"
+    }
+  },
+  "configurations": {
+    "C11_primary": {
+      "agrees_with_commissioned_count": true,
+      "complete_case_n": 79,
+      "covariate_missing_counts": {
+        "Erythrocytes": 1,
+        "Hematocrit": 1,
+        "Hemoglobin": 1,
+        "Leukocytes": 1,
+        "Lymphocytes": 1,
+        "MCH": 1,
+        "MCHC": 1,
+        "MCV": 1,
+        "MXD": 4,
+        "Neutrophils": 4,
+        "Platelets": 1
+      },
+      "expected_n": 79,
+      "families_present": {
+        "lipidome": [
+          "lipidomics-neg",
+          "lipidomics-pos",
+          "lipidomics-spline",
+          "fattyacids"
+        ],
+        "metabolome_targeted": [
+          "acylcarnitines",
+          "aminoacids"
+        ],
+        "methylome": [
+          "EM-seq"
+        ],
+        "proteome": [
+          "proteins",
+          "proteomics-ipp"
+        ],
+        "small_rna": [
+          "miRNA-mature"
+        ],
+        "transcriptome": [
+          "mRNA"
+        ]
+      },
+      "features_total": 127441,
+      "individual_set_sha256": "265ffd52c9ce1f9f25c5e26cd75ebcf298a75a16b36fc5c24c07d8a6f5fb7c5d",
+      "layers_dropped": [
+        "miRNA-qRT-PCR"
+      ],
+      "layers_kept": [
+        "EM-seq",
+        "acylcarnitines",
+        "aminoacids",
+        "fattyacids",
+        "lipidomics-neg",
+        "lipidomics-pos",
+        "lipidomics-spline",
+        "mRNA",
+        "miRNA-mature",
+        "proteins",
+        "proteomics-ipp"
+      ],
+      "n_families": 6,
+      "n_layers": 11,
+      "role": "primary"
+    },
+    "C12_all_layers": {
+      "agrees_with_commissioned_count": true,
+      "complete_case_n": 55,
+      "covariate_missing_counts": {
+        "MXD": 3,
+        "Neutrophils": 3
+      },
+      "expected_n": 55,
+      "families_present": {
+        "lipidome": [
+          "lipidomics-neg",
+          "lipidomics-pos",
+          "lipidomics-spline",
+          "fattyacids"
+        ],
+        "metabolome_targeted": [
+          "acylcarnitines",
+          "aminoacids"
+        ],
+        "methylome": [
+          "EM-seq"
+        ],
+        "proteome": [
+          "proteins",
+          "proteomics-ipp"
+        ],
+        "small_rna": [
+          "miRNA-mature",
+          "miRNA-qRT-PCR"
+        ],
+        "transcriptome": [
+          "mRNA"
+        ]
+      },
+      "features_total": 127620,
+      "individual_set_sha256": "b10acdb92dd6df92cba10585e14df2eb58b7377862b64f13137af77a74a54b55",
+      "layers_dropped": [],
+      "layers_kept": [
+        "EM-seq",
+        "acylcarnitines",
+        "aminoacids",
+        "fattyacids",
+        "lipidomics-neg",
+        "lipidomics-pos",
+        "lipidomics-spline",
+        "mRNA",
+        "miRNA-mature",
+        "miRNA-qRT-PCR",
+        "proteins",
+        "proteomics-ipp"
+      ],
+      "n_families": 6,
+      "n_layers": 12,
+      "role": "secondary_what_the_qrtpcr_layer_adds"
+    },
+    "C9_no_rna": {
+      "agrees_with_commissioned_count": true,
+      "complete_case_n": 114,
+      "covariate_missing_counts": {
+        "Erythrocytes": 1,
+        "Hematocrit": 1,
+        "Hemoglobin": 1,
+        "Leukocytes": 1,
+        "Lymphocytes": 1,
+        "MCH": 1,
+        "MCHC": 1,
+        "MCV": 1,
+        "MXD": 5,
+        "Neutrophils": 5,
+        "Platelets": 1
+      },
+      "expected_n": 114,
+      "families_present": {
+        "lipidome": [
+          "lipidomics-neg",
+          "lipidomics-pos",
+          "lipidomics-spline",
+          "fattyacids"
+        ],
+        "metabolome_targeted": [
+          "acylcarnitines",
+          "aminoacids"
+        ],
+        "methylome": [
+          "EM-seq"
+        ],
+        "proteome": [
+          "proteins",
+          "proteomics-ipp"
+        ]
+      },
+      "features_total": 108925,
+      "individual_set_sha256": "3ba65c29b0c988fd6d9e4a66e67747d7b3e6b62fb59fdb178649921f1c629145",
+      "layers_dropped": [
+        "miRNA-qRT-PCR",
+        "miRNA-mature",
+        "mRNA"
+      ],
+      "layers_kept": [
+        "EM-seq",
+        "acylcarnitines",
+        "aminoacids",
+        "fattyacids",
+        "lipidomics-neg",
+        "lipidomics-pos",
+        "lipidomics-spline",
+        "proteins",
+        "proteomics-ipp"
+      ],
+      "n_families": 4,
+      "n_layers": 9,
+      "role": "secondary_wider_coverage_without_the_transcriptome"
+    }
+  },
+  "every_layer_individual_has_a_person_row": true,
+  "families": {
+    "lipidome": [
+      "lipidomics-neg",
+      "lipidomics-pos",
+      "lipidomics-spline",
+      "fattyacids"
+    ],
+    "metabolome_targeted": [
+      "acylcarnitines",
+      "aminoacids"
+    ],
+    "methylome": [
+      "EM-seq"
+    ],
+    "proteome": [
+      "proteins",
+      "proteomics-ipp"
+    ],
+    "small_rna": [
+      "miRNA-mature",
+      "miRNA-qRT-PCR"
+    ],
+    "transcriptome": [
+      "mRNA"
+    ]
+  },
+  "fits_nothing": true,
+  "global_obs_rows": 125,
+  "identifiers_are_not_printed": true,
+  "individuals_by_number_of_layers_held": {
+    "10": 25,
+    "11": 32,
+    "12": 55,
+    "9": 13
+  },
+  "layers": {
+    "EM-seq": {
+      "features": 100000,
+      "individuals": 117
+    },
+    "acylcarnitines": {
+      "features": 33,
+      "individuals": 125
+    },
+    "aminoacids": {
+      "features": 46,
+      "individuals": 125
+    },
+    "fattyacids": {
+      "features": 5,
+      "individuals": 125
+    },
+    "lipidomics-neg": {
+      "features": 164,
+      "individuals": 125
+    },
+    "lipidomics-pos": {
+      "features": 196,
+      "individuals": 125
+    },
+    "lipidomics-spline": {
+      "features": 257,
+      "individuals": 124
+    },
+    "mRNA": {
+      "features": 16386,
+      "individuals": 90
+    },
+    "miRNA-mature": {
+      "features": 2130,
+      "individuals": 89
+    },
+    "miRNA-qRT-PCR": {
+      "features": 179,
+      "individuals": 86
+    },
+    "proteins": {
+      "features": 1393,
+      "individuals": 125
+    },
+    "proteomics-ipp": {
+      "features": 6831,
+      "individuals": 123
+    }
+  },
+  "nesting": {
+    "C11_subset_of_C9": true,
+    "C12_subset_of_C11": true,
+    "C12_subset_of_C9": true,
+    "why_it_matters": "Nested sets let the layer question and the sample-size question be separated: the qRT-PCR layer is judged on the SAME people, and n is judged with the SAME layers. A performance difference between sets of different size is never read as a modality effect."
+  },
+  "no_pharmacological_endpoint": "This cohort holds no drug, dose, concentration, time, enzyme activity or clinical endpoint. Nothing computed on it may be reported as evidence about drug metabolism or pharmacokinetics.",
+  "source": "EATRIS_PLUS_mudata.h5mu",
+  "source_sha256": "a764a6cd7246edbd5c3a4c4ce166cd2517dc93eaa11834f2d1e8530245581c7c",
+  "union_individuals": 125
+}
