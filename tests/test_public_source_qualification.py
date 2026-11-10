@@ -112,12 +112,14 @@ class TestWeglerCorrection(unittest.TestCase):
     def test_individual_level_data_is_now_recorded_as_released(self):
         self.assertTrue(self.entry["individual_level_data_released"])
 
-    def test_the_deposit_rather_than_the_supplement_is_named(self):
+    def test_both_the_deposit_and_the_supplement_are_named(self):
+        """Updated 2026-11-10: the supplement turned out to carry the outcome."""
         self.assertIn("PXD014131", self.entry["original_repository"])
-        self.assertIn("proteinGroups.txt", self.entry["access_note"])
-
-    def test_the_partial_flag_is_explained_rather_than_trusted(self):
-        self.assertIn("submissionType PARTIAL", self.entry["access_note"])
+        note = self.entry["access_note"]
+        self.assertIn("PXD014131", note)
+        self.assertIn("ARTICLE SUPPLEMENT", note)
+        self.assertIn("Table S3", note)
+        self.assertIn("Data S1", note)
 
     def test_the_donor_structure_is_verified_per_preparation(self):
         structure = self.entry["donor_structure_verified"]
@@ -131,9 +133,61 @@ class TestWeglerCorrection(unittest.TestCase):
         self.assertIn("only 5 of the 15 donors",
                       " ".join(self.entry["caveats"]))
 
-    def test_what_is_still_missing_is_named(self):
-        self.assertIn("intrinsic-clearance", self.entry["open_requirement"])
-        self.assertIn("NOT in", self.entry["access_note"])
+    def test_the_per_donor_clearances_are_now_held_and_verified(self):
+        """The 2026-11-09 open requirement was satisfied on 2026-11-10."""
+        self.assertEqual(self.entry["status"], "ACQUIRED")
+        self.assertEqual(self.entry["outcome_kind"], "drug_specific_clint")
+        self.assertNotIn(
+            "open_requirement", self.entry,
+            "the clearance values are held, so no open requirement remains",
+        )
+        endpoint = self.entry["endpoint"]
+        self.assertTrue(endpoint["per_donor_values_held"])
+        self.assertEqual(len(endpoint["substrates"]), 5)
+        verification = endpoint["verification"]
+        self.assertEqual(
+            verification["anchors_agreeing"], verification["anchors_total"],
+            "a transcription that does not reproduce every published anchor is "
+            "not a value",
+        )
+        self.assertAlmostEqual(
+            verification["median_recomputed"],
+            verification["median_published"],
+            delta=1.0,
+        )
+        for field in ("per_donor_table_sha256",
+                      "supporting_information_pdf_sha256"):
+            self.assertRegex(endpoint[field], r"^[0-9a-f]{64}$")
+
+    def test_what_remains_is_named_and_is_no_longer_the_data(self):
+        remaining = self.entry["remaining_requirement"]
+        self.assertIn("no protein-to-clearance model has been fitted", remaining)
+        self.assertIn("15 donors", remaining)
+
+    def test_the_absence_of_per_donor_demographics_is_a_caveat(self):
+        caveats = " ".join(self.entry["caveats"])
+        self.assertIn("NO PER-DONOR DEMOGRAPHICS", caveats)
+        self.assertIn("aggregates only", caveats)
+
+    def test_five_substrates_are_not_five_validations(self):
+        caveats = " ".join(self.entry["caveats"])
+        self.assertIn("NOT five independent validations", caveats)
+
+    def test_the_per_donor_rows_stay_out_of_the_repository(self):
+        self.assertIn(
+            "silence about terms is not permission",
+            self.entry["licence"].lower(),
+        )
+        self.assertIn(
+            "extracted/", self.entry["per_donor_table_is_outside_this_repository"]
+        )
+
+    def test_every_recovered_supplement_file_carries_a_checksum(self):
+        artifacts = self.entry["local_artifacts"]
+        self.assertEqual(len(artifacts), 3)
+        for artifact in artifacts:
+            self.assertRegex(artifact["sha256"], r"^[0-9a-f]{64}$")
+            self.assertIn("mp1c00053_si_00", artifact["filename"])
 
     def test_the_licence_is_recorded(self):
         self.assertIn("CC0", self.entry["licence"])

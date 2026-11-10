@@ -1,6 +1,6 @@
 {
   "registry_name": "PUBLIC_DATA_EVIDENCE_REGISTRY",
-  "version": "1.12.0",
+  "version": "1.13.0",
   "frozen_at": "2026-11-07",
   "scope": "Datasets admissible for the Omics2PK five-objective validation (H1-H5). A published article is not by itself an exploitable dataset.",
   "access_policy": {
@@ -789,38 +789,59 @@
       "citation": "Wegler C et al. 2021.",
       "pmcid": "PMC8041379",
       "access_tier": "open_public",
-      "access_note": "CORRECTED 2026-11-09. PRIDE PXD014131 is licensed CC0 and, despite being flagged submissionType PARTIAL, carries the processed MaxQuant output with PER-SAMPLE intensities: Hom, Mic, Hep and Pellet proteinGroups.txt plus the peptide tables and the raw-file-to-donor mapping in the four experimentaldesigntemplate.txt files. Individual-level quantitative proteomics is therefore publicly retrievable without the article supplement. The measured intrinsic clearance for the five drugs is NOT in the deposit and still has to come from the article.",
+      "access_note": "CORRECTED AGAIN 2026-11-10. Both halves of this source are now held. (1) PRIDE PXD014131 is CC0 and carries per-sample MaxQuant output. (2) The ARTICLE SUPPLEMENT carries the per-donor outcome and a better proteome: Table S3 of mp1c00053_si_001.pdf publishes, for each of the 15 donors and each of five probe substrates, the matching CYP concentration in microsomes, hepatocytes and homogenate, the CYP amount in the incubation, Kpuu, and the intrinsic clearance under three microsomal and two hepatocyte equations - 825 per-donor values; and Data S1 (mp1c00053_si_002.xlsx) publishes absolute protein concentrations by the Total Protein Approach for the same 15 donors, 4,682 to 5,172 proteins across four preparations. The clearance values are no longer an open requirement.",
       "n_analysed": 15,
       "omics_layers": [
         {
           "layer": "proteomics",
-          "analytes": "liver CYP and transporter protein quantities",
-          "identification_quality": "targeted quantitative proteomics"
+          "analytes": "absolute protein concentrations, fmol/ug protein, Total Protein Approach; 5,172 proteins in microsomes, 4,991 in homogenate, 4,784 in hepatocytes, 4,682 in the low-speed pellet",
+          "identification_quality": "label-free absolute quantification published by the authors in Data S1, beside the MaxQuant output in PRIDE"
         }
       ],
       "endpoint": {
-        "name": "measured in vitro hepatic intrinsic clearance for five drugs",
-        "endpoint_class": "functional_in_vitro"
+        "name": "measured in vitro hepatic intrinsic clearance for five probe substrates, per donor, in microsomes and hepatocytes",
+        "endpoint_class": "functional_in_vitro",
+        "per_donor_values_held": true,
+        "substrates": {
+          "Midazolam": "CYP3A4",
+          "Omeprazole": "CYP2C19",
+          "Diclofenac": "CYP2C9",
+          "Bupropion": "CYP2B6",
+          "Bufuralol": "CYP2D6"
+        },
+        "source_of_the_per_donor_values": "Table S3, recovered from word coordinates because a pdftotext reading mis-assigns donors, and VERIFIED against twenty correlation coefficients the article publishes in Table S4 plus the median midazolam CLint,mic quoted in the Results",
+        "verification": {
+          "anchors_agreeing": 20,
+          "anchors_total": 20,
+          "tolerance": 0.05,
+          "median_recomputed": 374.7,
+          "median_published": 375.0
+        },
+        "per_donor_table_sha256": "750a43095e223bfff7d22ad4d7709a67b5d36e2f7d3523c2c3be6d1af3d91917",
+        "supporting_information_pdf_sha256": "5beaab1117a32bb281734504dc19237bd264b5db0857837dfd794a9319892bab"
       },
       "objectives_supported": [
         "H2",
         "H5"
       ],
-      "status": "PARTIAL",
-      "open_requirement": "The proteinGroups.txt matrices (9 to 25 MB each) are not yet downloaded and their checksums are not recorded. The intrinsic-clearance values for the five drugs still require extraction from the article and separate qualification.",
+      "status": "ACQUIRED",
       "verified_this_session": true,
       "inherited_from": [
         "docs/WEGLER_SOURCE_STRUCTURE_RESULTS_20261016.md",
         "docs/E3_PUBLIC_DATA_PIVOT_SILVEIRA_CLOSED_TO_WEGLER54_20261018.md"
       ],
       "caveats": [
-        "15 donors cannot support high-dimensional selection; parsimony budgets must stay very small.",
-        "No measured RNA, so no transcript-to-protein comparison inside this cohort.",
+        "15 donors cannot support high-dimensional selection; parsimony budgets must stay very small, and any interval will be very wide.",
+        "No measured RNA, so no transcript-to-protein comparison inside this cohort. That comparison stays cross-cohort and descriptive.",
+        "NO PER-DONOR DEMOGRAPHICS. Table S1 gives age mean 64 (39-79), BMI mean 25.7 (20.1-32.9), 10 male and 5 female, 13 colorectal cancer, 1 breast cancer and 1 GIST - as aggregates only. No demographic baseline block can be built for these donors, so the only available baseline for a clearance model is the target enzyme's own abundance.",
         "The low-speed pellet preparation covers only 5 of the 15 donors, so any four-preparation comparison is limited to donors 1, 7, 11, 12 and 15.",
-        "Protein quantification is label-free MaxQuant LFQ from two proteases per donor; combining the two protease runs is an analysis decision, not a property of the deposit."
+        "Five substrates in 15 donors are NOT five independent validations, and the microsomal and hepatocyte readings of the same donors are not two cohorts.",
+        "Protein quantification is label-free from two proteases per donor; combining the two protease runs is an analysis decision, not a property of the deposit.",
+        "CYP2D6 protein spans 587-fold across the 15 microsomal donors while bufuralol CLint,mic spans only 3.5-fold and is ND for two donors. This project records the oddity and does not explain it.",
+        "No clinical pharmacokinetics, no dose, no patient. A result here is a functional proof at best and never a clinical-PK proof."
       ],
       "original_repository": "PRIDE PXD014131 (proteomics); the article for intrinsic clearance",
-      "licence": "CC0 (PRIDE deposit)",
+      "licence": "CC0 for the PRIDE deposit. Europe PMC records the article licence as CC BY; the supporting-information PDF carries no licence statement of its own, so that is the repository's assertion and not a term read from the document. Silence about terms is not permission: the per-donor rows are kept out of this repository regardless, and only aggregates plus the table's SHA-256 are committed.",
       "individual_level_data_released": true,
       "donor_structure_verified": {
         "homogenate": 15,
@@ -837,7 +858,31 @@
         "proteases_per_donor": 2,
         "source": "the four experimentaldesigntemplate.txt files, downloaded over the deposited FTP locations and parsed"
       },
-      "verification_method": "PRIDE API v3 project record and file manifest read (100 files: 83 raw, 17 processed); the four experimental-design templates downloaded and parsed to recover the per-preparation donor counts and the sample naming."
+      "verification_method": "PRIDE API v3 project record and file manifest read (100 files: 83 raw, 17 processed); the four experimental-design templates downloaded and parsed; and the article's three supporting-information files recovered and Table S3 reconstructed from word coordinates, then verified against twenty published correlation coefficients and one published median.",
+      "outcome_kind": "drug_specific_clint",
+      "remaining_requirement": "The Data S1 workbook is held locally and its sheets are enumerated, but no protein-to-clearance model has been fitted: that needs its own prespecification, frozen before the first fit, and 15 donors against 5,172 features means the honest prior is that nothing will be detected.",
+      "axis": "B",
+      "local_artifacts": [
+        {
+          "filename": "Wegler2021_PMC8041379_supplement/recovered/mp1c00053_si_001.pdf",
+          "bytes": 5227800,
+          "sha256": "5beaab1117a32bb281734504dc19237bd264b5db0857837dfd794a9319892bab",
+          "holds": "Table S1 donor characteristics (aggregates only), Table S3 the 825 per-donor kinetics values, Table S4 the twenty correlation anchors"
+        },
+        {
+          "filename": "Wegler2021_PMC8041379_supplement/recovered/mp1c00053_si_002.xlsx",
+          "bytes": 5391992,
+          "sha256": "8ce5df4f3e167915bbb963c8706b747360cf8ea9dd9538e7184d2a454d9c6ea6",
+          "holds": "Data S1: absolute protein concentrations, fmol/ug protein, 15 donors, four preparations, 4682 to 5172 proteins"
+        },
+        {
+          "filename": "Wegler2021_PMC8041379_supplement/recovered/mp1c00053_si_003.xlsx",
+          "bytes": 205895,
+          "sha256": "623b6f4813193c348aa4a213ea9c4f5d380230a8932145cab472420059b3b213",
+          "holds": "Data S2: DAVID enrichment output, not data"
+        }
+      ],
+      "per_donor_table_is_outside_this_repository": "Wegler2021_PMC8041379_supplement/extracted/wegler2021_table_s3_per_donor_kinetics.csv, sha256 recorded in reports/data/wegler_table_s3_per_donor_kinetics_audit.json"
     },
     {
       "key": "latham_tki_donors",
@@ -1407,6 +1452,11 @@
       "version": "1.12.0",
       "date": "2026-11-09",
       "change": "Qualifies three candidate sources against their authoritative endpoints rather than their abstracts, and corrects one existing entry. (1) Registers EATRIS-Plus v4 (Zenodo 19136013, MIT, open): 12 individual-level omic modalities, union 125 individuals, 127,620 features, complete case 55 at twelve layers, 79 at eleven and 114 at nine without the transcriptome. It supports NO objective in H1-H5 because it is blood-only with no pharmacological endpoint of any kind, and that is recorded as a caveat rather than left implicit. The ISA workbook claim of 127 individuals per assay is contradicted by the deposited data and the discrepancy is registered. (2) Registers Grangeon 2025 as ABSTAIN, usable only as a published comparator: no per-donor protein abundance and no per-donor activity value is published, the only per-donor table is a genotype table covering 10 of 16 donors for three genes with a zero-variance fourth, and recovering values would mean digitising scatter figures. Its published protein-to-activity Spearman correlations are recorded as comparator content. (3) CORRECTS wegler_15, which understated its own source: PRIDE PXD014131 is CC0 and carries per-sample MaxQuant matrices for four liver preparations with the donor mapping deposited, so individual-level proteomics does not depend on the article supplement. Donor structure verified as 15/15/15/5. No objective admissibility changed and no threshold, margin, comparator or primary contrast moved."
+    },
+    {
+      "version": "1.13.0",
+      "date": "2026-11-10",
+      "change": "Promotes wegler_15 from PARTIAL to ACQUIRED and records why. The per-donor intrinsic clearances the previous entry listed as an open requirement are published in Table S3 of the article supplement, and all 825 per-donor values are now held: five probe substrates times 15 donors times eleven columns, including intrinsic clearance in microsomes under three equations and in hepatocytes under two, the matching CYP concentration in three preparations, and Kpuu. Data S1 additionally publishes absolute protein concentrations for the same 15 donors across four preparations, which is a better proteome than the MaxQuant output the entry recorded. The outcome_kind is set to drug_specific_clint, which is one of the three the readiness gate accepts, so this source can now reach that gate rather than abstaining on its outcome. THREE THINGS ARE RECORDED AS LIMITATIONS RATHER THAN LEFT IMPLICIT. (1) A pdftotext reading of Table S3 mis-assigns donors, so the recovery was made from word coordinates and verified against twenty correlation coefficients the article itself publishes in Table S4 plus the median midazolam CLint,mic quoted in the Results; all twenty agree, eighteen to within 0.02, and the median recomputes to 374.7 against a published 375. A transcription that cannot be verified against its source is not a value. (2) There are NO per-donor demographics; Table S1 is aggregates only. (3) The per-donor rows stay out of this repository: only aggregates and the table's SHA-256 are committed, because Europe PMC's CC BY assertion is the repository's and not a term read from the document, and silence about terms is not permission. SEPARATELY, this source CORRECTS the project's own strongest number: recomputed from the verified table, the microsomal protein-to-clearance median Spearman is 0.412 across the five pairs, against the single published figure of 0.944 from a source that publishes no per-donor value at all; Grangeon's value falls outside this cohort's interval on 2 of 5 enzymes, and the HLC transcript correlation falls INSIDE it on 5 of 5, so these 15 donors cannot tell protein from transcript apart as an explanation of enzyme function. The 2026-11-09 interpretation is withdrawn in docs/OMICS2PK_PUBLIC_SOURCE_QUALIFICATION_20261109.md and replaced in docs/OMICS2PK_WEGLER_PER_DONOR_CLINT_QUALIFICATION_20261110.md. No other entry changed."
     }
   ],
   "knowledge_sources": [

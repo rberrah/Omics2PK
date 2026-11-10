@@ -211,6 +211,19 @@ What it *is* good for is a published benchmark, which §4 uses.
 
 ## 4. The consequence: how much of CYP activity does mRNA leave unexplained?
 
+> **SUPERSEDED IN PART, 2026-11-10.** The published protein figure below comes
+> from a single source that publishes **no per-donor value**, so it has no
+> interval and cannot be recomputed. An independent cohort that *can* be
+> recomputed — Wegler 2021 Table S3, 15 donors, verified against twenty of the
+> article's own published correlations — gives a **microsomal median Spearman
+> of 0.412**, not 0.944, and the HLC transcript correlation falls **inside**
+> that cohort's interval on **5 of 5** shared enzymes. The "9 of 9" statement
+> below therefore compares a figure with an interval against a figure without
+> one, and must not be quoted on its own. See
+> `docs/OMICS2PK_WEGLER_PER_DONOR_CLINT_QUALIFICATION_20261110.md` §4. The
+> table below is left unaltered because it is what was measured on
+> 2026-11-09; only its interpretation is withdrawn.
+
 **Label: `DESCRIPTIVE_CROSS_COHORT_COMPARISON`.** Artefact
 `reports/data/rna_versus_protein_activity_correlation.json`, script
 `scripts/compare_rna_versus_published_protein_activity_correlation.py`.

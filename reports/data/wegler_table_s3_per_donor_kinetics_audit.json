@@ -1,0 +1,724 @@
+{
+  "aggregates_only": {
+    "Bufuralol": {
+      "columns": {
+        "clint_hep_eq7": {
+          "fold_range": 6.64,
+          "max": 146.1,
+          "median": 65.7,
+          "min": 22.0,
+          "n": 15,
+          "n_not_determined": 0
+        },
+        "clint_hep_eq8": {
+          "fold_range": 6.86,
+          "max": 176.4,
+          "median": 66.6,
+          "min": 25.7,
+          "n": 15,
+          "n_not_determined": 0
+        },
+        "clint_mic_eq7": {
+          "fold_range": 3.47,
+          "max": 70.5,
+          "median": 37.0,
+          "min": 20.3,
+          "n": 13,
+          "n_not_determined": 2
+        },
+        "clint_mic_eq8": {
+          "fold_range": 40.93,
+          "max": 438.0,
+          "median": 26.9,
+          "min": 10.7,
+          "n": 13,
+          "n_not_determined": 2
+        },
+        "clint_mic_eq9": {
+          "fold_range": 116.7,
+          "max": 1377.1,
+          "median": 69.1,
+          "min": 11.8,
+          "n": 13,
+          "n_not_determined": 2
+        },
+        "cyp_pmol_in_incubation_HH": {
+          "fold_range": null,
+          "max": 21.1,
+          "median": 4.3,
+          "min": 0.0,
+          "n": 15,
+          "n_not_determined": 0
+        },
+        "cyp_pmol_in_incubation_HLM": {
+          "fold_range": null,
+          "max": 14.7,
+          "median": 5.9,
+          "min": 0.0,
+          "n": 15,
+          "n_not_determined": 0
+        },
+        "cyp_pmol_per_mg_HH": {
+          "fold_range": 274.0,
+          "max": 27.4,
+          "median": 7.0,
+          "min": 0.1,
+          "n": 15,
+          "n_not_determined": 0
+        },
+        "cyp_pmol_per_mg_HL": {
+          "fold_range": 203.0,
+          "max": 20.3,
+          "median": 6.1,
+          "min": 0.1,
+          "n": 15,
+          "n_not_determined": 0
+        },
+        "cyp_pmol_per_mg_HLM": {
+          "fold_range": 587.0,
+          "max": 58.7,
+          "median": 23.8,
+          "min": 0.1,
+          "n": 15,
+          "n_not_determined": 0
+        },
+        "kpuu_HH": {
+          "fold_range": 9.1,
+          "max": 7.28,
+          "median": 2.76,
+          "min": 0.8,
+          "n": 15,
+          "n_not_determined": 0
+        }
+      },
+      "cyp": "CYP2D6"
+    },
+    "Bupropion": {
+      "columns": {
+        "clint_hep_eq7": {
+          "fold_range": 2.88,
+          "max": 117.9,
+          "median": 68.9,
+          "min": 41.0,
+          "n": 15,
+          "n_not_determined": 0
+        },
+        "clint_hep_eq8": {
+          "fold_range": 4.43,
+          "max": 89.9,
+          "median": 58.6,
+          "min": 20.3,
+          "n": 15,
+          "n_not_determined": 0
+        },
+        "clint_mic_eq7": {
+          "fold_range": 8.32,
+          "max": 62.4,
+          "median": 24.5,
+          "min": 7.5,
+          "n": 15,
+          "n_not_determined": 0
+        },
+        "clint_mic_eq8": {
+          "fold_range": 8.32,
+          "max": 25.8,
+          "median": 15.0,
+          "min": 3.1,
+          "n": 15,
+          "n_not_determined": 0
+        },
+        "clint_mic_eq9": {
+          "fold_range": 6.34,
+          "max": 31.7,
+          "median": 12.7,
+          "min": 5.0,
+          "n": 15,
+          "n_not_determined": 0
+        },
+        "cyp_pmol_in_incubation_HH": {
+          "fold_range": 19.67,
+          "max": 5.9,
+          "median": 1.3,
+          "min": 0.3,
+          "n": 15,
+          "n_not_determined": 0
+        },
+        "cyp_pmol_in_incubation_HLM": {
+          "fold_range": 15.6,
+          "max": 7.8,
+          "median": 1.5,
+          "min": 0.5,
+          "n": 15,
+          "n_not_determined": 0
+        },
+        "cyp_pmol_per_mg_HH": {
+          "fold_range": 10.38,
+          "max": 8.3,
+          "median": 1.8,
+          "min": 0.8,
+          "n": 15,
+          "n_not_determined": 0
+        },
+        "cyp_pmol_per_mg_HL": {
+          "fold_range": 8.0,
+          "max": 5.6,
+          "median": 1.5,
+          "min": 0.7,
+          "n": 15,
+          "n_not_determined": 0
+        },
+        "cyp_pmol_per_mg_HLM": {
+          "fold_range": 14.86,
+          "max": 31.2,
+          "median": 6.2,
+          "min": 2.1,
+          "n": 15,
+          "n_not_determined": 0
+        },
+        "kpuu_HH": {
+          "fold_range": 6.43,
+          "max": 2.96,
+          "median": 1.24,
+          "min": 0.46,
+          "n": 15,
+          "n_not_determined": 0
+        }
+      },
+      "cyp": "CYP2B6"
+    },
+    "Diclofenac": {
+      "columns": {
+        "clint_hep_eq7": {
+          "fold_range": 2.42,
+          "max": 636.7,
+          "median": 392.3,
+          "min": 263.4,
+          "n": 15,
+          "n_not_determined": 0
+        },
+        "clint_hep_eq8": {
+          "fold_range": 3.56,
+          "max": 768.3,
+          "median": 333.5,
+          "min": 216.1,
+          "n": 15,
+          "n_not_determined": 0
+        },
+        "clint_mic_eq7": {
+          "fold_range": 6.08,
+          "max": 782.0,
+          "median": 494.1,
+          "min": 128.6,
+          "n": 15,
+          "n_not_determined": 0
+        },
+        "clint_mic_eq8": {
+          "fold_range": 5.95,
+          "max": 1182.2,
+          "median": 662.9,
+          "min": 198.6,
+          "n": 15,
+          "n_not_determined": 0
+        },
+        "clint_mic_eq9": {
+          "fold_range": 18.09,
+          "max": 1737.0,
+          "median": 454.8,
+          "min": 96.0,
+          "n": 15,
+          "n_not_determined": 0
+        },
+        "cyp_pmol_in_incubation_HH": {
+          "fold_range": 2.83,
+          "max": 37.4,
+          "median": 20.5,
+          "min": 13.2,
+          "n": 15,
+          "n_not_determined": 0
+        },
+        "cyp_pmol_in_incubation_HLM": {
+          "fold_range": 2.17,
+          "max": 14.3,
+          "median": 9.4,
+          "min": 6.6,
+          "n": 15,
+          "n_not_determined": 0
+        },
+        "cyp_pmol_per_mg_HH": {
+          "fold_range": 2.47,
+          "max": 46.6,
+          "median": 27.4,
+          "min": 18.9,
+          "n": 15,
+          "n_not_determined": 0
+        },
+        "cyp_pmol_per_mg_HL": {
+          "fold_range": 3.2,
+          "max": 42.3,
+          "median": 21.5,
+          "min": 13.2,
+          "n": 15,
+          "n_not_determined": 0
+        },
+        "cyp_pmol_per_mg_HLM": {
+          "fold_range": 2.19,
+          "max": 57.3,
+          "median": 37.6,
+          "min": 26.2,
+          "n": 15,
+          "n_not_determined": 0
+        },
+        "kpuu_HH": {
+          "fold_range": 8.56,
+          "max": 2.14,
+          "median": 0.49,
+          "min": 0.25,
+          "n": 15,
+          "n_not_determined": 0
+        }
+      },
+      "cyp": "CYP2C9"
+    },
+    "Midazolam": {
+      "columns": {
+        "clint_hep_eq7": {
+          "fold_range": 9.08,
+          "max": 413.1,
+          "median": 134.0,
+          "min": 45.5,
+          "n": 15,
+          "n_not_determined": 0
+        },
+        "clint_hep_eq8": {
+          "fold_range": 8.56,
+          "max": 356.3,
+          "median": 126.0,
+          "min": 41.6,
+          "n": 15,
+          "n_not_determined": 0
+        },
+        "clint_mic_eq7": {
+          "fold_range": 4.03,
+          "max": 818.9,
+          "median": 374.7,
+          "min": 203.4,
+          "n": 15,
+          "n_not_determined": 0
+        },
+        "clint_mic_eq8": {
+          "fold_range": 3.93,
+          "max": 387.2,
+          "median": 194.5,
+          "min": 98.5,
+          "n": 15,
+          "n_not_determined": 0
+        },
+        "clint_mic_eq9": {
+          "fold_range": 11.3,
+          "max": 232.7,
+          "median": 55.1,
+          "min": 20.6,
+          "n": 15,
+          "n_not_determined": 0
+        },
+        "cyp_pmol_in_incubation_HH": {
+          "fold_range": 6.23,
+          "max": 37.4,
+          "median": 17.5,
+          "min": 6.0,
+          "n": 15,
+          "n_not_determined": 0
+        },
+        "cyp_pmol_in_incubation_HLM": {
+          "fold_range": 3.6,
+          "max": 34.2,
+          "median": 18.8,
+          "min": 9.5,
+          "n": 15,
+          "n_not_determined": 0
+        },
+        "cyp_pmol_per_mg_HH": {
+          "fold_range": 6.35,
+          "max": 54.6,
+          "median": 22.4,
+          "min": 8.6,
+          "n": 15,
+          "n_not_determined": 0
+        },
+        "cyp_pmol_per_mg_HL": {
+          "fold_range": 3.27,
+          "max": 29.4,
+          "median": 18.9,
+          "min": 9.0,
+          "n": 15,
+          "n_not_determined": 0
+        },
+        "cyp_pmol_per_mg_HLM": {
+          "fold_range": 3.6,
+          "max": 136.6,
+          "median": 75.0,
+          "min": 37.9,
+          "n": 15,
+          "n_not_determined": 0
+        },
+        "kpuu_HH": {
+          "fold_range": 4.47,
+          "max": 0.67,
+          "median": 0.31,
+          "min": 0.15,
+          "n": 15,
+          "n_not_determined": 0
+        }
+      },
+      "cyp": "CYP3A4"
+    },
+    "Omeprazole": {
+      "columns": {
+        "clint_hep_eq7": {
+          "fold_range": 32.09,
+          "max": 144.4,
+          "median": 16.6,
+          "min": 4.5,
+          "n": 15,
+          "n_not_determined": 0
+        },
+        "clint_hep_eq8": {
+          "fold_range": 40.93,
+          "max": 118.7,
+          "median": 11.1,
+          "min": 2.9,
+          "n": 15,
+          "n_not_determined": 0
+        },
+        "clint_mic_eq7": {
+          "fold_range": 64.24,
+          "max": 109.2,
+          "median": 39.8,
+          "min": 1.7,
+          "n": 15,
+          "n_not_determined": 0
+        },
+        "clint_mic_eq8": {
+          "fold_range": null,
+          "max": 12.5,
+          "median": 1.4,
+          "min": 0.0,
+          "n": 15,
+          "n_not_determined": 0
+        },
+        "clint_mic_eq9": {
+          "fold_range": null,
+          "max": 18.9,
+          "median": 2.4,
+          "min": 0.0,
+          "n": 15,
+          "n_not_determined": 0
+        },
+        "cyp_pmol_in_incubation_HH": {
+          "fold_range": null,
+          "max": 4.3,
+          "median": 1.1,
+          "min": 0.0,
+          "n": 15,
+          "n_not_determined": 0
+        },
+        "cyp_pmol_in_incubation_HLM": {
+          "fold_range": 2.68,
+          "max": 22.0,
+          "median": 12.7,
+          "min": 8.2,
+          "n": 15,
+          "n_not_determined": 0
+        },
+        "cyp_pmol_per_mg_HH": {
+          "fold_range": 60.0,
+          "max": 6.0,
+          "median": 1.5,
+          "min": 0.1,
+          "n": 15,
+          "n_not_determined": 0
+        },
+        "cyp_pmol_per_mg_HL": {
+          "fold_range": 49.0,
+          "max": 4.9,
+          "median": 1.1,
+          "min": 0.1,
+          "n": 15,
+          "n_not_determined": 0
+        },
+        "cyp_pmol_per_mg_HLM": {
+          "fold_range": 2.68,
+          "max": 87.8,
+          "median": 50.9,
+          "min": 32.8,
+          "n": 15,
+          "n_not_determined": 0
+        },
+        "kpuu_HH": {
+          "fold_range": 3.69,
+          "max": 2.62,
+          "median": 1.43,
+          "min": 0.71,
+          "n": 15,
+          "n_not_determined": 0
+        }
+      },
+      "cyp": "CYP2C19"
+    }
+  },
+  "columns": [
+    "cyp_pmol_per_mg_HLM",
+    "cyp_pmol_per_mg_HH",
+    "cyp_pmol_per_mg_HL",
+    "cyp_pmol_in_incubation_HLM",
+    "cyp_pmol_in_incubation_HH",
+    "kpuu_HH",
+    "clint_mic_eq7",
+    "clint_mic_eq8",
+    "clint_mic_eq9",
+    "clint_hep_eq7",
+    "clint_hep_eq8"
+  ],
+  "doi": "10.1021/acs.molpharmaceut.1c00053",
+  "licence_caveat": "Europe PMC records the licence as CC BY. The supporting-information PDF carries no licence statement of its own, so this is the repository's assertion and not a term read from the document. Silence about terms is not permission: the per-donor rows are kept out of this repository regardless.",
+  "licence_recorded_by_europe_pmc": "cc by",
+  "n_donors": 15,
+  "n_substrates": 5,
+  "n_values_recovered": 825,
+  "per_donor_rows_are_not_in_this_repository": true,
+  "per_donor_table_sha256": "750a43095e223bfff7d22ad4d7709a67b5d36e2f7d3523c2c3be6d1af3d91917",
+  "per_donor_table_written_to": "C:\\Users\\abdel\\Documents\\Omics\\Wegler2021_PMC8041379_supplement\\extracted\\wegler2021_table_s3_per_donor_kinetics.csv",
+  "pmcid": "PMC8041379",
+  "source": "Wegler et al., Mol Pharm 2021, 18(4):1792-1805, Table S3",
+  "substrate_to_cyp": {
+    "Bufuralol": "CYP2D6",
+    "Bupropion": "CYP2B6",
+    "Diclofenac": "CYP2C9",
+    "Midazolam": "CYP3A4",
+    "Omeprazole": "CYP2C19"
+  },
+  "supporting_information_pdf_sha256": "5beaab1117a32bb281734504dc19237bd264b5db0857837dfd794a9319892bab",
+  "table_s3_pages": [
+    5,
+    6,
+    7
+  ],
+  "verification": {
+    "all_anchors_agree": true,
+    "checks": [
+      {
+        "absolute_difference": 0.0004,
+        "agrees": true,
+        "coefficient": "r",
+        "n_pairs": 15,
+        "published_in_table_s4": 0.94,
+        "recomputed": 0.9396,
+        "substrate": "Midazolam",
+        "system": "HH"
+      },
+      {
+        "absolute_difference": 0.0007,
+        "agrees": true,
+        "coefficient": "rs",
+        "n_pairs": 15,
+        "published_in_table_s4": 0.89,
+        "recomputed": 0.8893,
+        "substrate": "Midazolam",
+        "system": "HH"
+      },
+      {
+        "absolute_difference": 0.0038,
+        "agrees": true,
+        "coefficient": "r",
+        "n_pairs": 15,
+        "published_in_table_s4": 0.84,
+        "recomputed": 0.8362,
+        "substrate": "Midazolam",
+        "system": "HLM"
+      },
+      {
+        "absolute_difference": 0.0043,
+        "agrees": true,
+        "coefficient": "rs",
+        "n_pairs": 15,
+        "published_in_table_s4": 0.76,
+        "recomputed": 0.7643,
+        "substrate": "Midazolam",
+        "system": "HLM"
+      },
+      {
+        "absolute_difference": 0.0136,
+        "agrees": true,
+        "coefficient": "r",
+        "n_pairs": 15,
+        "published_in_table_s4": 0.88,
+        "recomputed": 0.8936,
+        "substrate": "Omeprazole",
+        "system": "HH"
+      },
+      {
+        "absolute_difference": 0.0036,
+        "agrees": true,
+        "coefficient": "rs",
+        "n_pairs": 15,
+        "published_in_table_s4": 0.9,
+        "recomputed": 0.8964,
+        "substrate": "Omeprazole",
+        "system": "HH"
+      },
+      {
+        "absolute_difference": 0.0051,
+        "agrees": true,
+        "coefficient": "r",
+        "n_pairs": 15,
+        "published_in_table_s4": 0.32,
+        "recomputed": 0.3251,
+        "substrate": "Omeprazole",
+        "system": "HLM"
+      },
+      {
+        "absolute_difference": 0.0014,
+        "agrees": true,
+        "coefficient": "rs",
+        "n_pairs": 15,
+        "published_in_table_s4": 0.47,
+        "recomputed": 0.4714,
+        "substrate": "Omeprazole",
+        "system": "HLM"
+      },
+      {
+        "absolute_difference": 0.0192,
+        "agrees": true,
+        "coefficient": "r",
+        "n_pairs": 15,
+        "published_in_table_s4": 0.73,
+        "recomputed": 0.7492,
+        "substrate": "Diclofenac",
+        "system": "HH"
+      },
+      {
+        "absolute_difference": 0.0179,
+        "agrees": true,
+        "coefficient": "rs",
+        "n_pairs": 15,
+        "published_in_table_s4": 0.75,
+        "recomputed": 0.7679,
+        "substrate": "Diclofenac",
+        "system": "HH"
+      },
+      {
+        "absolute_difference": 0.0028,
+        "agrees": true,
+        "coefficient": "r",
+        "n_pairs": 15,
+        "published_in_table_s4": 0.18,
+        "recomputed": 0.1772,
+        "substrate": "Diclofenac",
+        "system": "HLM"
+      },
+      {
+        "absolute_difference": 0.0007,
+        "agrees": true,
+        "coefficient": "rs",
+        "n_pairs": 15,
+        "published_in_table_s4": 0.11,
+        "recomputed": 0.1107,
+        "substrate": "Diclofenac",
+        "system": "HLM"
+      },
+      {
+        "absolute_difference": 0.0039,
+        "agrees": true,
+        "coefficient": "r",
+        "n_pairs": 15,
+        "published_in_table_s4": 0.4,
+        "recomputed": 0.4039,
+        "substrate": "Bupropion",
+        "system": "HH"
+      },
+      {
+        "absolute_difference": 0.0355,
+        "agrees": true,
+        "coefficient": "rs",
+        "n_pairs": 15,
+        "published_in_table_s4": 0.37,
+        "recomputed": 0.3345,
+        "substrate": "Bupropion",
+        "system": "HH"
+      },
+      {
+        "absolute_difference": 0.001,
+        "agrees": true,
+        "coefficient": "r",
+        "n_pairs": 15,
+        "published_in_table_s4": 0.33,
+        "recomputed": 0.331,
+        "substrate": "Bupropion",
+        "system": "HLM"
+      },
+      {
+        "absolute_difference": 0.0036,
+        "agrees": true,
+        "coefficient": "rs",
+        "n_pairs": 15,
+        "published_in_table_s4": 0.15,
+        "recomputed": 0.1464,
+        "substrate": "Bupropion",
+        "system": "HLM"
+      },
+      {
+        "absolute_difference": 0.0029,
+        "agrees": true,
+        "coefficient": "r",
+        "n_pairs": 15,
+        "published_in_table_s4": 0.13,
+        "recomputed": 0.1271,
+        "substrate": "Bufuralol",
+        "system": "HH"
+      },
+      {
+        "absolute_difference": 0.0128,
+        "agrees": true,
+        "coefficient": "rs",
+        "n_pairs": 15,
+        "published_in_table_s4": 0.36,
+        "recomputed": 0.3728,
+        "substrate": "Bufuralol",
+        "system": "HH"
+      },
+      {
+        "absolute_difference": 0.0121,
+        "agrees": true,
+        "coefficient": "r",
+        "n_pairs": 13,
+        "published_in_table_s4": 0.14,
+        "recomputed": 0.1279,
+        "substrate": "Bufuralol",
+        "system": "HLM"
+      },
+      {
+        "absolute_difference": 0.0021,
+        "agrees": true,
+        "coefficient": "rs",
+        "n_pairs": 13,
+        "published_in_table_s4": 0.41,
+        "recomputed": 0.4121,
+        "substrate": "Bufuralol",
+        "system": "HLM"
+      }
+    ],
+    "median_midazolam_clint_mic_eq7": {
+      "agrees": true,
+      "n_donors": 15,
+      "published_in_results": 375.0,
+      "recomputed": 374.7
+    },
+    "n_anchors": 20,
+    "n_anchors_agreeing": 20,
+    "required": 20,
+    "tolerance": 0.05,
+    "why_this_verification": "pdftotext -layout breaks the row correspondence of Table S3, so a text-order reading assigns one donor's clearance to another. Reproducing twenty correlation coefficients the article itself published, each of which would move far more than the tolerance under a single mis-assigned row, is what makes the coordinate reconstruction trustworthy."
+  },
+  "what_table_s1_does_not_give": "Table S1 reports donor characteristics as aggregates only: age mean 64 (39-79), BMI mean 25.7 (20.1-32.9), 10 male and 5 female, 13 colorectal cancer, 1 breast cancer, 1 GIST. There is no per-donor age, sex, BMI or diagnosis, so no per-donor demographic baseline block can be built for these 15 donors.",
+  "why_a_text_dump_will_not_do": "pdftotext -layout misaligns the clearance cells against the batch labels in this table. Any transcription that does not verify against the article's own published statistics should be assumed to have mis-assigned donors."
+}
