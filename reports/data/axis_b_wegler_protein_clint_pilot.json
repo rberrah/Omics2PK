@@ -69,8 +69,10 @@
         "microsomal_mean_benefit_log10": 0.0038308858686300074,
         "n_bootstrap": 2000,
         "n_independent_donors": 13,
+        "refits_the_model_inside_each_draw": false,
         "relative_change_vs_baseline": 10.491877490167859,
-        "resampling_unit": "donor"
+        "resampling_unit": "donor",
+        "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
       },
       "W2_vs_W1": {
         "direction": "degradation",
@@ -88,8 +90,10 @@
         "microsomal_mean_benefit_log10": -0.002105372972171291,
         "n_bootstrap": 2000,
         "n_independent_donors": 13,
+        "refits_the_model_inside_each_draw": false,
         "relative_change_vs_baseline": -0.8965625757814268,
-        "resampling_unit": "donor"
+        "resampling_unit": "donor",
+        "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
       },
       "definition": "A difference of differences over donors: the arm's benefit in microsomes minus the same arm's benefit in hepatocytes, on the donors present in both.",
       "n_donors_in_both_systems": 13,
@@ -112,8 +116,10 @@
         "microsomal_mean_benefit_log10": 0.013218262268739877,
         "n_bootstrap": 2000,
         "n_independent_donors": 15,
+        "refits_the_model_inside_each_draw": false,
         "relative_change_vs_baseline": 14.176775467313984,
-        "resampling_unit": "donor"
+        "resampling_unit": "donor",
+        "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
       },
       "W2_vs_W1": {
         "direction": "improvement",
@@ -131,8 +137,10 @@
         "microsomal_mean_benefit_log10": -0.009891985523030167,
         "n_bootstrap": 2000,
         "n_independent_donors": 15,
+        "refits_the_model_inside_each_draw": false,
         "relative_change_vs_baseline": -2.3090867227862897,
-        "resampling_unit": "donor"
+        "resampling_unit": "donor",
+        "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
       },
       "definition": "A difference of differences over donors: the arm's benefit in microsomes minus the same arm's benefit in hepatocytes, on the donors present in both.",
       "n_donors_in_both_systems": 15,
@@ -155,8 +163,10 @@
         "microsomal_mean_benefit_log10": 0.00039955927161955764,
         "n_bootstrap": 2000,
         "n_independent_donors": 15,
+        "refits_the_model_inside_each_draw": false,
         "relative_change_vs_baseline": -1.0101636592832117,
-        "resampling_unit": "donor"
+        "resampling_unit": "donor",
+        "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
       },
       "W2_vs_W1": {
         "direction": "improvement",
@@ -174,8 +184,10 @@
         "microsomal_mean_benefit_log10": 0.007676794563381654,
         "n_bootstrap": 2000,
         "n_independent_donors": 15,
+        "refits_the_model_inside_each_draw": false,
         "relative_change_vs_baseline": -0.6079647413332947,
-        "resampling_unit": "donor"
+        "resampling_unit": "donor",
+        "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
       },
       "definition": "A difference of differences over donors: the arm's benefit in microsomes minus the same arm's benefit in hepatocytes, on the donors present in both.",
       "n_donors_in_both_systems": 15,
@@ -198,8 +210,10 @@
         "microsomal_mean_benefit_log10": -0.051788459668288045,
         "n_bootstrap": 2000,
         "n_independent_donors": 15,
+        "refits_the_model_inside_each_draw": false,
         "relative_change_vs_baseline": -0.5566385806066444,
-        "resampling_unit": "donor"
+        "resampling_unit": "donor",
+        "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
       },
       "W2_vs_W1": {
         "direction": "degradation",
@@ -217,8 +231,10 @@
         "microsomal_mean_benefit_log10": 0.016064501461800666,
         "n_bootstrap": 2000,
         "n_independent_donors": 15,
+        "refits_the_model_inside_each_draw": false,
         "relative_change_vs_baseline": -4.850501009419967,
-        "resampling_unit": "donor"
+        "resampling_unit": "donor",
+        "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
       },
       "definition": "A difference of differences over donors: the arm's benefit in microsomes minus the same arm's benefit in hepatocytes, on the donors present in both.",
       "n_donors_in_both_systems": 15,
@@ -241,8 +257,10 @@
         "microsomal_mean_benefit_log10": 0.008352342904929817,
         "n_bootstrap": 2000,
         "n_independent_donors": 15,
+        "refits_the_model_inside_each_draw": false,
         "relative_change_vs_baseline": -1.0415156361454363,
-        "resampling_unit": "donor"
+        "resampling_unit": "donor",
+        "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
       },
       "W2_vs_W1": {
         "direction": "degradation",
@@ -260,8 +278,10 @@
         "microsomal_mean_benefit_log10": 0.012836703949638383,
         "n_bootstrap": 2000,
         "n_independent_donors": 15,
+        "refits_the_model_inside_each_draw": false,
         "relative_change_vs_baseline": -1.992935822874827,
-        "resampling_unit": "donor"
+        "resampling_unit": "donor",
+        "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
       },
       "definition": "A difference of differences over donors: the arm's benefit in microsomes minus the same arm's benefit in hepatocytes, on the donors present in both.",
       "n_donors_in_both_systems": 15,
@@ -291,7 +311,7 @@
       "Status ceiling": "exploratory",
       "Target scale": "log10"
     },
-    "prespecification_sha256": "a64f69af7c88bfb757cbb14cdf9a046478bafde7e7827b1c844195ffbd5e7c31",
+    "prespecification_sha256": "e249f8048843da8aff7e516db089e7e1ce6c4b006007d705de5481b9dce29542",
     "primary_contrast_stated": "**Primary contrast: `W2_target_cyp_plus_proteome` versus `W1_target_cyp`.**"
   },
   "proteome_blocks": {
@@ -334,8 +354,10 @@
           "mean_difference_log10": -0.005178312123462699,
           "n_bootstrap": 2000,
           "n_independent_donors": 15,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": -0.03501911216326963,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         },
         "primary_W2_vs_W1": {
           "direction": "improvement",
@@ -351,8 +373,10 @@
           "mean_difference_log10": -0.006414091163138084,
           "n_bootstrap": 2000,
           "n_independent_donors": 15,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": -0.0430167561117346,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         },
         "primary_W2_vs_W1_bonferroni": {
           "direction": "improvement",
@@ -368,8 +392,10 @@
           "mean_difference_log10": -0.006414091163138084,
           "n_bootstrap": 2000,
           "n_independent_donors": 15,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": -0.0430167561117346,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         },
         "secondary_W1_vs_W0": {
           "direction": "degradation",
@@ -385,8 +411,10 @@
           "mean_difference_log10": 0.001235779039675385,
           "n_bootstrap": 2000,
           "n_independent_donors": 15,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": 0.008357141046660523,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         },
         "secondary_W1_vs_W0_bonferroni": {
           "direction": "degradation",
@@ -402,8 +430,10 @@
           "mean_difference_log10": 0.001235779039675385,
           "n_bootstrap": 2000,
           "n_independent_donors": 15,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": 0.008357141046660523,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         }
       },
       "cyp": "CYP2D6",
@@ -461,8 +491,10 @@
           "mean_difference_log10": -0.012963045173050603,
           "n_bootstrap": 2000,
           "n_independent_donors": 15,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": -0.0876645366423054,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         },
         "primary_W2_vs_W1": {
           "direction": "improvement",
@@ -478,8 +510,10 @@
           "mean_difference_log10": -0.014198824212725987,
           "n_bootstrap": 2000,
           "n_independent_donors": 15,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": -0.09522586173118859,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         },
         "primary_W2_vs_W1_bonferroni": {
           "direction": "improvement",
@@ -495,8 +529,10 @@
           "mean_difference_log10": -0.014198824212725987,
           "n_bootstrap": 2000,
           "n_independent_donors": 15,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": -0.09522586173118859,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         },
         "secondary_W1_vs_W0": {
           "direction": "degradation",
@@ -512,8 +548,10 @@
           "mean_difference_log10": 0.001235779039675385,
           "n_bootstrap": 2000,
           "n_independent_donors": 15,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": 0.008357141046660523,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         },
         "secondary_W1_vs_W0_bonferroni": {
           "direction": "degradation",
@@ -529,8 +567,10 @@
           "mean_difference_log10": 0.001235779039675385,
           "n_bootstrap": 2000,
           "n_independent_donors": 15,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": 0.008357141046660523,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         }
       },
       "cyp": "CYP2D6",
@@ -613,8 +653,10 @@
           "mean_difference_log10": -0.012993878513094748,
           "n_bootstrap": 2000,
           "n_independent_donors": 15,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": -0.08787305172745868,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         },
         "primary_W2_vs_W1": {
           "direction": "improvement",
@@ -630,8 +672,10 @@
           "mean_difference_log10": -0.014229657552770133,
           "n_bootstrap": 2000,
           "n_independent_donors": 15,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": -0.09543264866873818,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         },
         "primary_W2_vs_W1_bonferroni": {
           "direction": "improvement",
@@ -647,8 +691,10 @@
           "mean_difference_log10": -0.014229657552770133,
           "n_bootstrap": 2000,
           "n_independent_donors": 15,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": -0.09543264866873818,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         },
         "secondary_W1_vs_W0": {
           "direction": "degradation",
@@ -664,8 +710,10 @@
           "mean_difference_log10": 0.001235779039675385,
           "n_bootstrap": 2000,
           "n_independent_donors": 15,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": 0.008357141046660523,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         },
         "secondary_W1_vs_W0_bonferroni": {
           "direction": "degradation",
@@ -681,8 +729,10 @@
           "mean_difference_log10": 0.001235779039675385,
           "n_bootstrap": 2000,
           "n_independent_donors": 15,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": 0.008357141046660523,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         }
       },
       "cyp": "CYP2D6",
@@ -740,8 +790,10 @@
           "mean_difference_log10": 0.006380885838595996,
           "n_bootstrap": 2000,
           "n_independent_donors": 15,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": 0.05198318712871974,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         },
         "primary_W2_vs_W1": {
           "direction": "degradation",
@@ -757,8 +809,10 @@
           "mean_difference_log10": 0.0055099325654710245,
           "n_bootstrap": 2000,
           "n_independent_donors": 15,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": 0.04457153595533456,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         },
         "primary_W2_vs_W1_bonferroni": {
           "direction": "degradation",
@@ -774,8 +828,10 @@
           "mean_difference_log10": 0.0055099325654710245,
           "n_bootstrap": 2000,
           "n_independent_donors": 15,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": 0.04457153595533456,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         },
         "secondary_W1_vs_W0": {
           "direction": "degradation",
@@ -791,8 +847,10 @@
           "mean_difference_log10": 0.000870953273124971,
           "n_bootstrap": 2000,
           "n_independent_donors": 15,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": 0.007095398369827016,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         },
         "secondary_W1_vs_W0_bonferroni": {
           "direction": "degradation",
@@ -808,8 +866,10 @@
           "mean_difference_log10": 0.000870953273124971,
           "n_bootstrap": 2000,
           "n_independent_donors": 15,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": 0.007095398369827016,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         }
       },
       "cyp": "CYP2B6",
@@ -867,8 +927,10 @@
           "mean_difference_log10": 0.008427355267620677,
           "n_bootstrap": 2000,
           "n_independent_donors": 15,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": 0.06865516747331744,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         },
         "primary_W2_vs_W1": {
           "direction": "degradation",
@@ -884,8 +946,10 @@
           "mean_difference_log10": 0.007556401994495706,
           "n_bootstrap": 2000,
           "n_independent_donors": 15,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": 0.06112605538972422,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         },
         "primary_W2_vs_W1_bonferroni": {
           "direction": "degradation",
@@ -901,8 +965,10 @@
           "mean_difference_log10": 0.007556401994495706,
           "n_bootstrap": 2000,
           "n_independent_donors": 15,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": 0.06112605538972422,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         },
         "secondary_W1_vs_W0": {
           "direction": "degradation",
@@ -918,8 +984,10 @@
           "mean_difference_log10": 0.000870953273124971,
           "n_bootstrap": 2000,
           "n_independent_donors": 15,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": 0.007095398369827016,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         },
         "secondary_W1_vs_W0_bonferroni": {
           "direction": "degradation",
@@ -935,8 +1003,10 @@
           "mean_difference_log10": 0.000870953273124971,
           "n_bootstrap": 2000,
           "n_independent_donors": 15,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": 0.007095398369827016,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         }
       },
       "cyp": "CYP2B6",
@@ -1019,8 +1089,10 @@
           "mean_difference_log10": 0.008538565098353764,
           "n_bootstrap": 2000,
           "n_independent_donors": 15,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": 0.06956116102778344,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         },
         "primary_W2_vs_W1": {
           "direction": "degradation",
@@ -1036,8 +1108,10 @@
           "mean_difference_log10": 0.007667611825228793,
           "n_bootstrap": 2000,
           "n_independent_donors": 15,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": 0.06202566584959973,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         },
         "primary_W2_vs_W1_bonferroni": {
           "direction": "degradation",
@@ -1053,8 +1127,10 @@
           "mean_difference_log10": 0.007667611825228793,
           "n_bootstrap": 2000,
           "n_independent_donors": 15,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": 0.06202566584959973,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         },
         "secondary_W1_vs_W0": {
           "direction": "degradation",
@@ -1070,8 +1146,10 @@
           "mean_difference_log10": 0.000870953273124971,
           "n_bootstrap": 2000,
           "n_independent_donors": 15,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": 0.007095398369827016,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         },
         "secondary_W1_vs_W0_bonferroni": {
           "direction": "degradation",
@@ -1087,8 +1165,10 @@
           "mean_difference_log10": 0.000870953273124971,
           "n_bootstrap": 2000,
           "n_independent_donors": 15,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": 0.007095398369827016,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         }
       },
       "cyp": "CYP2B6",
@@ -1146,8 +1226,10 @@
           "mean_difference_log10": -0.03530931193084766,
           "n_bootstrap": 2000,
           "n_independent_donors": 15,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": -0.3468024008863139,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         },
         "primary_W2_vs_W1": {
           "direction": "degradation",
@@ -1163,8 +1245,10 @@
           "mean_difference_log10": 0.0040032290040445066,
           "n_bootstrap": 2000,
           "n_independent_donors": 15,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": 0.06405025070105995,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         },
         "primary_W2_vs_W1_bonferroni": {
           "direction": "degradation",
@@ -1180,8 +1264,10 @@
           "mean_difference_log10": 0.0040032290040445066,
           "n_bootstrap": 2000,
           "n_independent_donors": 15,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": 0.06405025070105995,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         },
         "secondary_W1_vs_W0": {
           "direction": "improvement",
@@ -1197,8 +1283,10 @@
           "mean_difference_log10": -0.039312540934892164,
           "n_bootstrap": 2000,
           "n_independent_donors": 15,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": -0.38612147435394106,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         },
         "secondary_W1_vs_W0_bonferroni": {
           "direction": "improvement",
@@ -1214,8 +1302,10 @@
           "mean_difference_log10": -0.039312540934892164,
           "n_bootstrap": 2000,
           "n_independent_donors": 15,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": -0.38612147435394106,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         }
       },
       "cyp": "CYP2C9",
@@ -1273,8 +1363,10 @@
           "mean_difference_log10": -0.019730642639595727,
           "n_bootstrap": 2000,
           "n_independent_donors": 15,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": -0.19379120872824687,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         },
         "primary_W2_vs_W1": {
           "direction": "degradation",
@@ -1290,8 +1382,10 @@
           "mean_difference_log10": 0.01958189829529644,
           "n_bootstrap": 2000,
           "n_independent_donors": 15,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": 0.31330345921985414,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         },
         "primary_W2_vs_W1_bonferroni": {
           "direction": "degradation",
@@ -1307,8 +1401,10 @@
           "mean_difference_log10": 0.01958189829529644,
           "n_bootstrap": 2000,
           "n_independent_donors": 15,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": 0.31330345921985414,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         },
         "secondary_W1_vs_W0": {
           "direction": "improvement",
@@ -1324,8 +1420,10 @@
           "mean_difference_log10": -0.039312540934892164,
           "n_bootstrap": 2000,
           "n_independent_donors": 15,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": -0.38612147435394106,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         },
         "secondary_W1_vs_W0_bonferroni": {
           "direction": "improvement",
@@ -1341,8 +1439,10 @@
           "mean_difference_log10": -0.039312540934892164,
           "n_bootstrap": 2000,
           "n_independent_donors": 15,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": -0.38612147435394106,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         }
       },
       "cyp": "CYP2C9",
@@ -1425,8 +1525,10 @@
           "mean_difference_log10": -0.019729166268740883,
           "n_bootstrap": 2000,
           "n_independent_donors": 15,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": -0.19377670805040698,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         },
         "primary_W2_vs_W1": {
           "direction": "degradation",
@@ -1442,8 +1544,10 @@
           "mean_difference_log10": 0.019583374666151284,
           "n_bootstrap": 2000,
           "n_independent_donors": 15,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": 0.3133270806322902,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         },
         "primary_W2_vs_W1_bonferroni": {
           "direction": "degradation",
@@ -1459,8 +1563,10 @@
           "mean_difference_log10": 0.019583374666151284,
           "n_bootstrap": 2000,
           "n_independent_donors": 15,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": 0.3133270806322902,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         },
         "secondary_W1_vs_W0": {
           "direction": "improvement",
@@ -1476,8 +1582,10 @@
           "mean_difference_log10": -0.039312540934892164,
           "n_bootstrap": 2000,
           "n_independent_donors": 15,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": -0.38612147435394106,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         },
         "secondary_W1_vs_W0_bonferroni": {
           "direction": "improvement",
@@ -1493,8 +1601,10 @@
           "mean_difference_log10": -0.039312540934892164,
           "n_bootstrap": 2000,
           "n_independent_donors": 15,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": -0.38612147435394106,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         }
       },
       "cyp": "CYP2C9",
@@ -1552,8 +1662,10 @@
           "mean_difference_log10": -0.11910839494126228,
           "n_bootstrap": 2000,
           "n_independent_donors": 15,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": -0.6304302605406236,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         },
         "primary_W2_vs_W1": {
           "direction": "improvement",
@@ -1569,8 +1681,10 @@
           "mean_difference_log10": -0.0022997205664162007,
           "n_bootstrap": 2000,
           "n_independent_donors": 15,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": -0.031885985989481454,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         },
         "primary_W2_vs_W1_bonferroni": {
           "direction": "improvement",
@@ -1586,8 +1700,10 @@
           "mean_difference_log10": -0.0022997205664162007,
           "n_bootstrap": 2000,
           "n_independent_donors": 15,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": -0.031885985989481454,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         },
         "secondary_W1_vs_W0": {
           "direction": "improvement",
@@ -1603,8 +1719,10 @@
           "mean_difference_log10": -0.11680867437484607,
           "n_bootstrap": 2000,
           "n_independent_donors": 15,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": -0.6182580418101858,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         },
         "secondary_W1_vs_W0_bonferroni": {
           "direction": "improvement",
@@ -1620,8 +1738,10 @@
           "mean_difference_log10": -0.11680867437484607,
           "n_bootstrap": 2000,
           "n_independent_donors": 15,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": -0.6182580418101858,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         }
       },
       "cyp": "CYP3A4",
@@ -1679,8 +1799,10 @@
           "mean_difference_log10": -0.1209807292379665,
           "n_bootstrap": 2000,
           "n_independent_donors": 15,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": -0.6403403613279987,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         },
         "primary_W2_vs_W1": {
           "direction": "improvement",
@@ -1696,8 +1818,10 @@
           "mean_difference_log10": -0.004172054863120422,
           "n_bootstrap": 2000,
           "n_independent_donors": 15,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": -0.05784619438357022,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         },
         "primary_W2_vs_W1_bonferroni": {
           "direction": "improvement",
@@ -1713,8 +1837,10 @@
           "mean_difference_log10": -0.004172054863120422,
           "n_bootstrap": 2000,
           "n_independent_donors": 15,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": -0.05784619438357022,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         },
         "secondary_W1_vs_W0": {
           "direction": "improvement",
@@ -1730,8 +1856,10 @@
           "mean_difference_log10": -0.11680867437484607,
           "n_bootstrap": 2000,
           "n_independent_donors": 15,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": -0.6182580418101858,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         },
         "secondary_W1_vs_W0_bonferroni": {
           "direction": "improvement",
@@ -1747,8 +1875,10 @@
           "mean_difference_log10": -0.11680867437484607,
           "n_bootstrap": 2000,
           "n_independent_donors": 15,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": -0.6182580418101858,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         }
       },
       "cyp": "CYP3A4",
@@ -1831,8 +1961,10 @@
           "mean_difference_log10": -0.121000557875259,
           "n_bootstrap": 2000,
           "n_independent_donors": 15,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": -0.6404453125615421,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         },
         "primary_W2_vs_W1": {
           "direction": "improvement",
@@ -1848,8 +1980,10 @@
           "mean_difference_log10": -0.004191883500412915,
           "n_bootstrap": 2000,
           "n_independent_donors": 15,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": -0.058121121546518634,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         },
         "primary_W2_vs_W1_bonferroni": {
           "direction": "improvement",
@@ -1865,8 +1999,10 @@
           "mean_difference_log10": -0.004191883500412915,
           "n_bootstrap": 2000,
           "n_independent_donors": 15,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": -0.058121121546518634,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         },
         "secondary_W1_vs_W0": {
           "direction": "improvement",
@@ -1882,8 +2018,10 @@
           "mean_difference_log10": -0.11680867437484607,
           "n_bootstrap": 2000,
           "n_independent_donors": 15,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": -0.6182580418101858,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         },
         "secondary_W1_vs_W0_bonferroni": {
           "direction": "improvement",
@@ -1899,8 +2037,10 @@
           "mean_difference_log10": -0.11680867437484607,
           "n_bootstrap": 2000,
           "n_independent_donors": 15,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": -0.6182580418101858,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         }
       },
       "cyp": "CYP3A4",
@@ -1958,8 +2098,10 @@
           "mean_difference_log10": -0.19035723614798403,
           "n_bootstrap": 2000,
           "n_independent_donors": 15,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": -0.48644426871091145,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         },
         "primary_W2_vs_W1": {
           "direction": "degradation",
@@ -1975,8 +2117,10 @@
           "mean_difference_log10": 0.010828237095642297,
           "n_bootstrap": 2000,
           "n_independent_donors": 15,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": 0.05694925035430564,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         },
         "primary_W2_vs_W1_bonferroni": {
           "direction": "degradation",
@@ -1992,8 +2136,10 @@
           "mean_difference_log10": 0.010828237095642297,
           "n_bootstrap": 2000,
           "n_independent_donors": 15,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": 0.05694925035430564,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         },
         "secondary_W1_vs_W0": {
           "direction": "improvement",
@@ -2009,8 +2155,10 @@
           "mean_difference_log10": -0.20118547324362634,
           "n_bootstrap": 2000,
           "n_independent_donors": 15,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": -0.5141150522440536,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         },
         "secondary_W1_vs_W0_bonferroni": {
           "direction": "improvement",
@@ -2026,8 +2174,10 @@
           "mean_difference_log10": -0.20118547324362634,
           "n_bootstrap": 2000,
           "n_independent_donors": 15,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": -0.5141150522440536,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         }
       },
       "cyp": "CYP2C19",
@@ -2085,8 +2235,10 @@
           "mean_difference_log10": -0.21411350308595042,
           "n_bootstrap": 2000,
           "n_independent_donors": 15,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": -0.5471517055900461,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         },
         "primary_W2_vs_W1": {
           "direction": "improvement",
@@ -2102,8 +2254,10 @@
           "mean_difference_log10": -0.012928029842324084,
           "n_bootstrap": 2000,
           "n_independent_donors": 15,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": -0.06799274910361364,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         },
         "primary_W2_vs_W1_bonferroni": {
           "direction": "improvement",
@@ -2119,8 +2273,10 @@
           "mean_difference_log10": -0.012928029842324084,
           "n_bootstrap": 2000,
           "n_independent_donors": 15,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": -0.06799274910361364,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         },
         "secondary_W1_vs_W0": {
           "direction": "improvement",
@@ -2136,8 +2292,10 @@
           "mean_difference_log10": -0.20118547324362634,
           "n_bootstrap": 2000,
           "n_independent_donors": 15,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": -0.5141150522440536,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         },
         "secondary_W1_vs_W0_bonferroni": {
           "direction": "improvement",
@@ -2153,8 +2311,10 @@
           "mean_difference_log10": -0.20118547324362634,
           "n_bootstrap": 2000,
           "n_independent_donors": 15,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": -0.5141150522440536,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         }
       },
       "cyp": "CYP2C19",
@@ -2237,8 +2397,10 @@
           "mean_difference_log10": -0.2143906061255997,
           "n_bootstrap": 2000,
           "n_independent_donors": 15,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": -0.5478598225400892,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         },
         "primary_W2_vs_W1": {
           "direction": "improvement",
@@ -2254,8 +2416,10 @@
           "mean_difference_log10": -0.013205132881973372,
           "n_bootstrap": 2000,
           "n_independent_donors": 15,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": -0.06945012487397585,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         },
         "primary_W2_vs_W1_bonferroni": {
           "direction": "improvement",
@@ -2271,8 +2435,10 @@
           "mean_difference_log10": -0.013205132881973372,
           "n_bootstrap": 2000,
           "n_independent_donors": 15,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": -0.06945012487397585,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         },
         "secondary_W1_vs_W0": {
           "direction": "improvement",
@@ -2288,8 +2454,10 @@
           "mean_difference_log10": -0.20118547324362634,
           "n_bootstrap": 2000,
           "n_independent_donors": 15,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": -0.5141150522440536,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         },
         "secondary_W1_vs_W0_bonferroni": {
           "direction": "improvement",
@@ -2305,8 +2473,10 @@
           "mean_difference_log10": -0.20118547324362634,
           "n_bootstrap": 2000,
           "n_independent_donors": 15,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": -0.5141150522440536,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         }
       },
       "cyp": "CYP2C19",
@@ -2364,8 +2534,10 @@
           "mean_difference_log10": 0.012436956157323294,
           "n_bootstrap": 2000,
           "n_independent_donors": 13,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": 0.06864570025798632,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         },
         "primary_W2_vs_W1": {
           "direction": "degradation",
@@ -2381,8 +2553,10 @@
           "mean_difference_log10": 0.008606070288693287,
           "n_bootstrap": 2000,
           "n_independent_donors": 13,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": 0.046517557295114746,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         },
         "primary_W2_vs_W1_bonferroni": {
           "direction": "degradation",
@@ -2398,8 +2572,10 @@
           "mean_difference_log10": 0.008606070288693287,
           "n_bootstrap": 2000,
           "n_independent_donors": 13,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": 0.046517557295114746,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         },
         "secondary_W1_vs_W0": {
           "direction": "degradation",
@@ -2415,8 +2591,10 @@
           "mean_difference_log10": 0.0038308858686300074,
           "n_bootstrap": 2000,
           "n_independent_donors": 13,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": 0.021144550140243377,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         },
         "secondary_W1_vs_W0_bonferroni": {
           "direction": "degradation",
@@ -2432,8 +2610,10 @@
           "mean_difference_log10": 0.0038308858686300074,
           "n_bootstrap": 2000,
           "n_independent_donors": 13,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": 0.021144550140243377,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         }
       },
       "cyp": "CYP2D6",
@@ -2491,8 +2671,10 @@
           "mean_difference_log10": 0.0017255128964587167,
           "n_bootstrap": 2000,
           "n_independent_donors": 13,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": 0.009523957436470346,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         },
         "primary_W2_vs_W1": {
           "direction": "improvement",
@@ -2508,8 +2690,10 @@
           "mean_difference_log10": -0.002105372972171291,
           "n_bootstrap": 2000,
           "n_independent_donors": 13,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": -0.011379968391524073,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         },
         "primary_W2_vs_W1_bonferroni": {
           "direction": "improvement",
@@ -2525,8 +2709,10 @@
           "mean_difference_log10": -0.002105372972171291,
           "n_bootstrap": 2000,
           "n_independent_donors": 13,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": -0.011379968391524073,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         },
         "secondary_W1_vs_W0": {
           "direction": "degradation",
@@ -2542,8 +2728,10 @@
           "mean_difference_log10": 0.0038308858686300074,
           "n_bootstrap": 2000,
           "n_independent_donors": 13,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": 0.021144550140243377,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         },
         "secondary_W1_vs_W0_bonferroni": {
           "direction": "degradation",
@@ -2559,8 +2747,10 @@
           "mean_difference_log10": 0.0038308858686300074,
           "n_bootstrap": 2000,
           "n_independent_donors": 13,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": 0.021144550140243377,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         }
       },
       "cyp": "CYP2D6",
@@ -2643,8 +2833,10 @@
           "mean_difference_log10": 0.0017618564768620687,
           "n_bootstrap": 2000,
           "n_independent_donors": 13,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": 0.009724555596913445,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         },
         "primary_W2_vs_W1": {
           "direction": "improvement",
@@ -2660,8 +2852,10 @@
           "mean_difference_log10": -0.0020690293917679384,
           "n_bootstrap": 2000,
           "n_independent_donors": 13,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": -0.011183523960208691,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         },
         "primary_W2_vs_W1_bonferroni": {
           "direction": "improvement",
@@ -2677,8 +2871,10 @@
           "mean_difference_log10": -0.0020690293917679384,
           "n_bootstrap": 2000,
           "n_independent_donors": 13,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": -0.011183523960208691,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         },
         "secondary_W1_vs_W0": {
           "direction": "degradation",
@@ -2694,8 +2890,10 @@
           "mean_difference_log10": 0.0038308858686300074,
           "n_bootstrap": 2000,
           "n_independent_donors": 13,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": 0.021144550140243377,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         },
         "secondary_W1_vs_W0_bonferroni": {
           "direction": "degradation",
@@ -2711,8 +2909,10 @@
           "mean_difference_log10": 0.0038308858686300074,
           "n_bootstrap": 2000,
           "n_independent_donors": 13,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": 0.021144550140243377,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         }
       },
       "cyp": "CYP2D6",
@@ -2770,8 +2970,10 @@
           "mean_difference_log10": 0.002911165260702964,
           "n_bootstrap": 2000,
           "n_independent_donors": 15,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": 0.013774436521284442,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         },
         "primary_W2_vs_W1": {
           "direction": "improvement",
@@ -2787,8 +2989,10 @@
           "mean_difference_log10": -0.010307097008036914,
           "n_bootstrap": 2000,
           "n_independent_donors": 15,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": -0.04589830796546787,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         },
         "primary_W2_vs_W1_bonferroni": {
           "direction": "improvement",
@@ -2804,8 +3008,10 @@
           "mean_difference_log10": -0.010307097008036914,
           "n_bootstrap": 2000,
           "n_independent_donors": 15,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": -0.04589830796546787,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         },
         "secondary_W1_vs_W0": {
           "direction": "degradation",
@@ -2821,8 +3027,10 @@
           "mean_difference_log10": 0.013218262268739877,
           "n_bootstrap": 2000,
           "n_independent_donors": 15,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": 0.06254337979372596,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         },
         "secondary_W1_vs_W0_bonferroni": {
           "direction": "degradation",
@@ -2838,8 +3046,10 @@
           "mean_difference_log10": 0.013218262268739877,
           "n_bootstrap": 2000,
           "n_independent_donors": 15,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": 0.06254337979372596,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         }
       },
       "cyp": "CYP2B6",
@@ -2897,8 +3107,10 @@
           "mean_difference_log10": 0.003326276745709711,
           "n_bootstrap": 2000,
           "n_independent_donors": 15,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": 0.01573857331443264,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         },
         "primary_W2_vs_W1": {
           "direction": "improvement",
@@ -2914,8 +3126,10 @@
           "mean_difference_log10": -0.009891985523030167,
           "n_bootstrap": 2000,
           "n_independent_donors": 15,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": -0.044049784102348506,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         },
         "primary_W2_vs_W1_bonferroni": {
           "direction": "improvement",
@@ -2931,8 +3145,10 @@
           "mean_difference_log10": -0.009891985523030167,
           "n_bootstrap": 2000,
           "n_independent_donors": 15,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": -0.044049784102348506,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         },
         "secondary_W1_vs_W0": {
           "direction": "degradation",
@@ -2948,8 +3164,10 @@
           "mean_difference_log10": 0.013218262268739877,
           "n_bootstrap": 2000,
           "n_independent_donors": 15,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": 0.06254337979372596,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         },
         "secondary_W1_vs_W0_bonferroni": {
           "direction": "degradation",
@@ -2965,8 +3183,10 @@
           "mean_difference_log10": 0.013218262268739877,
           "n_bootstrap": 2000,
           "n_independent_donors": 15,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": 0.06254337979372596,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         }
       },
       "cyp": "CYP2B6",
@@ -3049,8 +3269,10 @@
           "mean_difference_log10": 0.003383401648538268,
           "n_bootstrap": 2000,
           "n_independent_donors": 15,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": 0.016008864856592118,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         },
         "primary_W2_vs_W1": {
           "direction": "improvement",
@@ -3066,8 +3288,10 @@
           "mean_difference_log10": -0.00983486062020161,
           "n_bootstrap": 2000,
           "n_independent_donors": 15,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": -0.04379540244857363,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         },
         "primary_W2_vs_W1_bonferroni": {
           "direction": "improvement",
@@ -3083,8 +3307,10 @@
           "mean_difference_log10": -0.00983486062020161,
           "n_bootstrap": 2000,
           "n_independent_donors": 15,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": -0.04379540244857363,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         },
         "secondary_W1_vs_W0": {
           "direction": "degradation",
@@ -3100,8 +3326,10 @@
           "mean_difference_log10": 0.013218262268739877,
           "n_bootstrap": 2000,
           "n_independent_donors": 15,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": 0.06254337979372596,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         },
         "secondary_W1_vs_W0_bonferroni": {
           "direction": "degradation",
@@ -3117,8 +3345,10 @@
           "mean_difference_log10": 0.013218262268739877,
           "n_bootstrap": 2000,
           "n_independent_donors": 15,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": 0.06254337979372596,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         }
       },
       "cyp": "CYP2B6",
@@ -3176,8 +3406,10 @@
           "mean_difference_log10": 0.0014956511326207492,
           "n_bootstrap": 2000,
           "n_independent_donors": 15,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": 0.007156139660738216,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         },
         "primary_W2_vs_W1": {
           "direction": "degradation",
@@ -3193,8 +3425,10 @@
           "mean_difference_log10": 0.0010960918610011916,
           "n_bootstrap": 2000,
           "n_independent_donors": 15,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": 0.0052343889354147105,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         },
         "primary_W2_vs_W1_bonferroni": {
           "direction": "degradation",
@@ -3210,8 +3444,10 @@
           "mean_difference_log10": 0.0010960918610011916,
           "n_bootstrap": 2000,
           "n_independent_donors": 15,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": 0.0052343889354147105,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         },
         "secondary_W1_vs_W0": {
           "direction": "degradation",
@@ -3227,8 +3463,10 @@
           "mean_difference_log10": 0.00039955927161955764,
           "n_bootstrap": 2000,
           "n_independent_donors": 15,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": 0.0019117439141320266,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         },
         "secondary_W1_vs_W0_bonferroni": {
           "direction": "degradation",
@@ -3244,8 +3482,10 @@
           "mean_difference_log10": 0.00039955927161955764,
           "n_bootstrap": 2000,
           "n_independent_donors": 15,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": 0.0019117439141320266,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         }
       },
       "cyp": "CYP2C9",
@@ -3303,8 +3543,10 @@
           "mean_difference_log10": 0.008076353835001212,
           "n_bootstrap": 2000,
           "n_independent_donors": 15,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": 0.03864237771246519,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         },
         "primary_W2_vs_W1": {
           "direction": "degradation",
@@ -3320,8 +3562,10 @@
           "mean_difference_log10": 0.007676794563381654,
           "n_bootstrap": 2000,
           "n_independent_donors": 15,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": 0.03666054821838791,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         },
         "primary_W2_vs_W1_bonferroni": {
           "direction": "degradation",
@@ -3337,8 +3581,10 @@
           "mean_difference_log10": 0.007676794563381654,
           "n_bootstrap": 2000,
           "n_independent_donors": 15,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": 0.03666054821838791,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         },
         "secondary_W1_vs_W0": {
           "direction": "degradation",
@@ -3354,8 +3600,10 @@
           "mean_difference_log10": 0.00039955927161955764,
           "n_bootstrap": 2000,
           "n_independent_donors": 15,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": 0.0019117439141320266,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         },
         "secondary_W1_vs_W0_bonferroni": {
           "direction": "degradation",
@@ -3371,8 +3619,10 @@
           "mean_difference_log10": 0.00039955927161955764,
           "n_bootstrap": 2000,
           "n_independent_donors": 15,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": 0.0019117439141320266,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         }
       },
       "cyp": "CYP2C9",
@@ -3455,8 +3705,10 @@
           "mean_difference_log10": 0.0080502874490735,
           "n_bootstrap": 2000,
           "n_independent_donors": 15,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": 0.038517659658848936,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         },
         "primary_W2_vs_W1": {
           "direction": "degradation",
@@ -3472,8 +3724,10 @@
           "mean_difference_log10": 0.007650728177453944,
           "n_bootstrap": 2000,
           "n_independent_donors": 15,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": 0.03653606813880624,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         },
         "primary_W2_vs_W1_bonferroni": {
           "direction": "degradation",
@@ -3489,8 +3743,10 @@
           "mean_difference_log10": 0.007650728177453944,
           "n_bootstrap": 2000,
           "n_independent_donors": 15,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": 0.03653606813880624,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         },
         "secondary_W1_vs_W0": {
           "direction": "degradation",
@@ -3506,8 +3762,10 @@
           "mean_difference_log10": 0.00039955927161955764,
           "n_bootstrap": 2000,
           "n_independent_donors": 15,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": 0.0019117439141320266,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         },
         "secondary_W1_vs_W0_bonferroni": {
           "direction": "degradation",
@@ -3523,8 +3781,10 @@
           "mean_difference_log10": 0.00039955927161955764,
           "n_bootstrap": 2000,
           "n_independent_donors": 15,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": 0.0019117439141320266,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         }
       },
       "cyp": "CYP2C9",
@@ -3582,8 +3842,10 @@
           "mean_difference_log10": -0.04750570678010577,
           "n_bootstrap": 2000,
           "n_independent_donors": 15,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": -0.3226475301452311,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         },
         "primary_W2_vs_W1": {
           "direction": "degradation",
@@ -3599,8 +3861,10 @@
           "mean_difference_log10": 0.004282752888182273,
           "n_bootstrap": 2000,
           "n_independent_donors": 15,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": 0.044869681488976,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         },
         "primary_W2_vs_W1_bonferroni": {
           "direction": "degradation",
@@ -3616,8 +3880,10 @@
           "mean_difference_log10": 0.004282752888182273,
           "n_bootstrap": 2000,
           "n_independent_donors": 15,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": 0.044869681488976,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         },
         "secondary_W1_vs_W0": {
           "direction": "improvement",
@@ -3633,8 +3899,10 @@
           "mean_difference_log10": -0.051788459668288045,
           "n_bootstrap": 2000,
           "n_independent_donors": 15,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": -0.3517349753229342,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         },
         "secondary_W1_vs_W0_bonferroni": {
           "direction": "improvement",
@@ -3650,8 +3918,10 @@
           "mean_difference_log10": -0.051788459668288045,
           "n_bootstrap": 2000,
           "n_independent_donors": 15,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": -0.3517349753229342,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         }
       },
       "cyp": "CYP3A4",
@@ -3709,8 +3979,10 @@
           "mean_difference_log10": -0.035723958206487376,
           "n_bootstrap": 2000,
           "n_independent_donors": 15,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": -0.24262867902770624,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         },
         "primary_W2_vs_W1": {
           "direction": "degradation",
@@ -3726,8 +3998,10 @@
           "mean_difference_log10": 0.016064501461800666,
           "n_bootstrap": 2000,
           "n_independent_donors": 15,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": 0.16830507916045512,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         },
         "primary_W2_vs_W1_bonferroni": {
           "direction": "degradation",
@@ -3743,8 +4017,10 @@
           "mean_difference_log10": 0.016064501461800666,
           "n_bootstrap": 2000,
           "n_independent_donors": 15,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": 0.16830507916045512,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         },
         "secondary_W1_vs_W0": {
           "direction": "improvement",
@@ -3760,8 +4036,10 @@
           "mean_difference_log10": -0.051788459668288045,
           "n_bootstrap": 2000,
           "n_independent_donors": 15,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": -0.3517349753229342,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         },
         "secondary_W1_vs_W0_bonferroni": {
           "direction": "improvement",
@@ -3777,8 +4055,10 @@
           "mean_difference_log10": -0.051788459668288045,
           "n_bootstrap": 2000,
           "n_independent_donors": 15,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": -0.3517349753229342,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         }
       },
       "cyp": "CYP3A4",
@@ -3861,8 +4141,10 @@
           "mean_difference_log10": -0.03596466434205989,
           "n_bootstrap": 2000,
           "n_independent_donors": 15,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": -0.2442634981978064,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         },
         "primary_W2_vs_W1": {
           "direction": "degradation",
@@ -3878,8 +4160,10 @@
           "mean_difference_log10": 0.01582379532622816,
           "n_bootstrap": 2000,
           "n_independent_donors": 15,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": 0.16578324147390938,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         },
         "primary_W2_vs_W1_bonferroni": {
           "direction": "degradation",
@@ -3895,8 +4179,10 @@
           "mean_difference_log10": 0.01582379532622816,
           "n_bootstrap": 2000,
           "n_independent_donors": 15,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": 0.16578324147390938,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         },
         "secondary_W1_vs_W0": {
           "direction": "improvement",
@@ -3912,8 +4198,10 @@
           "mean_difference_log10": -0.051788459668288045,
           "n_bootstrap": 2000,
           "n_independent_donors": 15,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": -0.3517349753229342,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         },
         "secondary_W1_vs_W0_bonferroni": {
           "direction": "improvement",
@@ -3929,8 +4217,10 @@
           "mean_difference_log10": -0.051788459668288045,
           "n_bootstrap": 2000,
           "n_independent_donors": 15,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": -0.3517349753229342,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         }
       },
       "cyp": "CYP3A4",
@@ -3988,8 +4278,10 @@
           "mean_difference_log10": 0.02074741933801955,
           "n_bootstrap": 2000,
           "n_independent_donors": 15,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": 0.06019775202437601,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         },
         "primary_W2_vs_W1": {
           "direction": "degradation",
@@ -4005,8 +4297,10 @@
           "mean_difference_log10": 0.012395076433089732,
           "n_bootstrap": 2000,
           "n_independent_donors": 15,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": 0.035112861523957595,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         },
         "primary_W2_vs_W1_bonferroni": {
           "direction": "degradation",
@@ -4022,8 +4316,10 @@
           "mean_difference_log10": 0.012395076433089732,
           "n_bootstrap": 2000,
           "n_independent_donors": 15,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": 0.035112861523957595,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         },
         "secondary_W1_vs_W0": {
           "direction": "degradation",
@@ -4039,8 +4335,10 @@
           "mean_difference_log10": 0.008352342904929817,
           "n_bootstrap": 2000,
           "n_independent_donors": 15,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": 0.024233966587456832,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         },
         "secondary_W1_vs_W0_bonferroni": {
           "direction": "degradation",
@@ -4056,8 +4354,10 @@
           "mean_difference_log10": 0.008352342904929817,
           "n_bootstrap": 2000,
           "n_independent_donors": 15,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": 0.024233966587456832,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         }
       },
       "cyp": "CYP2C19",
@@ -4115,8 +4415,10 @@
           "mean_difference_log10": 0.0211890468545682,
           "n_bootstrap": 2000,
           "n_independent_donors": 15,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": 0.061479115421683925,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         },
         "primary_W2_vs_W1": {
           "direction": "degradation",
@@ -4132,8 +4434,10 @@
           "mean_difference_log10": 0.012836703949638383,
           "n_bootstrap": 2000,
           "n_independent_donors": 15,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": 0.03636390712399483,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         },
         "primary_W2_vs_W1_bonferroni": {
           "direction": "degradation",
@@ -4149,8 +4453,10 @@
           "mean_difference_log10": 0.012836703949638383,
           "n_bootstrap": 2000,
           "n_independent_donors": 15,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": 0.03636390712399483,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         },
         "secondary_W1_vs_W0": {
           "direction": "degradation",
@@ -4166,8 +4472,10 @@
           "mean_difference_log10": 0.008352342904929817,
           "n_bootstrap": 2000,
           "n_independent_donors": 15,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": 0.024233966587456832,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         },
         "secondary_W1_vs_W0_bonferroni": {
           "direction": "degradation",
@@ -4183,8 +4491,10 @@
           "mean_difference_log10": 0.008352342904929817,
           "n_bootstrap": 2000,
           "n_independent_donors": 15,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": 0.024233966587456832,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         }
       },
       "cyp": "CYP2C19",
@@ -4267,8 +4577,10 @@
           "mean_difference_log10": 0.021212055918126138,
           "n_bootstrap": 2000,
           "n_independent_donors": 15,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": 0.06154587523791975,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         },
         "primary_W2_vs_W1": {
           "direction": "degradation",
@@ -4284,8 +4596,10 @@
           "mean_difference_log10": 0.01285971301319632,
           "n_bootstrap": 2000,
           "n_independent_donors": 15,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": 0.03642908736446104,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         },
         "primary_W2_vs_W1_bonferroni": {
           "direction": "degradation",
@@ -4301,8 +4615,10 @@
           "mean_difference_log10": 0.01285971301319632,
           "n_bootstrap": 2000,
           "n_independent_donors": 15,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": 0.03642908736446104,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         },
         "secondary_W1_vs_W0": {
           "direction": "degradation",
@@ -4318,8 +4634,10 @@
           "mean_difference_log10": 0.008352342904929817,
           "n_bootstrap": 2000,
           "n_independent_donors": 15,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": 0.024233966587456832,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         },
         "secondary_W1_vs_W0_bonferroni": {
           "direction": "degradation",
@@ -4335,8 +4653,10 @@
           "mean_difference_log10": 0.008352342904929817,
           "n_bootstrap": 2000,
           "n_independent_donors": 15,
+          "refits_the_model_inside_each_draw": false,
           "relative_change_vs_baseline": 0.024233966587456832,
-          "resampling_unit": "donor"
+          "resampling_unit": "donor",
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one."
         }
       },
       "cyp": "CYP2C19",
@@ -4377,7 +4697,7 @@
       "target_cyp_removed_from_the_block": true
     }
   },
-  "runtime_seconds": 297.2,
+  "runtime_seconds": 337.9,
   "sample_size_projection": {
     "how_to_read_the_primary_projection": "The primary contrast shows no benefit, so the most favourable value inside its interval is near zero and the donors it would take to detect runs into the hundreds of thousands. That is not an absurdity to be hidden; it is the finding, stated as a design requirement: the proteome-beyond-the-enzyme question is not worth sizing a study for at this effect size.",
     "per_substrate": {

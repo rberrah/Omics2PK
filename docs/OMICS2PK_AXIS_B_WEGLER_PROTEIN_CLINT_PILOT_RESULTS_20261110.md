@@ -1,6 +1,6 @@
-# Axis B results — the enzyme predicts its own clearance in hepatocytes, and the rest of the proteome adds nothing
+# Axis B results — the enzyme predicts its own clearance in hepatocytes, and two principal components of the rest of the proteome add nothing
 
-**Version 1.0.0 — 2026-11-10.** Protocol:
+**Version 1.1.0 — 2026-11-10.** Protocol:
 `docs/OMICS2PK_AXIS_B_WEGLER_PROTEIN_CLINT_PILOT_PRESPECIFICATION_20261110.md`
 (v1.0.1; v1.0.0 frozen before any model was fitted).
 Artefact: `reports/data/axis_b_wegler_protein_clint_pilot.json`.
@@ -21,7 +21,7 @@ Reported in the three separated sections the protocol requires.
 | Question | Answer |
 |---|---|
 | **Q1. Does the target CYP's own abundance predict its substrate's intrinsic clearance?** | **In hepatocytes, yes, for 2 of 5 substrates after Bonferroni** (midazolam/CYP3A4, omeprazole/CYP2C19) and a third unadjusted (diclofenac/CYP2C9). **In microsomes, for none of the five.** |
-| **Q2. Does the rest of the microsomal proteome add?** | **No, in any of the ten cells.** Not one arm improved with an interval excluding zero. The only interval that excludes zero is a **degradation**. |
+| **Q2. Do *two prespecified principal components* of the rest of the microsomal proteome add?** | **No, in any of the ten cells.** Not one arm improved with an interval excluding zero; the only interval that excludes zero is a **degradation**. **This does not show the other 4,037 proteins are uninformative** — see §4. |
 | **Q3. Do these relationships differ between the two systems?** | **Yes, paired on the same donors, for 3 of 5 substrates** — the enzyme's abundance is more informative in hepatocytes. **Not a causal compartment effect.** |
 
 ---
@@ -62,7 +62,7 @@ clearance from "wrong by a factor of 1.55" to "wrong by a factor of 1.18", and
 omeprazole's from ×2.46 to ×1.55. That is the strongest single statement this
 pilot supports.
 
-### 1.2 Q2 — the rest of the proteome (`W2` versus `W1`, k = 2) — the primary contrast
+### 1.2 Q2 — two components of the rest of the proteome (`W2` versus `W1`, k = 2) — the primary contrast
 
 | System | Substrate | Δ MAE (log₁₀) | unadjusted 95 % | Bonferroni 99.00 % | permutation null (median, range) | rank p |
 |---|---|---|---|---|---|---|
@@ -159,12 +159,13 @@ Each statement carries its caveat, and none is pharmacokinetic.
   bufuralol `CLint,mic` spans 3.5-fold and is undetermined for two donors —
   the enzyme cannot be rate-limiting in that assay. This pilot records the
   oddity and does not explain it.
-- **The rest of the proteome adds nothing, and this is a real negative rather
-  than an underpowered shrug for one specific reason:** the direction is
+- **A two-component summary of the rest of the proteome adds nothing, and that
+  much is a real negative rather than an underpowered shrug:** the direction is
   *against* a benefit in six of ten cells, the one significant interval is a
   degradation, and the k = 1 sensitivity shows five significant degradations.
   A design with no power tends to produce intervals around zero, not a
-  consistent small cost.
+  consistent small cost. **What it does not show is that the other 4,037
+  proteins carry no mechanism** (§4).
 - **What this does not license.** Nothing about enzyme induction, about drug–
   drug interaction, about transporters, or about any in-vivo quantity. The
   endpoint is an in-vitro depletion clearance scaled with literature constants.
@@ -274,6 +275,40 @@ substrate at a time with the correction for five.
 
 ## 4. What may not be concluded
 
+### 4.0 Two limits named by the reviewer of 2026-11-10, both correct
+
+**(i) The null on `W2` is a statement about two principal components, not about
+the other 4,037 proteins.** A mechanism carried by a handful of proteins with
+little variance across these 15 donors would not appear in the leading
+directions of a standardised 4,037-column block, and this design would not see
+it. Nothing here licenses "the rest of the proteome is uninformative"; what it
+licenses is "**the leading one or two directions of the rest of the proteome do
+not improve on the target enzyme's own abundance, and adding them costs a
+little.**" The restriction was deliberate — the commissioning note asked for a
+parsimonious pilot rather than a free search over 5,172 proteins, and a free
+search at n = 15 would have produced an uninterpretable winner — but the price
+of that choice is exactly this limit on the conclusion. **Testing a
+few-protein mechanism needs a hypothesis fixed in advance from outside these
+data, or more donors; it is not available from this pilot and was never
+claimed.**
+
+**(ii) The intervals do not include the uncertainty of learning on 15 donors.**
+`paired_bootstrap` resamples the **stored out-of-fold per-donor errors** and
+does not refit the model inside each draw. It therefore propagates the
+variability of the donors used for *scoring* and not the variability of the
+components, the standardisation constants and the penalty that were estimated
+on 14 donors. **Every interval in this document is therefore narrower than a
+fully nested one would be.** It is reported as a descriptive interval, its
+resampling unit is recorded in the artefact, and the conclusion it supports is
+a negative one — a fully nested interval would be wider still and would not
+turn a non-detection into a detection. Where the intervals carry a *positive*
+claim (Q1, hepatocyte CYP3A4 and CYP2C19) the understatement matters more, and
+those two claims should be read as **"detected under a descriptive interval
+that does not price in the learning variance"**. Closing that gap means a
+refitting bootstrap, which is a new computation and was not run: the
+commissioning note's instruction for this stage was to stop optimising this
+cohort.
+
 - **An interval containing zero means no difference was detected.** It is never
   a demonstration that there is none, and at n = 15 the power is low by
   construction. For Q2 the evidence against a benefit rests on the *direction
@@ -310,9 +345,10 @@ substrate at a time with the correction for five.
    any substrate. A single-enzyme demonstration would have been misleading;
    five substrates in two systems is what makes the limit visible.
 3. **A parsimonious mechanistic representation is not improved by a
-   reduced-rank summary of the rest of the proteome** — in ten cells, with two
-   declared sensitivities agreeing and a permutation null that explains what a
-   naive reading would have called a small gain.
+   two-component reduced-rank summary of the rest of the proteome** — in ten
+   cells, with two declared sensitivities agreeing and a permutation null that
+   explains what a naive reading would have called a small gain. The claim is
+   about that representation, not about the proteome (§4).
 4. **The public record's limit is now quantified rather than asserted.** The
    only public source with same-donor proteome and drug-specific intrinsic
    clearance has 15 donors, no demographics, no transcriptome and no patient.
@@ -334,10 +370,21 @@ the entire public record provides (§3.1). That projection is post-hoc and
 labelled as such, and it rests on a dispersion estimated from 15 donors, so it
 is an order of magnitude and not a protocol.
 
+**That number sizes one thing and one thing only.** It is the donor count for
+`W1` versus `W0` — the abundance of **one** enzyme against the mean, for
+**two** enzymes, on an **in-vitro** clearance, under a descriptive interval
+(§4.0 ii). It is **not** a sample size for a multi-omic complementarity study,
+**not** one for a clinical-pharmacokinetic study, and **not** one for a
+few-protein mechanism (§4.0 i). Those designs have different effects,
+different dispersions and different numbers of comparisons, and none of them
+can be sized from this pilot. Quoting 150–200 for any of them would be a
+misuse of it.
+
 ---
 
 ## 6. Change log
 
 | Version | Date | Change |
 |---|---|---|
+| 1.1.0 | 2026-11-10 | **Three claims narrowed after review, no number recomputed.** (1) The Q2 conclusion said "the rest of the proteome adds nothing"; what was tested is **two prespecified principal components** of it, and a mechanism carried by a few low-variance proteins would be invisible in the leading directions of a standardised 4,037-column block. The title, §0, §1.2, §2 and §5 are rescoped and §4.0 (i) states the limit. (2) The intervals come from a bootstrap of **stored out-of-fold errors without refitting**, so they price the scoring donors' variability and not the variability of the components, the standardisation constants and the penalty estimated on 14 donors. **Every interval here is narrower than a fully nested one**, which matters most for the two positive Q1 claims; §4.0 (ii) says so and records that closing the gap needs a refitting bootstrap that was not run. (3) The 150-200 donor figure sizes `W1` versus `W0` for two enzymes on an in-vitro endpoint and **cannot** size a multi-omic complementarity study, a clinical-PK study, or a few-protein mechanism; §5 says so explicitly. No arm, endpoint, fold, loss, interval or projection changed. |
 | 1.0.0 | 2026-11-10 | First write-up. Reports all ten primary cells with unadjusted and Bonferroni-adjusted intervals and their permutation nulls, both declared sensitivities, the paired system comparison, the three losses per arm, and the sample-size projection with the defect of the freeze that made a post-hoc projection necessary. Records that the circularity check forbade two of the article's three clearance equations and that the donor mapping is not the identity. |

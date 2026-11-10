@@ -318,6 +318,17 @@ class TestIntervals:
         assert out["mean_difference_log10"] == 0.0
         assert out["interval_excludes_zero"] is False
 
+    def test_every_interval_declares_that_it_does_not_refit(self, mod):
+        """Limitation (ii): the draws do not re-estimate the model."""
+        out = mod.paired_bootstrap(
+            np.linspace(0.1, 0.5, 15), np.linspace(0.2, 0.6, 15), n_boot=100
+        )
+        assert out["refits_the_model_inside_each_draw"] is False
+        note = out["what_this_interval_does_not_price"]
+        assert "NARROWER" in note
+        assert "learning on 14 donors" in note
+        assert "POSITIVE finding" in note
+
     def test_non_detection_is_never_called_equivalence(self, mod):
         errors = np.linspace(0.1, 0.5, 15)
         out = mod.paired_bootstrap(errors, errors.copy(), n_boot=200)
@@ -676,6 +687,56 @@ class TestCommittedReport:
         text = _normalise(PRESPEC.read_text(encoding="utf-8"))
         assert "One defect of this freeze, found by running it" in text
         assert "The prespecified projection is unaltered" in text
+
+    def test_the_committed_intervals_all_declare_the_refit_caveat(self, payload):
+        for key, cell in payload["results"].items():
+            for name, contrast in cell["contrasts"].items():
+                assert contrast["refits_the_model_inside_each_draw"] is False, (
+                    f"{key}/{name}"
+                )
+                assert "NARROWER" in contrast["what_this_interval_does_not_price"]
+
+    def test_the_document_states_both_reviewer_limits(self):
+        document = (
+            REPO / "docs"
+            / "OMICS2PK_AXIS_B_WEGLER_PROTEIN_CLINT_PILOT_RESULTS_20261110.md"
+        )
+        text = _normalise(document.read_text(encoding="utf-8"))
+        assert "Two limits named by the reviewer" in text
+        assert "not about the other 4,037 proteins" in text
+        assert "narrower than a fully nested one would be" in text
+        assert "It is the donor count for" in text
+        assert "not** a sample size for a multi-omic complementarity study" in text
+
+    def test_the_q2_claim_is_scoped_to_two_components(self):
+        document = (
+            REPO / "docs"
+            / "OMICS2PK_AXIS_B_WEGLER_PROTEIN_CLINT_PILOT_RESULTS_20261110.md"
+        )
+        text = document.read_text(encoding="utf-8")
+        first_line = text.splitlines()[0]
+        assert "two principal components" in first_line, (
+            "the title must not claim the whole proteome adds nothing"
+        )
+        # The unqualified claim is forbidden; the scoped one is required. The
+        # change log is excluded because it QUOTES the withdrawn wording, which
+        # is a record of the correction rather than a surviving claim.
+        body = text.split("## 6. Change log")[0]
+        normalised = _normalise(body)
+        for match in re.finditer(
+            r"(.{0,40})rest of the proteome adds nothing", normalised
+        ):
+            prefix = match.group(1)
+            assert any(
+                qualifier in prefix
+                for qualifier in (
+                    "two-component summary of the",
+                    "two principal components of the",
+                )
+            ), (
+                "an unqualified 'rest of the proteome adds nothing' survives: "
+                f"...{prefix}"
+            )
 
     def test_the_results_document_quotes_the_artefacts_own_numbers(self, payload):
         """A write-up that drifts from its artefact is the easiest error here."""

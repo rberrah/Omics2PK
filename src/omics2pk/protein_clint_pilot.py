@@ -349,6 +349,18 @@ def paired_bootstrap(errors_new, errors_baseline, *, n_boot=None, seed=None,
         "n_bootstrap": int(n_boot),
         "resampling_unit": "donor",
         "exploratory": True,
+        "refits_the_model_inside_each_draw": False,
+        "what_this_interval_does_not_price": (
+            "The draws resample the STORED out-of-fold per-donor errors; the "
+            "components, the standardisation constants and the ridge penalty "
+            "are not re-estimated inside each draw. The interval therefore "
+            "carries the variability of the donors used for SCORING and not "
+            "the variability of learning on 14 donors, so it is NARROWER than "
+            "a fully nested bootstrap would be. It is a descriptive interval. "
+            "A wider interval cannot turn a non-detection into a detection, "
+            "so this understates the uncertainty of a POSITIVE finding more "
+            "than that of a negative one."
+        ),
         "how_to_read": (
             "An interval containing zero means no difference was DETECTED. It "
             "is never a demonstration that there is none, and at n=15 the "
