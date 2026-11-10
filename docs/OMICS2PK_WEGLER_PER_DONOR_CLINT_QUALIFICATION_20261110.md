@@ -206,6 +206,14 @@ explanation of enzyme function, for any of the five enzymes.** The previous
 "9 of 9" statement rested on a comparison in which only one side had an
 interval.
 
+**"Cannot tell apart" is not "the same".** An interval wide enough to contain
+both values is a statement about this cohort's resolution, not about the two
+layers being equivalent; at n = 15 that interval contains almost everything, so
+it would be wrong to read non-exclusion as evidence of equality. No sentence in
+this project may conclude RNA/protein equivalence from a wide interval. What
+the data supports is narrower and is the whole point: **the size of the
+difference is not established, and the sample sizes available are why.**
+
 **What is *not* being claimed:**
 
 - Not that Grangeon is wrong. Its arithmetic cannot be checked because it

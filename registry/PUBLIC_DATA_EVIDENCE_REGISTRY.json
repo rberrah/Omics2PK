@@ -1,6 +1,6 @@
 {
   "registry_name": "PUBLIC_DATA_EVIDENCE_REGISTRY",
-  "version": "1.13.0",
+  "version": "1.14.0",
   "frozen_at": "2026-11-07",
   "scope": "Datasets admissible for the Omics2PK five-objective validation (H1-H5). A published article is not by itself an exploitable dataset.",
   "access_policy": {
@@ -860,7 +860,7 @@
       },
       "verification_method": "PRIDE API v3 project record and file manifest read (100 files: 83 raw, 17 processed); the four experimental-design templates downloaded and parsed; and the article's three supporting-information files recovered and Table S3 reconstructed from word coordinates, then verified against twenty published correlation coefficients and one published median.",
       "outcome_kind": "drug_specific_clint",
-      "remaining_requirement": "The Data S1 workbook is held locally and its sheets are enumerated, but no protein-to-clearance model has been fitted: that needs its own prespecification, frozen before the first fit, and 15 donors against 5,172 features means the honest prior is that nothing will be detected.",
+      "remaining_requirement": "The protein-to-clearance pilot has now been fitted and reported (docs/OMICS2PK_AXIS_B_WEGLER_PROTEIN_CLINT_PILOT_RESULTS_20261110.md). What remains is not in this source: a cohort with more donors, a transcriptome on the SAME donors so the layer comparison stops being cross-cohort, and a donor-matched in-vivo endpoint. None of the three exists in any public dataset this project has qualified.",
       "axis": "B",
       "local_artifacts": [
         {
@@ -882,7 +882,18 @@
           "holds": "Data S2: DAVID enrichment output, not data"
         }
       ],
-      "per_donor_table_is_outside_this_repository": "Wegler2021_PMC8041379_supplement/extracted/wegler2021_table_s3_per_donor_kinetics.csv, sha256 recorded in reports/data/wegler_table_s3_per_donor_kinetics_audit.json"
+      "per_donor_table_is_outside_this_repository": "Wegler2021_PMC8041379_supplement/extracted/wegler2021_table_s3_per_donor_kinetics.csv, sha256 recorded in reports/data/wegler_table_s3_per_donor_kinetics_audit.json",
+      "executed_axis_b_result": {
+        "protocol": "docs/OMICS2PK_AXIS_B_WEGLER_PROTEIN_CLINT_PILOT_PRESPECIFICATION_20261110.md",
+        "artefact": "reports/data/axis_b_wegler_protein_clint_pilot.json",
+        "q1_target_enzyme_predicts_its_clearance": "In HEPATOCYTES for 2 of 5 substrates after Bonferroni over five (midazolam/CYP3A4 -0.1168 log10 MAE, adjusted interval [-0.2276, -0.0303]; omeprazole/CYP2C19 -0.2012, [-0.3646, -0.0204]) and a third unadjusted (diclofenac/CYP2C9). In MICROSOMES for none of the five.",
+        "q2_rest_of_the_proteome_adds": "No, in none of the ten cells. The only interval excluding zero is a DEGRADATION (hepatocyte diclofenac +0.0196, adjusted [+0.0069, +0.0326]). Both declared sensitivities agree, and the permutation null's median is positive in eight of ten cells, which is the differential-shrinkage artefact the freeze predicted.",
+        "q3_paired_system_difference": "Excludes zero for 3 of 5 substrates, the enzyme's abundance being more informative in hepatocytes (omeprazole +0.2095 [+0.0637, +0.3533], midazolam +0.0650, diclofenac +0.0397). Reported as a paired comparison of experimental systems and explicitly NOT as a causal compartment effect.",
+        "circularity_check": "Clearance equations 8 and 9 are scaled by the CYP amount and are FORBIDDEN as endpoints; only equation 7 was used.",
+        "donor_mapping": "Table S3 UU1-UU15 and Data S1 1-15 agree for donors 1-9 and are permuted for 10-15; the bijection is re-derived every run.",
+        "status_ceiling": "exploratory, in vitro intrinsic clearance only",
+        "never_a_clinical_pk_result": true
+      }
     },
     {
       "key": "latham_tki_donors",
@@ -1457,6 +1468,11 @@
       "version": "1.13.0",
       "date": "2026-11-10",
       "change": "Promotes wegler_15 from PARTIAL to ACQUIRED and records why. The per-donor intrinsic clearances the previous entry listed as an open requirement are published in Table S3 of the article supplement, and all 825 per-donor values are now held: five probe substrates times 15 donors times eleven columns, including intrinsic clearance in microsomes under three equations and in hepatocytes under two, the matching CYP concentration in three preparations, and Kpuu. Data S1 additionally publishes absolute protein concentrations for the same 15 donors across four preparations, which is a better proteome than the MaxQuant output the entry recorded. The outcome_kind is set to drug_specific_clint, which is one of the three the readiness gate accepts, so this source can now reach that gate rather than abstaining on its outcome. THREE THINGS ARE RECORDED AS LIMITATIONS RATHER THAN LEFT IMPLICIT. (1) A pdftotext reading of Table S3 mis-assigns donors, so the recovery was made from word coordinates and verified against twenty correlation coefficients the article itself publishes in Table S4 plus the median midazolam CLint,mic quoted in the Results; all twenty agree, eighteen to within 0.02, and the median recomputes to 374.7 against a published 375. A transcription that cannot be verified against its source is not a value. (2) There are NO per-donor demographics; Table S1 is aggregates only. (3) The per-donor rows stay out of this repository: only aggregates and the table's SHA-256 are committed, because Europe PMC's CC BY assertion is the repository's and not a term read from the document, and silence about terms is not permission. SEPARATELY, this source CORRECTS the project's own strongest number: recomputed from the verified table, the microsomal protein-to-clearance median Spearman is 0.412 across the five pairs, against the single published figure of 0.944 from a source that publishes no per-donor value at all; Grangeon's value falls outside this cohort's interval on 2 of 5 enzymes, and the HLC transcript correlation falls INSIDE it on 5 of 5, so these 15 donors cannot tell protein from transcript apart as an explanation of enzyme function. The 2026-11-09 interpretation is withdrawn in docs/OMICS2PK_PUBLIC_SOURCE_QUALIFICATION_20261109.md and replaced in docs/OMICS2PK_WEGLER_PER_DONOR_CLINT_QUALIFICATION_20261110.md. No other entry changed."
+    },
+    {
+      "version": "1.14.0",
+      "date": "2026-11-10",
+      "change": "Records the executed Axis B pilot on wegler_15 and closes its open requirement. No source, status, access tier, licence or objective changed; only wegler_15 gains an executed-result record and a restated remaining requirement, which is now about data this source does not contain rather than about data not yet extracted from it. The headline: the target enzyme's own absolute abundance predicts its substrate's intrinsic clearance in HEPATOCYTES for CYP3A4 and CYP2C19 after Bonferroni, and in MICROSOMES for no substrate at all; a reduced-rank summary of the remaining 4,037 microsomal proteins adds nothing in any of the ten cells, with the one significant interval being a degradation. Two pre-freeze checks are recorded because either would have corrupted the experiment without failing it: clearance equations 8 and 9 are scaled by the CYP amount and are therefore circular against a CYP-abundance predictor, and the article's two data files number their donors differently for donors 10 to 15."
     }
   ],
   "knowledge_sources": [

@@ -252,8 +252,17 @@ they are like-for-like in form.
 - **On 9 of 9 evaluable enzymes the published protein correlation lies entirely
   above the bootstrap interval of this cohort's transcript correlation.**
 
-In rank-variance terms, the median enzyme: mRNA accounts for about **26 %**,
-protein for about **89 %**.
+> ~~In rank-variance terms, the median enzyme: mRNA accounts for about 26 %,
+> protein for about 89 %.~~
+>
+> **WITHDRAWN, 2026-11-10 — this sentence was not a valid statistic.** It
+> squares a **Spearman** coefficient and reads the result as a fraction of
+> variance explained. The square of a Pearson coefficient is a variance
+> fraction; the square of a rank correlation is not, because the ranks are not
+> the quantity whose variance is being apportioned. No percentage of explained
+> variance may be derived from any ρ in this project, and none appears
+> anywhere else. The correlations themselves (the table above) stand as
+> measured; only this derived reading is struck.
 
 `CYP1A2_activity` is `NOT_EVALUABLE` here for the same reason as in the
 F-series: none of its four probes is admissible under the frozen identity rule.

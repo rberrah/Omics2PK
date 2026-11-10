@@ -159,10 +159,26 @@ class TestWeglerCorrection(unittest.TestCase):
                       "supporting_information_pdf_sha256"):
             self.assertRegex(endpoint[field], r"^[0-9a-f]{64}$")
 
-    def test_what_remains_is_named_and_is_no_longer_the_data(self):
+    def test_what_remains_is_named_and_is_no_longer_in_this_source(self):
+        """Updated 2026-11-10: the pilot was fitted, so the gap moved."""
         remaining = self.entry["remaining_requirement"]
-        self.assertIn("no protein-to-clearance model has been fitted", remaining)
-        self.assertIn("15 donors", remaining)
+        self.assertIn("has now been fitted and reported", remaining)
+        self.assertIn("not in this source", remaining)
+        for needed in ("more donors", "transcriptome on the SAME donors",
+                       "donor-matched in-vivo endpoint"):
+            self.assertIn(needed, remaining)
+
+    def test_the_executed_axis_b_result_is_recorded(self):
+        result = self.entry["executed_axis_b_result"]
+        self.assertTrue(result["never_a_clinical_pk_result"])
+        self.assertIn("exploratory", result["status_ceiling"])
+        self.assertIn("HEPATOCYTES", result["q1_target_enzyme_predicts_its_clearance"])
+        self.assertIn("MICROSOMES for none", result["q1_target_enzyme_predicts_its_clearance"])
+        self.assertIn("DEGRADATION", result["q2_rest_of_the_proteome_adds"])
+        self.assertIn("NOT as a causal compartment effect",
+                      result["q3_paired_system_difference"])
+        self.assertIn("FORBIDDEN as endpoints", result["circularity_check"])
+        self.assertIn("permuted for 10-15", result["donor_mapping"])
 
     def test_the_absence_of_per_donor_demographics_is_a_caveat(self):
         caveats = " ".join(self.entry["caveats"])

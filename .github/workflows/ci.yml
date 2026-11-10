@@ -54,6 +54,7 @@ jobs:
           tests/test_multiomic_layer_complementarity.py
           tests/test_ariana_statistical_ablation.py
           tests/test_wegler_per_donor_clint.py
+          tests/test_wegler_protein_clint_pilot.py
       - name: Fail if a pytest module was collected but ran nothing
         run: |
           set -euo pipefail
@@ -81,9 +82,10 @@ jobs:
             tests/test_multiomic_layer_complementarity.py \
             tests/test_ariana_statistical_ablation.py \
             tests/test_wegler_per_donor_clint.py \
+            tests/test_wegler_protein_clint_pilot.py \
             | grep -c '::' || true)
           echo "collected $count pytest tests"
-          if [ "$count" -lt 1000 ]; then
-            echo "ERROR: expected at least 1000 collected tests, got $count." >&2
+          if [ "$count" -lt 1090 ]; then
+            echo "ERROR: expected at least 1090 collected tests, got $count." >&2
             exit 1
           fi
