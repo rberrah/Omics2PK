@@ -1,6 +1,6 @@
 {
   "registry_name": "PUBLIC_DATA_EVIDENCE_REGISTRY",
-  "version": "1.17.0",
+  "version": "1.18.0",
   "frozen_at": "2026-11-07",
   "scope": "Datasets admissible for the Omics2PK five-objective validation (H1-H5). A published article is not by itself an exploitable dataset.",
   "access_policy": {
@@ -1837,6 +1837,88 @@
       "axis": "C",
       "per_donor_table_is_outside_this_repository": true,
       "executed_axis_c2_result": "NOT_SUPPORTED in both the primary and the sensitivity analysis. The plasma 4-beta-HC/cholesterol ratio does not predict a dose-normalised venetoclax trough out of sample: the primary paired effect is +0.0006 log10 with a refitting patient-level interval of [-0.111, +0.190] and a rank p of 0.1493, and with both visits the biomarker arm is WORSE than the mean. This is the project's FIRST clinical-PK row and it is negative. It bounds the ARIANA claim -- two drugs, two endogenous phenotype markers, two enzyme families, opposite answers -- without refuting it, since the drug, the enzyme, the marker and the baseline all differ."
+    },
+    {
+      "key": "lee_venlafaxine_solanidine_20",
+      "label": "Lee 2026 venlafaxine DDGI with solanidine n=20 (Korean)",
+      "citation": "Exploratory Evaluation of Solanidine as an Endogenous Marker for CYP2D6-Mediated Drug-Drug-Gene Interactions of Venlafaxine in Koreans. Clin Transl Sci 2026.",
+      "pmcid": "PMC13106024",
+      "access_tier": "open_public",
+      "licence": "cc by-nc-nd",
+      "access_note": "Open access. The Europe PMC supplementaryFiles endpoint returns ONLY images for this article across two attempts (one HTTP 500, one 200 delivering a single jpg), and BioStudies has no S-EPMC record for it yet, so the supplement could not be opened. That is recorded as a channel limit; it is NOT the reason for the verdict.",
+      "n_analysed": 20,
+      "omics_layers": [
+        {
+          "layer": "targeted_metabolomics",
+          "analytes": "plasma solanidine and 3,4-seco-solanidine-3,4-dioic acid (SSDA), and their log metabolic ratio, before and after paroxetine co-administration",
+          "identification_quality": "measured per participant, published as group means by CYP2D6 phenotype"
+        }
+      ],
+      "endpoint": {
+        "name": "venlafaxine and O-desmethylvenlafaxine Cmax and AUCinf, with and without paroxetine",
+        "endpoint_class": "pk_clinical",
+        "per_donor_values_held": false,
+        "why_not": "main-text Table 2 publishes PK parameters as mean +/- SD BY CYP2D6 PHENOTYPE (NM n=14, IM n=6), Table 3 publishes the solanidine ratio the same way, and supplement Table S1 is 'Pharmacokinetic parameters ... according to CYP2D6 GENOTYPE' -- grouped as well. No individual row is published anywhere in the article."
+      },
+      "objectives_supported": [],
+      "status": "ABSTAIN",
+      "abstain_reason": "ABSTAIN_NO_PER_DONOR_VALUES",
+      "verified_this_session": true,
+      "inherited_from": [
+        "docs/OMICS2PK_FUSING_REFUTATION_PROTOCOL_20261110.md"
+      ],
+      "caveats": [
+        "THIS IS THE CLOSEST STRUCTURAL ANALOGUE OF ARIANA FOUND SO FAR: an endogenous CYP2D6 marker, a CYP2D6 substrate's exposure, and a genotype, in the same participants -- plus a within-subject inhibitor perturbation, which ARIANA does not have. It fails only on individual-level publication, which makes it the single best target for a data request if that instrument is ever used.",
+        "Twenty participants split 14 normal / 6 intermediate metabolisers; no poor metaboliser. Below the project's donor floor of ten for a subgroup analysis and barely above it overall.",
+        "East Asian population with lower dietary potato intake, which the article itself raises as a limit on solanidine's applicability."
+      ],
+      "original_repository": "Europe PMC",
+      "individual_level_data_released": false,
+      "donor_structure_verified": true,
+      "verification_method": "main-text Tables 1-3 read from the Europe PMC fullTextXML; the supplement's Table S1 title read from the article's own supplementary-material list",
+      "outcome_kind": "clinical_pk",
+      "axis": "C"
+    },
+    {
+      "key": "kyoto_jmicc_cyp2c19_metabolome_686",
+      "label": "Kyoto J-MICC untargeted plasma metabolome and CYP2C19 group n=686",
+      "citation": "Search for Novel Biomarkers to Predict Cytochrome P450 2C19 Activity Using Untargeted Metabolomics of Human Plasma. Metabolites 2026;16:670.",
+      "pmcid": "PMC13609000",
+      "access_tier": "open_public",
+      "licence": "cc by",
+      "access_note": "Open access, CC BY; supplement retrieved and it contains a single figure file. Main-text tables read in full.",
+      "n_analysed": 686,
+      "omics_layers": [
+        {
+          "layer": "untargeted_metabolomics",
+          "analytes": "plasma, 12 analytical units, 6,326 to 7,092 compounds detected per unit, 1,770 to 1,802 retained after excluding those with zero intensity in >20 % of participants",
+          "identification_quality": "the six candidate compounds are reported at MSI LEVEL 3 -- tentative identifications by chemical class, NOT confirmed against analytical standards"
+        }
+      ],
+      "endpoint": {
+        "name": "CYP2C19 metaboliser status DERIVED FROM GENOTYPE (*2, *3, *17), not a measured activity",
+        "endpoint_class": "biomarker_only",
+        "per_donor_values_held": false,
+        "why_not": "Table 1 gives demographics by metaboliser group, Table 2 gives compound counts per analytical unit, Table 3 gives the six candidate compounds' retention time and m/z, and Table 4 gives optimism-corrected AUCs. No per-participant intensity or genotype row is published, and the supplement is one figure."
+      },
+      "objectives_supported": [],
+      "status": "ABSTAIN",
+      "abstain_reason": "ABSTAIN_NO_PER_DONOR_VALUES",
+      "verified_this_session": true,
+      "inherited_from": [
+        "docs/OMICS2PK_FUSING_REFUTATION_PROTOCOL_20261110.md"
+      ],
+      "caveats": [
+        "THE ENDPOINT IS A GENOTYPE CLASS, NOT A FUNCTION. Even with individual rows it could not support H1: predicting genotype-derived metaboliser status from a metabolome is a phenotyping question, not a pharmacokinetic one, and nothing here involves a drug.",
+        "MSI level 3 identifications. The project's standing rule forbids treating a tentatively named metabolite as a structure confirmed by an analytical standard.",
+        "USEFUL AS A PUBLISHED COMPARATOR: at n=686 it reports optimism-corrected AUCs with Holm adjustment for metabolite-based prediction of poor-metaboliser status. That is an external, properly-corrected benchmark for the kind of untargeted discovery this project has only been able to run at n<=100."
+      ],
+      "original_repository": "Europe PMC",
+      "individual_level_data_released": false,
+      "donor_structure_verified": true,
+      "verification_method": "main-text Tables 1-4 and the supplement read in full",
+      "outcome_kind": null,
+      "axis": "C"
     }
   ],
   "phase1_findings": {
@@ -2035,6 +2117,12 @@
       "summary": "Adds the project's first clinical-pharmacokinetic dataset outside ARIANA: twelve venetoclax patients with a per-patient plasma CYP3A metabolite and a per-patient dose and concentration. Executed the same day; the contrast is NEGATIVE.",
       "corrects": "the note in docs/OMICS2PK_INDEPENDENT_REPOSITORY_SEARCH_20261110.md section 7 which inferred, from a retrieval channel that returns only images for this article, that these patients' biomarker values were published only in a figure. They are in supplement Table S3. The inference was made after that same document had documented the channel that works, which is the part worth remembering.",
       "consequence_for_the_ledger": "the statement 'no clinical-PK row at all' becomes 'one clinical-PK contrast executed on a second drug, with no gain detected'."
+    },
+    {
+      "version": "1.18.0",
+      "date": "2026-11-10",
+      "summary": "Two further sources qualified while searching for an independent ARIANA replication, both ABSTAIN. The venlafaxine cohort is the closest structural analogue of ARIANA found so far and fails only on individual-level publication; the Kyoto J-MICC metabolome has 686 participants, no individual rows, a genotype-derived endpoint and MSI level 3 identifications.",
+      "consequence": "the independent replication of ARIANA remains NOT_EVALUABLE, which is recorded as experiment E6 in docs/OMICS2PK_FUSING_REFUTATION_PROTOCOL_20261110.md"
     }
   ],
   "knowledge_sources": [
