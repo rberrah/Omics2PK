@@ -7,6 +7,41 @@ Companion to `OMICS2PK_METHOD_AUDIT_AND_HYBRID_FUSING_ASSESSMENT_20261110.md`.
 The commissioning note's condition is that implementation starts only after a
 test exists that can refute the interest of Fusing. This document is that test.
 
+### Relationship to `docs/HYBRID_FUSING_CONCEPT.md`
+
+That document states the **decision philosophy**; this one states the
+**experiment that can refute it**. They were written in parallel and reached
+several of the same conclusions independently, which is worth recording because
+agreement arrived at twice is stronger evidence than agreement arrived at once:
+
+| Both documents independently require | Where |
+|---|---|
+| "Fusing" is a working label, **not** an originality or performance claim | concept §1; assessment §5.2 |
+| stacking, BMA, mixtures of experts and mechanistic priors are **mandatory comparators** | concept §1; this protocol §2 |
+| three distinct operators — qualify, select, integrate-or-abstain | concept §2; assessment §4.2 |
+| integration is **not obligatory**; abstention and reversion to a simpler comparator are results | concept §2C; this protocol §3 |
+| **"do not reinvent π_m under the Fusing name"** | concept §4; assessment §0 and §5.3(2) |
+| conditional selection must be tested **against baseline residuals**, not against the raw outcome | concept §4 (H4); assessment §1.4 and §5.3(2) |
+| fusing densities is **not** fusing structural equations | concept §3; this protocol §5.2 (E7) |
+| within- **and** between-model variance both reported | concept §3; this protocol §4 |
+| `NOT_EVALUABLE` is an explicit permitted result | concept §3.6; this protocol §5.2 |
+| no formula of the shape *w = mechanistic × statistical* is authorised | concept §3; assessment §5.3(1) |
+
+**What this protocol adds to the concept document**, and the reason it exists
+separately:
+
+1. an **audit** establishing that the hybrid selection rule already exists in
+   this repository, has been tested on nine endpoints, and is detectably worse
+   than a univariate filter in 21 of 72 cells;
+2. a **computable ceiling**, L_cvx, that bounds every member of the fusion
+   family and can therefore refute the architecture **before** it is built;
+3. **data verdicts**: of seven candidate experiments, one is fully evaluable
+   and three are `NOT_EVALUABLE`;
+4. a **roadmap whose first implementation step is the fifth**.
+
+Where the two documents differ in emphasis, the concept document governs the
+philosophy and this one governs what is run.
+
 ---
 
 ## 0. Why a refutation test is possible before any code

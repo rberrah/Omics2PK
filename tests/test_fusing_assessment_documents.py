@@ -19,6 +19,7 @@ STATE = ROOT / "docs" / "OMICS2PK_H1_H5_SCIENTIFIC_STATE_20261110.md"
 AUDIT = (ROOT / "docs"
          / "OMICS2PK_METHOD_AUDIT_AND_HYBRID_FUSING_ASSESSMENT_20261110.md")
 PROTOCOL = ROOT / "docs" / "OMICS2PK_FUSING_REFUTATION_PROTOCOL_20261110.md"
+CONCEPT = ROOT / "docs" / "HYBRID_FUSING_CONCEPT.md"
 PROTOCOL_FROZEN = (ROOT / "docs"
                    / "OMICS2PK_FIVE_OBJECTIVES_VALIDATION_PROTOCOL.md")
 SIZING = ROOT / "reports" / "data" / "cohort_size_simulation.json"
@@ -310,6 +311,47 @@ class TestDataVerdicts:
 
     def test_the_search_targets_for_next_time_are_recorded(self, protocol):
         assert "### 5.4 The search continues, with these targets" in protocol
+
+
+# --------------------------------------------------------------------------
+# 7b. the protocol and the concept document stay consistent
+# --------------------------------------------------------------------------
+class TestConceptConsistency:
+    def test_the_concept_document_exists(self):
+        assert CONCEPT.is_file(), (
+            "docs/HYBRID_FUSING_CONCEPT.md states the decision philosophy "
+            "this protocol is the experiment for")
+
+    def test_the_protocol_cross_references_it(self, protocol):
+        assert "HYBRID_FUSING_CONCEPT.md" in protocol
+        flat = re.sub(r"[\s*_`>|]+", " ", protocol)
+        assert "the concept document governs the philosophy" in flat
+
+    def test_both_refuse_to_reinvent_the_failed_weighting(self, protocol):
+        concept = CONCEPT.read_text(encoding="utf-8")
+        assert "Do not reinvent pi_m under the Fusing name" in concept
+        assert "reinvent" in protocol
+
+    def test_both_treat_fusing_as_a_label_not_a_claim(self, audit):
+        concept = re.sub(r"[\s*_`>|]+", " ", CONCEPT.read_text(encoding="utf-8"))
+        assert "not an originality or performance claim" in concept
+        assert "re-description" in audit
+
+    def test_both_require_selection_on_the_residual(self, audit):
+        concept = re.sub(r"[\s*_`>|]+", " ", CONCEPT.read_text(encoding="utf-8"))
+        assert "baseline residuals" in concept
+        assert "residual after the baseline" in audit
+
+    def test_both_permit_not_evaluable_as_a_result(self, protocol):
+        concept = CONCEPT.read_text(encoding="utf-8")
+        assert "NOT_EVALUABLE" in concept
+        assert "NOT_EVALUABLE" in protocol
+
+    def test_both_separate_density_fusion_from_equation_fusion(self, protocol):
+        concept = re.sub(r"[\s*_`>|]+", " ", CONCEPT.read_text(encoding="utf-8"))
+        assert "not fusing structural ODEs" in concept
+        flat = re.sub(r"[\s*_`>|]+", " ", protocol)
+        assert "distinct in kind from distribution fusion" in flat
 
 
 # --------------------------------------------------------------------------
