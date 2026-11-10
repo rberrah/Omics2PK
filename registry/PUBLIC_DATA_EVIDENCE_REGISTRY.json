@@ -1,6 +1,6 @@
 {
   "registry_name": "PUBLIC_DATA_EVIDENCE_REGISTRY",
-  "version": "1.16.0",
+  "version": "1.17.0",
   "frozen_at": "2026-11-07",
   "scope": "Datasets admissible for the Omics2PK five-objective validation (H1-H5). A published article is not by itself an exploitable dataset.",
   "access_policy": {
@@ -1770,6 +1770,73 @@
       "verification_method": "main-text Tables 1 and 2 read directly",
       "outcome_kind": null,
       "axis": "B"
+    },
+    {
+      "key": "lee_venetoclax_patients_12",
+      "label": "Lee 2024 venetoclax CLL patients n=12",
+      "citation": "Lee J, et al. Clin Transl Sci 2024;17:e70106.",
+      "pmcid": "PMC11645475",
+      "access_tier": "open_public",
+      "licence": "cc by-nc",
+      "access_note": "A SECOND COHORT inside an article whose in-vitro half this project already holds, and a different set of people from it. Per-patient venetoclax daily dose and plasma concentration are in a main-text table reached through Europe PMC fullTextXML; per-patient plasma 4-beta-hydroxycholesterol, cholesterol and their ratio are in SUPPLEMENT TABLE S3, reached through BioStudies S-EPMC11645475 redirecting to ftp.ebi.ac.uk. The Europe PMC supplementaryFiles endpoint returns only images for this article, which is why an earlier note in docs/OMICS2PK_INDEPENDENT_REPOSITORY_SEARCH_20261110.md wrongly concluded the per-patient biomarker was figure-only. That sentence is struck there.",
+      "n_analysed": 12,
+      "omics_layers": [
+        {
+          "layer": "targeted_metabolomics",
+          "analytes": "plasma 4-beta-hydroxycholesterol, total cholesterol and their ratio, per patient at two study visits",
+          "identification_quality": "LC-MS/MS after derivatisation against authentic standards, with the method validation published"
+        }
+      ],
+      "endpoint": {
+        "name": "venetoclax plasma concentration with the daily dose, per patient at two study visits",
+        "endpoint_class": "pk_clinical",
+        "per_donor_values_held": true,
+        "what_was_analysed": "log10 of the concentration divided by the daily dose. Three patients had a dose reduction between visits, so an unnormalised concentration would carry the prescriber's response to toxicity as if it were pharmacokinetics.",
+        "what_it_is_not": "NOT an AUC, NOT a clearance, NOT a steady-state exposure metric. One timed concentration normalised by dose, and the reciprocal of the quantity the article calls 'estimated venetoclax CL' -- so not an independent endpoint from that.",
+        "verification": {
+          "anchors_agreeing": 3,
+          "anchors_total": 3,
+          "anchors": {
+            "fold variation in estimated CL": {
+              "published": 28.8,
+              "recomputed": 28.76
+            },
+            "minimum estimated CL, L/h": {
+              "published": 1.02,
+              "recomputed": 1.02
+            },
+            "maximum estimated CL, L/h": {
+              "published": 29.4,
+              "recomputed": 29.29
+            }
+          },
+          "note": "the article's clearance is proportional to dose divided by concentration; the single constant recovers as 8.641 from the published median of 4.0 L/h. This proves the dose and concentration columns were read correctly -- the table carries the patient number only on its first row per patient -- and does NOT validate the article's clearance method, which is in a Supporting Information file not held here."
+        }
+      },
+      "objectives_supported": [
+        "H1"
+      ],
+      "status": "ACQUIRED",
+      "verified_this_session": true,
+      "inherited_from": [
+        "docs/OMICS2PK_INDEPENDENT_REPOSITORY_SEARCH_20261110.md",
+        "docs/OMICS2PK_AXIS_C2_VENETOCLAX_CLINICAL_PK_CONTRAST_20261110.md"
+      ],
+      "caveats": [
+        "THE BASELINE IS THE MEAN, NOT A CLINICAL MODEL. Patient characteristics -- age, weight, creatinine clearance, bilirubin, transaminases -- are published BY SEX GROUP ONLY, so no per-patient covariate exists. The comparator cannot be 'clinical plus pharmacogenetics', which is what the funding question asks. The biomarker had to beat NO INFORMATION and did not, which makes the non-detection harder to dismiss and would have made a detection much weaker than it looked.",
+        "NO GENOTYPE is published for these patients, so the omic-against-PGx contrast cannot be formed in this cohort at all.",
+        "Twelve patients, median age 71.8, one drug, chronic lymphocytic leukaemia, and three dose reductions for toxicity. Nothing here establishes an effect size.",
+        "Two of twenty-four observations have a not-determined concentration and were excluded by a rule declared before the run, never imputed.",
+        "The fifteen hepatocyte donors and twenty microsome lots in the same article are DIFFERENT PEOPLE. No analysis joins them."
+      ],
+      "original_repository": "Europe PMC full text; BioStudies S-EPMC11645475 via ftp.ebi.ac.uk for the supplement",
+      "individual_level_data_released": true,
+      "donor_structure_verified": true,
+      "verification_method": "three exposure figures the article publishes, reproduced by scripts/run_venetoclax_clinical_pk_contrast.py",
+      "outcome_kind": "clinical_pk",
+      "axis": "C",
+      "per_donor_table_is_outside_this_repository": true,
+      "executed_axis_c2_result": "NOT_SUPPORTED in both the primary and the sensitivity analysis. The plasma 4-beta-HC/cholesterol ratio does not predict a dose-normalised venetoclax trough out of sample: the primary paired effect is +0.0006 log10 with a refitting patient-level interval of [-0.111, +0.190] and a rank p of 0.1493, and with both visits the biomarker arm is WORSE than the mean. This is the project's FIRST clinical-PK row and it is negative. It bounds the ARIANA claim -- two drugs, two endogenous phenotype markers, two enzyme families, opposite answers -- without refuting it, since the drug, the enzyme, the marker and the baseline all differ."
     }
   ],
   "phase1_findings": {
@@ -1961,6 +2028,13 @@
       "summary": "The publisher-independent repository search adds five entries and amends two. One new source is ACQUIRED and executed: the Lee / Jackson CYP3A panel, fifteen hepatocyte donors carrying a per-donor hepatic protein, a per-donor plasma metabolite and a per-donor measured activity. One is QUALIFIED and deliberately not executed: a matched jejunum-liver proteome in 37 donors with no pharmacological endpoint. Three are ABSTAIN with the reason verified from the file rather than inferred from an access failure, including the 171-donor Bhatt cohort whose supplement WAS obtained and publishes availability ticks instead of values.",
       "withdraws": "the conclusion in docs/OMICS2PK_CANDIDATE_PAIRED_LIVER_SOURCE_QUALIFICATION_20261110.md section 4 that step 2 of the commissioning order had 'nothing to run'. A publisher-first search over seven named citations was too narrow; the public record was not too thin.",
       "downgrades": "the project's one positive functional claim. The attempted independent replication of 'a target CYP's abundance predicts its probe reaction out of sample in hepatocytes' returned ZERO of six contrasts SUPPORTED. Separately, the non-refitting paired bootstrap that declared the original finding is measured here to be about half the width of a refitting one, and three to six times narrower for a two-predictor arm."
+    },
+    {
+      "version": "1.17.0",
+      "date": "2026-11-10",
+      "summary": "Adds the project's first clinical-pharmacokinetic dataset outside ARIANA: twelve venetoclax patients with a per-patient plasma CYP3A metabolite and a per-patient dose and concentration. Executed the same day; the contrast is NEGATIVE.",
+      "corrects": "the note in docs/OMICS2PK_INDEPENDENT_REPOSITORY_SEARCH_20261110.md section 7 which inferred, from a retrieval channel that returns only images for this article, that these patients' biomarker values were published only in a figure. They are in supplement Table S3. The inference was made after that same document had documented the channel that works, which is the part worth remembering.",
+      "consequence_for_the_ledger": "the statement 'no clinical-PK row at all' becomes 'one clinical-PK contrast executed on a second drug, with no gain detected'."
     }
   ],
   "knowledge_sources": [

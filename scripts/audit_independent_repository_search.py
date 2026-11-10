@@ -177,16 +177,28 @@ ARTICLE_FINDINGS = {
                  "20261110.md."),
     },
     "PMC11645475": {
-        "label": "Lee 2024, venetoclax, the SAME donors",
+        "label": ("Lee 2024, venetoclax: the same in-vitro donors AND "
+                  "twelve new patients"),
         "expect": {"isOpenAccess": "Y", "hasSuppl": "Y"},
-        "verdict": "ALREADY_HELD",
+        "verdict": "DATASET_USABLE",
         "n_donors": 15,
-        "note": ("the same fifteen hepatocyte donors and the same twenty "
-                 "microsome lots as PMC9926076, with venetoclax as a further "
-                 "substrate and twelve real-world patients whose per-patient "
-                 "4-beta-hydroxycholesterol is not tabulated. Two drugs in the "
-                 "same donors are ONE cohort with two substrates. Counting it "
-                 "as a second cohort is exactly the error the brief forbids."),
+        "note": ("TWO cohorts in one article, and they must be separated. "
+                 "(1) Its IN VITRO half is the same fifteen hepatocyte donors "
+                 "and the same twenty microsome lots as PMC9926076, with "
+                 "venetoclax as a further substrate -- ONE cohort with two "
+                 "substrates, and counting it as a second cohort is exactly "
+                 "the error the brief forbids. (2) Its IN VIVO half is a "
+                 "DIFFERENT set of people: twelve patients with chronic "
+                 "lymphocytic leukaemia whose per-patient venetoclax dose and "
+                 "plasma concentration are in a main-text table and whose "
+                 "per-patient plasma 4-beta-hydroxycholesterol, cholesterol "
+                 "and ratio are in supplement TABLE S3, reached through the "
+                 "BioStudies channel. That is a clinical pharmacokinetic "
+                 "endpoint paired with a plasma metabolite in the same "
+                 "individuals -- the first such source outside ARIANA. An "
+                 "earlier note in this audit inferred from a truncated "
+                 "download that those values were figure-only; that was "
+                 "wrong and is struck."),
     },
     "PMC6222000": {
         "label": "Bhatt 2019, UGT abundance and activity, 171 donors",
@@ -457,11 +469,14 @@ def main(argv=None):
         },
         "the_pattern_now_stands_at": {
             "sources_that_measured_a_per_donor_pairing": 9,
-            "sources_that_published_the_per_donor_rows": 2,
-            "named": ("Wegler 2021 and Lee 2023. Both published rows by "
-                      "accident of format rather than by policy: Wegler's "
-                      "Table S3 happens to be a per-donor table, and Lee's "
-                      "plasma values happen to sit in a main-text table."),
+            "sources_that_published_the_per_donor_rows": 3,
+            "named": ("Wegler 2021, Lee 2023 and Lee 2024. All three "
+                      "published rows by accident of format rather than by "
+                      "policy: Wegler's Table S3 happens to be a per-donor "
+                      "table, Lee 2023's plasma values happen to sit in a "
+                      "main-text table, and Lee 2024's patient biomarkers sit "
+                      "in a supplement that one retrieval channel delivers as "
+                      "images and another delivers whole."),
         },
         "this_audit_fits_nothing": True,
         "no_individual_level_data_in_this_artefact": True,

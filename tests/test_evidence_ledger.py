@@ -245,8 +245,19 @@ class TestLedgerProperties:
         assert definitions < table
 
     def test_it_holds_no_clinical_pk_result(self, text):
-        assert "The project holds no C-level result" in text
+        assert "no C-level result that supports anything" in text
         assert "No clinical-PK proof" in text
+
+    def test_the_one_c_level_row_is_recorded_as_negative(self, text):
+        # Version 1.2.0 added a C-level row. It is negative, and the ledger
+        # must not let that read as the project having clinical-PK support.
+        assert "Clinical pharmacokinetic (C) — one row, and it is negative"             in text
+        assert "A negative row at C level is still a C-level row" in text
+        assert "bounds the ARIANA claim without refuting it" in text
+
+    def test_the_c_level_row_states_that_the_baseline_was_the_mean(self, text):
+        assert "The bar was the lowest this project has set" in text
+        assert "by sex group only" in text
 
     def test_it_holds_exactly_one_positive_independent_validation(self, text):
         assert "only **positive** V-level row" in text
@@ -261,11 +272,11 @@ class TestLedgerProperties:
         assert "a published" in text and "correlation is not a" in text
 
     def test_the_withdrawal_register_is_present_and_counted(self, text):
-        assert "Ten claims have been withdrawn" in text
+        assert "Eleven claims have been withdrawn" in text
         section = text.split("register of withdrawn")[1].split("## 3.")[0]
         # Each row of the register ends with a date.
         dates = re.findall(r"2026-11-\d\d", section)
-        assert len(dates) >= 8, f"found {len(dates)} dated rows"
+        assert len(dates) >= 11, f"found {len(dates)} dated rows"
 
     def test_the_withdrawn_variance_fraction_is_in_the_register(self, text):
         assert "squared a **Spearman** coefficient" in text

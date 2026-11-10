@@ -1,6 +1,6 @@
-# Searching past the publishers — two usable datasets, and a withdrawn conclusion
+# Searching past the publishers — three usable datasets, and a withdrawn conclusion
 
-**Version 1.0.0 — 2026-11-10.** Evidence type: **source search**.
+**Version 1.1.0 — 2026-11-10.** Evidence type: **source search**.
 Script: `scripts/audit_independent_repository_search.py` (fits nothing).
 Artefact: `reports/data/independent_repository_search.json`.
 
@@ -20,6 +20,7 @@ found:
 | | |
 |---|---|
 | **A usable three-layer cohort** | per-donor hepatic protein, per-donor plasma metabolite and per-donor measured activity in the **same fifteen donors** |
+| **A usable clinical-PK cohort** | **twelve patients** with per-patient venetoclax dose, plasma concentration **and** a plasma CYP3A metabolite — the project's first clinical-PK source outside ARIANA |
 | **A usable two-compartment proteome** | 9,027 proteins × 37 jejunum donors and 6,982 × 37 matched liver donors, per donor, with **no** pharmacological endpoint |
 
 The earlier search was too narrow. The public record was not too thin.
@@ -158,7 +159,34 @@ the **same** fifteen donors and the same twenty microsome lots. Two drugs in
 the same donors are one cohort with two substrates — the error the brief
 explicitly forbids. It is recorded as `ALREADY_HELD`.
 
-### 5.2 Matched jejunum and liver proteome — `PMC9310776`, n = 37, CC BY-NC
+### 5.2 Lee 2024 venetoclax patients — `PMC11645475`, n = 12, CC BY-NC
+
+**Two cohorts live in that one article and must be separated.**
+
+Its **in-vitro** half is the same fifteen hepatocyte donors and twenty
+microsome lots as §5.1, with venetoclax as a further substrate. One cohort,
+two substrates — counting it as a second cohort is the error the brief
+forbids, and it is recorded as such.
+
+Its **in-vivo** half is a **different set of people**: twelve patients with
+chronic lymphocytic leukaemia carrying, per patient and per visit,
+
+- venetoclax daily dose and plasma concentration (main-text table), and
+- plasma 4β-HC, cholesterol and their ratio (**supplement Table S3**).
+
+That is a clinical pharmacokinetic endpoint paired with a plasma metabolite in
+the same individuals — the first such source this project has found outside
+ARIANA. Executed in
+`docs/OMICS2PK_AXIS_C2_VENETOCLAX_CLINICAL_PK_CONTRAST_20261110.md`, where it
+returns a negative result with controls.
+
+**This is the dataset §7 of the first version of this document said did not
+exist.** The Europe PMC supplementary-file endpoint delivers only images for
+this article; the BioStudies channel delivers the whole 2 MB supplement. The
+error was to write a conclusion from the first channel after having just
+documented the second.
+
+### 5.3 Matched jejunum and liver proteome — `PMC9310776`, n = 37, CC BY-NC
 
 The supplementary workbook arrives as **11,163,005 bytes over the EBI FTP
 mirror** against under 1 MB and a corrupt archive from the Europe PMC endpoint
@@ -187,14 +215,16 @@ answer a new question, and a new question needs a declared target first.
 | | |
 |---|---|
 | sources that **measured** a per-donor layer paired with a per-donor outcome | **9** |
-| sources that **published the per-donor rows** | **2** |
+| sources that **published the per-donor rows** | **3** |
 
-The two are **Wegler 2021** and **Lee 2023**, and both published rows by
-accident of format rather than by policy: Wegler's Table S3 happens to be a
-per-donor table, and Lee's plasma values happen to sit in a main-text table
-where a word limit did not squeeze them into an aggregate.
+The three are **Wegler 2021**, **Lee 2023** and **Lee 2024**, and all three
+published rows by accident of format rather than by policy: Wegler's Table S3
+happens to be a per-donor table, Lee 2023's plasma values happen to sit in a
+main-text table where a word limit did not squeeze them into an aggregate, and
+Lee 2024's patient biomarkers sit in a supplement that one retrieval channel
+delivers as images and another delivers whole.
 
-Nine studies measured the pairing. Two published it. That is the sentence the
+Nine studies measured the pairing. Three published it. That is the sentence the
 funding case should argue from, and it is stronger than the version this
 project held yesterday — because the barrier is a publication convention, which
 can be addressed, rather than an absence of measurement, which cannot.
@@ -203,12 +233,27 @@ can be addressed, rather than an absence of measurement, which cannot.
 
 ## 7. What this search did not settle
 
-- **Twelve real-world patients** in `PMC11645475` have per-patient venetoclax
+- ~~**Twelve real-world patients** in `PMC11645475` have per-patient venetoclax
   dose and plasma concentration in a main-text table, and the article reports
-  their plasma 4β-HC/cholesterol ratio **only in a figure**. Per-donor
-  biomarker values for those patients are therefore not available, and this
-  project does not digitise scatter figures. A clinical-PK contrast is
-  **not** unblocked.
+  their plasma 4β-HC/cholesterol ratio **only in a figure**. A clinical-PK
+  contrast is **not** unblocked.~~
+
+  **Struck 2026-11-10, within hours of being written. It was an inference, not
+  a check, and it was wrong.** Retrieving that article's supplement through the
+  BioStudies channel described in §3 — which this document had just finished
+  recommending — gives `CTS-17-e70106-s001.docx`, whose **Table S3 publishes
+  per-patient plasma 4β-HC, cholesterol and their ratio for all twelve
+  patients at both visits**. Together with the main text's per-patient dose and
+  venetoclax plasma concentration, that is a **clinical pharmacokinetic
+  endpoint paired with a plasma metabolite in the same individuals** — the
+  first such source this project has found outside ARIANA. It is qualified and
+  executed in
+  `docs/OMICS2PK_AXIS_C2_VENETOCLAX_CLINICAL_PK_CONTRAST_20261110.md`.
+
+  The lesson is the same one as §3, turned on this document: a channel that
+  returns images is not evidence that a file holds no table. The failure was
+  to write "therefore not available" from a truncated download instead of
+  trying the channel that had already been shown to work.
 - The **171-donor** Bhatt cohort remains the single most valuable unpublished
   per-donor table identified anywhere in this project. It is the obvious target
   of a data request, which the standing constraint excludes and which the
@@ -223,4 +268,5 @@ can be addressed, rather than an absence of measurement, which cannot.
 
 | Version | Date | Change |
 |---|---|---|
+| 1.1.0 | 2026-11-10 | Second issue, hours after the first. Adds §5.2: the twelve venetoclax patients, which §7 of version 1.0.0 had wrongly concluded were unusable. Three usable datasets, not two; three sources publish per-donor rows, not two. |
 | 1.0.0 | 2026-11-10 | First issue. Withdraws the "nothing to run" conclusion of `OMICS2PK_CANDIDATE_PAIRED_LIVER_SOURCE_QUALIFICATION_20261110.md` §4 and records the access ladder together with the fact that climbing it did not change the 171-donor verdict. |

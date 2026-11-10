@@ -1,0 +1,392 @@
+{
+  "run": "cohort_size_simulation",
+  "generated": "2026-11-10",
+  "protocol": "OMICS2PK_COHORT_SIZING_PRESPECIFICATION_20261110.md",
+  "protocol_sha256": "fff89e49140db9ddb5100ed8e8c979b38dd9633cbf771d85b427dbf3eca4c2cc",
+  "frozen": {
+    "seed": 20261110,
+    "replicates": 200,
+    "outer_folds": 5,
+    "inner_folds": 3,
+    "ridge_alphas": [
+      0.001,
+      0.01,
+      0.1,
+      1.0,
+      10.0,
+      100.0
+    ],
+    "target_power": 0.8,
+    "alpha": 0.05,
+    "search_low": 8,
+    "search_high": 1200,
+    "evidence_levels": [
+      "transferable_literature",
+      "declared_scenario"
+    ]
+  },
+  "replicates_used": 200,
+  "validation_scheme": "5-fold outer, 3-fold inner. The executed pilots use leave-one-donor-out because they have fifteen donors. Mixing the two across an n range from 10 to 2000 would make the required-n curve an artefact of the scheme, so one scheme is used throughout and the difference is recorded here.",
+  "question_a_enzyme_activity": {
+    "evidence_level": "transferable_literature",
+    "published_inputs": {
+      "source": "Pharmaceuticals 2025;18:1789, PMCID PMC12735975, CC BY, Table 3: Spearman correlation between CYP450 activity and CYP450 content in individual preparations.",
+      "hepatocytes_n20": {
+        "CYP1A2_phenacetin": 0.788,
+        "CYP2A6_coumarin": 0.7985,
+        "CYP2B6_bupropion": 0.7424,
+        "CYP2C8_amodiaquine": 0.7574,
+        "CYP2C9_diclofenac": 0.3805,
+        "CYP2C19_mephenytoin": 0.7003,
+        "CYP2D6_dextromethorphan": 0.8015,
+        "CYP2E1_chlorzoxazone": 0.2915,
+        "CYP3A4_midazolam": 0.5353,
+        "CYP3A4_testosterone": 0.7684
+      },
+      "genotyped_microsomes_n16": {
+        "CYP1A2_phenacetin": 0.6814,
+        "CYP2A6_coumarin": 0.9471,
+        "CYP2B6_bupropion": 0.9794,
+        "CYP2C8_amodiaquine": 0.9176,
+        "CYP2C9_diclofenac": 0.65,
+        "CYP2C19_mephenytoin": 0.95,
+        "CYP2D6_dextromethorphan": 0.8291,
+        "CYP2E1_chlorzoxazone": 0.9441,
+        "CYP3A4_midazolam": 0.8168,
+        "CYP3A4_testosterone": 0.9559,
+        "CYP4A11_lauric_acid": 0.7176
+      },
+      "intestinal_mucosa_n15": {
+        "CYP2C9_diclofenac": -0.3071,
+        "CYP2C19_mephenytoin": 0.7036,
+        "CYP2D6_dextromethorphan": 0.5771,
+        "CYP3A4_midazolam": 0.1321,
+        "CYP3A4_testosterone": 0.2321,
+        "CYP2J2_astemizole": 0.1679,
+        "CES2_irinotecan": -0.0643
+      },
+      "why_these_are_transferable": "Same kind of quantity, same kind of endpoint and the same kind of preparation as question A: an absolutely quantified enzyme abundance against its own probe reaction in individual human material. They are IN-SAMPLE rank correlations, so they are used only to set the generating correlation of a simulation whose own out-of-sample performance is then measured -- never read as performance.",
+      "why_they_are_not_a_result": "they are published aggregates with no per-donor row, so nothing can be recomputed from them and they cannot validate anything"
+    },
+    "required_n_by_rank_correlation": {
+      "spearman_0.20": {
+        "pearson_on_log_assumed": 0.2091,
+        "required_n": 902,
+        "verdict": "about 902 individuals for 80% power"
+      },
+      "spearman_0.40": {
+        "pearson_on_log_assumed": 0.4158,
+        "required_n": 189,
+        "verdict": "about 189 individuals for 80% power"
+      },
+      "spearman_0.53": {
+        "pearson_on_log_assumed": 0.5479,
+        "required_n": 95,
+        "verdict": "about 95 individuals for 80% power"
+      },
+      "spearman_0.70": {
+        "pearson_on_log_assumed": 0.7167,
+        "required_n": 45,
+        "verdict": "about 45 individuals for 80% power"
+      },
+      "spearman_0.80": {
+        "pearson_on_log_assumed": 0.8135,
+        "required_n": 28,
+        "verdict": "about 28 individuals for 80% power"
+      },
+      "spearman_0.90": {
+        "pearson_on_log_assumed": 0.908,
+        "required_n": 14,
+        "verdict": "about 14 individuals for 80% power"
+      }
+    },
+    "sensitivity": {
+      "reference": {
+        "scenario": {
+          "rho_pearson_log": 0.5479184373848649,
+          "analytical_cv_log": 0.15,
+          "missing_rate": 0.0
+        },
+        "required_n": 95,
+        "verdict": "about 95 individuals for 80% power"
+      },
+      "variations": {
+        "rho_pearson_log=0.20905692653530691": {
+          "required_n": 902,
+          "verdict": "about 902 individuals for 80% power"
+        },
+        "rho_pearson_log=0.7167358990906005": {
+          "required_n": 45,
+          "verdict": "about 45 individuals for 80% power"
+        },
+        "rho_pearson_log=0.9079809994790935": {
+          "required_n": 14,
+          "verdict": "about 14 individuals for 80% power"
+        },
+        "analytical_cv_log=0.05": {
+          "required_n": 89,
+          "verdict": "about 89 individuals for 80% power"
+        },
+        "analytical_cv_log=0.3": {
+          "required_n": 106,
+          "verdict": "about 106 individuals for 80% power"
+        },
+        "analytical_cv_log=0.5": {
+          "required_n": 125,
+          "verdict": "about 125 individuals for 80% power"
+        },
+        "missing_rate=0.05": {
+          "required_n": 100,
+          "verdict": "about 100 individuals for 80% power"
+        },
+        "missing_rate=0.2": {
+          "required_n": 123,
+          "verdict": "about 123 individuals for 80% power"
+        }
+      },
+      "ordered_by_required_n_descending": [
+        "rho_pearson_log=0.20905692653530691",
+        "analytical_cv_log=0.5",
+        "missing_rate=0.2",
+        "analytical_cv_log=0.3",
+        "missing_rate=0.05",
+        "analytical_cv_log=0.05",
+        "rho_pearson_log=0.7167358990906005",
+        "rho_pearson_log=0.9079809994790935"
+      ],
+      "how_to_read": "The parameter whose variations span the widest range of required n is the one the sizing actually depends on. A variation that returns None is a scenario in which no cohort size inside the search ceiling answers the question."
+    },
+    "reference_scenario": {
+      "rho_pearson_log": 0.5479184373848649,
+      "analytical_cv_log": 0.15,
+      "missing_rate": 0.0
+    },
+    "measured_confirmatory_sizing": {
+      "midazolam_1_hydroxylation": {
+        "contrast": "V1_hepatic_protein vs V0_mean, leave-one-donor-out",
+        "mean_paired_difference_log10": -0.03091817929450751,
+        "dispersion_of_paired_difference_log10": 0.22222940178220202,
+        "n_donors_observed": 15,
+        "confirmatory_sizing": {
+          "effect_log10": -0.03091817929450751,
+          "dispersion_log10": 0.22222940178220202,
+          "standardised_effect": 0.1391273118973211,
+          "power": 0.8,
+          "alpha": 0.05,
+          "family_size": 1,
+          "required_n": 406,
+          "design": "paired, two-sided, one prespecified contrast",
+          "what_this_assumes": "that the effect and the dispersion are the ones that will hold in the confirmatory cohort. Both come from a cohort of fifteen, so both carry wide uncertainty, and the dispersion from a small sample is biased low more often than high -- which makes this n an optimistic figure.",
+          "what_this_is_not": "not a discovery size. It assumes the contrast is fixed in advance, with no selection among candidates and no search over endpoints."
+        }
+      },
+      "ibrutinib_m37": {
+        "contrast": "V1_hepatic_protein vs V0_mean, leave-one-donor-out",
+        "mean_paired_difference_log10": -0.08020809375802103,
+        "dispersion_of_paired_difference_log10": 0.2074844402287295,
+        "n_donors_observed": 15,
+        "confirmatory_sizing": {
+          "effect_log10": -0.08020809375802103,
+          "dispersion_log10": 0.2074844402287295,
+          "standardised_effect": 0.386574018126854,
+          "power": 0.8,
+          "alpha": 0.05,
+          "family_size": 1,
+          "required_n": 53,
+          "design": "paired, two-sided, one prespecified contrast",
+          "what_this_assumes": "that the effect and the dispersion are the ones that will hold in the confirmatory cohort. Both come from a cohort of fifteen, so both carry wide uncertainty, and the dispersion from a small sample is biased low more often than high -- which makes this n an optimistic figure.",
+          "what_this_is_not": "not a discovery size. It assumes the contrast is fixed in advance, with no selection among candidates and no search over endpoints."
+        }
+      }
+    }
+  },
+  "question_b_multiomic_complementarity": {
+    "evidence_level": "declared_scenario",
+    "why_not_transferable": "no public source gives this project an OUT-OF-SAMPLE incremental effect for an omic layer beyond clinical covariates and pharmacogenetics on a pharmacokinetic endpoint. ARIANA is the only internal estimate and it is one drug, 47 patients, one trough concentration and two metabolite ratios -- it cannot stand for 'an omic layer'. No in-vitro effect is carried in.",
+    "reference_scenario": {
+      "baseline_r2": 0.3,
+      "target_mae_reduction": 0.1,
+      "n_features": 200,
+      "n_informative": 10,
+      "redundancy": 0.3,
+      "analytical_cv": 0.3,
+      "missing_rate": 0.05,
+      "selected": 10
+    },
+    "required_n_by_assumed_reduction": {
+      "mae_reduction_5pc": {
+        "required_n": null,
+        "verdict": "the target power is not reached even at n = 1200; under this scenario the question is not answerable by enlarging the cohort alone"
+      },
+      "mae_reduction_10pc": {
+        "required_n": 976,
+        "verdict": "about 976 individuals for 80% power"
+      },
+      "mae_reduction_20pc": {
+        "required_n": 529,
+        "verdict": "about 529 individuals for 80% power"
+      },
+      "mae_reduction_30pc": {
+        "required_n": 365,
+        "verdict": "about 365 individuals for 80% power"
+      }
+    },
+    "sensitivity": {
+      "reference": {
+        "scenario": {
+          "baseline_r2": 0.3,
+          "target_mae_reduction": 0.1,
+          "n_features": 200,
+          "n_informative": 10,
+          "redundancy": 0.3,
+          "analytical_cv": 0.3,
+          "missing_rate": 0.05,
+          "selected": 10
+        },
+        "required_n": 976,
+        "verdict": "about 976 individuals for 80% power"
+      },
+      "variations": {
+        "target_mae_reduction=0.05": {
+          "required_n": null,
+          "verdict": "the target power is not reached even at n = 1200; under this scenario the question is not answerable by enlarging the cohort alone"
+        },
+        "target_mae_reduction=0.2": {
+          "required_n": 529,
+          "verdict": "about 529 individuals for 80% power"
+        },
+        "redundancy=0.0": {
+          "required_n": 1181,
+          "verdict": "about 1181 individuals for 80% power"
+        },
+        "redundancy=0.6": {
+          "required_n": null,
+          "verdict": "the target power is not reached even at n = 1200; under this scenario the question is not answerable by enlarging the cohort alone"
+        },
+        "redundancy=0.85": {
+          "required_n": null,
+          "verdict": "the target power is not reached even at n = 1200; under this scenario the question is not answerable by enlarging the cohort alone"
+        },
+        "n_features=20": {
+          "required_n": 845,
+          "verdict": "about 845 individuals for 80% power"
+        },
+        "n_features=2000": {
+          "required_n": 1143,
+          "verdict": "about 1143 individuals for 80% power"
+        },
+        "analytical_cv=0.1": {
+          "required_n": 929,
+          "verdict": "about 929 individuals for 80% power"
+        },
+        "analytical_cv=0.6": {
+          "required_n": 1181,
+          "verdict": "about 1181 individuals for 80% power"
+        },
+        "baseline_r2=0.1": {
+          "required_n": 976,
+          "verdict": "about 976 individuals for 80% power"
+        },
+        "baseline_r2=0.5": {
+          "required_n": 939,
+          "verdict": "about 939 individuals for 80% power"
+        },
+        "missing_rate=0.2": {
+          "required_n": 1143,
+          "verdict": "about 1143 individuals for 80% power"
+        },
+        "selected=2": {
+          "required_n": null,
+          "verdict": "the target power is not reached even at n = 1200; under this scenario the question is not answerable by enlarging the cohort alone"
+        },
+        "selected=30": {
+          "required_n": null,
+          "verdict": "the target power is not reached even at n = 1200; under this scenario the question is not answerable by enlarging the cohort alone"
+        }
+      },
+      "ordered_by_required_n_descending": [
+        "redundancy=0.0",
+        "analytical_cv=0.6",
+        "n_features=2000",
+        "missing_rate=0.2",
+        "baseline_r2=0.1",
+        "baseline_r2=0.5",
+        "analytical_cv=0.1",
+        "n_features=20",
+        "target_mae_reduction=0.2",
+        "target_mae_reduction=0.05",
+        "redundancy=0.6",
+        "redundancy=0.85",
+        "selected=2",
+        "selected=30"
+      ],
+      "how_to_read": "The parameter whose variations span the widest range of required n is the one the sizing actually depends on. A variation that returns None is a scenario in which no cohort size inside the search ceiling answers the question."
+    },
+    "power_by_layer_width": {
+      "replicates": 100,
+      "why_a_power_curve_and_not_a_required_n": "a 20,000-feature block costs about fifty times the reference per replicate, so a bisection over n would cost more than the rest of this run together. The curve at four fixed sizes shows the same effect.",
+      "curve": {
+        "features_200": {
+          "n_100": 0.0,
+          "n_200": 0.02,
+          "n_400": 0.04,
+          "n_800": 0.58
+        },
+        "features_2000": {
+          "n_100": 0.0,
+          "n_200": 0.0,
+          "n_400": 0.0,
+          "n_800": 0.2
+        },
+        "features_20000": {
+          "n_100": 0.0,
+          "n_200": 0.0,
+          "n_400": 0.0,
+          "n_800": 0.03
+        }
+      }
+    }
+  },
+  "question_c_clinical_pk": {
+    "evidence_level": "declared_scenario",
+    "endpoints_are_not_interchangeable": "a single timed concentration, an AUC and a model-derived clearance differ in how much a clinical and pharmacogenetic baseline already explains and in how noisy the measurement is. Sizing one does not size another.",
+    "refusal": "no effect measured on in-vitro intrinsic clearance or on an in-vitro activity rate is transferred to a clinical pharmacokinetic endpoint here. The in-vitro work sizes the in-vitro question only.",
+    "by_endpoint": {
+      "single_trough_concentration": {
+        "why_this_endpoint_differs": "one timed sample carries assay error, sampling-time error and adherence error on top of between-subject variability, so a clinical plus pharmacogenetic baseline explains least here. ARIANA's endpoint is of this kind.",
+        "mae_reduction_10pc": {
+          "required_n": 1051,
+          "verdict": "about 1051 individuals for 80% power"
+        },
+        "mae_reduction_20pc": {
+          "required_n": 538,
+          "verdict": "about 538 individuals for 80% power"
+        }
+      },
+      "auc_from_dense_sampling": {
+        "why_this_endpoint_differs": "averaging over a profile removes much of the sampling-time error, so the same covariates explain more and the measurement is less noisy -- at the cost of a far more expensive protocol.",
+        "mae_reduction_10pc": {
+          "required_n": 939,
+          "verdict": "about 939 individuals for 80% power"
+        },
+        "mae_reduction_20pc": {
+          "required_n": 501,
+          "verdict": "about 501 individuals for 80% power"
+        }
+      },
+      "clearance_from_a_population_model": {
+        "why_this_endpoint_differs": "a model-derived clearance is the least noisy and the most explained by covariates, because the model has already absorbed covariate effects -- which means an omic layer must beat a baseline that is partly the same model, and the apparent gain depends on the structural model chosen.",
+        "mae_reduction_10pc": {
+          "required_n": 929,
+          "verdict": "about 929 individuals for 80% power"
+        },
+        "mae_reduction_20pc": {
+          "required_n": 501,
+          "verdict": "about 501 individuals for 80% power"
+        }
+      }
+    }
+  },
+  "how_to_read_any_required_n": "A required n from a simulation is a statement about the assumed generating process, not about biology. It is only as good as the effect size, the redundancy and the noise that were assumed, and the sensitivity table says which of those three decides the answer. Where the effect comes from a declared scenario rather than from a measured estimate, the resulting n is a scenario too and must be quoted with its assumption attached.",
+  "no_individual_level_data_in_this_artefact": true
+}

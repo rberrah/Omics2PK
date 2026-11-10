@@ -73,10 +73,14 @@ class TestVerdicts:
     def test_the_wegler_deposition_is_not_counted_as_a_new_dataset(self, mod):
         assert mod.PRIDE_FINDINGS["PXD014131"]["verdict"] == "ALREADY_HELD"
 
-    def test_the_venetoclax_paper_is_not_counted_as_a_second_cohort(self, mod):
+    def test_the_venetoclax_papers_two_cohorts_are_separated(self, mod):
+        # Its in-vitro half is the cohort already held; its in-vivo half is a
+        # different set of people. Conflating either way is an error: one
+        # would double-count donors, the other would miss a dataset.
         record = mod.ARTICLE_FINDINGS["PMC11645475"]
-        assert record["verdict"] == "ALREADY_HELD"
+        assert record["verdict"] == "DATASET_USABLE"
         assert "ONE cohort with two substrates" in record["note"]
+        assert "DIFFERENT set of people" in record["note"]
 
     def test_the_proteomics_depositions_are_layer_without_outcome(self, mod):
         for accession in ("PXD020910", "PXD021025", "PXD038776"):
@@ -91,10 +95,10 @@ class TestVerdicts:
         assert "availability TICKS, not values" in record["note"]
         assert "barrier was never access" in record["note"]
 
-    def test_exactly_two_datasets_are_called_usable(self, mod):
+    def test_exactly_three_datasets_are_called_usable(self, mod):
         usable = [k for k, v in mod.ARTICLE_FINDINGS.items()
                   if v["verdict"] == "DATASET_USABLE"]
-        assert sorted(usable) == ["PMC9310776", "PMC9926076"]
+        assert sorted(usable) == ["PMC11645475", "PMC9310776", "PMC9926076"]
 
     def test_the_two_paywalled_sources_are_still_abstain_access(self, mod):
         assert set(mod.STILL_INACCESSIBLE) == {"29205295", "37739780"}
@@ -158,7 +162,7 @@ class TestPattern:
         measured = block["sources_that_measured_a_per_donor_pairing"]
         published = block["sources_that_published_the_per_donor_rows"]
         assert measured > published
-        assert published == 2
+        assert published == 3
         assert "Wegler" in block["named"] and "Lee" in block["named"]
 
     def test_the_document_carries_the_same_counts(self, payload):
@@ -176,10 +180,15 @@ class TestPattern:
 # 6. the unresolved items are listed rather than left implied
 # --------------------------------------------------------------------------
 class TestUnresolved:
-    def test_the_clinical_pk_contrast_is_explicitly_not_unblocked(self):
+    def test_the_struck_clinical_pk_claim_is_struck_and_not_deleted(self):
+        # This document asserted that the twelve patients' biomarker values
+        # were figure-only. That was an inference from a truncated download,
+        # not a check, and it was wrong. The record keeps both.
         text = _normalise(DOC.read_text(encoding="utf-8"))
-        assert "A clinical-PK contrast is not unblocked" in text
-        assert "does not digitise scatter figures" in text
+        assert "It was an inference, not a check, and it was wrong" in text
+        assert "Table S3 publishes" in text
+        assert "~~" in DOC.read_text(encoding="utf-8"), (
+            "the withdrawn sentence must stay struck through, not deleted")
 
     def test_the_second_dataset_is_recorded_as_having_no_endpoint(self, mod):
         note = mod.ARTICLE_FINDINGS["PMC9310776"]["note"]

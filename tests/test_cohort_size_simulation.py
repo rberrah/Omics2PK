@@ -385,7 +385,8 @@ class TestArtefact:
     def test_no_in_vitro_effect_is_transferred_to_the_clinical_question(
             self, payload):
         text = payload["question_c_clinical_pk"]["refusal"]
-        assert "not transferred" in text
+        assert "no effect measured on in-vitro" in text
+        assert "is transferred to a clinical" in text
         assert "in-vitro question only" in text
 
     def test_the_published_inputs_are_named_with_their_source(self, payload):

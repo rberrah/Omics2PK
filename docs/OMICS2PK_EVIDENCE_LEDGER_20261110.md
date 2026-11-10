@@ -1,6 +1,6 @@
 # Evidence ledger — what Omics2PK has established, by level of proof
 
-**Version 1.1.0 — 2026-11-10.** Consolidates every claim the project currently
+**Version 1.2.0 — 2026-11-10.** Consolidates every claim the project currently
 makes, each with its evidence type, its cohort, its number and the thing it
 cannot support. Nothing new was computed for this document; every figure is
 read from a committed artefact or results document, and each row names it.
@@ -21,9 +21,16 @@ dataset-admissibility matrix and a gate list. This document classifies
 | **F — functional proof** | an in-vitro molecular→function relationship, out-of-sample | a statement about enzyme function; **never** about exposure in a patient |
 | **C — clinical-PK proof** | a molecular→exposure relationship in patients, prespecified, in an independent cohort | a claim about pharmacokinetics |
 
-**The project holds no C-level result, and this document does not contain one.**
-Its single clinical-PK cohort is 47 patients it has now analysed five times;
-that is E, by construction.
+**The project holds no C-level result that supports anything.** It now holds
+one C-level row, added in version 1.2.0, and it is **negative**: a plasma CYP3A
+metabolite did not predict a dose-normalised venetoclax trough in twelve
+patients, against a baseline of no information at all (§1.3b). Its only
+*positive* clinical evidence remains 47 patients it has now analysed five
+times, which is E by construction.
+
+A negative row at C level is still a C-level row. It licenses the statement
+*"this was tested in patients and no gain was found"*, which is a different and
+more useful thing than silence.
 
 ---
 
@@ -95,6 +102,25 @@ discounted by about that factor. Nothing in the frozen Wegler result is altered
 here; what has changed is that a reader now knows the size of the correction to
 apply.
 
+### 1.3b Clinical pharmacokinetic (C) — one row, and it is negative
+
+| Claim | Cohort | Number | Status |
+|---|---|---|---|
+| A plasma CYP3A metabolite predicts a **dose-normalised venetoclax trough** out of sample | **Lee 2024, n=12 patients** with chronic lymphocytic leukaemia | **`NOT_SUPPORTED`.** Primary paired effect **+0.0006** log₁₀, refitting patient-level interval [−0.111, +0.190], rank p 0.1493. Fold error 2.609 → 2.541. With both visits the biomarker arm is **worse than the mean** | **C**, negative |
+
+**The bar was the lowest this project has set and it was still not cleared.**
+No per-patient covariate is published for these patients — age, weight and
+creatinine clearance appear by sex group only — so the comparator is the
+training-fold mean. The biomarker had to beat *nothing*.
+
+**It bounds the ARIANA claim without refuting it.** Two drugs, two endogenous
+phenotype markers, two enzyme families, opposite answers: solanidine ratios cut
+a metoprolol trough's error by 38 % at n = 47; a 4β-HC/cholesterol ratio adds
+nothing for venetoclax at n = 12. The drug, the enzyme, the marker and the
+baseline all differ, so the honest reading is that **the ARIANA result does not
+generalise on the evidence available, and nothing in the public record says
+when it would.**
+
 ### 1.4 Exploratory (E)
 
 | Claim | Cohort | Number | Status |
@@ -127,7 +153,7 @@ apply.
 
 ## 2. The register of withdrawn and narrowed claims
 
-A ledger that only grows is not a ledger. Ten claims have been withdrawn,
+A ledger that only grows is not a ledger. Eleven claims have been withdrawn,
 reversed or narrowed, all by this project on its own evidence.
 
 | Claim | What happened | Date |
@@ -142,6 +168,7 @@ reversed or narrowed, all by this project on its own evidence.
 | Al-Majdoub: `ABSTAIN_TOO_FEW_DONORS` | **Corrected** to `ABSTAIN_NO_PER_DONOR_VALUES` after opening the file: abundance is measured on pooled lots, so the pairing never existed | 2026-11-10 |
 | "Step 2 has **nothing to run**: no new per-donor paired dataset is identifiable" | **Withdrawn.** A search over eight repositories and the open-access-supplement filter found two usable per-donor datasets the publisher-first search had missed. The search was too narrow, not the public record too thin | 2026-11-10 |
 | "An enzyme's absolute abundance predicts its substrate's clearance out of sample" presented as this project's established functional result | **Downgraded** to a result whose attempted independent replication returned **0 of 6** SUPPORTED, and whose original intervals are now measured to be about half the width of refitting ones | 2026-11-10 |
+| "Twelve venetoclax patients' biomarker values are published only in a figure, so a clinical-PK contrast is not unblocked" | **Struck within hours.** It was an inference from a retrieval channel that returns only images for that article, written just after the same document had documented the channel that works. Supplement Table S3 publishes all twelve patients at both visits, and the contrast was executed — see §1.3b | 2026-11-10 |
 
 ---
 
@@ -186,8 +213,10 @@ Four statements, each traceable to a row above.
 
 ## 4. What it does not support, stated so no reader has to infer it
 
-- **No clinical-PK proof.** No row is C-level. The single clinical cohort is 47
-  patients, one drug, one observed trough, analysed five times by this project.
+- **No clinical-PK proof.** The one C-level row (§1.3b) is **negative**, and
+  the only positive clinical evidence is exploratory: 47 patients, one drug,
+  one observed trough, analysed five times by this project. A second drug in a
+  second cohort showed no gain against a baseline of no information at all.
 - **No statement about AUC, clearance in patients, steady-state exposure or
   dose individualisation.** The ARIANA endpoint is an observed pre-dose
   concentration and is never called anything else.
@@ -248,4 +277,5 @@ Two instruments follow from that, and they are different in kind:
 | Version | Date | Change |
 |---|---|---|
 | 1.0.0 | 2026-11-10 | First consolidation. Classifies every current claim at five levels defined before the table, with its cohort, its interval and its limit; records that the project holds **no** clinical-PK result and **one** independent validation; lists the eight claims it has withdrawn, reversed or narrowed on its own evidence; and states the data gap in the sharper form the candidate-source audit established — the measurements largely exist and the individual values are largely not published. No figure was recomputed for this document. |
+| 1.2.0 | 2026-11-10 | Adds §1.3b, the project's **first clinical-pharmacokinetic row**, from twelve venetoclax patients found the same day. It is **negative**, and against a baseline of no information at all. §4's "no clinical-PK proof" is restated accordingly. §5's requirements now carry scenario sizes from `OMICS2PK_COHORT_SIZING_RESULTS_20261110.md`. |
 | 1.1.0 | 2026-11-10 | Revised the same day on new evidence, in the unfavourable direction. §1.2 adds an **attempted independent replication of the project's strongest functional claim that did not confirm it** (0 of 6 contrasts, every estimate improving). §1.3 records that the interval estimator behind the original claim is now **measured** to be 1.78–2.09× too narrow for one predictor and 3.76–6.32× for two. §1.5 records that the publisher-first source search was too narrow — eight repositories and the open-access-supplement filter yielded **two** usable datasets — and that an HTTP 403 does not establish unavailability, while adding that climbing the access ladder did not change the 171-donor verdict. §2 grows from eight withdrawals to **ten**. §3 statement 2 is rewritten to the weaker claim the evidence now supports. §4 records three non-detections of complementarity on three different pairs of layers. §5 restates the gap on nine sources and separates the data-request instrument from the grant instrument. |
