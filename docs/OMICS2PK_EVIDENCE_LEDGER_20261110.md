@@ -1,6 +1,6 @@
 # Evidence ledger — what Omics2PK has established, by level of proof
 
-**Version 1.0.0 — 2026-11-10.** Consolidates every claim the project currently
+**Version 1.1.0 — 2026-11-10.** Consolidates every claim the project currently
 makes, each with its evidence type, its cohort, its number and the thing it
 cannot support. Nothing new was computed for this document; every figure is
 read from a committed artefact or results document, and each row names it.
@@ -50,15 +50,31 @@ trusted.
 |---|---|---|---|
 | The CYP transcript adds to age and sex in predicting **in-vitro CYP activity** | **EPA n=100 donors**, independent of ARIANA and of HLC | **2 of 8 enzymes** survive Bonferroni over eight: CYP1A2 ΔMAE **−5.589** [−10.310, −1.087], CYP2B6 **−11.757** [−20.195, −3.224]. CYP2E1 is a **degradation** (+4.677). Five others not detected. | V, bounded |
 
-This is the project's only V-level row, and it is modest on purpose: two of
-eight, with one enzyme going the wrong way. The eight endpoints are **the same
-100 donors**, so they are not eight cohorts.
+| An enzyme's **absolute abundance** predicts its own probe reaction out of sample, **tested in a second cohort** | **Lee / Jackson n=15 hepatocyte donors**, independent of Wegler | **0 of 6** contrasts SUPPORTED. Every point estimate improves and five of six clear their permutation null; **no refitting interval excludes zero**. Midazolam fold error 3.196 → 2.976; ibrutinib M37 2.545 → **2.116** with rank p 0.0100 | V, **attempted and not confirmed** |
+
+The first row is the project's only **positive** V-level row, and it is modest
+on purpose: two of eight, with one enzyme going the wrong way. The eight
+endpoints are **the same 100 donors**, so they are not eight cohorts.
+
+The second row is the more important one for a reader deciding what to believe.
+It is an **attempted replication of the project's strongest functional claim,
+and it did not confirm it.** It is recorded at V level because the attempt was
+properly independent — different donors, laboratory, year and quantification —
+and the honest reading is neither "refuted" nor "replicated": at fifteen donors
+with the uncertainty of learning priced in, the cohort cannot settle it, and
+the direction holds throughout.
+
+One number in that row deserves to be read on its own. The in-sample rank
+correlation between CYP3A4 abundance and this activity is **+0.73**, and the
+out-of-sample prediction is still off by a factor of about three. That is the
+clearest demonstration this project has produced that **a published
+correlation is not a performance**.
 
 ### 1.3 Functional proof (F)
 
 | Claim | Cohort | Number | Status |
 |---|---|---|---|
-| A single enzyme's **absolute protein abundance** predicts its own substrate's **intrinsic clearance**, out-of-sample | Wegler n=15, **hepatocytes** | **2 of 5** substrates after Bonferroni over five: midazolam/CYP3A4 ΔMAE(log₁₀) **−0.1168** [−0.2276, −0.0303], omeprazole/CYP2C19 **−0.2012** [−0.3646, −0.0204]. Error falls from ×1.55 to **×1.18** and from ×2.46 to **×1.55**. | **F**, exploratory |
+| A single enzyme's **absolute protein abundance** predicts its own substrate's **intrinsic clearance**, out-of-sample | Wegler n=15, **hepatocytes** | **2 of 5** substrates after Bonferroni over five: midazolam/CYP3A4 ΔMAE(log₁₀) **−0.1168** [−0.2276, −0.0303], omeprazole/CYP2C19 **−0.2012** [−0.3646, −0.0204]. Error falls from ×1.55 to **×1.18** and from ×2.46 to **×1.55**. | **F**, exploratory, **and its attempted replication did not confirm it** (§1.2) |
 | The same relationship in **microsomes** | Wegler n=15 | **0 of 5.** Closest is midazolam −0.0518 [−0.1352, +0.0226] | F, negative |
 | A two-component summary of the remaining 4,037 microsomal proteins adds to that abundance | Wegler n=15 | **0 of 10 cells.** One interval excludes zero and it is a **degradation** (hepatocyte diclofenac +0.0196 [+0.0069, +0.0326]) | F, negative |
 | The benefit differs between the two preparations, paired on the same donors | Wegler n=15 | **3 of 5** exclude zero: omeprazole +0.2095 [+0.0637, +0.3533], midazolam +0.0650 [+0.0014, +0.1279], diclofenac +0.0397 [+0.0060, +0.0717] | F, **not causal** |
@@ -68,6 +84,16 @@ eight, with one enzyme going the wrong way. The eight endpoints are **the same
 refitting**, so it prices the scoring donors' variability and not the variance
 of learning on 14 donors; all of them are narrower than a fully nested interval
 would be, which matters most for the two positive rows.
+
+**That understatement has now been measured, not just acknowledged.** On the
+Lee / Jackson cohort both estimators were computed on the same six contrasts
+(`OMICS2PK_AXIS_B2_PLASMA_BIOMARKER_VALIDATION_RESULTS_20261110.md` §3). A
+refitting out-of-bag interval is **1.78 to 2.09 times wider** for a
+one-predictor arm and **3.76 to 6.32 times wider** for a two-predictor arm. The
+Wegler rows above were declared on the narrower estimator and should be
+discounted by about that factor. Nothing in the frozen Wegler result is altered
+here; what has changed is that a reader now knows the size of the correction to
+apply.
 
 ### 1.4 Exploratory (E)
 
@@ -90,7 +116,10 @@ would be, which matters most for the two positive rows.
 |---|---|---|
 | **A permutation null is positive whenever the compared arms differ in width.** Three single-family contrasts cleared a 2,000-draw bootstrap interval while lying **entirely inside a wholly positive null** (methylome +0.0091 [+0.0044, +0.0118] against a null of [+0.0034, +0.0109]) | null median **+0.0021 to +0.0040** median ΔR² in every cell, reaching +0.012 | Axis A §1.2 |
 | Same-donor readiness, executed on real counts | **`fit_allowed` on 0 of 10** registered sources; the HLC+Wegler fusion refused at 466 / 15 / 488 with intersection **0** | `reports/data/hepatic_multiview_readiness_verdict.json` |
-| Candidate paired sources, qualified under a declared rule | **0 of 7** usable as datasets: 2 on access, 5 on the absence of a per-donor layer paired with a per-donor outcome | `OMICS2PK_CANDIDATE_PAIRED_LIVER_SOURCE_QUALIFICATION_20261110.md` |
+| Candidate paired sources, qualified publisher-first under a declared rule | **0 of 7** usable as datasets: 2 on access, 5 on the absence of a per-donor layer paired with a per-donor outcome | `OMICS2PK_CANDIDATE_PAIRED_LIVER_SOURCE_QUALIFICATION_20261110.md` |
+| The same question asked of **eight repositories** and of the open-access-plus-supplement filter | **2 usable datasets** that the publisher-first search had missed. Of **9** sources now known to have measured a per-donor pairing, **2** published the rows | `OMICS2PK_INDEPENDENT_REPOSITORY_SEARCH_20261110.md` |
+| **A non-refitting paired bootstrap understates the interval by a measured factor** | **×1.78 to ×2.09** for one predictor, **×3.76 to ×6.32** for two, on six contrasts | Axis B2 §3 |
+| An HTTP 403, and even Europe PMC's own "not open access" flag, do not establish that individual data is unavailable | the 171-donor Bhatt supplement is refused by two channels, gated by a third, and **served without restriction by ftp.ebi.ac.uk** — and once open it holds **availability ticks, not values** | Independent repository search §3 |
 | Two of three published clearance equations in Wegler are **scaled by the CYP abundance** that serves as the predictor | eq. 8 divides by the probed CYP and multiplies back by the homogenate CYP; eq. 9 adds Kpuu | Axis B §3 |
 | The two halves of the Wegler source number their donors differently | donors 1–9 identity, **10–15 permuted**; assuming the identity mis-pairs **6 of 15** | Axis B §3 |
 
@@ -98,7 +127,7 @@ would be, which matters most for the two positive rows.
 
 ## 2. The register of withdrawn and narrowed claims
 
-A ledger that only grows is not a ledger. Eight claims have been withdrawn,
+A ledger that only grows is not a ledger. Ten claims have been withdrawn,
 reversed or narrowed, all by this project on its own evidence.
 
 | Claim | What happened | Date |
@@ -111,6 +140,8 @@ reversed or narrowed, all by this project on its own evidence.
 | F-series: "the rewired null shows no CollecTRI-specific information" | **Narrowed**: for `F5` the real network beats all 20 nulls by under 1 %; 20 nulls are an exploratory control, not a proof of absence | 2026-11-09 |
 | Axis B: "the rest of the proteome adds nothing" | **Rescoped** to the two prespecified principal components actually tested | 2026-11-10 |
 | Al-Majdoub: `ABSTAIN_TOO_FEW_DONORS` | **Corrected** to `ABSTAIN_NO_PER_DONOR_VALUES` after opening the file: abundance is measured on pooled lots, so the pairing never existed | 2026-11-10 |
+| "Step 2 has **nothing to run**: no new per-donor paired dataset is identifiable" | **Withdrawn.** A search over eight repositories and the open-access-supplement filter found two usable per-donor datasets the publisher-first search had missed. The search was too narrow, not the public record too thin | 2026-11-10 |
+| "An enzyme's absolute abundance predicts its substrate's clearance out of sample" presented as this project's established functional result | **Downgraded** to a result whose attempted independent replication returned **0 of 6** SUPPORTED, and whose original intervals are now measured to be about half the width of refitting ones | 2026-11-10 |
 
 ---
 
@@ -123,12 +154,19 @@ Four statements, each traceable to a row above.
    individuals and 127,620 features, reproducing each configuration's
    commissioned size and checksum. (Axis A)
 2. **A mechanistic molecular measurement predicts function where mechanism says
-   it should, out-of-sample, and fails where it should not.** One enzyme's
-   abundance cuts its substrate's hepatocyte clearance error from ×1.55 to
-   ×1.18 for CYP3A4 and from ×2.46 to ×1.55 for CYP2C19; it does nothing for
-   CYP2B6 or CYP2D6, and nothing in microsomes. An independent 100-donor cohort
-   gives the transcript analogue: 2 of 8 enzymes after Bonferroni. **Two
-   sources, two layers, the same modest and enzyme-specific answer.**
+   it should, out-of-sample, and fails where it should not — and fifteen donors
+   are not enough to hold that claim.** One enzyme's abundance cuts its
+   substrate's hepatocyte clearance error from ×1.55 to ×1.18 for CYP3A4 and
+   from ×2.46 to ×1.55 for CYP2C19; it does nothing for CYP2B6 or CYP2D6, and
+   nothing in microsomes. An independent 100-donor cohort gives the transcript
+   analogue: 2 of 8 enzymes after Bonferroni. **But a second fifteen-donor
+   cohort, tested on the same probe reaction, returned 0 of 6 SUPPORTED with
+   every estimate in the improving direction** (§1.2). The defensible version of
+   this statement is therefore: *the relationship is consistently in the
+   expected direction across three cohorts and two layers, and no cohort in the
+   public record is large enough to establish its size.* That is a weaker claim
+   than the project held this morning, and it is a better argument for new data
+   than the stronger one was.
 3. **Measurement beats representation where data is scarce, and representation
    beats nothing where it is not.** In ARIANA, two measured metabolite ratios
    cut an observed trough's error by 38 % while the reimbursed genotype adds
@@ -139,7 +177,10 @@ Four statements, each traceable to a row above.
    executed, and published in full, a permutation grid that explains away three
    of its own bootstrap-significant contrasts; a rewired-network null that
    brackets one of its own arms; a readiness gate that refuses all ten of its
-   own registered sources; and eight withdrawals of its own claims.
+   own registered sources; an attempted independent replication of its own
+   strongest claim that did not confirm it; an interval estimator that measures
+   its own previous intervals to be about half as wide as they should have been;
+   and ten withdrawals of its own claims.
 
 ---
 
@@ -152,7 +193,11 @@ Four statements, each traceable to a row above.
   concentration and is never called anything else.
 - **No multi-omic complementarity.** Axis A is negative and its single robust
   contrast is intra-family. Axis B's proteome contrast is negative for the two
-  components tested.
+  components tested. Axis B2 asked the question in its most favourable
+  available form — a **plasma** metabolite added to a **hepatic** protein in the
+  same donors, two layers correlating at only +0.41, so genuinely
+  non-redundant — and detected nothing at n = 15. **Three attempts, three
+  non-detections, on three different pairs of layers.**
 - **No transfer between drugs, enzymes, tissues or cohorts.** Every positive
   row is bounded by its own cohort.
 - **No causal compartment effect**, despite three paired differences excluding
@@ -172,21 +217,29 @@ Three requirements, and the one number the project can put on any of them.
 | Requirement | Why the existing data cannot meet it | Status |
 |---|---|---|
 | **More donors with same-donor abundance and drug-specific function** | the only qualified source has **15** | **≈150–200 donors** would establish the CYP3A4/CYP2C19 relationship under the weakest effect the pilot's interval allows (80 % power, five-substrate correction). This sizes **that contrast only** |
-| **A transcriptome on the *same* donors** | no qualified source has both layers per donor; six candidates measured both and five do not publish the individual values, two are paywalled | **not sized** — needs an effect estimate the project does not have |
-| **A donor-matched in-vivo endpoint** | no public source pairs a molecular layer with an exposure in the same individuals beyond ARIANA's 47 | **not sized** |
+| **A transcriptome on the *same* donors** | no qualified source has both layers per donor; of nine candidates that measured a pairing, seven do not publish the individual values and two are paywalled with no PMC record | sized **only as declared scenarios** — see `OMICS2PK_COHORT_SIZING_RESULTS_20261110.md`, question B |
+| **A donor-matched in-vivo endpoint** | no public source pairs a molecular layer with an exposure in the same individuals beyond ARIANA's 47. The nearest miss is Lee 2024: **12 patients** with per-patient venetoclax dose and trough **and** a plasma CYP3A biomarker — published **only in a figure**, which this project does not digitise | sized **only as declared scenarios**, and separately for a concentration, an AUC and a model-derived clearance, which are not interchangeable |
 
 **The sharpest version of the gap is not that the data has never been
-collected.** Six of seven candidate cohorts measured both a molecular layer and
-either a second layer or an activity in the *same* donors. Four of them are
-open-access CC BY articles with supplements that publish medians, ranges and
-correlation coefficients and no per-donor row; two are behind a subscription.
-Wegler was usable only because its Table S3 happens to be a per-donor table.
+collected.** Of **nine** sources now known to have measured a per-donor
+molecular layer paired with a per-donor second layer or activity, **two**
+published the rows — and both did so by accident of format rather than by
+policy: Wegler's Table S3 happens to be a per-donor table, and Lee's plasma
+values happen to sit in a main-text table where a word limit did not squeeze
+them into an aggregate.
 
-That points at a second instrument the project has not used: **a data-sharing
-request to five identified corresponding authors** is a different thing from a
-grant, and it is cheaper. The standing constraint is to use only data
-accessible without a request, so this ledger names the option and leaves the
-decision where it belongs.
+Two instruments follow from that, and they are different in kind:
+
+- **A data-sharing request** to the corresponding authors of the seven sources
+  that measured a pairing and published aggregates — the 171-donor Bhatt cohort
+  above all. Cheaper than a grant, and outside the standing constraint on
+  authorisation-free sources, so this ledger names the option and leaves the
+  decision where it belongs. The commissioning note of 2026-11-10 deferred it
+  explicitly: exhaust the public channels first.
+- **A grant** for the cohort the record cannot supply at any level of
+  generosity about sharing: a transcriptome, a proteome and a donor-matched
+  exposure in the *same* individuals, at a size the sizing document puts a
+  scenario range on.
 
 ---
 
@@ -195,3 +248,4 @@ decision where it belongs.
 | Version | Date | Change |
 |---|---|---|
 | 1.0.0 | 2026-11-10 | First consolidation. Classifies every current claim at five levels defined before the table, with its cohort, its interval and its limit; records that the project holds **no** clinical-PK result and **one** independent validation; lists the eight claims it has withdrawn, reversed or narrowed on its own evidence; and states the data gap in the sharper form the candidate-source audit established — the measurements largely exist and the individual values are largely not published. No figure was recomputed for this document. |
+| 1.1.0 | 2026-11-10 | Revised the same day on new evidence, in the unfavourable direction. §1.2 adds an **attempted independent replication of the project's strongest functional claim that did not confirm it** (0 of 6 contrasts, every estimate improving). §1.3 records that the interval estimator behind the original claim is now **measured** to be 1.78–2.09× too narrow for one predictor and 3.76–6.32× for two. §1.5 records that the publisher-first source search was too narrow — eight repositories and the open-access-supplement filter yielded **two** usable datasets — and that an HTTP 403 does not establish unavailability, while adding that climbing the access ladder did not change the 171-donor verdict. §2 grows from eight withdrawals to **ten**. §3 statement 2 is rewritten to the weaker claim the evidence now supports. §4 records three non-detections of complementarity on three different pairs of layers. §5 restates the gap on nine sources and separates the data-request instrument from the grant instrument. |

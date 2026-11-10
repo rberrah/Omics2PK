@@ -51,6 +51,12 @@ ENDPOINT_CLASSES = (
     "functional_in_vitro",
     "pd_cell_line",
     "biomarker_only",
+    # Added 2026-11-10, additively. A source can carry individual-level
+    # molecular layers and NO pharmacological endpoint of any kind -- the
+    # matched jejunum-liver proteome is one. Forcing it into
+    # ``biomarker_only``, which presumes a genotype reference, would misstate
+    # what it is, and forcing it into a drug class would overstate it.
+    "molecular_only_no_endpoint",
 )
 
 OBJECTIVES = ("H1", "H2", "H3", "H4", "H5")

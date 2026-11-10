@@ -87,9 +87,13 @@ jobs:
             tests/test_wegler_protein_clint_pilot.py \
             tests/test_candidate_paired_liver_sources.py \
             tests/test_evidence_ledger.py \
+            tests/test_independent_repository_search.py \
+            tests/test_lee_jackson_cyp3a_panel.py \
+            tests/test_plasma_biomarker_validation.py \
+            tests/test_cohort_size_simulation.py \
             | grep -c '::' || true)
           echo "collected $count pytest tests"
-          if [ "$count" -lt 1170 ]; then
-            echo "ERROR: expected at least 1170 collected tests, got $count." >&2
+          if [ "$count" -lt 1290 ]; then
+            echo "ERROR: expected at least 1290 collected tests, got $count." >&2
             exit 1
           fi

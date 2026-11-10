@@ -206,6 +206,9 @@ class TestStructuralCounts:
         assert payload["summary"]["n_usable_as_datasets"] == 0
         assert payload["summary"]["n_candidates"] == 7
         assert "**0 of 7** usable as datasets" in text
+        assert "**2 usable datasets**" in text, (
+            "the repository search found two datasets the publisher-first "
+            "search missed; the ledger must say so beside the 0 of 7")
         counts = payload["summary"]["by_reason"]
         assert f"{counts['ABSTAIN_ACCESS']} on access" in text
         assert f"{counts['ABSTAIN_NO_PER_DONOR_VALUES']} on the absence" in text
@@ -245,11 +248,20 @@ class TestLedgerProperties:
         assert "The project holds no C-level result" in text
         assert "No clinical-PK proof" in text
 
-    def test_it_holds_exactly_one_independent_validation(self, text):
-        assert "only V-level row" in text
+    def test_it_holds_exactly_one_positive_independent_validation(self, text):
+        assert "only **positive** V-level row" in text
+
+    def test_the_failed_replication_is_recorded_at_v_level(self, text):
+        # An attempted independent validation that did not confirm belongs in
+        # the ledger at the level of the attempt, not quietly in a footnote.
+        assert "attempted and not confirmed" in text
+        assert "0 of 6** contrasts SUPPORTED" in text
+
+    def test_a_correlation_is_not_called_a_performance(self, text):
+        assert "a published" in text and "correlation is not a" in text
 
     def test_the_withdrawal_register_is_present_and_counted(self, text):
-        assert "Eight claims have been withdrawn" in text
+        assert "Ten claims have been withdrawn" in text
         section = text.split("register of withdrawn")[1].split("## 3.")[0]
         # Each row of the register ends with a date.
         dates = re.findall(r"2026-11-\d\d", section)
@@ -268,11 +280,18 @@ class TestLedgerProperties:
 
     def test_it_confines_the_sample_size_figure(self, text):
         assert "This sizes **that contrast only**" in text
-        assert "not sized" in text
+
+    def test_the_unsizeable_requirements_are_labelled_as_scenarios(self, text):
+        # They were "not sized" until the sizing document existed. They are
+        # now sized only under declared assumptions, which must never be
+        # allowed to read as a measured requirement.
+        assert text.count("sized **only as declared scenarios**") == 2
+        assert "which are not interchangeable" in text
 
     def test_it_names_the_data_request_option_without_taking_it(self, text):
-        assert "data-sharing request to five identified corresponding authors" in text
+        assert "data-sharing request** to the corresponding authors" in text
         assert "leaves the decision where it belongs" in text
+        assert "deferred it" in text
 
     def test_it_distinguishes_itself_from_the_older_matrix(self, text):
         assert "**not** the October 2026" in text

@@ -1,6 +1,6 @@
 {
   "registry_name": "PUBLIC_DATA_EVIDENCE_REGISTRY",
-  "version": "1.15.0",
+  "version": "1.16.0",
   "frozen_at": "2026-11-07",
   "scope": "Datasets admissible for the Omics2PK five-objective validation (H1-H5). A published article is not by itself an exploitable dataset.",
   "access_policy": {
@@ -28,7 +28,8 @@
     "pk_clinical": "A pharmacokinetic observation in a treated human (concentration, AUC, CL/F).",
     "functional_in_vitro": "An enzyme activity or intrinsic clearance measured in tissue/microsomes. NOT human PK.",
     "pd_cell_line": "A cell-line drug-response endpoint. Neither PK nor human PD.",
-    "biomarker_only": "Molecular ratios with a genotype reference but no drug exposure measurement."
+    "biomarker_only": "Molecular ratios with a genotype reference but no drug exposure measurement.",
+    "molecular_only_no_endpoint": "Individual-level molecular layers with NO pharmacological endpoint of any kind: no drug, no exposure, no activity. Can support a complementarity or redundancy question with a declared non-pharmacological target, and can support no claim about drug metabolism or pharmacokinetics."
   },
   "verification_legend": {
     "verified_this_session": "true = the stated provenance facts were checked on 2026-11-07 by retrieving the source and/or recomputing the checksum. false = inherited from a prior repository document and NOT re-verified here."
@@ -1301,7 +1302,7 @@
       "citation": "Drozdzik M, et al. Clin Pharmacol Ther 2018;104(3):515-524.",
       "pmid": "29205295",
       "access_tier": "unavailable",
-      "access_note": "Europe PMC records isOpenAccess N, inPMC N and hasSuppl N. The publisher answers HTTP 403 to every automated client behind a Cloudflare interstitial, for both the article page and the downloadSupplement endpoint. Nothing about the supplement's contents can be asserted.",
+      "access_note": "Europe PMC records isOpenAccess N, inPMC N and hasSuppl N. The publisher answers HTTP 403 to every automated client behind a Cloudflare interstitial, for both the article page and the downloadSupplement endpoint. Nothing about the supplement's contents can be asserted. RE-TESTED 2026-11-10 through a second, publisher-independent channel. Europe PMC reports no PMCID for this article, so there is no PMC record for BioStudies to mirror and no file for the ftp.ebi.ac.uk channel to serve -- the channel that did unblock Bhatt 2019 and completed the matched jejunum-liver workbook. Four channels are now recorded in reports/data/independent_repository_search.json, and scripts/audit_independent_repository_search.py FAILS on every run if either article acquires a PMCID, because that would mean the supplement may now be mirrored and this verdict would have to be revisited.",
       "n_analysed": 9,
       "omics_layers": [
         {
@@ -1323,7 +1324,10 @@
         "Nine donors is below this project's declared floor of ten for a leave-one-donor-out design, so even with access it would be a comparator rather than a dataset."
       ],
       "verified_this_session": true,
-      "verification_method": "Europe PMC core record queried live on 2026-11-10 by scripts/audit_candidate_paired_liver_sources.py, which fails if isOpenAccess, inPMC or hasSuppl has moved since the audit; the per-donor determination comes from opening the retrieved supplement and is recorded with that file's size and SHA-256 where one was retrievable."
+      "verification_method": "Europe PMC core record queried live on 2026-11-10 by scripts/audit_candidate_paired_liver_sources.py, which fails if isOpenAccess, inPMC or hasSuppl has moved since the audit; the per-donor determination comes from opening the retrieved supplement and is recorded with that file's size and SHA-256 where one was retrievable.",
+      "inherited_from": [
+        "docs/OMICS2PK_INDEPENDENT_REPOSITORY_SEARCH_20261110.md"
+      ]
     },
     {
       "key": "wenzel_2024_jejunum_liver_11",
@@ -1331,7 +1335,7 @@
       "citation": "Wenzel C, et al. Clin Pharmacol Ther 2024;115(2):221-230.",
       "pmid": "37739780",
       "access_tier": "unavailable",
-      "access_note": "Europe PMC records isOpenAccess N and hasSuppl N; licence as indexed is cc by-nc-nd, which would forbid redistributing a derivative even if the file were reachable. Same publisher and same Cloudflare 403 as drozdzik_2018_liver_intestine_9.",
+      "access_note": "Europe PMC records isOpenAccess N and hasSuppl N; licence as indexed is cc by-nc-nd, which would forbid redistributing a derivative even if the file were reachable. Same publisher and same Cloudflare 403 as drozdzik_2018_liver_intestine_9. RE-TESTED 2026-11-10 through a second, publisher-independent channel. Europe PMC reports no PMCID for this article, so there is no PMC record for BioStudies to mirror and no file for the ftp.ebi.ac.uk channel to serve -- the channel that did unblock Bhatt 2019 and completed the matched jejunum-liver workbook. Four channels are now recorded in reports/data/independent_repository_search.json, and scripts/audit_independent_repository_search.py FAILS on every run if either article acquires a PMCID, because that would mean the supplement may now be mirrored and this verdict would have to be revisited.",
       "n_analysed": 11,
       "omics_layers": [
         {
@@ -1352,7 +1356,10 @@
         "The non-commercial, no-derivatives licence is a second obstacle independent of the paywall."
       ],
       "verified_this_session": true,
-      "verification_method": "Europe PMC core record queried live on 2026-11-10 by scripts/audit_candidate_paired_liver_sources.py, which fails if isOpenAccess, inPMC or hasSuppl has moved since the audit; the per-donor determination comes from opening the retrieved supplement and is recorded with that file's size and SHA-256 where one was retrievable."
+      "verification_method": "Europe PMC core record queried live on 2026-11-10 by scripts/audit_candidate_paired_liver_sources.py, which fails if isOpenAccess, inPMC or hasSuppl has moved since the audit; the per-donor determination comes from opening the retrieved supplement and is recorded with that file's size and SHA-256 where one was retrievable.",
+      "inherited_from": [
+        "docs/OMICS2PK_INDEPENDENT_REPOSITORY_SEARCH_20261110.md"
+      ]
     },
     {
       "key": "almajdoub_2026_kcat_matched_4",
@@ -1513,6 +1520,256 @@
       ],
       "verified_this_session": true,
       "verification_method": "Europe PMC core record queried live on 2026-11-10 by scripts/audit_candidate_paired_liver_sources.py, which fails if isOpenAccess, inPMC or hasSuppl has moved since the audit; the per-donor determination comes from opening the retrieved supplement and is recorded with that file's size and SHA-256 where one was retrievable."
+    },
+    {
+      "key": "lee_jackson_cyp3a_15",
+      "label": "Lee / Jackson CYP3A hepatocyte panel n=15",
+      "citation": "Lee J, Fallon JK, Smith PC, Jackson KD. Clin Transl Sci 2023;16(2):279-293.",
+      "pmcid": "PMC9926076",
+      "access_tier": "open_public",
+      "licence": "cc by-nc-nd",
+      "access_note": "Found on 2026-11-10 by the repository and open-access-supplement search, not by the earlier publisher-first search over named citations. Retrieved through Europe PMC: supplementaryFiles for CTS-16-279-s001.docx and fullTextXML for the main-text table. THE SECOND LAYER IS IN THE MAIN TEXT, not the supplement: a harvest limited to supplementary files would miss it. CC BY-NC-ND permits analysis and the reporting of aggregates and forbids redistributing the per-donor table, which is therefore written outside the repository as this project does regardless of licence.",
+      "n_analysed": 15,
+      "omics_layers": [
+        {
+          "layer": "proteomics",
+          "analytes": "CYP3A4 and CYP3A5 absolute abundance in hepatocytes, pmol/mg protein, targeted quantitative proteomics; supplement Table S2",
+          "identification_quality": "absolute quantification against labelled peptide standards, published per donor"
+        },
+        {
+          "layer": "targeted_metabolomics",
+          "analytes": "plasma 4-beta-hydroxycholesterol and total cholesterol and their ratio, from MATCHED donor plasma; main-text Table 1",
+          "identification_quality": "LC-MS/MS after derivatisation against authentic standards, with the method validation published"
+        }
+      ],
+      "endpoint": {
+        "name": "CYP3A activity as midazolam 1'-hydroxylation, and ibrutinib M37 / M34 / M25 formation, in hepatocytes from the same donors",
+        "endpoint_class": "functional_in_vitro",
+        "per_donor_values_held": true,
+        "units": "pmol per million cells per minute",
+        "what_it_is_not": "NOT an intrinsic clearance: a formation rate at a single substrate concentration, not Vmax/Km and not on the scale of Wegler's equation 7. NOT a pharmacokinetic quantity: no dose, no plasma drug concentration.",
+        "circularity_check": "PASSED. The outcome is normalised per million cells and the predictor per mg of protein, so the outcome is divided by no CYP quantity -- unlike Wegler's equations 8 and 9. The cost is that the two use DIFFERENT denominators, so each donor's protein-per-cell ratio is an uncontrolled term.",
+        "verification": {
+          "anchors_agreeing": 3,
+          "anchors_total": 3,
+          "tolerance": 0.02,
+          "anchors": {
+            "ibrutinib M37 vs plasma ratio, n=14 excluding the 1-year-old": {
+              "published": 0.62,
+              "recomputed": 0.6176
+            },
+            "ibrutinib M25 vs plasma ratio, n=14 excluding the 1-year-old": {
+              "published": 0.67,
+              "recomputed": 0.6703
+            },
+            "CYP3A4 abundance vs M37, n=15": {
+              "published": 0.97,
+              "recomputed": 0.9679
+            }
+          }
+        }
+      },
+      "objectives_supported": [
+        "H2",
+        "H5"
+      ],
+      "status": "ACQUIRED",
+      "verified_this_session": true,
+      "inherited_from": [
+        "docs/OMICS2PK_INDEPENDENT_REPOSITORY_SEARCH_20261110.md",
+        "docs/OMICS2PK_LEE_JACKSON_CYP3A_PANEL_QUALIFICATION_20261110.md"
+      ],
+      "caveats": [
+        "ONE COHORT, NOT TWO. Lee et al., Clin Transl Sci 2024 (PMC11645475) reports venetoclax metabolism in the SAME fifteen hepatocyte donors and the same twenty microsome lots. Two drugs measured in the same donors are one cohort with two substrates.",
+        "The twenty single-donor microsome lots have abundance and NO activity, so the microsomal arm Wegler could test is not testable here -- and Wegler's microsomal result was the negative one.",
+        "Ages 1 to 63 years including two donors under four, so ontogeny is a confounder this design cannot remove. In this cohort the rank relationship between age and CYP3A4 abundance is +0.075, which weakens the objection without removing it.",
+        "The plasma is procurement plasma from deceased organ donors. A 4-beta-hydroxycholesterol ratio measured there is not interchangeable with one from a living patient.",
+        "The plasma metabolite and the hepatic protein correlate at only +0.41, so they are not two measurements of one thing -- which is what makes an incremental contrast between them a real question."
+      ],
+      "original_repository": "Europe PMC (article supplement and full text)",
+      "individual_level_data_released": true,
+      "donor_structure_verified": true,
+      "verification_method": "three correlations the article publishes, reproduced by scripts/audit_lee_jackson_cyp3a_panel.py within a tolerance of 0.02",
+      "outcome_kind": "drug_specific_metabolic_activity",
+      "axis": "B",
+      "per_donor_table_is_outside_this_repository": true,
+      "local_artifacts": [
+        {
+          "filename": "CTS-16-279-s001.docx",
+          "sha256": "2a07febfa3109c0b0931bb0a20fc8b1a5b70b19abe8024c274777b9d8e9dacc7",
+          "note": "retrieved via the Europe PMC supplementaryFiles endpoint; carries Tables S1 to S5, of which S2 and S3 are per donor"
+        }
+      ],
+      "executed_axis_b2_result": "ZERO of six contrasts SUPPORTED. The replication of the project's one positive functional claim -- a target CYP's abundance predicting its probe reaction out of sample in hepatocytes -- does NOT confirm at the required bar: every point estimate improves and five of six clear their permutation null, and no refitting interval excludes zero. The primary contrast, whether a plasma metabolite adds to the hepatic protein, is also not detected. Out-of-sample fold errors are 2.0 to 3.2, against an in-sample rank correlation of +0.73 -- the clearest demonstration in this project that a published correlation is not a performance. See docs/OMICS2PK_AXIS_B2_PLASMA_BIOMARKER_VALIDATION_RESULTS_20261110.md."
+    },
+    {
+      "key": "matched_jejunum_liver_37",
+      "label": "Matched jejunum and liver proteome n=37",
+      "citation": "Drug Disposition Protein Quantification in Matched Human Jejunum and Liver From Donors With Obesity. Clin Pharmacol Ther 2022;111(5):1142-1154.",
+      "pmcid": "PMC9310776",
+      "access_tier": "open_public",
+      "licence": "cc by-nc",
+      "access_note": "THE CHANNEL MATTERS. The Europe PMC supplementaryFiles endpoint returns a truncated, invalid archive -- under 1 MB across three attempts, and HTTP 500 with inline images suppressed. The BioStudies record S-EPMC9310776 lists the same file at 11,163,005 bytes and redirects to ftp.ebi.ac.uk, which serves it complete. Recording this source as unavailable on the strength of the first channel would have been wrong.",
+      "n_analysed": 37,
+      "omics_layers": [
+        {
+          "layer": "proteomics",
+          "analytes": "global proteome, fmol/ug protein: 9,027 proteins x 37 per-donor jejunum columns and 6,982 x 37 per-donor matched liver columns, in CPT-111-1142-s002.xlsx",
+          "identification_quality": "label-free global quantification; the article's own tables publish medians and ranges only"
+        }
+      ],
+      "endpoint": {
+        "name": "none",
+        "endpoint_class": "molecular_only_no_endpoint",
+        "per_donor_values_held": true,
+        "what_it_can_support": "a cross-compartment redundancy question -- does one tissue's proteome predict another's in the same individual -- on the same footing as the Axis A masked-modality work.",
+        "what_it_cannot_support": "anything about drug metabolism. No activity, no clearance, no drug, no concentration."
+      },
+      "objectives_supported": [],
+      "status": "QUALIFIED",
+      "verified_this_session": true,
+      "inherited_from": [
+        "docs/OMICS2PK_INDEPENDENT_REPOSITORY_SEARCH_20261110.md"
+      ],
+      "caveats": [
+        "NOT EXECUTED. The standing rule is that each experiment answers a new question, and a new question needs a declared target first. This source is recorded as available and sized, not analysed.",
+        "The non-obese sheets carry no per-donor columns, so the obese and non-obese groups are not comparable at the individual level.",
+        "Donors with obesity undergoing bariatric surgery are not a general population."
+      ],
+      "original_repository": "BioStudies S-EPMC9310776, served over ftp.ebi.ac.uk",
+      "individual_level_data_released": true,
+      "donor_structure_verified": true,
+      "verification_method": "per-donor column headers read directly from the workbook: 'Jejunum 1..37' and 'Liver 1..37', both at fmol/ug protein",
+      "outcome_kind": null,
+      "axis": "A",
+      "per_donor_table_is_outside_this_repository": true,
+      "local_artifacts": [
+        {
+          "filename": "CPT-111-1142-s002.xlsx",
+          "sha256": "2af14c6b07ca99f443d00704033b98f7f84667ac37c8e77d7c1ae68a7e6e4656",
+          "note": "11,163,005 bytes from ftp.ebi.ac.uk; the Europe PMC endpoint returns a truncated, invalid archive for the same file"
+        }
+      ]
+    },
+    {
+      "key": "bhatt_ugt_171",
+      "label": "Bhatt 2019 UGT abundance and activity n=171 livers",
+      "citation": "Bhatt DK et al. Age- and Genotype-Dependent Variability in the Protein Abundance and Activity of Six Major UGTs. Clin Pharmacol Ther 2019;105(1):131-141.",
+      "pmcid": "PMC6222000",
+      "access_tier": "open_public",
+      "access_note": "THE MOST INSTRUCTIVE ACCESS CASE IN THIS PROJECT. The publisher returns HTTP 403; Europe PMC refuses the supplement as 'Article with id PMC6222000 is not open access one'; NCBI gates the author-manuscript file behind a proof-of-work challenge, which was NOT defeated; the author-manuscript bulk collection requires registration, which the standing authorisation-free constraint excludes. BioStudies S-EPMC6222000 redirects to ftp.ebi.ac.uk, which serves the same 2,547,704-byte PDF without restriction. So the file WAS obtainable and the access verdict would have been wrong.",
+      "n_analysed": 171,
+      "omics_layers": [
+        {
+          "layer": "proteomics",
+          "analytes": "six hepatic UGTs by LC-MS/MS in microsomes from 136 paediatric and 35 adult donors, plus genotype by PGRN-Seq or PharmacoScan",
+          "identification_quality": "per-donor measurement that is NOT published per donor"
+        }
+      ],
+      "endpoint": {
+        "name": "glucuronidation activity for five substrates in the same liver microsomes",
+        "endpoint_class": "functional_in_vitro",
+        "per_donor_values_held": false,
+        "why_not": "Supplement Table S2 publishes abundance AND activity as mean +/- SD BY AGE CATEGORY. Supplement Table S3 publishes a genuine per-donor row for each of the 171 samples whose 'Activity' and 'Proteomics' columns are AVAILABILITY TICKS, not values. The pairing was measured and the rows were not published."
+      },
+      "objectives_supported": [],
+      "status": "ABSTAIN",
+      "abstain_reason": "ABSTAIN_NO_PER_DONOR_VALUES",
+      "verified_this_session": true,
+      "inherited_from": [
+        "docs/OMICS2PK_INDEPENDENT_REPOSITORY_SEARCH_20261110.md"
+      ],
+      "caveats": [
+        "This is the largest paired abundance-and-activity liver cohort identified anywhere in this project, and the single most valuable unpublished per-donor table. It is the obvious target of a data request, which the standing constraint excludes and which the commissioning note has deferred.",
+        "Its verdict is NOT an access failure. Climbing the access ladder changed a wrong reason into a right one and did not change the outcome."
+      ],
+      "original_repository": "BioStudies S-EPMC6222000, served over ftp.ebi.ac.uk",
+      "individual_level_data_released": false,
+      "donor_structure_verified": true,
+      "verification_method": "supplement retrieved and read: 1,404 lines of extracted text, Tables S1 to S11 enumerated, S2 and S3 read in full",
+      "outcome_kind": "drug_specific_metabolic_activity",
+      "axis": "B",
+      "local_artifacts": [
+        {
+          "filename": "NIHMS965499-supplement-Supp_info.pdf",
+          "sha256": "7280cd9d152ecf52e62e4a3575922972c06e07f71b5abb7d05c991acd276ac54",
+          "note": "2,547,704 bytes, 39 pages. Served by ftp.ebi.ac.uk via BioStudies; refused by Europe PMC as not open access and gated by a proof-of-work challenge at NCBI"
+        }
+      ]
+    },
+    {
+      "key": "sixteen_cyp_individual_20",
+      "label": "16 CYPs and 2 CES in individual preparations n=20",
+      "citation": "Protein Levels of 16 Cytochrome P450s and 2 Carboxyl Esterases Using Absolute Quantitative Proteomics. Pharmaceuticals 2025;18:1789.",
+      "pmcid": "PMC12735975",
+      "access_tier": "open_public",
+      "licence": "cc by",
+      "access_note": "Open access, supplement retrieved through Europe PMC as a nested archive containing a 2,253,487-byte PDF.",
+      "n_analysed": 20,
+      "omics_layers": [
+        {
+          "layer": "proteomics",
+          "analytes": "16 CYPs and 2 carboxylesterases, absolute quantification, in 20 individual hepatocyte donors, 16 genotyped microsome lots and 15 intestinal mucosa lots",
+          "identification_quality": "per-donor measurement published as group means and ranges"
+        }
+      ],
+      "endpoint": {
+        "name": "ten CYP probe activities in the same preparations",
+        "endpoint_class": "functional_in_vitro",
+        "per_donor_values_held": false,
+        "why_not": "Table 1 publishes per-donor DEMOGRAPHICS and supplement Table S1 publishes per-donor GENOTYPE, while Table 2 publishes abundance as means and ranges and Table 3 publishes the abundance-to-activity pairing as Spearman coefficients. Demographics and genotype per donor, measurements per group."
+      },
+      "objectives_supported": [],
+      "status": "ABSTAIN",
+      "abstain_reason": "ABSTAIN_NO_PER_DONOR_VALUES",
+      "verified_this_session": true,
+      "inherited_from": [
+        "docs/OMICS2PK_INDEPENDENT_REPOSITORY_SEARCH_20261110.md",
+        "docs/OMICS2PK_COHORT_SIZING_PRESPECIFICATION_20261110.md"
+      ],
+      "caveats": [
+        "USED AS A TRANSFERABLE PARAMETER SOURCE, NOT AS DATA. Its 28 published Spearman coefficients set the generating correlation of the question-A cohort sizing, through a declared Gaussian-copula mapping. They are in-sample correlations and are never read as performance, and their square is never used as a variance fraction.",
+        "Its hepatocyte figure for CYP3A4 / midazolam is 0.5353, and its microsomal figure for the same pair is 0.8168. The project's own Wegler microsomal result found no out-of-sample prediction at all, so these numbers and that result are in tension -- a tension between an in-sample correlation and an out-of-sample contrast, which is exactly the distinction the Axis B2 run demonstrated.",
+        "Its intestinal mucosa figures are near nil for CYP3A4 (0.1321 midazolam, 0.2321 testosterone), which concords in direction with this project's finding that the compartment matters."
+      ],
+      "original_repository": "Europe PMC",
+      "individual_level_data_released": false,
+      "donor_structure_verified": true,
+      "verification_method": "main-text Tables 1 to 3 and supplement Table S1 read directly",
+      "outcome_kind": "drug_specific_metabolic_activity",
+      "axis": "B"
+    },
+    {
+      "key": "ces1_clopidogrel_pooled",
+      "label": "CES1 and clopidogrel oxidation, recombinant and pooled",
+      "citation": "Confounding Effect of Hepatic Carboxylesterase 1 Variability on Clopidogrel Oxidation. Mol Pharm 2025.",
+      "pmcid": "PMC12673578",
+      "access_tier": "open_public",
+      "access_note": "Open access; main-text tables read directly.",
+      "n_analysed": 0,
+      "omics_layers": [],
+      "endpoint": {
+        "name": "2-oxo-clopidogrel formation kinetics",
+        "endpoint_class": "functional_in_vitro",
+        "per_donor_values_held": false,
+        "why_not": "recombinant enzymes and POOLED human liver microsomes; no individual donor anywhere in the design"
+      },
+      "objectives_supported": [],
+      "status": "ABSTAIN",
+      "abstain_reason": "ABSTAIN_NO_ADMISSIBLE_ENDPOINT",
+      "verified_this_session": true,
+      "inherited_from": [
+        "docs/OMICS2PK_INDEPENDENT_REPOSITORY_SEARCH_20261110.md"
+      ],
+      "caveats": [
+        "Screened by the repository search and recorded so that the search record is complete rather than selective."
+      ],
+      "original_repository": "Europe PMC",
+      "individual_level_data_released": false,
+      "donor_structure_verified": true,
+      "verification_method": "main-text Tables 1 and 2 read directly",
+      "outcome_kind": null,
+      "axis": "B"
     }
   ],
   "phase1_findings": {
@@ -1697,6 +1954,13 @@
       "version": "1.15.0",
       "date": "2026-11-10",
       "change": "Registers the seven candidate paired-liver sources qualified on 2026-11-10 - the commissioning note's three plus four found while checking them - all seven as ABSTAIN with a named reason. TWO fail on access (drozdzik_2018_liver_intestine_9 and wenzel_2024_jejunum_liver_11, both Clin Pharmacol Ther, both answering HTTP 403 to any automated client, the second also cc by-nc-nd), and FIVE on the absence of a per-donor layer paired with a per-donor outcome. The distinction inside that five matters and is recorded: four of them MEASURED both layers in the same donors and published only summaries, while almajdoub_2026_kcat_matched_4 published per-donor ACTIVITY but measured abundance on POOLED commercial lots, so its donor-level pairing was never created rather than created and withheld. SIX of the seven measured both a molecular layer and either the second layer or an activity in the SAME donors, so the measurements exist and what is missing is the individual-level sharing - a different obstacle from 'the data has never been collected', and the one the funding case should name. No existing entry changed, no objective is claimed by any new entry, and nothing was fitted: the audit script scripts/audit_candidate_paired_liver_sources.py re-queries Europe PMC at every run and fails if an access field has moved, so these access verdicts cannot go stale unnoticed. zhang_2015_mppgl_128 is additionally recorded as CONCORDING IN DIRECTION with the Axis B pilot on the microsome-versus-tissue question, explicitly as concordance and not replication."
+    },
+    {
+      "version": "1.16.0",
+      "date": "2026-11-10",
+      "summary": "The publisher-independent repository search adds five entries and amends two. One new source is ACQUIRED and executed: the Lee / Jackson CYP3A panel, fifteen hepatocyte donors carrying a per-donor hepatic protein, a per-donor plasma metabolite and a per-donor measured activity. One is QUALIFIED and deliberately not executed: a matched jejunum-liver proteome in 37 donors with no pharmacological endpoint. Three are ABSTAIN with the reason verified from the file rather than inferred from an access failure, including the 171-donor Bhatt cohort whose supplement WAS obtained and publishes availability ticks instead of values.",
+      "withdraws": "the conclusion in docs/OMICS2PK_CANDIDATE_PAIRED_LIVER_SOURCE_QUALIFICATION_20261110.md section 4 that step 2 of the commissioning order had 'nothing to run'. A publisher-first search over seven named citations was too narrow; the public record was not too thin.",
+      "downgrades": "the project's one positive functional claim. The attempted independent replication of 'a target CYP's abundance predicts its probe reaction out of sample in hepatocytes' returned ZERO of six contrasts SUPPORTED. Separately, the non-refitting paired bootstrap that declared the original finding is measured here to be about half the width of a refitting one, and three to six times narrower for a two-predictor arm."
     }
   ],
   "knowledge_sources": [

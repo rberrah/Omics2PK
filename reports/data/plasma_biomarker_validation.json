@@ -1,0 +1,898 @@
+{
+  "run": "axis_b2_plasma_biomarker_validation",
+  "generated": "2026-11-10",
+  "protocol": "OMICS2PK_AXIS_B2_PLASMA_BIOMARKER_VALIDATION_PRESPECIFICATION_20261110.md",
+  "protocol_version": "1.0.0",
+  "protocol_sha256": "f31e090e03d4ab3c70f09a7ec903f440e78a2965a6606dcf3bcba7db1e257bc2",
+  "per_donor_table_sha256": "bcb5c99936575fac8e19f45f143901b903621dfd1c7644c7c0aafd83bd0afbd1",
+  "per_donor_table_is_outside_this_repository": "C:\\Users\\abdel\\AppData\\Local\\Temp\\claude\\2e1c79373f2a6ea7\\06c7249d-6ba9-4dbc-8b96-f0bce655f135\\scratchpad\\leejackson_out\\lee_jackson_cyp3a_panel_per_donor.csv",
+  "frozen": {
+    "seed": 20261110,
+    "validation": "leave_one_donor_out",
+    "ridge_alphas": [
+      0.001,
+      0.01,
+      0.1,
+      1.0,
+      10.0,
+      100.0
+    ],
+    "permutation_replicates": 200,
+    "n_bootstrap": 2000,
+    "n_out_of_bag_bootstrap": 2000,
+    "primary_endpoint": "midazolam_1_hydroxylation",
+    "secondary_endpoint": "ibrutinib_m37",
+    "primary_arm": "V3_protein_plus_plasma",
+    "primary_comparator": "V1_hepatic_protein",
+    "replication_arm": "V1_hepatic_protein",
+    "replication_comparator": "V0_mean",
+    "substitution_arm": "V2_plasma_metabolite",
+    "target_scale": "log10",
+    "declared_family_size": 6,
+    "status_ceiling": "exploratory_independent_replication"
+  },
+  "arms": {
+    "V0_mean": [],
+    "V1_hepatic_protein": [
+      "cyp3a4_abundance"
+    ],
+    "V2_plasma_metabolite": [
+      "plasma_4b_hc_cholesterol_ratio"
+    ],
+    "V3_protein_plus_plasma": [
+      "cyp3a4_abundance",
+      "plasma_4b_hc_cholesterol_ratio"
+    ]
+  },
+  "endpoints": {
+    "primary": "midazolam_1_hydroxylation",
+    "secondary": "ibrutinib_m37"
+  },
+  "n_donors": 15,
+  "declared_family_size": 6,
+  "results": {
+    "primary": {
+      "incremental_value_V3_vs_V1": {
+        "question": "does a plasma metabolite add to the hepatic protein in the same donors?",
+        "arm": "V3_protein_plus_plasma",
+        "comparator": "V1_hepatic_protein",
+        "arm_score": {
+          "n_donors": 15,
+          "mae_log10": 0.4034627184831879,
+          "geometric_fold_error": 2.531994269777306,
+          "mae_ml_per_min_per_kg": 23.493140590060463,
+          "how_to_read": "mae_log10 is the primary loss. geometric_fold_error is the same quantity read as 'off by a factor of x on average'. mae_ml_per_min_per_kg is the back-transformed error in the endpoint's own units. The last two carry no separate test.",
+          "penalty_by_fold": {
+            "BVT": 10.0,
+            "EYN": 10.0,
+            "FXF": 10.0,
+            "IXN": 10.0,
+            "BJY": 10.0,
+            "BGY": 10.0,
+            "GKP": 10.0,
+            "IHB": 10.0,
+            "TLK": 10.0,
+            "DZS": 10.0,
+            "ZWD": 10.0,
+            "VYU": 1.0,
+            "XKN": 10.0,
+            "KRX": 10.0,
+            "UJX": 10.0
+          },
+          "n_predictors": 2,
+          "predictors": [
+            "cyp3a4_abundance",
+            "plasma_4b_hc_cholesterol_ratio"
+          ],
+          "native_units": "pmol per million cells per minute"
+        },
+        "comparator_score": {
+          "n_donors": 15,
+          "mae_log10": 0.47368040348189827,
+          "geometric_fold_error": 2.976325350918799,
+          "mae_ml_per_min_per_kg": 48.98742227225366,
+          "how_to_read": "mae_log10 is the primary loss. geometric_fold_error is the same quantity read as 'off by a factor of x on average'. mae_ml_per_min_per_kg is the back-transformed error in the endpoint's own units. The last two carry no separate test.",
+          "penalty_by_fold": {
+            "BVT": 10.0,
+            "EYN": 10.0,
+            "FXF": 10.0,
+            "IXN": 10.0,
+            "BJY": 10.0,
+            "BGY": 10.0,
+            "GKP": 10.0,
+            "IHB": 10.0,
+            "TLK": 10.0,
+            "DZS": 10.0,
+            "ZWD": 10.0,
+            "VYU": 10.0,
+            "XKN": 10.0,
+            "KRX": 10.0,
+            "UJX": 1.0
+          },
+          "n_predictors": 1,
+          "predictors": [
+            "cyp3a4_abundance"
+          ],
+          "native_units": "pmol per million cells per minute"
+        },
+        "stored_error_bootstrap": {
+          "n_independent_donors": 15,
+          "mean_difference_log10": -0.07021768499871034,
+          "relative_change_vs_baseline": -0.14823852640421448,
+          "level": "99.17 %",
+          "family_size": 6,
+          "interval": [
+            -0.2323026172622845,
+            0.0518033482765686
+          ],
+          "interval_excludes_zero": false,
+          "direction": "improvement",
+          "n_bootstrap": 2000,
+          "resampling_unit": "donor",
+          "exploratory": true,
+          "refits_the_model_inside_each_draw": false,
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one.",
+          "how_to_read": "An interval containing zero means no difference was DETECTED. It is never a demonstration that there is none, and at n=15 the design's power is low by construction. The estimate and its uncertainty are the deliverable, not a significance verdict."
+        },
+        "refitting_out_of_bag_bootstrap": {
+          "mean_difference_log10": -0.0348084345667085,
+          "median_difference_log10": -0.04251590814056602,
+          "interval": [
+            -0.3328314778623497,
+            0.7364257447268256
+          ],
+          "interval_excludes_zero": false,
+          "level": "99.17 %",
+          "family_size": 6,
+          "n_draws_used": 1998,
+          "n_draws_skipped_too_small": 2,
+          "refits_the_model_inside_each_draw": true,
+          "scoring_donors_per_draw": "the out-of-bag donors, about a third of 15",
+          "what_this_interval_prices": "both the choice of donors learned from and the choice of donors scored on, because each draw re-estimates the standardisation constants, the ridge penalty and the coefficients. It is the answer to the objection that the stored-error interval is narrower than a nested one.",
+          "what_it_still_does_not_price": "the choice of this cohort, this endpoint and these two predictors. No resampling of fifteen donors can price the fact that they are fifteen purchased hepatocyte lots of ages 1 to 63.",
+          "exploratory": true
+        },
+        "the_two_intervals_disagree": false,
+        "which_interval_governs": "the refitting one. Where they disagree, the stored-error interval is the optimistic reading and must not be quoted alone.",
+        "permutation_control": {
+          "observed": -0.07021768499871034,
+          "n_replicates": 200,
+          "null_median": 0.013918040956100157,
+          "n_null_at_least_as_good_as_observed": 9,
+          "rank_p_value": 0.04975124378109453,
+          "better_than_every_replicate": false,
+          "how_to_read": "The null permutes the donor labels of the proteome block only, keeping the target CYP arm and the endpoint paired, and refits everything. It will not be centred on zero: the wider arm shrinks harder under an inner-CV penalty and so scores better with no information. An improvement inside the null is an artefact.",
+          "null_deciles": {
+            "p0": -0.20427050450730408,
+            "p10": -0.04033805005748752,
+            "p20": -0.01673874030941578,
+            "p30": -0.0034338168609387653,
+            "p40": 0.0072576576879231965,
+            "p50": 0.013918040956100157,
+            "p60": 0.01832637291828917,
+            "p70": 0.021576749580094565,
+            "p80": 0.02607766120029156,
+            "p90": 0.037172883091436765,
+            "p100": 0.08274667998103671
+          }
+        },
+        "verdict": "NOT_SUPPORTED",
+        "verdict_rule": "SUPPORTED requires all three: the REFITTING interval excludes zero, its point estimate is an improvement, and the permutation rank p-value is at most 0.05. The stored-error interval alone is never sufficient."
+      },
+      "replication_V1_vs_V0": {
+        "question": "does the target enzyme's abundance predict its probe reaction out of sample, independently of Wegler?",
+        "arm": "V1_hepatic_protein",
+        "comparator": "V0_mean",
+        "arm_score": {
+          "n_donors": 15,
+          "mae_log10": 0.47368040348189827,
+          "geometric_fold_error": 2.976325350918799,
+          "mae_ml_per_min_per_kg": 48.98742227225366,
+          "how_to_read": "mae_log10 is the primary loss. geometric_fold_error is the same quantity read as 'off by a factor of x on average'. mae_ml_per_min_per_kg is the back-transformed error in the endpoint's own units. The last two carry no separate test.",
+          "penalty_by_fold": {
+            "BVT": 10.0,
+            "EYN": 10.0,
+            "FXF": 10.0,
+            "IXN": 10.0,
+            "BJY": 10.0,
+            "BGY": 10.0,
+            "GKP": 10.0,
+            "IHB": 10.0,
+            "TLK": 10.0,
+            "DZS": 10.0,
+            "ZWD": 10.0,
+            "VYU": 10.0,
+            "XKN": 10.0,
+            "KRX": 10.0,
+            "UJX": 1.0
+          },
+          "n_predictors": 1,
+          "predictors": [
+            "cyp3a4_abundance"
+          ],
+          "native_units": "pmol per million cells per minute"
+        },
+        "comparator_score": {
+          "n_donors": 15,
+          "mae_log10": 0.5045985827764057,
+          "geometric_fold_error": 3.195939745558132,
+          "mae_ml_per_min_per_kg": 29.782564132113222,
+          "how_to_read": "mae_log10 is the primary loss. geometric_fold_error is the same quantity read as 'off by a factor of x on average'. mae_ml_per_min_per_kg is the back-transformed error in the endpoint's own units. The last two carry no separate test.",
+          "penalty_by_fold": {
+            "BVT": 0.001,
+            "EYN": 0.001,
+            "FXF": 0.001,
+            "IXN": 0.001,
+            "BJY": 0.001,
+            "BGY": 0.001,
+            "GKP": 0.001,
+            "IHB": 0.001,
+            "TLK": 0.001,
+            "DZS": 0.001,
+            "ZWD": 0.001,
+            "VYU": 0.001,
+            "XKN": 0.001,
+            "KRX": 0.001,
+            "UJX": 0.001
+          },
+          "n_predictors": 0,
+          "predictors": [],
+          "native_units": "pmol per million cells per minute"
+        },
+        "stored_error_bootstrap": {
+          "n_independent_donors": 15,
+          "mean_difference_log10": -0.03091817929450751,
+          "relative_change_vs_baseline": -0.0612728222984482,
+          "level": "99.17 %",
+          "family_size": 6,
+          "interval": [
+            -0.15017113530822046,
+            0.14342733262549584
+          ],
+          "interval_excludes_zero": false,
+          "direction": "improvement",
+          "n_bootstrap": 2000,
+          "resampling_unit": "donor",
+          "exploratory": true,
+          "refits_the_model_inside_each_draw": false,
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one.",
+          "how_to_read": "An interval containing zero means no difference was DETECTED. It is never a demonstration that there is none, and at n=15 the design's power is low by construction. The estimate and its uncertainty are the deliverable, not a significance verdict."
+        },
+        "refitting_out_of_bag_bootstrap": {
+          "mean_difference_log10": -0.04447356398894852,
+          "median_difference_log10": -0.06691878016644398,
+          "interval": [
+            -0.23363985503432608,
+            0.34544274406769204
+          ],
+          "interval_excludes_zero": false,
+          "level": "99.17 %",
+          "family_size": 6,
+          "n_draws_used": 1998,
+          "n_draws_skipped_too_small": 2,
+          "refits_the_model_inside_each_draw": true,
+          "scoring_donors_per_draw": "the out-of-bag donors, about a third of 15",
+          "what_this_interval_prices": "both the choice of donors learned from and the choice of donors scored on, because each draw re-estimates the standardisation constants, the ridge penalty and the coefficients. It is the answer to the objection that the stored-error interval is narrower than a nested one.",
+          "what_it_still_does_not_price": "the choice of this cohort, this endpoint and these two predictors. No resampling of fifteen donors can price the fact that they are fifteen purchased hepatocyte lots of ages 1 to 63.",
+          "exploratory": true
+        },
+        "the_two_intervals_disagree": false,
+        "which_interval_governs": "the refitting one. Where they disagree, the stored-error interval is the optimistic reading and must not be quoted alone.",
+        "permutation_control": {
+          "observed": -0.03091817929450751,
+          "n_replicates": 200,
+          "null_median": 0.006759921973166964,
+          "n_null_at_least_as_good_as_observed": 8,
+          "rank_p_value": 0.04477611940298507,
+          "better_than_every_replicate": false,
+          "how_to_read": "The null permutes the donor labels of the proteome block only, keeping the target CYP arm and the endpoint paired, and refits everything. It will not be centred on zero: the wider arm shrinks harder under an inner-CV penalty and so scores better with no information. An improvement inside the null is an artefact.",
+          "null_deciles": {
+            "p0": -0.16730342368402676,
+            "p10": -0.00500321039441444,
+            "p20": 0.0018462983928588758,
+            "p30": 0.003760549494304494,
+            "p40": 0.005131264619895759,
+            "p50": 0.006759921973166964,
+            "p60": 0.008988268987890648,
+            "p70": 0.017466867630610554,
+            "p80": 0.025785569739768924,
+            "p90": 0.03675322972864196,
+            "p100": 0.08074231304379392
+          }
+        },
+        "verdict": "NOT_SUPPORTED",
+        "verdict_rule": "SUPPORTED requires all three: the REFITTING interval excludes zero, its point estimate is an improvement, and the permutation rank p-value is at most 0.05. The stored-error interval alone is never sufficient."
+      },
+      "substitution_V2_vs_V0": {
+        "question": "does the plasma metabolite alone beat the no-information baseline?",
+        "arm": "V2_plasma_metabolite",
+        "comparator": "V0_mean",
+        "arm_score": {
+          "n_donors": 15,
+          "mae_log10": 0.44659323377671545,
+          "geometric_fold_error": 2.7963609823003672,
+          "mae_ml_per_min_per_kg": 24.743387592066238,
+          "how_to_read": "mae_log10 is the primary loss. geometric_fold_error is the same quantity read as 'off by a factor of x on average'. mae_ml_per_min_per_kg is the back-transformed error in the endpoint's own units. The last two carry no separate test.",
+          "penalty_by_fold": {
+            "BVT": 1.0,
+            "EYN": 1.0,
+            "FXF": 1.0,
+            "IXN": 1.0,
+            "BJY": 1.0,
+            "BGY": 1.0,
+            "GKP": 1.0,
+            "IHB": 1.0,
+            "TLK": 1.0,
+            "DZS": 1.0,
+            "ZWD": 1.0,
+            "VYU": 0.1,
+            "XKN": 1.0,
+            "KRX": 10.0,
+            "UJX": 1.0
+          },
+          "n_predictors": 1,
+          "predictors": [
+            "plasma_4b_hc_cholesterol_ratio"
+          ],
+          "native_units": "pmol per million cells per minute"
+        },
+        "comparator_score": {
+          "n_donors": 15,
+          "mae_log10": 0.5045985827764057,
+          "geometric_fold_error": 3.195939745558132,
+          "mae_ml_per_min_per_kg": 29.782564132113222,
+          "how_to_read": "mae_log10 is the primary loss. geometric_fold_error is the same quantity read as 'off by a factor of x on average'. mae_ml_per_min_per_kg is the back-transformed error in the endpoint's own units. The last two carry no separate test.",
+          "penalty_by_fold": {
+            "BVT": 0.001,
+            "EYN": 0.001,
+            "FXF": 0.001,
+            "IXN": 0.001,
+            "BJY": 0.001,
+            "BGY": 0.001,
+            "GKP": 0.001,
+            "IHB": 0.001,
+            "TLK": 0.001,
+            "DZS": 0.001,
+            "ZWD": 0.001,
+            "VYU": 0.001,
+            "XKN": 0.001,
+            "KRX": 0.001,
+            "UJX": 0.001
+          },
+          "n_predictors": 0,
+          "predictors": [],
+          "native_units": "pmol per million cells per minute"
+        },
+        "stored_error_bootstrap": {
+          "n_independent_donors": 15,
+          "mean_difference_log10": -0.058005348999690315,
+          "relative_change_vs_baseline": -0.11495345206982727,
+          "level": "99.17 %",
+          "family_size": 6,
+          "interval": [
+            -0.21860683521007618,
+            0.12380522169857404
+          ],
+          "interval_excludes_zero": false,
+          "direction": "improvement",
+          "n_bootstrap": 2000,
+          "resampling_unit": "donor",
+          "exploratory": true,
+          "refits_the_model_inside_each_draw": false,
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one.",
+          "how_to_read": "An interval containing zero means no difference was DETECTED. It is never a demonstration that there is none, and at n=15 the design's power is low by construction. The estimate and its uncertainty are the deliverable, not a significance verdict."
+        },
+        "refitting_out_of_bag_bootstrap": {
+          "mean_difference_log10": -0.05054985582377686,
+          "median_difference_log10": -0.054686555214138954,
+          "interval": [
+            -0.2927202739257758,
+            0.3159983729242623
+          ],
+          "interval_excludes_zero": false,
+          "level": "99.17 %",
+          "family_size": 6,
+          "n_draws_used": 1998,
+          "n_draws_skipped_too_small": 2,
+          "refits_the_model_inside_each_draw": true,
+          "scoring_donors_per_draw": "the out-of-bag donors, about a third of 15",
+          "what_this_interval_prices": "both the choice of donors learned from and the choice of donors scored on, because each draw re-estimates the standardisation constants, the ridge penalty and the coefficients. It is the answer to the objection that the stored-error interval is narrower than a nested one.",
+          "what_it_still_does_not_price": "the choice of this cohort, this endpoint and these two predictors. No resampling of fifteen donors can price the fact that they are fifteen purchased hepatocyte lots of ages 1 to 63.",
+          "exploratory": true
+        },
+        "the_two_intervals_disagree": false,
+        "which_interval_governs": "the refitting one. Where they disagree, the stored-error interval is the optimistic reading and must not be quoted alone.",
+        "permutation_control": {
+          "observed": -0.058005348999690315,
+          "n_replicates": 200,
+          "null_median": 0.007399394247747759,
+          "n_null_at_least_as_good_as_observed": 5,
+          "rank_p_value": 0.029850746268656716,
+          "better_than_every_replicate": false,
+          "how_to_read": "The null permutes the donor labels of the proteome block only, keeping the target CYP arm and the endpoint paired, and refits everything. It will not be centred on zero: the wider arm shrinks harder under an inner-CV penalty and so scores better with no information. An improvement inside the null is an artefact.",
+          "null_deciles": {
+            "p0": -0.14808266017978014,
+            "p10": -0.017298836300415052,
+            "p20": 0.001843242251706062,
+            "p30": 0.0041446746031677485,
+            "p40": 0.005277390080627645,
+            "p50": 0.007399394247747759,
+            "p60": 0.009366514436098556,
+            "p70": 0.015463195918310416,
+            "p80": 0.02623717646470324,
+            "p90": 0.03600179682471952,
+            "p100": 0.07143297547777948
+          }
+        },
+        "verdict": "NOT_SUPPORTED",
+        "verdict_rule": "SUPPORTED requires all three: the REFITTING interval excludes zero, its point estimate is an improvement, and the permutation rank p-value is at most 0.05. The stored-error interval alone is never sufficient."
+      }
+    },
+    "secondary": {
+      "incremental_value_V3_vs_V1": {
+        "question": "does a plasma metabolite add to the hepatic protein in the same donors?",
+        "arm": "V3_protein_plus_plasma",
+        "comparator": "V1_hepatic_protein",
+        "arm_score": {
+          "n_donors": 15,
+          "mae_log10": 0.2995613668197235,
+          "geometric_fold_error": 1.9932481368613582,
+          "mae_ml_per_min_per_kg": 26.301281376307713,
+          "how_to_read": "mae_log10 is the primary loss. geometric_fold_error is the same quantity read as 'off by a factor of x on average'. mae_ml_per_min_per_kg is the back-transformed error in the endpoint's own units. The last two carry no separate test.",
+          "penalty_by_fold": {
+            "BVT": 1.0,
+            "EYN": 10.0,
+            "FXF": 10.0,
+            "IXN": 10.0,
+            "BJY": 10.0,
+            "BGY": 10.0,
+            "GKP": 10.0,
+            "IHB": 10.0,
+            "TLK": 10.0,
+            "DZS": 10.0,
+            "ZWD": 10.0,
+            "VYU": 10.0,
+            "XKN": 10.0,
+            "KRX": 10.0,
+            "UJX": 1.0
+          },
+          "n_predictors": 2,
+          "predictors": [
+            "cyp3a4_abundance",
+            "plasma_4b_hc_cholesterol_ratio"
+          ],
+          "native_units": "pmol per million cells per minute"
+        },
+        "comparator_score": {
+          "n_donors": 15,
+          "mae_log10": 0.3254935580961113,
+          "geometric_fold_error": 2.11589229991027,
+          "mae_ml_per_min_per_kg": 33.912297217591956,
+          "how_to_read": "mae_log10 is the primary loss. geometric_fold_error is the same quantity read as 'off by a factor of x on average'. mae_ml_per_min_per_kg is the back-transformed error in the endpoint's own units. The last two carry no separate test.",
+          "penalty_by_fold": {
+            "BVT": 1.0,
+            "EYN": 1.0,
+            "FXF": 1.0,
+            "IXN": 1.0,
+            "BJY": 1.0,
+            "BGY": 1.0,
+            "GKP": 1.0,
+            "IHB": 1.0,
+            "TLK": 1.0,
+            "DZS": 1.0,
+            "ZWD": 1.0,
+            "VYU": 10.0,
+            "XKN": 1.0,
+            "KRX": 10.0,
+            "UJX": 1.0
+          },
+          "n_predictors": 1,
+          "predictors": [
+            "cyp3a4_abundance"
+          ],
+          "native_units": "pmol per million cells per minute"
+        },
+        "stored_error_bootstrap": {
+          "n_independent_donors": 15,
+          "mean_difference_log10": -0.02593219127638786,
+          "relative_change_vs_baseline": -0.0796703671435815,
+          "level": "99.17 %",
+          "family_size": 6,
+          "interval": [
+            -0.09450787761907689,
+            0.04037094048589722
+          ],
+          "interval_excludes_zero": false,
+          "direction": "improvement",
+          "n_bootstrap": 2000,
+          "resampling_unit": "donor",
+          "exploratory": true,
+          "refits_the_model_inside_each_draw": false,
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one.",
+          "how_to_read": "An interval containing zero means no difference was DETECTED. It is never a demonstration that there is none, and at n=15 the design's power is low by construction. The estimate and its uncertainty are the deliverable, not a significance verdict."
+        },
+        "refitting_out_of_bag_bootstrap": {
+          "mean_difference_log10": -0.016894654666890545,
+          "median_difference_log10": -0.024302596848893104,
+          "interval": [
+            -0.2400033357585606,
+            0.6118179012725842
+          ],
+          "interval_excludes_zero": false,
+          "level": "99.17 %",
+          "family_size": 6,
+          "n_draws_used": 1998,
+          "n_draws_skipped_too_small": 2,
+          "refits_the_model_inside_each_draw": true,
+          "scoring_donors_per_draw": "the out-of-bag donors, about a third of 15",
+          "what_this_interval_prices": "both the choice of donors learned from and the choice of donors scored on, because each draw re-estimates the standardisation constants, the ridge penalty and the coefficients. It is the answer to the objection that the stored-error interval is narrower than a nested one.",
+          "what_it_still_does_not_price": "the choice of this cohort, this endpoint and these two predictors. No resampling of fifteen donors can price the fact that they are fifteen purchased hepatocyte lots of ages 1 to 63.",
+          "exploratory": true
+        },
+        "the_two_intervals_disagree": false,
+        "which_interval_governs": "the refitting one. Where they disagree, the stored-error interval is the optimistic reading and must not be quoted alone.",
+        "permutation_control": {
+          "observed": -0.02593219127638786,
+          "n_replicates": 200,
+          "null_median": 0.018001298528866942,
+          "n_null_at_least_as_good_as_observed": 32,
+          "rank_p_value": 0.16417910447761194,
+          "better_than_every_replicate": false,
+          "how_to_read": "The null permutes the donor labels of the proteome block only, keeping the target CYP arm and the endpoint paired, and refits everything. It will not be centred on zero: the wider arm shrinks harder under an inner-CV penalty and so scores better with no information. An improvement inside the null is an artefact.",
+          "null_deciles": {
+            "p0": -0.14299617396404293,
+            "p10": -0.03631391667135033,
+            "p20": -0.014235180937625349,
+            "p30": -0.0021460097999561247,
+            "p40": 0.010159228423061927,
+            "p50": 0.018001298528866942,
+            "p60": 0.02571376572554512,
+            "p70": 0.034138088264098934,
+            "p80": 0.039519942363848065,
+            "p90": 0.04606471075447295,
+            "p100": 0.06274233158668695
+          }
+        },
+        "verdict": "NOT_SUPPORTED",
+        "verdict_rule": "SUPPORTED requires all three: the REFITTING interval excludes zero, its point estimate is an improvement, and the permutation rank p-value is at most 0.05. The stored-error interval alone is never sufficient."
+      },
+      "replication_V1_vs_V0": {
+        "question": "does the target enzyme's abundance predict its probe reaction out of sample, independently of Wegler?",
+        "arm": "V1_hepatic_protein",
+        "comparator": "V0_mean",
+        "arm_score": {
+          "n_donors": 15,
+          "mae_log10": 0.3254935580961113,
+          "geometric_fold_error": 2.11589229991027,
+          "mae_ml_per_min_per_kg": 33.912297217591956,
+          "how_to_read": "mae_log10 is the primary loss. geometric_fold_error is the same quantity read as 'off by a factor of x on average'. mae_ml_per_min_per_kg is the back-transformed error in the endpoint's own units. The last two carry no separate test.",
+          "penalty_by_fold": {
+            "BVT": 1.0,
+            "EYN": 1.0,
+            "FXF": 1.0,
+            "IXN": 1.0,
+            "BJY": 1.0,
+            "BGY": 1.0,
+            "GKP": 1.0,
+            "IHB": 1.0,
+            "TLK": 1.0,
+            "DZS": 1.0,
+            "ZWD": 1.0,
+            "VYU": 10.0,
+            "XKN": 1.0,
+            "KRX": 10.0,
+            "UJX": 1.0
+          },
+          "n_predictors": 1,
+          "predictors": [
+            "cyp3a4_abundance"
+          ],
+          "native_units": "pmol per million cells per minute"
+        },
+        "comparator_score": {
+          "n_donors": 15,
+          "mae_log10": 0.4057016518541323,
+          "geometric_fold_error": 2.545081252355958,
+          "mae_ml_per_min_per_kg": 24.879709218871717,
+          "how_to_read": "mae_log10 is the primary loss. geometric_fold_error is the same quantity read as 'off by a factor of x on average'. mae_ml_per_min_per_kg is the back-transformed error in the endpoint's own units. The last two carry no separate test.",
+          "penalty_by_fold": {
+            "BVT": 0.001,
+            "EYN": 0.001,
+            "FXF": 0.001,
+            "IXN": 0.001,
+            "BJY": 0.001,
+            "BGY": 0.001,
+            "GKP": 0.001,
+            "IHB": 0.001,
+            "TLK": 0.001,
+            "DZS": 0.001,
+            "ZWD": 0.001,
+            "VYU": 0.001,
+            "XKN": 0.001,
+            "KRX": 0.001,
+            "UJX": 0.001
+          },
+          "n_predictors": 0,
+          "predictors": [],
+          "native_units": "pmol per million cells per minute"
+        },
+        "stored_error_bootstrap": {
+          "n_independent_donors": 15,
+          "mean_difference_log10": -0.08020809375802103,
+          "relative_change_vs_baseline": -0.19770216214662933,
+          "level": "99.17 %",
+          "family_size": 6,
+          "interval": [
+            -0.1976794314403365,
+            0.05146150119289817
+          ],
+          "interval_excludes_zero": false,
+          "direction": "improvement",
+          "n_bootstrap": 2000,
+          "resampling_unit": "donor",
+          "exploratory": true,
+          "refits_the_model_inside_each_draw": false,
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one.",
+          "how_to_read": "An interval containing zero means no difference was DETECTED. It is never a demonstration that there is none, and at n=15 the design's power is low by construction. The estimate and its uncertainty are the deliverable, not a significance verdict."
+        },
+        "refitting_out_of_bag_bootstrap": {
+          "mean_difference_log10": -0.08966662456892274,
+          "median_difference_log10": -0.10248855973760115,
+          "interval": [
+            -0.2844612589820997,
+            0.23617161838804795
+          ],
+          "interval_excludes_zero": false,
+          "level": "99.17 %",
+          "family_size": 6,
+          "n_draws_used": 1998,
+          "n_draws_skipped_too_small": 2,
+          "refits_the_model_inside_each_draw": true,
+          "scoring_donors_per_draw": "the out-of-bag donors, about a third of 15",
+          "what_this_interval_prices": "both the choice of donors learned from and the choice of donors scored on, because each draw re-estimates the standardisation constants, the ridge penalty and the coefficients. It is the answer to the objection that the stored-error interval is narrower than a nested one.",
+          "what_it_still_does_not_price": "the choice of this cohort, this endpoint and these two predictors. No resampling of fifteen donors can price the fact that they are fifteen purchased hepatocyte lots of ages 1 to 63.",
+          "exploratory": true
+        },
+        "the_two_intervals_disagree": false,
+        "which_interval_governs": "the refitting one. Where they disagree, the stored-error interval is the optimistic reading and must not be quoted alone.",
+        "permutation_control": {
+          "observed": -0.08020809375802103,
+          "n_replicates": 200,
+          "null_median": 0.005841438772687953,
+          "n_null_at_least_as_good_as_observed": 1,
+          "rank_p_value": 0.009950248756218905,
+          "better_than_every_replicate": false,
+          "how_to_read": "The null permutes the donor labels of the proteome block only, keeping the target CYP arm and the endpoint paired, and refits everything. It will not be centred on zero: the wider arm shrinks harder under an inner-CV penalty and so scores better with no information. An improvement inside the null is an artefact.",
+          "null_deciles": {
+            "p0": -0.12176300187828207,
+            "p10": -0.0038209990954545863,
+            "p20": 0.0024186166638194948,
+            "p30": 0.003656164295999546,
+            "p40": 0.005053316964430886,
+            "p50": 0.005841438772687953,
+            "p60": 0.010332415129875443,
+            "p70": 0.013178206821710428,
+            "p80": 0.020943909439762765,
+            "p90": 0.030389772008021246,
+            "p100": 0.06270029041874163
+          }
+        },
+        "verdict": "NOT_SUPPORTED",
+        "verdict_rule": "SUPPORTED requires all three: the REFITTING interval excludes zero, its point estimate is an improvement, and the permutation rank p-value is at most 0.05. The stored-error interval alone is never sufficient."
+      },
+      "substitution_V2_vs_V0": {
+        "question": "does the plasma metabolite alone beat the no-information baseline?",
+        "arm": "V2_plasma_metabolite",
+        "comparator": "V0_mean",
+        "arm_score": {
+          "n_donors": 15,
+          "mae_log10": 0.34893084307528555,
+          "geometric_fold_error": 2.233216577768232,
+          "mae_ml_per_min_per_kg": 20.47780848018433,
+          "how_to_read": "mae_log10 is the primary loss. geometric_fold_error is the same quantity read as 'off by a factor of x on average'. mae_ml_per_min_per_kg is the back-transformed error in the endpoint's own units. The last two carry no separate test.",
+          "penalty_by_fold": {
+            "BVT": 1.0,
+            "EYN": 1.0,
+            "FXF": 1.0,
+            "IXN": 1.0,
+            "BJY": 1.0,
+            "BGY": 1.0,
+            "GKP": 1.0,
+            "IHB": 1.0,
+            "TLK": 1.0,
+            "DZS": 1.0,
+            "ZWD": 1.0,
+            "VYU": 0.1,
+            "XKN": 1.0,
+            "KRX": 10.0,
+            "UJX": 1.0
+          },
+          "n_predictors": 1,
+          "predictors": [
+            "plasma_4b_hc_cholesterol_ratio"
+          ],
+          "native_units": "pmol per million cells per minute"
+        },
+        "comparator_score": {
+          "n_donors": 15,
+          "mae_log10": 0.4057016518541323,
+          "geometric_fold_error": 2.545081252355958,
+          "mae_ml_per_min_per_kg": 24.879709218871717,
+          "how_to_read": "mae_log10 is the primary loss. geometric_fold_error is the same quantity read as 'off by a factor of x on average'. mae_ml_per_min_per_kg is the back-transformed error in the endpoint's own units. The last two carry no separate test.",
+          "penalty_by_fold": {
+            "BVT": 0.001,
+            "EYN": 0.001,
+            "FXF": 0.001,
+            "IXN": 0.001,
+            "BJY": 0.001,
+            "BGY": 0.001,
+            "GKP": 0.001,
+            "IHB": 0.001,
+            "TLK": 0.001,
+            "DZS": 0.001,
+            "ZWD": 0.001,
+            "VYU": 0.001,
+            "XKN": 0.001,
+            "KRX": 0.001,
+            "UJX": 0.001
+          },
+          "n_predictors": 0,
+          "predictors": [],
+          "native_units": "pmol per million cells per minute"
+        },
+        "stored_error_bootstrap": {
+          "n_independent_donors": 15,
+          "mean_difference_log10": -0.056770808778846694,
+          "relative_change_vs_baseline": -0.13993240727365416,
+          "level": "99.17 %",
+          "family_size": 6,
+          "interval": [
+            -0.17956249300832294,
+            0.07215426627033228
+          ],
+          "interval_excludes_zero": false,
+          "direction": "improvement",
+          "n_bootstrap": 2000,
+          "resampling_unit": "donor",
+          "exploratory": true,
+          "refits_the_model_inside_each_draw": false,
+          "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one.",
+          "how_to_read": "An interval containing zero means no difference was DETECTED. It is never a demonstration that there is none, and at n=15 the design's power is low by construction. The estimate and its uncertainty are the deliverable, not a significance verdict."
+        },
+        "refitting_out_of_bag_bootstrap": {
+          "mean_difference_log10": -0.041424238361053,
+          "median_difference_log10": -0.04287622055553689,
+          "interval": [
+            -0.22742993907421016,
+            0.26503236337896957
+          ],
+          "interval_excludes_zero": false,
+          "level": "99.17 %",
+          "family_size": 6,
+          "n_draws_used": 1998,
+          "n_draws_skipped_too_small": 2,
+          "refits_the_model_inside_each_draw": true,
+          "scoring_donors_per_draw": "the out-of-bag donors, about a third of 15",
+          "what_this_interval_prices": "both the choice of donors learned from and the choice of donors scored on, because each draw re-estimates the standardisation constants, the ridge penalty and the coefficients. It is the answer to the objection that the stored-error interval is narrower than a nested one.",
+          "what_it_still_does_not_price": "the choice of this cohort, this endpoint and these two predictors. No resampling of fifteen donors can price the fact that they are fifteen purchased hepatocyte lots of ages 1 to 63.",
+          "exploratory": true
+        },
+        "the_two_intervals_disagree": false,
+        "which_interval_governs": "the refitting one. Where they disagree, the stored-error interval is the optimistic reading and must not be quoted alone.",
+        "permutation_control": {
+          "observed": -0.056770808778846694,
+          "n_replicates": 200,
+          "null_median": 0.006255022916200075,
+          "n_null_at_least_as_good_as_observed": 6,
+          "rank_p_value": 0.03482587064676617,
+          "better_than_every_replicate": false,
+          "how_to_read": "The null permutes the donor labels of the proteome block only, keeping the target CYP arm and the endpoint paired, and refits everything. It will not be centred on zero: the wider arm shrinks harder under an inner-CV penalty and so scores better with no information. An improvement inside the null is an artefact.",
+          "null_deciles": {
+            "p0": -0.11134508260878864,
+            "p10": -0.01815195713933509,
+            "p20": 0.0023111111230447574,
+            "p30": 0.0035485068019804637,
+            "p40": 0.004663426851601537,
+            "p50": 0.006255022916200075,
+            "p60": 0.01009116024948116,
+            "p70": 0.014958750661272766,
+            "p80": 0.02189599713588559,
+            "p90": 0.028823625162645534,
+            "p100": 0.06052004501470956
+          }
+        },
+        "verdict": "NOT_SUPPORTED",
+        "verdict_rule": "SUPPORTED requires all three: the REFITTING interval excludes zero, its point estimate is an improvement, and the permutation rank p-value is at most 0.05. The stored-error interval alone is never sufficient."
+      }
+    }
+  },
+  "sensitivity_cyp3a_total": {
+    "V1s_cyp3a_total": {
+      "score": {
+        "n_donors": 15,
+        "mae_log10": 0.46438050898793365,
+        "geometric_fold_error": 2.9132684729808034,
+        "mae_ml_per_min_per_kg": 44.51288335466481,
+        "how_to_read": "mae_log10 is the primary loss. geometric_fold_error is the same quantity read as 'off by a factor of x on average'. mae_ml_per_min_per_kg is the back-transformed error in the endpoint's own units. The last two carry no separate test.",
+        "n_predictors": 1,
+        "predictors": [
+          "cyp3a_total_abundance"
+        ],
+        "native_units": "pmol per million cells per minute"
+      }
+    },
+    "V3s_cyp3a_total_plus_plasma": {
+      "score": {
+        "n_donors": 15,
+        "mae_log10": 0.4193047006024482,
+        "geometric_fold_error": 2.6260603386862775,
+        "mae_ml_per_min_per_kg": 32.303715595726224,
+        "how_to_read": "mae_log10 is the primary loss. geometric_fold_error is the same quantity read as 'off by a factor of x on average'. mae_ml_per_min_per_kg is the back-transformed error in the endpoint's own units. The last two carry no separate test.",
+        "n_predictors": 2,
+        "predictors": [
+          "cyp3a_total_abundance",
+          "plasma_4b_hc_cholesterol_ratio"
+        ],
+        "native_units": "pmol per million cells per minute"
+      }
+    },
+    "replication_with_cyp3a_total_vs_mean": {
+      "n_independent_donors": 15,
+      "mean_difference_log10": -0.040218073788472086,
+      "relative_change_vs_baseline": -0.07970310492586787,
+      "level": "95.00 %",
+      "family_size": 1,
+      "interval": [
+        -0.13881657466080402,
+        0.08265161649013478
+      ],
+      "interval_excludes_zero": false,
+      "direction": "improvement",
+      "n_bootstrap": 2000,
+      "resampling_unit": "donor",
+      "exploratory": true,
+      "refits_the_model_inside_each_draw": false,
+      "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one.",
+      "how_to_read": "An interval containing zero means no difference was DETECTED. It is never a demonstration that there is none, and at n=15 the design's power is low by construction. The estimate and its uncertainty are the deliverable, not a significance verdict."
+    },
+    "incremental_value_with_cyp3a_total": {
+      "n_independent_donors": 15,
+      "mean_difference_log10": -0.04507580838548555,
+      "relative_change_vs_baseline": -0.09706653813641603,
+      "level": "95.00 %",
+      "family_size": 1,
+      "interval": [
+        -0.11041204936796774,
+        0.020828466193191782
+      ],
+      "interval_excludes_zero": false,
+      "direction": "improvement",
+      "n_bootstrap": 2000,
+      "resampling_unit": "donor",
+      "exploratory": true,
+      "refits_the_model_inside_each_draw": false,
+      "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one.",
+      "how_to_read": "An interval containing zero means no difference was DETECTED. It is never a demonstration that there is none, and at n=15 the design's power is low by construction. The estimate and its uncertainty are the deliverable, not a significance verdict."
+    },
+    "how_to_read": "A declared sensitivity on the choice of the protein predictor. It is not a second primary analysis and carries no multiplicity adjustment of its own, so it may corroborate the primary reading and may not replace it."
+  },
+  "contrasts_supported": [],
+  "n_contrasts_supported": 0,
+  "wegler_comparator": {
+    "source": "docs/OMICS2PK_AXIS_B_WEGLER_PROTEIN_CLINT_PILOT_RESULTS_20261110.md",
+    "cohort": "Wegler, 15 liver donors, Uppsala",
+    "system": "hepatocytes",
+    "endpoint": "midazolam CLint by equation 7",
+    "finding": "the target CYP's own abundance predicted its substrate's intrinsic clearance out of sample for CYP3A4 and CYP2C19 after Bonferroni; midazolam's geometric fold error fell from 1.55 to 1.18",
+    "why_this_is_not_a_pooled_estimate": "different donors, different laboratory and a different endpoint -- a fitted intrinsic clearance there, a single-concentration formation rate here. Two cohorts agreeing in direction is a replication of the direction, not one estimate measured twice."
+  },
+  "what_this_cannot_claim": {
+    "not_an_intrinsic_clearance": "the endpoint is a formation rate at one substrate concentration. It is not Vmax/Km, not a fitted CLint, and not comparable to Wegler's equation 7 on the same scale.",
+    "not_a_pharmacokinetic_result": "no dose, no plasma drug concentration, no exposure. A gain here says nothing about predicting a concentration, an AUC or a clearance in a patient.",
+    "not_a_clinical_biomarker_validation": "the plasma came from deceased organ donors at procurement. A 4-beta-hydroxycholesterol ratio measured there is not interchangeable with one measured in a living patient.",
+    "two_substrates_are_not_two_cohorts": "midazolam and ibrutinib were measured in the same fifteen donors. The second endpoint is a second reading of one cohort.",
+    "absence_of_a_gain_is_not_equivalence": "at fifteen donors an interval that contains zero means no difference was detected. The estimate and its width are the result; a verdict of 'no difference' is not available."
+  },
+  "status_ceiling": "exploratory_independent_replication",
+  "no_donor_identifiers_values_or_predictions_exported": true
+}
