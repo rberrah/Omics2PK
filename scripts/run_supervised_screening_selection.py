@@ -58,7 +58,22 @@ PRIMARY = ("S6_knowledge_then_shap", "S1_univariate_outcome")
 #: practitioner gets for free by not selecting at all.
 AGAINST_EVERYTHING = ("S1_univariate_outcome", "S2_residual_on_baseline",
                       "S3_elastic_net", "S4_shap_xgboost",
-                      "S5_knowledge_only", "S6_knowledge_then_shap")
+                      "S5_knowledge_only", "S6_knowledge_then_shap",
+                      "S7_shap_deduplicated")
+
+#: Full-array protocol, pre-registered in
+#: OMICS2PK_HIGH_DIMENSION_PREREGISTRATION_20261111.md.
+#: Selectors computable at p = 30 000 without a variance filter.
+CHEAP_AT_FULL_WIDTH = ("S0_everything", "S1_univariate_outcome",
+                       "S2_residual_on_baseline", "S8_pool_then_univariate")
+#: Selectors that need the declared in-fold variance filter to run at all.
+NEEDS_PREFILTER = ("S0_everything", "S1_univariate_outcome",
+                   "S2_residual_on_baseline", "S3_elastic_net",
+                   "S4_shap_xgboost", "S7_shap_deduplicated",
+                   "S8_pool_then_univariate")
+#: Declared before execution: the number of most-variable candidates kept
+#: inside each training fold for the arms that cannot run on the whole array.
+PREFILTER_TOP_VARIANCE = 2000
 
 #: The permuted-outcome control only needs the arms it reports, which is the
 #: strongest data-driven selector against no selection at all. Running all
@@ -91,7 +106,15 @@ def _contrasts(result, groups):
     for better, worse in (("S4_shap_xgboost", "S1_univariate_outcome"),
                           ("S2_residual_on_baseline", "S1_univariate_outcome"),
                           ("S6_knowledge_then_shap", "S4_shap_xgboost"),
-                          ("S6_knowledge_then_shap", "S5_knowledge_only")):
+                          ("S6_knowledge_then_shap", "S5_knowledge_only"),
+                          # isolates deduplication: same ordering, duplicates
+                          # removed, nothing else different
+                          ("S7_shap_deduplicated", "S4_shap_xgboost"),
+                          # the pre-registered primary of the high-dimension
+                          # protocol: a mechanistic pool ranked by Spearman
+                          # against exact TreeSHAP over the filtered array
+                          ("S8_pool_then_univariate", "S4_shap_xgboost"),
+                          ("S8_pool_then_univariate", "S1_univariate_outcome")):
         if better in result["losses"] and worse in result["losses"]:
             out[f"{better}_vs_{worse}"] = SSS.contrast(
                 result, better, worse, groups=groups, family_size=FAMILY_SIZE)
@@ -106,6 +129,12 @@ def _report(result, groups, *, knowledge_order=None, baseline_k=None):
         "k_grid": result["k_grid"],
         "mean_loss": result["mean_loss"],
         "k_chosen_per_fold": result["k_chosen_per_fold"],
+        "n_folds_that_abstained": result["n_folds_that_abstained"],
+        "abstention_was_available": result["abstention_was_available"],
+        "pool_size": result.get("pool_size"),
+        "prefilter_top_variance": result.get("prefilter_top_variance"),
+        "prefiltered_candidates_per_fold": result.get(
+            "prefiltered_candidates_per_fold"),
         "stability": result["stability"],
         "curve": result["curve"],
         "parsimony": {
@@ -346,6 +375,133 @@ def run_hlc(expression_zip, phenotype_zip, *, estimator="ridge"):
     return out
 
 
+def hlc_fullarray_pools(expression_zip, phenotype_zip, endpoints):
+    """The whole processed array as the candidate pool, with two filters only.
+
+    Both filters are **outcome-blind and declared**: a probe is dropped when
+    it is not finite for every retained donor (completeness), and the
+    most-variable `PREFILTER_TOP_VARIANCE` of the survivors are kept inside
+    each training fold for the arms that cannot otherwise run. Neither reads
+    an activity value.
+    """
+    from omics2pk import hlc_real_cyp_validation as HLC
+
+    loaded = HLC.load_original_hlc(expression_zip, phenotype_zip)
+    clinical, rna, rows = loaded["clinical"], loaded["rna"], loaded["gene_rows"]
+    mechanistic = np.asarray(sorted({j for g in HLC.GENES for j in rows[g]}),
+                             int)
+    out, skipped = {}, {}
+    for activity in endpoints:
+        observed = loaded["outcomes"][activity]
+        donors = (np.isfinite(observed) & (observed >= 0)
+                  & np.isfinite(clinical).all(axis=1))
+        if donors.sum() < 300:
+            skipped[activity] = f"only {int(donors.sum())} donors"
+            continue
+        complete = np.isfinite(rna[donors]).all(axis=0)
+        # Keep every mechanistic probe that is complete, and say how many of
+        # them the completeness filter removed rather than quietly shrinking
+        # the pool the knowledge arm depends on.
+        kept = np.flatnonzero(complete)
+        mechanistic_kept = np.asarray([j for j in mechanistic if complete[j]],
+                                      dtype=int)
+        position = {int(c): i for i, c in enumerate(kept)}
+        design = np.column_stack([clinical[donors], rna[np.ix_(donors, kept)]])
+        names = ["age", "sex"] + [f"probe_{loaded['feature_ids'][j]}"
+                                  for j in kept]
+        pool = np.asarray([2 + position[int(j)] for j in mechanistic_kept],
+                          dtype=int)
+        gene = ("CYP3A4" if activity.startswith("CYP3A4")
+                else activity.split("_")[0])
+        target_probes = np.asarray(
+            [2 + position[int(j)] for j in rows[gene] if complete[int(j)]],
+            dtype=int)
+        # Knowledge order: the target enzyme's probes, then the rest of the
+        # mechanistic pool, then everything else. The POOL arm reads only the
+        # first `pool_size` of it, which is the mechanistic set exactly.
+        rest_of_pool = [int(c) for c in pool if c not in set(target_probes.tolist())]
+        head = [int(c) for c in target_probes] + rest_of_pool
+        knowledge_order = np.array(
+            head + [i for i in range(len(names)) if i not in set(head)],
+            dtype=int)
+        out[activity] = {
+            "target": observed[donors], "design": design, "names": names,
+            "baseline_columns": (0, 1),
+            "knowledge_order": knowledge_order,
+            "groups": np.arange(int(donors.sum())),
+            "pool_size": int(pool.size),
+            "n_target_probes": int(target_probes.size),
+            "n_candidates": len(names),
+            "n_probes_dropped_as_incomplete": int((~complete).sum()),
+            "n_mechanistic_probes_dropped_as_incomplete": int(
+                mechanistic.size - mechanistic_kept.size),
+            "gene": gene,
+        }
+    return out, skipped, int(mechanistic.size)
+
+
+def run_hlc_fullarray(expression_zip, phenotype_zip, *, estimator="ridge"):
+    """The pre-registered high-dimension protocol. p >> n, for the first time."""
+    endpoints = (*HLC_PRESPECIFIED, HLC_NEGATIVE_CONTROL,
+                 HLC_SPECIFICITY_CONTROL)
+    pools, skipped, mechanistic_size = hlc_fullarray_pools(
+        expression_zip, phenotype_zip, endpoints)
+    for activity in HLC_PRESPECIFIED:
+        if activity not in pools:
+            raise RunError(f"prespecified endpoint {activity} is absent: "
+                           f"{skipped.get(activity, 'reason not recorded')}")
+    out = {"protocol": "OMICS2PK_HIGH_DIMENSION_PREREGISTRATION_20261111.md",
+           "mechanistic_panel_size": mechanistic_size,
+           "prefilter_top_variance": PREFILTER_TOP_VARIANCE,
+           "skipped": skipped, "endpoints": {}}
+    for activity, pool in pools.items():
+        print(f"  HLC full array {activity} n={pool['target'].size} "
+              f"p={pool['n_candidates']} pool={pool['pool_size']}", flush=True)
+        shared = dict(
+            baseline_columns=pool["baseline_columns"],
+            knowledge_order=pool["knowledge_order"],
+            feature_names=pool["names"], estimator=estimator,
+            pool_size=pool["pool_size"])
+        filtered = SSS.screen(pool["target"], pool["design"], pool["groups"],
+                              selectors=NEEDS_PREFILTER,
+                              prefilter_top_variance=PREFILTER_TOP_VARIANCE,
+                              **shared)
+        whole = SSS.screen(pool["target"], pool["design"], pool["groups"],
+                           selectors=CHEAP_AT_FULL_WIDTH, **shared)
+        entry = {
+            "gene": pool["gene"],
+            "n_candidates": pool["n_candidates"],
+            "n_probes_dropped_as_incomplete":
+                pool["n_probes_dropped_as_incomplete"],
+            "n_mechanistic_probes_dropped_as_incomplete":
+                pool["n_mechanistic_probes_dropped_as_incomplete"],
+            "pool_size": pool["pool_size"],
+            "n_target_enzyme_probes": pool["n_target_probes"],
+            "variance_prefiltered": _report(filtered, pool["groups"]),
+            "whole_array_no_prefilter": _report(whole, pool["groups"]),
+        }
+        # What the variance filter COSTS, paired on identical rows and folds.
+        # Reported rather than assumed harmless.
+        entry["cost_of_the_variance_prefilter"] = {
+            arm: VMS.ablation(whole, filtered, arm, label="whole_array",
+                              family_size=FAMILY_SIZE, groups=pool["groups"])
+            for arm in ("S1_univariate_outcome", "S2_residual_on_baseline",
+                        "S8_pool_then_univariate")
+            if arm in whole["losses"] and arm in filtered["losses"]}
+        permuted = SSS.screen(pool["target"], pool["design"], pool["groups"],
+                              selectors=CONTROL_SELECTORS,
+                              prefilter_top_variance=PREFILTER_TOP_VARIANCE,
+                              permute_target=True, **shared)
+        entry["permuted_outcome_control"] = {
+            "mean_loss": permuted["mean_loss"],
+            "n_folds_that_abstained": permuted["n_folds_that_abstained"],
+            "best_selector_vs_everything": SSS.contrast(
+                permuted, "S4_shap_xgboost", "S0_everything",
+                groups=pool["groups"], family_size=FAMILY_SIZE)}
+        out["endpoints"][activity] = entry
+    return out
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--mavedb-dir", default=None)
@@ -354,6 +510,10 @@ def main(argv=None):
                         default=["NUDT15", "CYP2C9", "BRAF"])
     parser.add_argument("--hlc-expression", default=None)
     parser.add_argument("--hlc-phenotype", default=None)
+    parser.add_argument("--hlc-fullarray", action="store_true",
+                        help="run the pre-registered high-dimension protocol "
+                             "on the whole processed array instead of the "
+                             "mechanistically targeted panel")
     parser.add_argument("--estimator", default="ridge",
                         choices=("ridge", "xgboost"))
     parser.add_argument("--out", default=str(
@@ -392,9 +552,18 @@ def main(argv=None):
                              "reason": "--mavedb-dir was not given"}
 
     if args.hlc_expression and args.hlc_phenotype:
-        print("HLC cohort ...", flush=True)
-        payload["hlc"] = run_hlc(args.hlc_expression, args.hlc_phenotype,
-                                 estimator=args.estimator)
+        if args.hlc_fullarray:
+            print("HLC FULL ARRAY cohort ...", flush=True)
+            payload["hlc_full_array"] = run_hlc_fullarray(
+                args.hlc_expression, args.hlc_phenotype,
+                estimator=args.estimator)
+            payload["hlc"] = {
+                "verdict": "NOT_RUN",
+                "reason": "--hlc-fullarray selected the high-dimension protocol"}
+        else:
+            print("HLC cohort ...", flush=True)
+            payload["hlc"] = run_hlc(args.hlc_expression, args.hlc_phenotype,
+                                     estimator=args.estimator)
     else:
         payload["hlc"] = {
             "verdict": "NOT_EVALUABLE",
@@ -417,7 +586,9 @@ def main(argv=None):
     print(f"\nartefact: {out}  sha256 "
           f"{hashlib.sha256(text.encode('utf-8')).hexdigest()[:16]}")
 
-    for cohort in ("mavedb", "hlc"):
+    for cohort in ("mavedb", "hlc", "hlc_full_array"):
+        if cohort not in payload:
+            continue
         block = payload[cohort]
         if block.get("verdict") == "NOT_EVALUABLE":
             print(f"\n{cohort.upper()}: NOT_EVALUABLE - {block['reason']}")

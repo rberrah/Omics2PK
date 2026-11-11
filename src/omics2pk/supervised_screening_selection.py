@@ -70,9 +70,27 @@ FROZEN = {
     "loss": "absolute_error",
     # The panel sizes a selector may choose from. Declared, and the choice
     # among them is made inside each training fold.
-    "k_grid": (1, 2, 3, 5, 8, 12, 20, 32, 50),
+    #
+    # **k = 0 is abstention**: keep the baseline covariates and nothing else.
+    # A method that cannot choose it is not automatic, it is merely obedient --
+    # and on HLC CYP2E1 selecting any variable was DETECTABLY_WORSE than
+    # taking everything, so "select nothing" was the right answer and no arm
+    # could express it. With 0 in the grid the inner folds can now reach it.
+    "k_grid": (0, 1, 2, 3, 5, 8, 12, 20, 32, 50),
+    # Two candidates whose absolute Pearson correlation on the TRAINING rows
+    # exceeds this are treated as one piece of information, and the lower-
+    # ranked one is dropped. 0.9 is near-duplication, not mere association:
+    # the positive control's decoy sits at rho > 0.9 by construction and was
+    # selected in five folds of five without this step.
+    "redundancy_threshold": 0.90,
     # Knowledge proposes this many times the budget before data disposes.
     "oversample": 3,
+    # High dimension only. Before any selector runs, keep the most variable
+    # candidates, computed on TRAINING rows alone. The filter never reads the
+    # outcome, so it cannot leak; it is applied in-fold anyway, so it cannot
+    # even see the test rows' variance. None means no filter, which is the
+    # default and what every run so far used.
+    "prefilter_top_variance": None,
     # The share of the validated gain a parsimonious panel must retain.
     "parsimony_retention": (0.80, 0.90),
     # Reused verbatim from `hlc_real_xgboost_validation`, where it was fixed
@@ -92,6 +110,8 @@ SELECTORS = (
     "S4_shap_xgboost",          # exact TreeSHAP, computed out-of-sample in-fold
     "S5_knowledge_only",        # outcome-blind ordering from knowledge
     "S6_knowledge_then_shap",   # knowledge proposes, SHAP disposes
+    "S7_shap_deduplicated",     # S4, with near-duplicate candidates removed
+    "S8_pool_then_univariate",  # knowledge restricts the POOL, data ranks in it
 )
 
 
@@ -118,13 +138,20 @@ def _rank(values):
 
 
 def _residualise(target, design):
-    """Least-squares residual of `target` on `design` plus an intercept."""
+    """Least-squares residual of `target` on `design` plus an intercept.
+
+    `target` may be a matrix, in which case every column is residualised in
+    one solve. That matters at scale: the first version was called once per
+    column from a list comprehension, which is 40 638 solves on the full HLC
+    array and makes the arm uncomputable rather than slow.
+    """
     design = np.asarray(design, dtype=float)
     if design.ndim == 1:
         design = design.reshape(-1, 1)
     block = np.column_stack([np.ones(design.shape[0]), design])
-    coefficients, *_ = np.linalg.lstsq(block, np.asarray(target, float), rcond=None)
-    return np.asarray(target, float) - block @ coefficients
+    values = np.asarray(target, dtype=float)
+    coefficients, *_ = np.linalg.lstsq(block, values, rcond=None)
+    return values - block @ coefficients
 
 
 def _abs_correlation(columns, target):
@@ -137,6 +164,51 @@ def _abs_correlation(columns, target):
     with np.errstate(invalid="ignore", divide="ignore"):
         out = np.abs(centred.T @ centred_target) / (scale * target_scale)
     return np.nan_to_num(out, nan=0.0)
+
+
+def drop_redundant(order, design, *, threshold=None, keep_columns=()):
+    """Walk an ordering and drop a candidate that duplicates a kept one.
+
+    Greedy, order-respecting and computed on **training rows only**. A tree
+    model attributes a split to whichever of two near-identical columns it
+    happened to use, so SHAP ranks both as important and a budget of k buys
+    fewer than k pieces of information. This step makes `k` mean what it says.
+
+    `keep_columns` are never dropped: they are the baseline, which is pinned
+    into every panel by contract rather than earned.
+
+    Correlation is computed, not assumed symmetric-free: a column with zero
+    variance correlates with nothing, so it survives and is then harmless.
+    """
+    threshold = (FROZEN["redundancy_threshold"] if threshold is None
+                 else threshold)
+    order = np.asarray(order, dtype=int)
+    design = np.asarray(design, dtype=float)
+    protected = set(int(c) for c in keep_columns)
+    centred = design - design.mean(axis=0)
+    norms = np.sqrt((centred ** 2).sum(axis=0))
+    kept, dropped = [], []
+    for column in order:
+        column = int(column)
+        if column in protected:
+            kept.append(column)
+            continue
+        redundant = False
+        for already in kept:
+            if already in protected:
+                continue
+            denominator = norms[column] * norms[already]
+            if denominator <= 0.0:
+                continue
+            correlation = abs(float(centred[:, column] @ centred[:, already])
+                              / denominator)
+            if correlation >= threshold:
+                redundant = True
+                dropped.append((column, already, correlation))
+                break
+        if not redundant:
+            kept.append(column)
+    return np.asarray(kept, dtype=int), dropped
 
 
 def grouped_folds(groups, n_folds, seed):
@@ -237,7 +309,7 @@ def _elastic_net_support(design, target, *, groups, seed):
 # the selectors
 # --------------------------------------------------------------------------
 def rank_candidates(name, design, target, *, baseline_columns, knowledge_order,
-                    groups, seed):
+                    groups, seed, pool_size=None):
     """An ORDERING of candidate columns, strongest first. No budget applied yet.
 
     Every selector that sees the outcome sees only training rows, because this
@@ -254,9 +326,8 @@ def rank_candidates(name, design, target, *, baseline_columns, knowledge_order,
         # raw outcome rewards a variable that merely repeats a covariate.
         if baseline_columns:
             base = _rank(design[:, list(baseline_columns)])
-            ranked = _rank(design)
-            residual_columns = np.column_stack(
-                [_residualise(ranked[:, j], base) for j in range(n_columns)])
+            # One solve for every column, not one solve per column.
+            residual_columns = _residualise(_rank(design), base)
             residual_target = _residualise(_rank(target), base)
         else:
             residual_columns, residual_target = _rank(design), _rank(target)
@@ -277,10 +348,26 @@ def rank_candidates(name, design, target, *, baseline_columns, knowledge_order,
             "why": ("an ungrouped penalty search would validate on the same "
                     "protein position it trained on and choose a penalty that "
                     "looks better than it is")}
-    if name == "S4_shap_xgboost":
+    if name in ("S4_shap_xgboost", "S7_shap_deduplicated"):
         strength, diagnostics = shap_importance(design, target, groups=groups,
                                                 seed=seed)
         return strength.argsort()[::-1], {"uses_outcome": True, **diagnostics}
+    if name == "S8_pool_then_univariate":
+        # The arm that asks the question a restricted pool actually poses: if
+        # a mechanistically chosen handful of candidates is as good as ranking
+        # the whole array, the knowledge did its work by DELIMITING rather
+        # than by ordering -- which is a different claim from S5's, and the
+        # one that survived the earlier runs.
+        _check(knowledge_order is not None,
+               "the pool selector needs a knowledge ordering to delimit the pool")
+        _check(pool_size is not None and pool_size > 0,
+               "the pool selector needs a declared pool size")
+        pool = np.asarray(knowledge_order, dtype=int)[:int(pool_size)]
+        strength = _abs_correlation(_rank(design[:, pool]), _rank(target))
+        return pool[strength.argsort()[::-1]], {
+            "uses_outcome": True, "pool_size": int(pool.size),
+            "how": ("knowledge delimits the candidate pool and the training "
+                    "data orders what is inside it")}
     if name == "S5_knowledge_only":
         _check(knowledge_order is not None,
                "the knowledge-only selector needs a knowledge ordering")
@@ -296,7 +383,7 @@ def rank_candidates(name, design, target, *, baseline_columns, knowledge_order,
 
 
 def selector_ordering(name, design, target, *, baseline_columns,
-                      knowledge_order, groups, seed, max_k):
+                      knowledge_order, groups, seed, max_k, pool_size=None):
     """One ordering per selector per training set. Budgets are PREFIXES of it.
 
     Computing this once instead of once per k is not only cheaper, it is
@@ -310,7 +397,8 @@ def selector_ordering(name, design, target, *, baseline_columns,
         return np.arange(design.shape[1]), {"uses_outcome": False}
     order, diagnostics = rank_candidates(
         name, design, target, baseline_columns=baseline_columns,
-        knowledge_order=knowledge_order, groups=groups, seed=seed)
+        knowledge_order=knowledge_order, groups=groups, seed=seed,
+        pool_size=pool_size)
     if name == "S6_knowledge_then_shap":
         width = min(max(int(max_k) * FROZEN["oversample"], int(max_k)),
                     design.shape[1])
@@ -320,6 +408,16 @@ def selector_ordering(name, design, target, *, baseline_columns,
         order = shortlist[strength.argsort()[::-1]]
         diagnostics = {**diagnostics, "shortlist_width": int(width),
                        **{f"shap_{k}": v for k, v in shap_diagnostics.items()}}
+    if name == "S7_shap_deduplicated":
+        order, dropped = drop_redundant(order, design,
+                                        keep_columns=baseline_columns)
+        diagnostics = {**diagnostics, "deduplicated": True,
+                       "n_dropped_as_redundant": len(dropped),
+                       "redundancy_threshold":
+                           FROZEN["redundancy_threshold"],
+                       "why": ("a budget of k buys fewer than k pieces of "
+                               "information when two candidates are near "
+                               "duplicates of one another")}
     return np.asarray(order, dtype=int), diagnostics
 
 
@@ -327,6 +425,12 @@ def selector_ordering(name, design, target, *, baseline_columns,
 # the harness
 # --------------------------------------------------------------------------
 def _fit_predict(design, target, train, test, *, estimator, seed):
+    if design.shape[1] == 0:
+        # k = 0 with no baseline covariate: the only honest prediction left is
+        # the training mean. Returning it explicitly beats letting a solver
+        # fail on an empty design, and it makes abstention a real arm rather
+        # than an error.
+        return np.full(test.size, float(np.mean(target[train])))
     if estimator == "ridge":
         return ridge_predict(design[train], target[train], design[test],
                              penalty=FROZEN["ridge_penalty"])
@@ -342,7 +446,8 @@ def _fit_predict(design, target, train, test, *, estimator, seed):
 
 def screen(target, design, groups, *, baseline_columns=(), knowledge_order=None,
            feature_names=None, estimator="ridge", seed=None, k_grid=None,
-           selectors=None, permute_target=False, permute_knowledge=False):
+           selectors=None, permute_target=False, permute_knowledge=False,
+           pool_size=None, prefilter_top_variance=None):
     """Every selector, same folds, same estimator; k chosen inside each fold.
 
     `baseline_columns` are columns every panel keeps — the information already
@@ -364,6 +469,7 @@ def screen(target, design, groups, *, baseline_columns=(), knowledge_order=None,
     for column in baseline_columns:
         _check(0 <= column < p, f"baseline column {column} is out of range")
     k_grid = tuple(k for k in k_grid if k <= p) or (p,)
+    _check(all(k >= 0 for k in k_grid), "a budget cannot be negative")
 
     rng = np.random.default_rng(seed)
     if permute_target:
@@ -385,15 +491,56 @@ def screen(target, design, groups, *, baseline_columns=(), knowledge_order=None,
     max_k = max(k_grid)
     orderings = {}
 
+    prefilter = (FROZEN["prefilter_top_variance"]
+                 if prefilter_top_variance is None else prefilter_top_variance)
+    prefilter_sizes = []
+
+    def _prefiltered(rows):
+        """Most-variable candidates, by TRAINING-row variance. Outcome-blind.
+
+        Returned as the set a selector may order, and as the map back to the
+        original column numbers. Nothing downstream ever sees a filtered
+        index, because a panel reported in filtered coordinates would be
+        unreadable and silently wrong.
+        """
+        if not prefilter or prefilter >= p:
+            return None
+        variance = design[rows].var(axis=0)
+        keep = set(int(c) for c in baseline_columns)
+        ranked = [int(c) for c in np.argsort(variance)[::-1]
+                  if int(c) not in keep]
+        chosen = sorted(keep | set(ranked[:int(prefilter)]))
+        return np.asarray(chosen, dtype=int)
+
     def ordering_for(name, rows):
         """Memoised on the exact training row set, so it is computed once."""
         key = (name, rows.tobytes())
         if key not in orderings:
-            orderings[key] = selector_ordering(
-                name, design[rows], target[rows],
-                baseline_columns=baseline_columns,
-                knowledge_order=knowledge_order, groups=groups[rows],
-                seed=seed, max_k=max_k)
+            columns = _prefiltered(rows)
+            if columns is None:
+                orderings[key] = selector_ordering(
+                    name, design[rows], target[rows],
+                    baseline_columns=baseline_columns,
+                    knowledge_order=knowledge_order, groups=groups[rows],
+                    seed=seed, max_k=max_k, pool_size=pool_size)
+            else:
+                prefilter_sizes.append(int(columns.size))
+                position = {int(c): i for i, c in enumerate(columns)}
+                local_baseline = tuple(position[int(c)]
+                                       for c in baseline_columns)
+                local_knowledge = (
+                    np.asarray([position[int(c)]
+                                for c in np.asarray(knowledge_order, int)
+                                if int(c) in position], dtype=int)
+                    if knowledge_order is not None else None)
+                local_order, diagnostics = selector_ordering(
+                    name, design[np.ix_(rows, columns)], target[rows],
+                    baseline_columns=local_baseline,
+                    knowledge_order=local_knowledge, groups=groups[rows],
+                    seed=seed, max_k=max_k, pool_size=pool_size)
+                # Straight back to original column numbers.
+                orderings[key] = (columns[np.asarray(local_order, int)],
+                                  diagnostics)
         return orderings[key][0]
 
     for fold in np.unique(outer):
@@ -458,6 +605,13 @@ def screen(target, design, groups, *, baseline_columns=(), knowledge_order=None,
         "losses": losses,
         "mean_loss": {name: float(v.mean()) for name, v in losses.items()},
         "k_chosen_per_fold": {name: list(v) for name, v in chosen_k.items()},
+        # How often each selector chose to keep nothing but the baseline.
+        # On an endpoint where selecting hurts, this is the right answer and
+        # a method that cannot reach it is not automatic.
+        "n_folds_that_abstained": {
+            name: int(sum(1 for k in v if k == 0))
+            for name, v in chosen_k.items()},
+        "abstention_was_available": 0 in k_grid,
         "panels_per_fold": {
             name: [[names[c] for c in panel] for panel in v]
             for name, v in chosen_panels.items()},
@@ -483,6 +637,15 @@ def screen(target, design, groups, *, baseline_columns=(), knowledge_order=None,
         "candidate_names": list(names),
         "n_orderings_computed": len(orderings),
         "one_ordering_per_selector_per_training_set": True,
+        "pool_size": None if pool_size is None else int(pool_size),
+        "prefilter_top_variance": None if not prefilter else int(prefilter),
+        "prefiltered_candidates_per_fold": sorted(set(prefilter_sizes)),
+        "the_prefilter_is_outcome_blind": (
+            "it ranks candidates by their variance on the TRAINING rows "
+            "alone. It never reads the outcome, so it cannot leak, and being "
+            "refitted per fold it never sees the test rows' variance either. "
+            "It exists because 40 638 candidates make an elastic net and an "
+            "exact TreeSHAP uncomputable, not because it improves anything."),
     }
 
 

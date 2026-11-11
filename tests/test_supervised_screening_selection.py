@@ -462,3 +462,123 @@ class TestResultsDocument:
                 assert control["best_selector_vs_everything"][
                     "verdict"] != "GAIN_REACHES_MARGIN"
         assert checked == 11, checked
+
+
+class TestAbstentionIsAvailable:
+    """`k = 0` means keep the baseline covariates and nothing else.
+
+    A method that cannot choose it is not automatic, it is obedient. On HLC
+    CYP2E1 every selector was DETECTABLY_WORSE than taking everything, so
+    "select nothing" was the right answer and no arm could express it.
+    """
+
+    def test_zero_is_in_the_frozen_grid(self, sss):
+        assert 0 in sss.FROZEN["k_grid"]
+
+    def test_an_empty_panel_predicts_the_training_mean(self, sss, cohort):
+        run = sss.screen(cohort["target"], cohort["design"], cohort["groups"],
+                         baseline_columns=(),
+                         knowledge_order=cohort["knowledge_order"],
+                         selectors=("S1_univariate_outcome",), k_grid=(0, 3))
+        assert run["abstention_was_available"] is True
+        # With no baseline and no selected column there is nothing to fit, so
+        # the loss must be that of an intercept-only model: worse than k=3 on
+        # a cohort that has signal, and finite rather than an error.
+        curve = run["curve"]["S1_univariate_outcome"]
+        assert curve["0"] > curve["3"]
+        assert np.isfinite(curve["0"])
+
+    def test_with_a_baseline_k_zero_keeps_exactly_the_baseline(self, sss,
+                                                               cohort):
+        run = sss.screen(cohort["target"], cohort["design"], cohort["groups"],
+                         baseline_columns=cohort["baseline_columns"],
+                         knowledge_order=cohort["knowledge_order"],
+                         selectors=("S1_univariate_outcome",), k_grid=(0,))
+        for panel in run["panels_per_fold"]["S1_univariate_outcome"]:
+            assert set(panel) == {f"x{c}"
+                                  for c in cohort["baseline_columns"]}
+
+    def test_abstention_is_counted_per_selector(self, sss, cohort):
+        run = sss.screen(cohort["target"], cohort["design"], cohort["groups"],
+                         baseline_columns=cohort["baseline_columns"],
+                         knowledge_order=cohort["knowledge_order"],
+                         selectors=("S1_univariate_outcome",), k_grid=(0, 3))
+        counts = run["n_folds_that_abstained"]
+        assert "S1_univariate_outcome" in counts
+        assert 0 <= counts["S1_univariate_outcome"] <= 5
+
+    def test_a_cohort_with_real_signal_does_not_abstain_everywhere(self, sss,
+                                                                   cohort):
+        # The guard that matters in the other direction: abstention must not
+        # become the answer to everything once it is available.
+        run = sss.screen(cohort["target"], cohort["design"], cohort["groups"],
+                         baseline_columns=cohort["baseline_columns"],
+                         knowledge_order=cohort["knowledge_order"],
+                         selectors=("S1_univariate_outcome",),
+                         k_grid=(0, 3, 8))
+        assert run["n_folds_that_abstained"]["S1_univariate_outcome"] < 5
+
+    def test_a_negative_budget_is_refused(self, sss, cohort):
+        with pytest.raises(Exception):
+            sss.screen(cohort["target"], cohort["design"], cohort["groups"],
+                       selectors=("S0_everything",), k_grid=(-1, 3))
+
+
+class TestDeduplication:
+    def test_exactly_one_of_a_near_identical_pair_survives(self, sss, cohort):
+        decoy = cohort["redundant_copy_of_a_true_column"]
+        twin = cohort["truth_columns"][0]
+        kept, dropped = sss.drop_redundant(
+            np.arange(cohort["design"].shape[1]), cohort["design"],
+            keep_columns=cohort["baseline_columns"])
+        # WHICH of the two survives is not a contract: they carry the same
+        # information, so keeping either is correct. That exactly one survives
+        # IS the contract, because a budget of k must buy k pieces of
+        # information.
+        assert len({decoy, twin} & set(kept.tolist())) == 1
+        assert any(abs(r) >= 0.9 for _, _, r in dropped)
+
+    def test_the_baseline_is_never_dropped(self, sss, cohort):
+        kept, _ = sss.drop_redundant(
+            np.arange(cohort["design"].shape[1]), cohort["design"],
+            keep_columns=cohort["baseline_columns"])
+        assert set(cohort["baseline_columns"]) <= set(kept.tolist())
+
+    def test_it_drops_nothing_when_nothing_is_redundant(self, sss):
+        rng = np.random.default_rng(0)
+        design = rng.normal(size=(200, 6))
+        kept, dropped = sss.drop_redundant(np.arange(6), design)
+        assert kept.size == 6
+        assert dropped == []
+
+    def test_a_zero_variance_column_correlates_with_nothing(self, sss):
+        design = np.column_stack([np.ones(100), np.arange(100.0)])
+        kept, dropped = sss.drop_redundant(np.arange(2), design)
+        assert kept.size == 2
+        assert dropped == []
+
+    def test_it_respects_the_ordering_it_is_given(self, sss, cohort):
+        decoy = cohort["redundant_copy_of_a_true_column"]
+        twin = cohort["truth_columns"][0]
+        # Put the true column first and the decoy must go, not the reverse.
+        order = [twin] + [j for j in range(cohort["design"].shape[1])
+                          if j != twin]
+        kept, _ = sss.drop_redundant(order, cohort["design"])
+        assert twin in kept.tolist()
+        assert decoy not in kept.tolist()
+
+    def test_the_deduplicated_selector_reports_what_it_dropped(self, sss,
+                                                               cohort):
+        order, diagnostics = sss.selector_ordering(
+            "S7_shap_deduplicated", cohort["design"], cohort["target"],
+            baseline_columns=cohort["baseline_columns"],
+            knowledge_order=cohort["knowledge_order"],
+            groups=cohort["groups"], seed=0, max_k=8)
+        if not diagnostics.get("available", True):
+            pytest.skip("xgboost absent")
+        assert diagnostics["deduplicated"] is True
+        assert diagnostics["n_dropped_as_redundant"] >= 1
+        assert diagnostics["redundancy_threshold"] == 0.90
+
+    def test_the_deduplicated_selector_is_declared(self, sss):
+        assert "S7_shap_deduplicated" in sss.SELECTORS
