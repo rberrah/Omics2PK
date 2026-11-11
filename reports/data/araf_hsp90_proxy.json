@@ -1,0 +1,121 @@
+{
+  "run": "araf_hsp90_proxy",
+  "generated": "2026-11-11",
+  "protocol": "OMICS2PK_HIGH_DIMENSION_PREREGISTRATION_20261111.md §3.2, the one prediction that can fail alone",
+  "declared_urns": {
+    "activity": "00001314-c-1",
+    "abundance_dmso": "00001314-a-1",
+    "abundance_hsp90i": "00001314-b-1"
+  },
+  "same_construct_and_library": "all three sets are the C-terminal construct on one variant library, so the two abundance arms differ only in the condition measured: DMSO vehicle against HSP90 inhibitor.",
+  "n_shared_all_three": 6389,
+  "n_analysed_without_synonymous": 6098,
+  "n_positions": 310,
+  "assay_polarity": {
+    "activity": {
+      "nonsense": 0.45875891983616096,
+      "synonymous": 1.0105161901483655,
+      "missense": 0.7880845427686722
+    },
+    "abundance_dmso": {
+      "nonsense": 0.3671997580507454,
+      "synonymous": 0.9795344507281587,
+      "missense": 0.912112755756256
+    },
+    "abundance_hsp90i": {
+      "nonsense": 0.5410029044429816,
+      "synonymous": 1.0007641251640236,
+      "missense": 0.8631716386408645
+    },
+    "missense_above_synonymous_in_activity": false,
+    "how_to_read": "nonsense lowest in every assay means the scales run the same way. Missense ABOVE synonymous in activity means the average substitution makes the kinase more active than wild type, which is the signature of a gain-of-function screen on an autoinhibited kinase."
+  },
+  "spearman": {
+    "dmso_vs_activity": 0.15532115901702917,
+    "hsp90i_vs_activity": 0.14775853691383908,
+    "dmso_vs_hsp90i": 0.7140486411340159
+  },
+  "mean_loss": {
+    "abundance_dmso": 0.45935436176714445,
+    "abundance_hsp90i": 0.46117406487556234,
+    "both_abundances": 0.45954684177222316
+  },
+  "k_chosen_per_fold": {
+    "abundance_dmso": [
+      0,
+      1,
+      1,
+      1,
+      1
+    ],
+    "abundance_hsp90i": [
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "both_abundances": [
+      0,
+      1,
+      1,
+      0,
+      0
+    ]
+  },
+  "contrasts": {
+    "hsp90i_better_than_dmso": {
+      "contrast": "abundance_hsp90i_minus_abundance_dmso",
+      "verdict": "DETECTABLY_WORSE",
+      "relative_gain": -0.003961436441829937,
+      "minimum_interesting_gain": 0.022967718088357222,
+      "gap": -0.0018197031084178981,
+      "interval": [
+        -0.002684484772591276,
+        -0.0009912846404378892
+      ],
+      "excludes_zero": false,
+      "level": "98.33 %",
+      "family_size": 3,
+      "n_bootstrap": 2000,
+      "n_resampling_units": 310,
+      "resampling_unit": "cluster (group resampled with replacement)"
+    },
+    "both_better_than_dmso": {
+      "contrast": "both_abundances_minus_abundance_dmso",
+      "verdict": "DETECTABLY_WORSE",
+      "relative_gain": -0.0004190229180327379,
+      "minimum_interesting_gain": 0.022967718088357222,
+      "gap": -0.0001924800050787348,
+      "interval": [
+        -0.0002775838155183277,
+        -0.00010037070688004537
+      ],
+      "excludes_zero": false,
+      "level": "98.33 %",
+      "family_size": 3,
+      "n_bootstrap": 2000,
+      "n_resampling_units": 310,
+      "resampling_unit": "cluster (group resampled with replacement)"
+    },
+    "both_better_than_hsp90i": {
+      "contrast": "both_abundances_minus_abundance_hsp90i",
+      "verdict": "GAIN_PRESENT_BUT_BELOW_MARGIN",
+      "relative_gain": 0.003528435849440566,
+      "minimum_interesting_gain": 0.02305870324377812,
+      "gap": 0.0016272231033391635,
+      "interval": [
+        0.0007631822171051389,
+        0.002496893878036933
+      ],
+      "excludes_zero": true,
+      "level": "98.33 %",
+      "family_size": 3,
+      "n_bootstrap": 2000,
+      "n_resampling_units": 310,
+      "resampling_unit": "cluster (group resampled with replacement)"
+    }
+  },
+  "prediction": "§3.2 predicted that abundance under HSP90 inhibition becomes a BETTER proxy for activity than abundance under vehicle. If this fails while the other ARAF predictions hold, the HSP90 explanation of the BRAF refutation is wrong and that failure is unexplained again.",
+  "no_individual_level_data_in_this_artefact": true
+}

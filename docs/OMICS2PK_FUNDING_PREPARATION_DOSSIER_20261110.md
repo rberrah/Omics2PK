@@ -1,6 +1,6 @@
 # Omics2PK — funding preparation dossier
 
-**Version 1.0.4 — 2026-11-11.**
+**Version 1.0.5 — 2026-11-11.**
 Consolidates every executed result, open question and sizing the project holds.
 Nothing new is computed here; every figure is traceable to a named document and
 a named artefact, and each is labelled with its level of proof.
@@ -431,7 +431,7 @@ Each of these cost a withdrawn claim or a failed replication to learn:
 | the original functional pilot | `OMICS2PK_AXIS_B_WEGLER_PROTEIN_CLINT_PILOT_RESULTS_20261110.md` |
 | the multi-omic feasibility run | `OMICS2PK_AXIS_A_EATRIS_PLUS_LAYER_COMPLEMENTARITY_RESULTS_20261110.md` |
 | the clinical ablation | `OMICS2PK_ARIANA_STATISTICAL_VERSUS_MECHANISTIC_ABLATION_RESULTS_20261110.md` |
-| every source and its status | `registry/PUBLIC_DATA_EVIDENCE_REGISTRY.json` v1.21.0 |
+| every source and its status | `registry/PUBLIC_DATA_EVIDENCE_REGISTRY.json` v1.22.0 |
 
 ---
 
@@ -444,3 +444,4 @@ Each of these cost a withdrawn claim or a failed replication to learn:
 | 1.0.2 | 2026-11-11 | Registry citation moved to 1.20.0, which added the `variant_functional_screen` endpoint class and two MaveDB paired-assay score sets. No sizing figure and no dossier conclusion changes: deep-mutational-scanning score sets measure engineered variants, not individuals, so they cannot enter a cohort-size calculation. Caught by `tests/test_funding_preparation_dossier.py`. |
 | 1.0.3 | 2026-11-11 | Registry citation moved to 1.20.0, which registered two RCSB PDB structures as a structural knowledge layer. No sizing figure and no dossier conclusion changes: a crystal structure carries no individuals, so it cannot enter a cohort-size calculation. Caught by `tests/test_funding_preparation_dossier.py`. |
 | 1.0.4 | 2026-11-11 | Registry citation moved to **1.21.0**, which registered a pre-registered independent test of the structural selection rule and its outcome — a refutation on BRAF, where the rule's loss-of-function premise does not hold. No sizing figure and no dossier conclusion changes: a deep-mutational-scanning score set measures engineered variants and a crystal structure carries no individuals, so neither can enter a cohort-size calculation. The dossier's **data gap** is unchanged, and the scientific case is now narrower and better evidenced: the mechanistic selection claim is scoped to enzymes whose variants disrupt catalysis at a ligand-binding site, which is a measured boundary rather than an assumed generality. Caught by `tests/test_funding_preparation_dossier.py`. |
+| 1.0.5 | 2026-11-11 | Registry citation moved to **1.22.0**, which registered the ARAF generalisation test and RCSB 9AXM. No sizing figure and no dossier conclusion changes: a deep-mutational-scanning score set measures engineered variants and a crystal structure carries no individuals, so neither can enter a cohort-size calculation. **But one claim of this dossier is narrowed and one explanation withdrawn.** The scope of the mechanistic selection claim is no longer “enzymes whose variants cause loss of function”: ARAF is a loss-of-function library and the rule is refuted on it anyway, so the measured boundary is **metabolic enzyme versus signalling kinase**, tested on two kinases with opposite screen mechanisms. And the HSP90 explanation of the BRAF refutation is **withdrawn**: abundance under HSP90 inhibition is a detectably worse proxy than abundance under vehicle, so that refutation is unexplained again. Caught by `tests/test_funding_preparation_dossier.py`. |

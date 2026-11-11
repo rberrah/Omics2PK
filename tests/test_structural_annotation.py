@@ -502,3 +502,91 @@ class TestArafCentreAndMmcifReader:
         assert "n'a pas d'abondance au d\u00e9part" in text
         assert "2,979" in text
         assert "rompu \u00e0 10,49" in text
+
+
+class TestArafResults:
+    """ARAF's outcome, including the prediction that failed and cost me a theory.
+
+    The primary contrast held -- the structural ablation is refuted under the
+    region split, as predicted -- but three of five predictions failed, and
+    one of them was the only prediction that could fail alone. So the reason
+    for predicting the primary was wrong, and the record has to say so.
+    """
+
+    @pytest.fixture(scope="class")
+    def araf(self):
+        import json
+        path = ROOT / "reports" / "data" / "variant_mechanism_benchmark.json"
+        if not path.is_file():
+            pytest.skip("the benchmark artefact has not been generated")
+        payload = json.loads(path.read_text(encoding="utf-8"))
+        if "ARAF" not in payload.get("genes", {}):
+            pytest.skip("ARAF has not been run")
+        return payload["genes"]["ARAF"]
+
+    @pytest.fixture(scope="class")
+    def hsp90(self):
+        import json
+        path = ROOT / "reports" / "data" / "araf_hsp90_proxy.json"
+        if not path.is_file():
+            pytest.skip("the HSP90 artefact has not been generated")
+        return json.loads(path.read_text(encoding="utf-8"))
+
+    def test_the_structure_actually_covers_the_assayed_positions(self, araf):
+        """The N-terminal construct had zero overlap; this must not recur."""
+        coverage = araf["structural_layer"]["coverage"]
+        assert coverage["n_within"] > 0
+        assert coverage["n_unresolved"] < araf["n_shared_parsed"] / 2
+
+    def test_the_primary_contrast_is_refuted(self, araf):
+        out = araf["runs"]["grouped_by_contiguous_region"][
+            "with_structural_layer"]["ablation_of_the_structural_block"][
+                "M4_fixed_union"]
+        assert out["verdict"] == "REFUTED_GAIN_BELOW_MARGIN"
+
+    def test_the_structural_block_helps_under_the_easier_split(self, araf):
+        """Fourth protein with the same split-dependence."""
+        out = araf["runs"]["grouped_by_position"]["with_structural_layer"][
+            "ablation_of_the_structural_block"]["M4_fixed_union"]
+        assert out["interval"][0] > 0.0
+
+    def test_araf_is_loss_of_function_unlike_braf(self, hsp90):
+        polarity = hsp90["assay_polarity"]
+        assert polarity["missense_above_synonymous_in_activity"] is False
+        assert polarity["activity"]["missense"] < \
+            polarity["activity"]["synonymous"]
+        assert polarity["activity"]["nonsense"] < \
+            polarity["activity"]["missense"]
+
+    def test_the_abundance_correlation_is_positive_not_negative(self, araf):
+        # BRAF was -0.290. The prediction that ARAF would match it failed.
+        assert araf["spearman_abundance_activity"] > 0.0
+
+    def test_the_hsp90_prediction_failed_in_the_opposite_direction(self,
+                                                                   hsp90):
+        out = hsp90["contrasts"]["hsp90i_better_than_dmso"]
+        assert out["verdict"] == "DETECTABLY_WORSE"
+        assert out["relative_gain"] < 0.0
+        # And the inner folds rejected the predictor outright.
+        assert hsp90["k_chosen_per_fold"]["abundance_hsp90i"] == [0] * 5
+
+    def test_the_two_abundances_are_not_measuring_different_things(self,
+                                                                   hsp90):
+        # rho 0.714 between them, so the failure is not a measurement problem.
+        assert hsp90["spearman"]["dmso_vs_hsp90i"] > 0.5
+
+    def test_the_document_records_that_the_reason_was_wrong(self):
+        text = (ROOT / "docs"
+                / "OMICS2PK_HIGH_DIMENSION_PREREGISTRATION_20261111.md"
+                ).read_text(encoding="utf-8")
+        assert "ma raison de l'avoir prédit est fausse" in text
+        assert "n'est pas une confirmation" in text
+        assert "L'explication HSP90 de l'échec BRAF est réfutée" in text
+
+    def test_the_document_revises_the_scope_claim(self):
+        text = (ROOT / "docs"
+                / "OMICS2PK_HIGH_DIMENSION_PREREGISTRATION_20261111.md"
+                ).read_text(encoding="utf-8")
+        assert "enzyme métabolique contre kinase de signalisation" in text
+        # And states why ARAF is the evidence for it.
+        assert "ARAF le montre : perte de" in text

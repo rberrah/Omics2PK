@@ -1,6 +1,6 @@
 # Pré-enregistration : trois protocoles, gelés avant exécution
 
-**Version 4.0.0 — 2026-11-11.** Statut : **PROTOCOLES 1 (§5) ET 1b (§6) EXÉCUTÉS. PROTOCOLE 2 : `NOT_EVALUABLE` (§7) — la condition déclarée en §2.2 n'est pas remplie. Protocole 3 déclaré, aucune donnée téléchargée.**
+**Version 5.0.0 — 2026-11-11.** Statut : **PROTOCOLES 1 (§5) ET 1b (§6) EXÉCUTÉS. PROTOCOLE 2 : `NOT_EVALUABLE` (§7) — la condition déclarée en §2.2 n'est pas remplie. Protocole 3 déclaré, aucune donnée téléchargée.**
 
 **Chronologie, parce que c'est tout ce qui donne sa valeur à ce document.**
 
@@ -877,6 +877,113 @@ Lys–Glu évident est rompu à 12,69 Å dans une conformation αC-out et aurait
 
 ---
 
+## 8. Résultats du protocole 3 — ARAF
+
+Exécuté le 2026-11-11. `reports/data/variant_mechanism_benchmark.json` (gène
+ARAF) et `reports/data/araf_hsp90_proxy.json`. Construit C-terminal,
+**n = 6 105** variants sur **310** positions, 1 092 à des positions que 9AXM
+ne résout pas. Garde-fou passé : Lys336 NZ à **2,979 Å** de l'ANP.
+
+### 8.1 Le contraste principal tient — et ma raison de l'avoir prédit est fausse
+
+| §3.2 prédisait | mesuré | |
+|---|---|---|
+| **principal** : ablation structurale sur `M4`, régions | **−4,07 % [−0,0518, +0,0101]** `REFUTED_GAIN_BELOW_MARGIN` | **tenu** |
+| ρ(abondance, activité) **négatif**, comme BRAF | **+0,1563** (+0,132 hors non-sens) | **ÉCHEC** |
+| activité moyenne des faux-sens **au-dessus** de la synonyme | **0,788 contre 1,011 — en dessous** | **ÉCHEC** |
+| enrichissement près du site ATP **< 1** | 0,638, intervalle **[0,318, 1,144]** qui contient 1 | partiel |
+| **abondance sous HSP90i, meilleur proxy** | **−0,40 % [−0,0027, −0,0010]** `DETECTABLY_WORSE` | **ÉCHEC** |
+
+Le principal est une **réfutation propre** : borne supérieure +0,0101 sous le
+seuil de 0,0246. Mais **il tient pour une raison que les données réfutent.**
+
+J'avais prédit la réfutation **parce que** ARAF serait, comme BRAF, un criblage
+de gain de fonction où l'abondance est un proxy inversé. **Les deux prémisses
+sont fausses** : ARAF est à **perte de fonction** — faux-sens à 0,788 contre
+1,011 pour la synonyme, c'est-à-dire **moins** actifs que le type sauvage,
+l'inverse exact de BRAF (1,420 contre 0,992) — et ρ est **positif**.
+
+**Une prédiction juste tirée d'un raisonnement faux n'est pas une confirmation
+du raisonnement.** C'est le résultat le plus instructif de ce protocole.
+
+### 8.2 L'explication HSP90 de l'échec BRAF est réfutée
+
+C'était la seule prédiction pouvant échouer seule, et elle échoue **dans le
+sens opposé** :
+
+| | ρ avec l'activité | perte hors échantillon |
+|---|---|---|
+| abondance, véhicule DMSO | **+0,1553** | **0,4594** |
+| abondance, inhibition d'HSP90 | +0,1478 | 0,4612 |
+
+`hsp90i_better_than_dmso` = **−0,40 %, `DETECTABLY_WORSE`**. Et le signe le
+plus net : **les plis internes ont choisi `k = 0` dans 5 plis sur 5** pour le
+bras HSP90i — ils ont préféré ne rien utiliser plutôt que ce prédicteur, alors
+qu'ils retenaient le DMSO dans 4 plis sur 5.
+
+Les deux abondances corrèlent entre elles à **ρ = 0,714**, donc ce n'est pas un
+problème de mesure : les deux conditions mesurent largement la même chose, et
+l'inhibition d'HSP90 n'ajoute pas l'information que j'avais postulée.
+
+**Conséquence, et elle est coûteuse.** La §3.2 déclarait : *« Si la dernière
+ligne échoue alors que les autres tiennent, l'explication HSP90 de l'échec BRAF
+est fausse et l'échec reste inexpliqué. »* Elle échoue, et **deux** autres
+lignes échouent avec elle. **L'échec BRAF est de nouveau inexpliqué**, et
+l'attribution au mécanisme de gain de fonction, écrite dans
+`OMICS2PK_BRAF_PREREGISTRATION_20261111.md` §8.2, ne peut plus porter la
+généralisation qu'on lui faisait porter.
+
+### 8.3 Ce que la portée de la règle devient
+
+| Protéine | classe | mécanisme du criblage | ablation structurale, régions |
+|---|---|---|---|
+| NUDT15 | hydrolase Nudix | perte de fonction | **+12,09 %**, positive |
+| CYP2C9 | cytochrome P450 | perte de fonction | +3,81 %, sous la marge |
+| BRAF | kinase de signalisation | **gain** de fonction | **réfutée** |
+| **ARAF** | **kinase de signalisation** | **perte** de fonction | **réfutée** |
+
+**La ligne de partage n'est pas perte contre gain de fonction — c'est enzyme
+métabolique contre kinase de signalisation.** ARAF le montre : perte de
+fonction comme NUDT15, et la règle échoue tout de même. L'énoncé de la §8.3 du
+dossier BRAF — *« pour une enzyme dont les variants perturbent la catalyse à un
+site de liaison de ligand »* — survit, mais la clause qui compte n'est pas
+celle que j'avais identifiée.
+
+**Pourquoi c'est plausible plutôt que commode :** une kinase de signalisation
+est régulée par autoinhibition, dimérisation et recrutement, et son activité
+mesurée est une **sortie de voie** plusieurs étapes en aval du site
+catalytique. Une hydrolase ou un P450 convertit un substrat au site même qu'on
+mesure. La distance 3D à la machinerie catalytique dit quelque chose du second
+cas et peu du premier — et cela se vérifie maintenant sur **deux** kinases,
+avec des mécanismes de criblage **opposés**.
+
+### 8.4 Le même clivage par découpage, une quatrième fois
+
+Position-grouped, l'ablation structurale sur ARAF est **+4,24 %
+[+0,0030, +0,0332]**, borne inférieure au-dessus de zéro. Région-grouped, elle
+est réfutée. C'est le quatrième protéine où le bloc structural aide sous le
+découpage facile et pas sous le dur. **Croire le découpage par régions** reste
+la règle, et elle a maintenant quatre confirmations.
+
+### 8.5 Contrôles
+
+`M5_vs_M4_permuted_mechanism` est `DETECTABLY_WORSE` sous les deux découpages
+(−0,44 %, −0,49 %), donc permuter le mécanisme ne crée pas d'avantage. Le
+bootstrap par lignes aurait donné `GAIN_PRESENT_MARGIN_UNDECIDED` là où le
+bootstrap par positions donne « non détectable » — un facteur de largeur
+**×2,77** et **×3,36**, cohérent avec les autres protéines.
+
+### 8.6 Ce que le protocole 3 autorise à dire
+
+| Question | Réponse |
+|---|---|
+| la règle structurale 3D généralise-t-elle à ARAF ? | **non.** Réfutation propre sous le découpage dur |
+| l'explication HSP90 de l'échec BRAF tient-elle ? | **non.** L'abondance sous HSP90i est un proxy **détectablement pire**, et les plis internes l'ont rejetée 5 fois sur 5 |
+| la ligne de partage est-elle perte contre gain de fonction ? | **non.** ARAF est à perte de fonction et échoue quand même. Le partage est **métabolique contre signalisation** |
+| ma prédiction principale était-elle juste ? | **oui, et pour une raison fausse.** Les deux prémisses qui la motivaient sont réfutées |
+
+---
+
 ## 4. Écarts et amendements
 
 Section en ajout seul.
@@ -951,6 +1058,49 @@ parallèle et non moins.
 comme dans 6PP9 : la restriction de chaîne est encore une fois décisive, pas
 cosmétique.
 
+### 4.4 Correction du construit ARAF, et ce que je savais en la faisant
+
+**C'est une erreur de ma part, et une erreur de séquencement.** La §4.3 a
+choisi le construit N-terminal parce qu'il portait les **trois mesures**
+nécessaires. **Je n'ai pas vérifié les positions qu'il assaye.**
+
+| Construit | positions distinctes | dont dans 302–574, la région que 9AXM résout |
+|---|---|---|
+| **N-terminal** (`e-1`, `f-1`, `d-1`) | 300 | **1 — soit 0 %** |
+| **C-terminal** (`a-1`, `b-1`, `c-1`) | 313 | **273 — soit 87 %** |
+
+**Le contraste principal du protocole 3 est donc `NOT_EVALUABLE` sur le
+construit N-terminal** : les 5 188 variants appariés sont **tous** à des
+positions non résolues, le bloc structural est constant, et l'ablation vaut
+`0,0000` **par construction et non par mesure**. Un contraste arithmétiquement
+forcé à zéro n'est pas un essai sur l'hypothèse ; c'est un instrument
+inapplicable.
+
+**Divulgation complète, parce qu'elle est nécessaire pour juger.** Avant de
+décider de corriger, j'avais vu les chiffres du run N-terminal :
+ρ(abondance, activité) = **+0,011**, couverture structurale **0 %**, et les
+contrastes M3/M4 de ce construit. **Ce qui a motivé la correction est
+exclusivement aveugle à l'issue** — quelles positions un construit assaye, et
+quels résidus une structure résout. **J'aurais pu, et dû, le vérifier avant de
+télécharger quoi que ce soit.** Les chiffres du run N-terminal sont conservés
+au dossier plutôt que jetés, et ils ne sont pas lus comme la réponse du
+protocole.
+
+**Ce que la correction change :**
+
+| Rôle | URN corrigée | n |
+|---|---|---|
+| **activité, départ** | `urn:mavedb:00001314-c-1` | 6 855 |
+| **abondance, véhicule DMSO** | `urn:mavedb:00001314-a-1` | 6 857 |
+| **abondance, inhibition d'HSP90** | `urn:mavedb:00001314-b-1` | 6 851 |
+
+Le construit C-terminal n'a pas d'abondance « au départ » mais une abondance
+**sous véhicule DMSO**, qui est le **contrôle véhicule** de l'expérience
+HSP90i. Pour la prédiction de la §3.2 c'est un comparateur **meilleur** qu'un
+« départ » sans rapport, et c'est le même construit que BRAF employait.
+
+**Aucun seuil, aucune hypothèse et aucun contraste principal ne change.**
+
 ### 4.1 Trois ajouts, antérieurs à tout résultat
 
 Demandés après le gel de la version 1.0.0 et **avant la lecture du moindre
@@ -1022,7 +1172,8 @@ l'absence de significativité.
 
 | Version | Date | Change |
 |---|---|---|
-| **4.1.0** | **2026-11-11** | **Protocole 3 préparé et ses deux écarts déclarés avant tout téléchargement de score ARAF (§4.2, §4.3).** La clause « format PDB héritable » est **levée** : c'était une limite de mon lecteur, pas un critère scientifique, et ARAF n'a que **7 entrées RCSB** dont **une seule porte un analogue d'ATP** — 9AXM, 2,42 Å, qui n'existe qu'en mmCIF. La règle désigne donc exactement une entrée avec ou sans la clause, et la levée ne peut pas avoir été dirigée par un résultat. Un lecteur mmCIF est ajouté, employant `auth_seq_id` et non `label_seq_id`, et **validé contre le lecteur PDB sur 6PP9** : 276 résidus 447–722, ligands identiques, sept identités identiques, **2,875 Å identique**. Second écart : le construit **N-terminal** est employé là où BRAF employait le C-terminal, parce que le C-terminal d'ARAF **n'a pas d'abondance au départ** ; les trois URN sont nommées. Le **garde-fou est vérifié contre les coordonnées avant déclaration** : sept identités (K336, E354, T382, D429, DFG 447-449, DFG **trouvé par balayage** et non supposé) et **Lys336 NZ à 2,979 Å de l'ANP**. Ce n'est **pas** le pont salin K336–E354, **rompu à 10,49 Å** : 9AXM est αC-out comme 6PP9 à 12,69 Å, ce qui rend la comparaison plus parallèle. |
+| **5.0.0** | **2026-11-11** | **Protocole 3 exécuté (§8). Le contraste principal tient, et ma raison de l'avoir prédit est réfutée.** L'ablation structurale sur `M4`, régions, donne **−4,07 % [−0,0518, +0,0101]** `REFUTED_GAIN_BELOW_MARGIN` — réfutation propre, comme prédit. Mais **trois prédictions sur cinq échouent** : ρ(abondance, activité) est **+0,156** et non négatif ; les faux-sens sont à **0,788 contre 1,011** pour la synonyme, donc ARAF est à **perte** de fonction et non à gain, l'inverse de BRAF ; et surtout **l'abondance sous inhibition d'HSP90 est un proxy `DETECTABLY_WORSE`** (−0,40 %), les plis internes l'ayant rejetée dans **5 plis sur 5**. **L'explication HSP90 de l'échec BRAF est donc réfutée et cet échec redevient inexpliqué.** Conséquence sur la portée : la ligne de partage **n'est pas** perte contre gain de fonction, puisque ARAF est à perte de fonction et échoue — c'est **enzyme métabolique contre kinase de signalisation**, vérifié sur deux kinases aux mécanismes opposés. Quatrième protéine où le bloc structural aide sous le découpage par positions (**+4,24 %**) et est réfuté sous celui par régions. |
+| 4.1.0 | 2026-11-11 | **Protocole 3 préparé et ses deux écarts déclarés avant tout téléchargement de score ARAF (§4.2, §4.3).** La clause « format PDB héritable » est **levée** : c'était une limite de mon lecteur, pas un critère scientifique, et ARAF n'a que **7 entrées RCSB** dont **une seule porte un analogue d'ATP** — 9AXM, 2,42 Å, qui n'existe qu'en mmCIF. La règle désigne donc exactement une entrée avec ou sans la clause, et la levée ne peut pas avoir été dirigée par un résultat. Un lecteur mmCIF est ajouté, employant `auth_seq_id` et non `label_seq_id`, et **validé contre le lecteur PDB sur 6PP9** : 276 résidus 447–722, ligands identiques, sept identités identiques, **2,875 Å identique**. Second écart : le construit **N-terminal** est employé là où BRAF employait le C-terminal, parce que le C-terminal d'ARAF **n'a pas d'abondance au départ** ; les trois URN sont nommées. Le **garde-fou est vérifié contre les coordonnées avant déclaration** : sept identités (K336, E354, T382, D429, DFG 447-449, DFG **trouvé par balayage** et non supposé) et **Lys336 NZ à 2,979 Å de l'ANP**. Ce n'est **pas** le pont salin K336–E354, **rompu à 10,49 Å** : 9AXM est αC-out comme 6PP9 à 12,69 Å, ce qui rend la comparaison plus parallèle. |
 | 4.0.0 | 2026-11-11 | **Protocole 2 : `NOT_EVALUABLE` (§7), par le verdict déclaré en §2.2 et non par révision.** MaveDB contient **exactement quatre jeux COMT et les quatre sont des mesures d'abondance** — ARN, protéine, et deux occupations polysomales ; **aucune activité**. Ni l'abondance protéique promue en endpoint, ni l'occupation polysomale promue en proxy d'activité : l'une remplacerait la question par l'axe A, l'autre transformerait un `NOT_EVALUABLE` en résultat apparent. **Inventaire** : sur 26 gènes avec activité et 68 avec abondance, **4 ont les deux**, et **ARAF et BRAF seuls** ont ≥ 2 mesures candidates plus une activité — mais ce sont **trois conditions d'une même couche**, pas trois couches, donc une version affaiblie de la question. Aucune donnée supplémentaire téléchargée, et le choix entre déclarer un protocole 4 ou consigner l'absence de véhicule n'est pas pris unilatéralement. |
 | 3.0.0 | 2026-11-11 | **Protocole 1b exécuté (§6), puis borné par une ablation exploratoire (§6.6).** Premier résultat **positif robuste** du projet sur sa thèse centrale — **et non confirmatoire** : même cohorte, protocole conçu après le signal. Il porte sur un seul endpoint, et l ablation montre qu il se réduit à un transcrit. Sur **CYP2D6**, le pool mécanistique bat **0 des 1 000 pools appariés tirés dans les plis** : +13,98 %, p = **0,000999** au plancher, **Bonferroni 0,0167 franchi**, appariement **inductif**. Le +14,35 % transductif du protocole 1 n'était donc pas un artefact. **CYP3A4T échoue** (p = 0,285) et **CYP2C9 échoue à l'envers** : 986 pools appariés sur 1 000 font mieux. Le **contrôle à redondance appariée** (CYP2D6, 200 pools construits, redondance 0,4806 → 0,4805) donne **0/200**, p = 0,00498 : l'avantage vient de **l'identité des gènes**, pas de leur covariance. Le **diagnostic de variance** tue mon hypothèse comme annoncé (98,6ᵉ percentile des deux côtés, écart +0,01) et la **scission prédictive** confirme la vôtre : la moitié que le filtre écarte porte **tout** le signal (92,11 contre 109,72) et contient la sonde **CYP2D6**. **Interprétabilité** : CYP2D6 retenu dans les cinq plis, avec **POR**, donneur d'électrons obligatoire des CYP microsomaux ; mais sur CYP2C9 le gène retenu partout est **CYP3A4 et non CYP2C9**, ce qui explique l'échec. Une question déclarée non résolue : le pool de 25 sondes bat-il la sonde de l'enzyme cible seule ? À pré-enregistrer, pas à ajouter après coup. |
 | 2.2.0 | 2026-11-11 | **Restriction de 1b déclarée avant exécution (§1b.7).** Les 1 000 pools inductifs portent sur les **trois endpoints predefinis** — la famille que le seuil Bonferroni de 0,0167 suppose déjà — et CYP2E1 et CYP3A4M conservent leurs résultats du protocole 1 comme contrôles négatif et de spécificité. Aucun changement d'hypothèse ni de seuil. Le controle secondaire a **redondance appariee** porte sur **CYP2D6 seulement, 200 pools** : un pool construit coûte 2,46 s à cette largeur et 200 × 5 × 3 vaudrait deux heures pour un contrôle secondaire ; le plancher 1/201 = 0,00498 franchit toujours 0,0167. La **scission prédictive** est inscrite **EXPLORATOIRE** dans l'artefact. Les **gènes** du pool et de chaque moitié sont nommés, pour que l'interprétabilité biologique du +14,35 % soit vérifiable et non supposée. Moteur dédié `pool_arm_loss` avec voisinages mis en cache par pli : 25 cibles contre 30 596 candidats recalculées à chaque tirage seraient 46 milliards de distances pour trois endpoints ; mises en cache, vingt calculs suffisent. |

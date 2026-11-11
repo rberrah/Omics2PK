@@ -1,6 +1,6 @@
 {
   "registry_name": "PUBLIC_DATA_EVIDENCE_REGISTRY",
-  "version": "1.21.0",
+  "version": "1.22.0",
   "frozen_at": "2026-11-07",
   "scope": "Datasets admissible for the Omics2PK five-objective validation (H1-H5). A published article is not by itself an exploitable dataset.",
   "access_policy": {
@@ -2259,6 +2259,131 @@
         "Inactive aC-out conformation: the catalytic Lys483-Glu501 salt bridge is broken at 12.69 A, which is why the numbering guard is the nucleotide contact rather than that salt bridge.",
         "1237 of 6583 assayed variants sit at positions 6PP9 does not resolve; they are flagged, never imputed as 'far from the machinery'."
       ]
+    },
+    {
+      "key": "mavedb_araf_abundance_conditions_and_activity",
+      "label": "MaveDB ARAF activity with abundance under vehicle and HSP90 inhibition, same C-terminal construct",
+      "citation": "MaveDB score sets urn:mavedb:00001314-a-1, -b-1 and -c-1, ARAF abundance under DMSO vehicle, abundance under HSP90 inhibition, and activity at baseline, C-terminal construct.",
+      "doi": null,
+      "pmid": null,
+      "pmcid": null,
+      "trial_registration": null,
+      "original_repository": "https://api.mavedb.org/api/v1/score-sets/urn%3Amavedb%3A00001314-c-1/scores",
+      "data_availability_statement": "Published in MaveDB under CC0 and served by its public API without registration. The N-terminal construct sets -d-1, -e-1 and -f-1 were downloaded first and are NOT used for the structural contrast: only 1 of their 300 assayed positions is resolved in 9AXM, against 273 of 313 for the C-terminal construct.",
+      "access_tier": "open_public",
+      "individual_level_data_released": false,
+      "local_artifacts": [
+        {
+          "filename": "mavedb_00001314-a-1_scores.csv",
+          "bytes": 1055314,
+          "sha256": "44d5386285224072b400712144274d42f2d3e660e7ba0a6a6b1039683a23b12c"
+        },
+        {
+          "filename": "mavedb_00001314-b-1_scores.csv",
+          "bytes": 1048320,
+          "sha256": "eb134522fd08cdacb76c370b0ca451db7f9ab680cac832af7a60cfdc6b8e5b4e"
+        },
+        {
+          "filename": "mavedb_00001314-c-1_scores.csv",
+          "bytes": 1043824,
+          "sha256": "cea52926d5f44f9febea4e055e59f2af88bad17bfaf2109f53fe5d8365304d65"
+        }
+      ],
+      "n_enrolled": null,
+      "n_analysed": 6105,
+      "biological_unit": "engineered single protein variant, not an individual",
+      "matrix": "cell line",
+      "sampling_time": "not applicable",
+      "omics_layers": [
+        {
+          "layer": "proteomic",
+          "analytes": [
+            "ARAF abundance under DMSO vehicle",
+            "ARAF abundance under HSP90 inhibition"
+          ]
+        },
+        {
+          "layer": "functional",
+          "analytes": [
+            "ARAF activity score"
+          ]
+        }
+      ],
+      "genotypes": "engineered single substitutions, not donor genotypes",
+      "comedication": "not applicable",
+      "endpoint": {
+        "name": "variant activity score paired with two abundance conditions in the same library",
+        "endpoint_class": "variant_functional_screen"
+      },
+      "dose_regimen": "not applicable",
+      "formulation": "not applicable",
+      "objectives_supported": [
+        "H2",
+        "H5"
+      ],
+      "status": "QUALIFIED",
+      "verified_this_session": true,
+      "verification_method": "Downloaded from api.mavedb.org on 2026-11-11 after the protocol was committed; SHA-256 recorded. Orientation checked by assay polarity: nonsense lowest in all three assays against a synonymous baseline of about 1.0.",
+      "caveats": [
+        "NOT a pharmacokinetic quantity and NOT a multi-omic measurement in individuals; endpoint class variant_functional_screen.",
+        "LOSS-of-function library, unlike BRAF: mean missense activity 0.788 against a synonymous 1.011. The prediction that ARAF would mirror BRAF's gain-of-function behaviour failed.",
+        "Abundance under HSP90 inhibition is a DETECTABLY WORSE proxy for activity than abundance under vehicle (-0.40 %), and the inner folds rejected it in 5 folds of 5. The two abundances correlate at 0.714, so this is not a measurement problem.",
+        "hgvs_pro carries an 'ARAF:' prefix that the other deposits do not. Before normalisation the two assays shared ZERO variants, a parser failure that looked exactly like an unpairable dataset."
+      ]
+    },
+    {
+      "key": "rcsb_9axm_araf_mek1_ampnp",
+      "label": "RCSB PDB 9AXM — ARAF:MEK1 with AMP-PNP and Mg, 2.42 A",
+      "citation": "Crystal structure of the ARAF/MEK1 complex, RCSB PDB entry 9AXM, 2.42 A.",
+      "doi": null,
+      "pmid": null,
+      "pmcid": null,
+      "trial_registration": null,
+      "original_repository": "https://files.rcsb.org/download/9AXM.cif",
+      "data_availability_statement": "RCSB serves coordinates without registration. **mmCIF only**: the legacy PDB path returns 404 for this entry, which is why the protocol's 'legacy PDB format' clause was lifted and recorded as a deviation.",
+      "access_tier": "open_public",
+      "individual_level_data_released": false,
+      "local_artifacts": [
+        {
+          "filename": "9AXM.cif",
+          "bytes": 1951044,
+          "sha256": "ab19cf42cca34faa14af39c76062858f8ab913c7dd4364054c94865a78ff5106"
+        }
+      ],
+      "n_enrolled": null,
+      "n_analysed": 254,
+      "biological_unit": "protein crystal structure, ARAF chain B of a complex",
+      "matrix": "crystal",
+      "sampling_time": "not applicable",
+      "omics_layers": [
+        {
+          "layer": "structural",
+          "analytes": [
+            "ARAF coordinates with AMP-PNP, Mg and the MEK1 chain"
+          ]
+        }
+      ],
+      "genotypes": "not applicable",
+      "comedication": "not applicable",
+      "endpoint": {
+        "name": "per-residue 3D distance to the nucleotide cofactor and to the MEK1 substrate interface",
+        "endpoint_class": "molecular_only_no_endpoint"
+      },
+      "dose_regimen": "not applicable",
+      "formulation": "not applicable",
+      "objectives_supported": [
+        "H2",
+        "H5"
+      ],
+      "status": "QUALIFIED",
+      "verified_this_session": true,
+      "verification_method": "Selected by the rule declared before any ARAF score was downloaded: the best-resolution RCSB entry for UniProt P10398 carrying an ATP analogue in the ARAF chain. ARAF has only seven entries and this is the only one with an ATP analogue, so the rule picks it uniquely. Numbering verified against the coordinates BEFORE declaration by seven residue identities (K336, E354, T382, D429, DFG 447-449, the DFG found by scanning the activation segment rather than assumed) and by Lys336 NZ lying 2.979 A from AMP-PNP.",
+      "caveats": [
+        "MEK1 is chain A and carries its OWN AMP-PNP and Mg, as in 6PP9, so the chain restriction is load-bearing.",
+        "Inactive aC-out conformation: the Lys336-Glu354 salt bridge is broken at 10.49 A, which is why the guard is the nucleotide contact. 6PP9 is in the same state at 12.69 A, making the ARAF/BRAF comparison more parallel rather than less.",
+        "Resolves residues 302-574 only. The N-terminal ARAF construct assays almost nothing in that range, which made the structural contrast arithmetically zero rather than measurable; see deviation 4.4 of the protocol.",
+        "1092 of 6105 assayed variants sit at unresolved positions and are flagged, never imputed as 'far from the machinery'."
+      ]
     }
   ],
   "phase1_findings": {
@@ -2478,6 +2603,11 @@
       "version": "1.21.0",
       "date": "2026-11-11",
       "change": "Registered a PRE-REGISTERED independent test of the structural selection rule and its outcome, which is a refutation. BRAF was declared in OMICS2PK_BRAF_PREREGISTRATION_20261111.md -- gene, both score sets, the structure-selection rule, the numbering guard, every frozen parameter, a singular primary contrast and five refutation conditions -- and committed before a single BRAF score was downloaded, because 1R9O and 5LPG had been chosen after their proteins' discordant residues were examined and no internal validation repairs that. The primary contrast, the paired ablation of the structural block on M4 under the contiguous-region split with position-clustered intervals, came back -1.60 % with an upper bound of +0.0040, below the 5 % margin: a refutation proper rather than an absence of power, and DETECTABLY_WORSE at -5.82 % position-grouped. Discordance enrichment near the ATP site is 0.655 [0.42, 0.96], excluding 1 from BELOW, and no cutoff from 4 to 15 A exceeds 1. The reason is visible and was declared in advance as a possible failure mode: this is a gain-of-function library on an autoinhibited kinase (mean missense activity +1.420 against a synonymous baseline of +0.992), abundance is an inverted proxy at rho = -0.290, and the rule under test presumes loss of function. The NUDT15 result is not refuted but its scope is now measured: it holds for an enzyme whose variants disrupt catalysis at a ligand-binding site, and nothing in the architecture detects that mismatch automatically. One unexpected positive is recorded post-hoc: the M6 trust gate beats abundance alone by +7.24 % position-grouped, and beats the best in-fold CONSTANT weight by +5.10 % and +3.62 %, the first real-data evidence in this project that conditional weighting beats constant weighting."
+    },
+    {
+      "version": "1.22.0",
+      "date": "2026-11-11",
+      "change": "Registered the ARAF generalisation test: three MaveDB score sets (activity, abundance under DMSO vehicle, abundance under HSP90 inhibition, one C-terminal construct) and RCSB 9AXM, the only ARAF entry carrying an ATP analogue and an mmCIF-only deposition. The pre-registered primary contrast HELD -- the structural ablation on M4 is refuted under the contiguous-region split at -4.07 % with an upper bound of +0.0101 below the margin -- but three of five predictions FAILED, and the reason for predicting the primary is refuted. ARAF is a LOSS-of-function library (mean missense activity 0.788 against a synonymous 1.011), the opposite of BRAF, and rho with abundance is +0.156 rather than negative. Above all, abundance under HSP90 inhibition is a DETECTABLY WORSE proxy than abundance under vehicle (-0.40 %), rejected by the inner folds in 5 folds of 5, so the HSP90 explanation of the BRAF refutation is wrong and that failure is unexplained again. The scope claim is revised: the dividing line is not loss versus gain of function, since ARAF is loss-of-function and fails anyway, but metabolic enzyme versus signalling kinase -- now tested on two kinases with opposite screen mechanisms. Fourth protein where the structural block helps under the position split (+4.24 %) and is refuted under the region split."
     }
   ],
   "knowledge_sources": [

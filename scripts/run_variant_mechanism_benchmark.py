@@ -111,16 +111,22 @@ ANNOTATION = {
         "motif_names": ("ATP glycine-rich loop",),
         "domains_not_used_as_features": ((19, 91), (310, 570)),
         "domain_names": ("RBD", "protein kinase"),
-        "activity_urn": "urn:mavedb:00001314-f-1",
-        "abundance_urn": "urn:mavedb:00001314-e-1",
+        # CORRECTED, §4.4. The C-terminal construct, as BRAF used, because it
+        # is the only one whose assayed positions overlap the only available
+        # structure: 273 of its 313 positions lie in 9AXM's resolved 302-574,
+        # against 1 of 300 for the N-terminal construct. DMSO is the vehicle
+        # control and is therefore the right comparator for the HSP90i
+        # contrast, better than an unrelated "baseline".
+        "activity_urn": "urn:mavedb:00001314-c-1",
+        "abundance_urn": "urn:mavedb:00001314-a-1",
+        "hsp90_abundance_urn": "urn:mavedb:00001314-b-1",
         "role": "pre_registered_generalisation_test",
         "assay_confound": (
-            "both assays are the N-terminal construct at baseline. BRAF used "
-            "the C-terminal construct; ARAF's C-terminal construct has no "
-            "BASELINE abundance set, only DMSO and HSP90i, so the N-terminal "
-            "one is the only construct carrying baseline abundance, baseline "
-            "activity and HSP90i abundance together. Recorded as a deviation "
-            "in \u00a74.3 rather than passed over."),
+            "both assays are the C-terminal construct: abundance under DMSO "
+            "vehicle and activity at baseline. The N-terminal construct was "
+            "declared first and is NOT_EVALUABLE for the structural primary "
+            "because none of its assayed positions is resolved in 9AXM; see "
+            "\u00a74.4 for the correction and what was known when it was made."),
     },
     "CYP2C9": {
         "uniprot": "P11712",
@@ -147,6 +153,30 @@ class RunError(RuntimeError):
     pass
 
 
+def normalise_hgvs_pro(raw):
+    """Strip a `SYMBOL:` prefix, which some deposits carry and others do not.
+
+    NUDT15, CYP2C9 and BRAF write `p.Ala481Ter`; ARAF writes
+    `ARAF:p.Ala110Cys`. Without this the parser rejected every ARAF row and
+    the two assays shared **zero** variants -- a parser failure that looked
+    exactly like a dataset that could not be paired. The key is normalised as
+    well as the parse, or the two assays would be keyed differently and still
+    fail to intersect.
+    """
+    if raw is None:
+        return None
+    text = str(raw).strip()
+    if ":" in text:
+        prefix, _, rest = text.partition(":")
+        # Only a bare gene symbol is stripped; a transcript or genome
+        # accession would mean the column is not protein-level at all.
+        if prefix and prefix.replace("-", "").replace("_", "").isalnum() \
+                and not prefix.lower().startswith(("nm", "np", "enst", "ensp",
+                                                   "nc", "chr")):
+            text = rest.strip()
+    return text
+
+
 def load_scores(path):
     """`hgvs_pro` -> score, keeping only variants this module can parse."""
     scores = {}
@@ -156,7 +186,8 @@ def load_scores(path):
             raise RunError(f"{path.name} has no hgvs_pro column; got "
                            f"{reader.fieldnames}")
         for row in reader:
-            parsed = VMS.parse_protein_variant(row.get("hgvs_pro"))
+            key = normalise_hgvs_pro(row.get("hgvs_pro"))
+            parsed = VMS.parse_protein_variant(key)
             raw = row.get("score")
             if parsed is None or raw in (None, "", "NA"):
                 continue
@@ -166,7 +197,7 @@ def load_scores(path):
                 continue
             if not np.isfinite(value):
                 continue
-            scores[row["hgvs_pro"].strip()] = (parsed, value)
+            scores[key] = (parsed, value)
     return scores
 
 
@@ -397,17 +428,22 @@ def analyse(gene, directory, *, verify=False, pdb_dir=None):
     structural = None
     if pdb_dir is not None and gene in SA.CATALYTIC_CENTRES:
         centre = SA.CATALYTIC_CENTRES[gene]
-        path = pathlib.Path(pdb_dir) / f"{centre['pdb']}.pdb"
+        # Either format. Recent depositions have no legacy PDB file at all:
+        # 9AXM, the only ARAF entry with an ATP analogue, is mmCIF-only.
+        candidates = [pathlib.Path(pdb_dir) / f"{centre['pdb']}.pdb",
+                      pathlib.Path(pdb_dir) / f"{centre['pdb']}.cif"]
+        path = next((c for c in candidates if c.is_file()), candidates[0])
         if path.is_file():
             text = path.read_text(encoding="utf-8", errors="replace")
-            # A chain must be named for a complex: in 6PP9 the substrate MEK1
-            # is chain B and carries its own AMP-PNP and Mg, so unrestricted
+            # A chain must be named for a complex: in 6PP9 and in 9AXM the
+            # substrate MEK1 carries its own AMP-PNP and Mg, so unrestricted
             # ligands would measure the distance to the OTHER kinase's
             # nucleotide and never say so.
-            residues, ligands = SA.parse_pdb(text, chain=centre.get("chain"))
+            residues, ligands = SA.parse_structure(text,
+                                                   chain=centre.get("chain"))
             guard = SA.verify_catalytic_geometry(residues, ligands, centre)
             substrate_points = (
-                SA.polymer_chain_points(text, centre["substrate_chain"])
+                SA.chain_points(text, centre["substrate_chain"])
                 if centre.get("substrate_chain") else None)
             distances = SA.residue_distances(
                 residues, ligands, centre, substrate_points=substrate_points)

@@ -27,6 +27,15 @@
         "FLP"
       ]
     },
+    "ARAF": {
+      "pdb": "9AXM",
+      "uniprot": "P10398",
+      "cofactor": [
+        "ANP",
+        "MG"
+      ],
+      "substrate": []
+    },
     "BRAF": {
       "pdb": "6PP9",
       "uniprot": "P15056",
@@ -3701,6 +3710,1195 @@
           0.2815953970967024
         ],
         "n": 6583,
+        "grouping": "protein position",
+        "how_to_read": "this is the user's question asked directly: can variant and mechanism information predict, for an unseen residue, that abundance will disagree with activity? It is a correlation, not a performance, and it carries no margin verdict."
+      }
+    },
+    "ARAF": {
+      "gene": "ARAF",
+      "role": "pre_registered_generalisation_test",
+      "uniprot": "P10398",
+      "assay_confound": "both assays are the C-terminal construct: abundance under DMSO vehicle and activity at baseline. The N-terminal construct was declared first and is NOT_EVALUABLE for the structural primary because none of its assayed positions is resolved in 9AXM; see §4.4 for the correction and what was known when it was made.",
+      "n_activity": 6415,
+      "n_abundance": 6418,
+      "n_shared_parsed": 6105,
+      "n_distinct_positions": 310,
+      "n_nonsense": 301,
+      "n_synonymous_dropped": 291,
+      "annotated_functional_sites": "99, 112, 115, 125, 128, 133, 136, 144, 336, 429",
+      "n_annotated_functional_sites": 10,
+      "annotated_motifs": [
+        [
+          316,
+          324
+        ]
+      ],
+      "spearman_abundance_activity": 0.15630515025259856,
+      "spearman_excluding_nonsense": 0.13217613959583077,
+      "activity_score_file_sha256": "cea52926d5f44f9febea4e055e59f2af88bad17bfaf2109f53fe5d8365304d65",
+      "abundance_score_file_sha256": "44d5386285224072b400712144274d42f2d3e660e7ba0a6a6b1039683a23b12c",
+      "discordant_share_abundance_high_activity_low": 0.056511056511056514,
+      "discordant_positions_most_frequent": [
+        [
+          368,
+          17
+        ],
+        [
+          582,
+          16
+        ],
+        [
+          303,
+          14
+        ],
+        [
+          579,
+          12
+        ],
+        [
+          584,
+          12
+        ],
+        [
+          575,
+          11
+        ],
+        [
+          331,
+          9
+        ],
+        [
+          580,
+          9
+        ]
+      ],
+      "discordance_near_annotated_sites": {
+        "n_variants_within_3_residues": 270,
+        "n_variants_beyond": 5835,
+        "discordance_rate_near": 0.044444444444444446,
+        "discordance_rate_far": 0.0570694087403599,
+        "enrichment_ratio": 0.7787787787787788,
+        "enrichment_interval": [
+          0.14369578806972685,
+          1.7296506293182758
+        ],
+        "enrichment_interval_by_resampling_unit": {
+          "variant_iid_too_narrow": [
+            0.3787644400337534,
+            1.2716581859860816
+          ],
+          "protein_position": [
+            0.14369578806972685,
+            1.7296506293182758
+          ],
+          "contiguous_block_of_10_residues": [
+            0.0,
+            2.846232159478746
+          ]
+        },
+        "resampling_unit": "protein_position",
+        "share_of_discordant_variants_the_annotation_reaches": 0.034782608695652174,
+        "how_to_read": "an enrichment above 1 supports the hypothesis that a variant near annotated machinery keeps abundance and loses activity. The LAST figure is the one that decides what to build next: it is the share of discordant variants the annotation can even see. A high enrichment with a low share means the rule is right and the knowledge layer is too sparse to use it."
+      },
+      "structural_layer": {
+        "pdb": "9AXM",
+        "resolution_angstrom": 2.42,
+        "title": "ARAF:MEK1 with AMP-PNP and Mg, inactive aC-out conformation",
+        "chain": "B",
+        "cofactor_ligands": [
+          "ANP",
+          "MG"
+        ],
+        "substrate_ligands": [],
+        "substrate_chain": "A",
+        "substrate_is_a_protein": "MEK1",
+        "numbering_guard": {
+          "pdb": "9AXM",
+          "uniprot": "P10398",
+          "n_residues_parsed": 254,
+          "residue_range": [
+            302,
+            574
+          ],
+          "residue_identities_checked": {
+            "336": "LYS",
+            "354": "GLU",
+            "382": "THR",
+            "429": "ASP",
+            "447": "ASP",
+            "448": "PHE",
+            "449": "GLY"
+          },
+          "nucleotide_contact_angstrom": 2.979,
+          "nucleotide_contact_checked": "LYS336 NZ to ANP",
+          "why_not_the_salt_bridge": "the obvious guard for a kinase, the catalytic lysine to aC glutamate salt bridge, is BROKEN in an inactive aC-out conformation such as 6PP9 (12.69 A measured). Declaring it would have failed on correctly numbered coordinates. A numbering guard must catch a plausible wrong answer without crying wolf on a right one.",
+          "verified": true
+        },
+        "structure_sha256": "ab19cf42cca34faa14af39c76062858f8ab913c7dd4364054c94865a78ff5106",
+        "coverage": {
+          "cutoff_angstrom": 8.0,
+          "n_within": 1697,
+          "n_beyond": 4408,
+          "n_unresolved": 1092,
+          "discordance_rate_within": 0.040070713022981735,
+          "discordance_rate_beyond": 0.06284029038112522,
+          "share_of_discordant_variants_reached": 0.19710144927536233,
+          "enrichment_ratio": 0.6376595776364747,
+          "enrichment_unavailable_because": null
+        },
+        "enrichment_interval": [
+          0.3182882571660159,
+          1.1443721581024986
+        ],
+        "enrichment_interval_by_resampling_unit": {
+          "variant_iid_too_narrow": [
+            0.48337473820555504,
+            0.8023906775791593
+          ],
+          "protein_position": [
+            0.3182882571660159,
+            1.1443721581024986
+          ],
+          "contiguous_block_of_10_residues": [
+            0.24443200328275838,
+            1.374453032416497
+          ]
+        },
+        "resampling_unit": "protein_position",
+        "enrichment_by_cutoff": {
+          "4": {
+            "cutoff_angstrom": 4.0,
+            "n_within": 851,
+            "n_beyond": 5254,
+            "n_unresolved": 1092,
+            "discordance_rate_within": 0.03525264394829612,
+            "discordance_rate_beyond": 0.0599543205177008,
+            "share_of_discordant_variants_reached": 0.08695652173913043,
+            "enrichment_ratio": 0.5879917184265011,
+            "enrichment_unavailable_because": null,
+            "interval_position_clustered": [
+              0.3007618040040439,
+              0.9993847504680476
+            ]
+          },
+          "5": {
+            "cutoff_angstrom": 5.0,
+            "n_within": 1010,
+            "n_beyond": 5095,
+            "n_unresolved": 1092,
+            "discordance_rate_within": 0.032673267326732675,
+            "discordance_rate_beyond": 0.06123650637880275,
+            "share_of_discordant_variants_reached": 0.09565217391304348,
+            "enrichment_ratio": 0.5335586443259711,
+            "enrichment_unavailable_because": null,
+            "interval_position_clustered": [
+              0.28599952794343525,
+              0.9004132701964357
+            ]
+          },
+          "6": {
+            "cutoff_angstrom": 6.0,
+            "n_within": 1130,
+            "n_beyond": 4975,
+            "n_unresolved": 1092,
+            "discordance_rate_within": 0.03274336283185841,
+            "discordance_rate_beyond": 0.06190954773869347,
+            "share_of_discordant_variants_reached": 0.1072463768115942,
+            "enrichment_ratio": 0.5288903574301804,
+            "enrichment_unavailable_because": null,
+            "interval_position_clustered": [
+              0.2835119616871033,
+              0.8869922274338288
+            ]
+          },
+          "8": {
+            "cutoff_angstrom": 8.0,
+            "n_within": 1697,
+            "n_beyond": 4408,
+            "n_unresolved": 1092,
+            "discordance_rate_within": 0.040070713022981735,
+            "discordance_rate_beyond": 0.06284029038112522,
+            "share_of_discordant_variants_reached": 0.19710144927536233,
+            "enrichment_ratio": 0.6376595776364747,
+            "enrichment_unavailable_because": null,
+            "interval_position_clustered": [
+              0.3182882571660159,
+              1.1443721581024986
+            ]
+          },
+          "10": {
+            "cutoff_angstrom": 10.0,
+            "n_within": 2131,
+            "n_beyond": 3974,
+            "n_unresolved": 1092,
+            "discordance_rate_within": 0.044110746128578134,
+            "discordance_rate_beyond": 0.06316054353296427,
+            "share_of_discordant_variants_reached": 0.27246376811594203,
+            "enrichment_ratio": 0.698390857031751,
+            "enrichment_unavailable_because": null,
+            "interval_position_clustered": [
+              0.38590127259049756,
+              1.1923469319526154
+            ]
+          },
+          "12": {
+            "cutoff_angstrom": 12.0,
+            "n_within": 2525,
+            "n_beyond": 3580,
+            "n_unresolved": 1092,
+            "discordance_rate_within": 0.04594059405940594,
+            "discordance_rate_beyond": 0.06396648044692738,
+            "share_of_discordant_variants_reached": 0.336231884057971,
+            "enrichment_ratio": 0.7181979333304509,
+            "enrichment_unavailable_because": null,
+            "interval_position_clustered": [
+              0.4121909335402579,
+              1.2116045171902161
+            ]
+          },
+          "15": {
+            "cutoff_angstrom": 15.0,
+            "n_within": 3410,
+            "n_beyond": 2695,
+            "n_unresolved": 1092,
+            "discordance_rate_within": 0.04780058651026393,
+            "discordance_rate_beyond": 0.06753246753246753,
+            "share_of_discordant_variants_reached": 0.47246376811594204,
+            "enrichment_ratio": 0.7078163771712159,
+            "enrichment_unavailable_because": null,
+            "interval_position_clustered": [
+              0.43028778112264776,
+              1.1960835258415063
+            ]
+          }
+        },
+        "distance_for_the_residues_the_sequence_ruler_missed": {
+          "368": {
+            "to_cofactor": 6.802874371638798,
+            "to_substrate": 18.881945387607708,
+            "sequence_distance_to_nearest_annotation": 32
+          },
+          "303": {
+            "to_cofactor": 15.645917174771185,
+            "to_substrate": 25.922959032080037,
+            "sequence_distance_to_nearest_annotation": 33
+          },
+          "331": {
+            "to_cofactor": 11.201661962267028,
+            "to_substrate": 22.470374606298844,
+            "sequence_distance_to_nearest_annotation": 5
+          }
+        },
+        "what_this_is_not": {
+          "a_distance_is_not_a_cause": "proximity to a cofactor or a bound substrate is a hypothesis that a variant affects catalysis rather than folding. Its predictive usefulness is measured by the arms that use it, never assumed.",
+          "one_structure_is_one_conformation": "a crystal structure is one conformation of one construct, often with a flexible region unmodelled and, for a microsomal CYP, the membrane anchor truncated. Unresolved positions are flagged, not quietly imputed.",
+          "a_protein_substrate_is_an_interface_not_a_pocket": "for BRAF the substrate is MEK1, a protein chain, so `to_substrate` is the distance to the nearest substrate-chain atom. That is an interface distance and not the same quantity as the distance to flurbiprofen in a CYP pocket. The two are not comparable across proteins and are not claimed to be.",
+          "a_bound_ligand_is_not_every_substrate": "flurbiprofen in 1R9O and 6-thio-GMP in 5LPG define one pocket each. A different substrate can occupy a different volume, so `to_substrate` is specific to the complex that was crystallised.",
+          "numbering_is_verified_not_trusted": "verify_catalytic_geometry fails unless a fact that depends on correct numbering holds, because an offset would produce plausible wrong distances rather than an error."
+        }
+      },
+      "runs": {
+        "grouped_by_position": {
+          "real": {
+            "n_scored": 6105,
+            "n_groups": 5,
+            "permuted_abundance": false,
+            "permuted_mechanism": false,
+            "mean_loss": {
+              "M0_intercept": 0.4611703824401744,
+              "M1_abundance_only": 0.4592956398999022,
+              "M2_substitution_only": 0.45010857943056104,
+              "M3_mechanism_only": 0.4395378128594952,
+              "M4_fixed_union": 0.4392105089073993,
+              "M5_conditional_interaction": 0.4459471281800535,
+              "M6_trust_gate": 0.43775912610539364
+            },
+            "mean_abundance_blend_weight": 0.48301883444629445,
+            "blend_weight_spread": 0.053870593831043034,
+            "what_the_blend_weight_means": "1.0 means the conditional rule relied entirely on abundance for that variant and 0.0 means it ignored abundance. A spread near zero means the rule chose the same thing everywhere, so it is M4 under another name."
+          },
+          "permuted_abundance_control": {
+            "M0_intercept": 0.4611703824401744,
+            "M1_abundance_only": 0.4612964076180745,
+            "M2_substitution_only": 0.45010857943056104,
+            "M3_mechanism_only": 0.4395378128594952,
+            "M4_fixed_union": 0.4370780012541416,
+            "M5_conditional_interaction": 0.44039275578116027,
+            "M6_trust_gate": 0.4381399706712342
+          },
+          "permuted_mechanism_control": {
+            "M0_intercept": 0.4611703824401744,
+            "M1_abundance_only": 0.4592956398999022,
+            "M2_substitution_only": 0.45010857943056104,
+            "M3_mechanism_only": 0.46224417750014374,
+            "M4_fixed_union": 0.4576652142248357,
+            "M5_conditional_interaction": 0.4596863395915345,
+            "M6_trust_gate": 0.4483754081834263
+          },
+          "predicting_abundance_instead_specificity_control": {
+            "mean_loss": {
+              "M0_intercept": 0.10944936280808759,
+              "M1_abundance_only": 0.10956070587768083,
+              "M2_substitution_only": 0.08810213147167549,
+              "M3_mechanism_only": 0.08709641203308982,
+              "M4_fixed_union": 0.08598823712733278,
+              "M5_conditional_interaction": 0.0862299396470058,
+              "M6_trust_gate": 0.08781522790993011
+            },
+            "relative_gain_of_mechanism_over_intercept": 0.20423098135520656,
+            "what_must_happen": "the mechanism block should help LESS for abundance than for activity. If it helps equally, it is describing the variant in general and not its functional consequence."
+          },
+          "with_structural_layer": {
+            "mean_loss": {
+              "M0_intercept": 0.4611703824401744,
+              "M1_abundance_only": 0.4592956398999022,
+              "M2_substitution_only": 0.45010857943056104,
+              "M3_mechanism_only": 0.41875128767622033,
+              "M4_fixed_union": 0.42057973854135866,
+              "M5_conditional_interaction": 0.4250410527525026,
+              "M6_trust_gate": 0.42185748853331984
+            },
+            "mean_abundance_blend_weight": 0.47486529562898283,
+            "M5_vs_M4": {
+              "contrast": "M5_conditional_interaction_minus_M4_fixed_union",
+              "verdict": "REFUTED_GAIN_BELOW_MARGIN",
+              "relative_gain": -0.01060753479617549,
+              "minimum_interesting_gain": 0.021028986927067936,
+              "an_interval_containing_zero_is_not_a_refutation": true,
+              "gap": -0.004461314211143852,
+              "interval": [
+                -0.01089527220832003,
+                0.0022606033394212237
+              ],
+              "excludes_zero": false,
+              "level": "99.38 %",
+              "family_size": 8,
+              "n_bootstrap": 2000,
+              "n_resampling_units": 310,
+              "resampling_unit": "cluster (group resampled with replacement)"
+            },
+            "M3_vs_M0": {
+              "contrast": "M3_mechanism_only_minus_M0_intercept",
+              "verdict": "GAIN_PRESENT_MARGIN_UNDECIDED",
+              "relative_gain": 0.09198139425065292,
+              "minimum_interesting_gain": 0.023058519122008722,
+              "an_interval_containing_zero_is_not_a_refutation": true,
+              "gap": 0.042419094763954064,
+              "interval": [
+                0.015077537807016605,
+                0.06780047838625766
+              ],
+              "excludes_zero": true,
+              "level": "99.38 %",
+              "family_size": 8,
+              "n_bootstrap": 2000,
+              "n_resampling_units": 310,
+              "resampling_unit": "cluster (group resampled with replacement)"
+            },
+            "M4_vs_M1": {
+              "contrast": "M4_fixed_union_minus_M1_abundance_only",
+              "verdict": "GAIN_PRESENT_MARGIN_UNDECIDED",
+              "relative_gain": 0.08429407552612769,
+              "minimum_interesting_gain": 0.02296478199499511,
+              "an_interval_containing_zero_is_not_a_refutation": true,
+              "gap": 0.038715901358543504,
+              "interval": [
+                0.010496840652534518,
+                0.06405362595383927
+              ],
+              "excludes_zero": true,
+              "level": "99.38 %",
+              "family_size": 8,
+              "n_bootstrap": 2000,
+              "n_resampling_units": 310,
+              "resampling_unit": "cluster (group resampled with replacement)"
+            },
+            "ablation_of_the_structural_block": {
+              "M3_mechanism_only": {
+                "contrast": "M3_mechanism_only_with_structural_minus_M3_mechanism_only_without",
+                "arm": "M3_mechanism_only",
+                "added_layer": "structural",
+                "verdict": "GAIN_PRESENT_MARGIN_UNDECIDED",
+                "relative_gain": 0.0472917791714991,
+                "minimum_interesting_gain": 0.021976890642974763,
+                "what_this_isolates": "the loss of M3_mechanism_only with the structural block minus the same arm without it, on identical rows and identical folds. Nothing else differs between the two fits.",
+                "gap": 0.020786525183274944,
+                "interval": [
+                  0.005757391595327007,
+                  0.03548348916091294
+                ],
+                "excludes_zero": true,
+                "level": "99.38 %",
+                "family_size": 8,
+                "n_bootstrap": 2000,
+                "n_resampling_units": 310,
+                "resampling_unit": "cluster (group resampled with replacement)"
+              },
+              "M4_fixed_union": {
+                "contrast": "M4_fixed_union_with_structural_minus_M4_fixed_union_without",
+                "arm": "M4_fixed_union",
+                "added_layer": "structural",
+                "verdict": "GAIN_PRESENT_MARGIN_UNDECIDED",
+                "relative_gain": 0.04241877183764874,
+                "minimum_interesting_gain": 0.021960525445369968,
+                "what_this_isolates": "the loss of M4_fixed_union with the structural block minus the same arm without it, on identical rows and identical folds. Nothing else differs between the two fits.",
+                "gap": 0.018630770366040564,
+                "interval": [
+                  0.0029681692578192756,
+                  0.033214767176357345
+                ],
+                "excludes_zero": true,
+                "level": "99.38 %",
+                "family_size": 8,
+                "n_bootstrap": 2000,
+                "n_resampling_units": 310,
+                "resampling_unit": "cluster (group resampled with replacement)"
+              },
+              "M5_conditional_interaction": {
+                "contrast": "M5_conditional_interaction_with_structural_minus_M5_conditional_interaction_without",
+                "arm": "M5_conditional_interaction",
+                "added_layer": "structural",
+                "verdict": "GAIN_PRESENT_MARGIN_UNDECIDED",
+                "relative_gain": 0.046880166070068216,
+                "minimum_interesting_gain": 0.022297356409002676,
+                "what_this_isolates": "the loss of M5_conditional_interaction with the structural block minus the same arm without it, on identical rows and identical folds. Nothing else differs between the two fits.",
+                "gap": 0.020906075427550904,
+                "interval": [
+                  0.006946267779536165,
+                  0.03531258796609985
+                ],
+                "excludes_zero": true,
+                "level": "99.38 %",
+                "family_size": 8,
+                "n_bootstrap": 2000,
+                "n_resampling_units": 310,
+                "resampling_unit": "cluster (group resampled with replacement)"
+              }
+            },
+            "ablation_resampled_by_10_residue_blocks": {
+              "M3_mechanism_only": {
+                "contrast": "M3_mechanism_only_with_structural_minus_M3_mechanism_only_without",
+                "arm": "M3_mechanism_only",
+                "added_layer": "structural",
+                "verdict": "NO_DETECTABLE_GAIN_UNDERPOWERED",
+                "relative_gain": 0.0472917791714991,
+                "minimum_interesting_gain": 0.021976890642974763,
+                "what_this_isolates": "the loss of M3_mechanism_only with the structural block minus the same arm without it, on identical rows and identical folds. Nothing else differs between the two fits.",
+                "gap": 0.020786525183274944,
+                "interval": [
+                  -0.00389818813698945,
+                  0.04576994410902157
+                ],
+                "excludes_zero": false,
+                "level": "99.38 %",
+                "family_size": 8,
+                "n_bootstrap": 2000,
+                "n_resampling_units": 33,
+                "resampling_unit": "cluster (group resampled with replacement)"
+              },
+              "M4_fixed_union": {
+                "contrast": "M4_fixed_union_with_structural_minus_M4_fixed_union_without",
+                "arm": "M4_fixed_union",
+                "added_layer": "structural",
+                "verdict": "NO_DETECTABLE_GAIN_UNDERPOWERED",
+                "relative_gain": 0.04241877183764874,
+                "minimum_interesting_gain": 0.021960525445369968,
+                "what_this_isolates": "the loss of M4_fixed_union with the structural block minus the same arm without it, on identical rows and identical folds. Nothing else differs between the two fits.",
+                "gap": 0.018630770366040564,
+                "interval": [
+                  -0.006982641908754958,
+                  0.04369409453145923
+                ],
+                "excludes_zero": false,
+                "level": "99.38 %",
+                "family_size": 8,
+                "n_bootstrap": 2000,
+                "n_resampling_units": 33,
+                "resampling_unit": "cluster (group resampled with replacement)"
+              }
+            },
+            "ablation_of_a_threshold_free_block": {
+              "M3_mechanism_only": {
+                "contrast": "M3_mechanism_only_with_structural_continuous_only_minus_M3_mechanism_only_without",
+                "arm": "M3_mechanism_only",
+                "added_layer": "structural_continuous_only",
+                "verdict": "GAIN_PRESENT_MARGIN_UNDECIDED",
+                "relative_gain": 0.05315153606608337,
+                "minimum_interesting_gain": 0.021976890642974763,
+                "what_this_isolates": "the loss of M3_mechanism_only with the structural_continuous_only block minus the same arm without it, on identical rows and identical folds. Nothing else differs between the two fits.",
+                "gap": 0.023362109912608862,
+                "interval": [
+                  0.009138191270697135,
+                  0.038025756165035556
+                ],
+                "excludes_zero": true,
+                "level": "99.38 %",
+                "family_size": 8,
+                "n_bootstrap": 2000,
+                "n_resampling_units": 310,
+                "resampling_unit": "cluster (group resampled with replacement)"
+              },
+              "M4_fixed_union": {
+                "contrast": "M4_fixed_union_with_structural_continuous_only_minus_M4_fixed_union_without",
+                "arm": "M4_fixed_union",
+                "added_layer": "structural_continuous_only",
+                "verdict": "GAIN_PRESENT_MARGIN_UNDECIDED",
+                "relative_gain": 0.047687867420092234,
+                "minimum_interesting_gain": 0.021960525445369968,
+                "what_this_isolates": "the loss of M4_fixed_union with the structural_continuous_only block minus the same arm without it, on identical rows and identical folds. Nothing else differs between the two fits.",
+                "gap": 0.020945012518287297,
+                "interval": [
+                  0.005853896440333325,
+                  0.0355926616767176
+                ],
+                "excludes_zero": true,
+                "level": "99.38 %",
+                "family_size": 8,
+                "n_bootstrap": 2000,
+                "n_resampling_units": 310,
+                "resampling_unit": "cluster (group resampled with replacement)"
+              }
+            },
+            "threshold_free_block_columns": [
+              "log1p_angstrom_to_cofactor",
+              "log1p_angstrom_to_substrate",
+              "unresolved_in_structure"
+            ],
+            "ablation_of_a_cofactor_only_block": {
+              "M3_mechanism_only": {
+                "contrast": "M3_mechanism_only_with_structural_cofactor_only_minus_M3_mechanism_only_without",
+                "arm": "M3_mechanism_only",
+                "added_layer": "structural_cofactor_only",
+                "verdict": "GAIN_PRESENT_MARGIN_UNDECIDED",
+                "relative_gain": 0.050712501797112244,
+                "minimum_interesting_gain": 0.021976890642974763,
+                "what_this_isolates": "the loss of M3_mechanism_only with the structural_cofactor_only block minus the same arm without it, on identical rows and identical folds. Nothing else differs between the two fits.",
+                "gap": 0.022290062124535936,
+                "interval": [
+                  0.007990658261329232,
+                  0.03640752798008145
+                ],
+                "excludes_zero": true,
+                "level": "99.38 %",
+                "family_size": 8,
+                "n_bootstrap": 2000,
+                "n_resampling_units": 310,
+                "resampling_unit": "cluster (group resampled with replacement)"
+              },
+              "M4_fixed_union": {
+                "contrast": "M4_fixed_union_with_structural_cofactor_only_minus_M4_fixed_union_without",
+                "arm": "M4_fixed_union",
+                "added_layer": "structural_cofactor_only",
+                "verdict": "GAIN_PRESENT_MARGIN_UNDECIDED",
+                "relative_gain": 0.0447089368725887,
+                "minimum_interesting_gain": 0.021960525445369968,
+                "what_this_isolates": "the loss of M4_fixed_union with the structural_cofactor_only block minus the same arm without it, on identical rows and identical folds. Nothing else differs between the two fits.",
+                "gap": 0.019636634916518472,
+                "interval": [
+                  0.004600189287015184,
+                  0.034124457009043686
+                ],
+                "excludes_zero": true,
+                "level": "99.38 %",
+                "family_size": 8,
+                "n_bootstrap": 2000,
+                "n_resampling_units": 310,
+                "resampling_unit": "cluster (group resampled with replacement)"
+              }
+            },
+            "cofactor_only_block_columns": [
+              "log1p_angstrom_to_cofactor",
+              "in_cofactor_contact",
+              "unresolved_in_structure"
+            ],
+            "relative_change_in_M3_from_adding_structure": 0.04729177917149896,
+            "relative_change_in_M4_from_adding_structure": 0.04241877183764897,
+            "what_must_happen": "if annotation coverage was the binding constraint, the mechanism arm M3 must improve when the ruler becomes three-dimensional. If it does not, the diagnosis was wrong."
+          }
+        },
+        "grouped_by_contiguous_region": {
+          "real": {
+            "n_scored": 6105,
+            "n_groups": 5,
+            "permuted_abundance": false,
+            "permuted_mechanism": false,
+            "mean_loss": {
+              "M0_intercept": 0.4679026190916141,
+              "M1_abundance_only": 0.4700458573294723,
+              "M2_substitution_only": 0.45992411632322044,
+              "M3_mechanism_only": 0.4799509629842712,
+              "M4_fixed_union": 0.4913840252757152,
+              "M5_conditional_interaction": 0.4942982536773072,
+              "M6_trust_gate": 0.4622165063878151
+            },
+            "mean_abundance_blend_weight": 0.4667363222919472,
+            "blend_weight_spread": 0.09107475900864204,
+            "what_the_blend_weight_means": "1.0 means the conditional rule relied entirely on abundance for that variant and 0.0 means it ignored abundance. A spread near zero means the rule chose the same thing everywhere, so it is M4 under another name."
+          },
+          "permuted_abundance_control": {
+            "M0_intercept": 0.4679026190916141,
+            "M1_abundance_only": 0.4679752545573482,
+            "M2_substitution_only": 0.45992411632322044,
+            "M3_mechanism_only": 0.4799509629842712,
+            "M4_fixed_union": 0.4781707642220058,
+            "M5_conditional_interaction": 0.4788436998038421,
+            "M6_trust_gate": 0.4612367885540423
+          },
+          "permuted_mechanism_control": {
+            "M0_intercept": 0.4679026190916141,
+            "M1_abundance_only": 0.4700458573294723,
+            "M2_substitution_only": 0.45992411632322044,
+            "M3_mechanism_only": 0.4689165136270013,
+            "M4_fixed_union": 0.47732466197404755,
+            "M5_conditional_interaction": 0.47968286035276486,
+            "M6_trust_gate": 0.4568171135771344
+          },
+          "predicting_abundance_instead_specificity_control": {
+            "mean_loss": {
+              "M0_intercept": 0.11111777746502921,
+              "M1_abundance_only": 0.11363835663819243,
+              "M2_substitution_only": 0.09150637946934706,
+              "M3_mechanism_only": 0.09275029042894845,
+              "M4_fixed_union": 0.09231700025127053,
+              "M5_conditional_interaction": 0.09788416648397884,
+              "M6_trust_gate": 0.09470431269469602
+            },
+            "relative_gain_of_mechanism_over_intercept": 0.1652974659420393,
+            "what_must_happen": "the mechanism block should help LESS for abundance than for activity. If it helps equally, it is describing the variant in general and not its functional consequence."
+          },
+          "with_structural_layer": {
+            "mean_loss": {
+              "M0_intercept": 0.4679026190916141,
+              "M1_abundance_only": 0.4700458573294723,
+              "M2_substitution_only": 0.45992411632322044,
+              "M3_mechanism_only": 0.49306473583492766,
+              "M4_fixed_union": 0.5113742126726596,
+              "M5_conditional_interaction": 0.5246609317999821,
+              "M6_trust_gate": 0.4564800192236554
+            },
+            "mean_abundance_blend_weight": 0.44170171625457505,
+            "M5_vs_M4": {
+              "contrast": "M5_conditional_interaction_minus_M4_fixed_union",
+              "verdict": "DETECTABLY_WORSE",
+              "relative_gain": -0.025982380022411607,
+              "minimum_interesting_gain": 0.02556871063363298,
+              "an_interval_containing_zero_is_not_a_refutation": true,
+              "gap": -0.013286719127322575,
+              "interval": [
+                -0.020416589881203175,
+                -0.005919838857469955
+              ],
+              "excludes_zero": false,
+              "level": "99.38 %",
+              "family_size": 8,
+              "n_bootstrap": 2000,
+              "n_resampling_units": 310,
+              "resampling_unit": "cluster (group resampled with replacement)"
+            },
+            "M3_vs_M0": {
+              "contrast": "M3_mechanism_only_minus_M0_intercept",
+              "verdict": "REFUTED_GAIN_BELOW_MARGIN",
+              "relative_gain": -0.05377639644796851,
+              "minimum_interesting_gain": 0.023395130954580706,
+              "an_interval_containing_zero_is_not_a_refutation": true,
+              "gap": -0.02516211674331344,
+              "interval": [
+                -0.056166138984760625,
+                0.0052218773213694655
+              ],
+              "excludes_zero": false,
+              "level": "99.38 %",
+              "family_size": 8,
+              "n_bootstrap": 2000,
+              "n_resampling_units": 310,
+              "resampling_unit": "cluster (group resampled with replacement)"
+            },
+            "M4_vs_M1": {
+              "contrast": "M4_fixed_union_minus_M1_abundance_only",
+              "verdict": "DETECTABLY_WORSE",
+              "relative_gain": -0.0879240922959965,
+              "minimum_interesting_gain": 0.023502292866473616,
+              "an_interval_containing_zero_is_not_a_refutation": true,
+              "gap": -0.04132835534318732,
+              "interval": [
+                -0.07490544930065468,
+                -0.00809455537383491
+              ],
+              "excludes_zero": false,
+              "level": "99.38 %",
+              "family_size": 8,
+              "n_bootstrap": 2000,
+              "n_resampling_units": 310,
+              "resampling_unit": "cluster (group resampled with replacement)"
+            },
+            "ablation_of_the_structural_block": {
+              "M3_mechanism_only": {
+                "contrast": "M3_mechanism_only_with_structural_minus_M3_mechanism_only_without",
+                "arm": "M3_mechanism_only",
+                "added_layer": "structural",
+                "verdict": "REFUTED_GAIN_BELOW_MARGIN",
+                "relative_gain": -0.027323151450966417,
+                "minimum_interesting_gain": 0.023997548149213562,
+                "what_this_isolates": "the loss of M3_mechanism_only with the structural block minus the same arm without it, on identical rows and identical folds. Nothing else differs between the two fits.",
+                "gap": -0.01311377285065642,
+                "interval": [
+                  -0.04276365024163355,
+                  0.014795016124854211
+                ],
+                "excludes_zero": false,
+                "level": "99.38 %",
+                "family_size": 8,
+                "n_bootstrap": 2000,
+                "n_resampling_units": 310,
+                "resampling_unit": "cluster (group resampled with replacement)"
+              },
+              "M4_fixed_union": {
+                "contrast": "M4_fixed_union_with_structural_minus_M4_fixed_union_without",
+                "arm": "M4_fixed_union",
+                "added_layer": "structural",
+                "verdict": "REFUTED_GAIN_BELOW_MARGIN",
+                "relative_gain": -0.040681394527890755,
+                "minimum_interesting_gain": 0.02456920126378576,
+                "what_this_isolates": "the loss of M4_fixed_union with the structural block minus the same arm without it, on identical rows and identical folds. Nothing else differs between the two fits.",
+                "gap": -0.01999018739694441,
+                "interval": [
+                  -0.051750602064701605,
+                  0.010104775459850932
+                ],
+                "excludes_zero": false,
+                "level": "99.38 %",
+                "family_size": 8,
+                "n_bootstrap": 2000,
+                "n_resampling_units": 310,
+                "resampling_unit": "cluster (group resampled with replacement)"
+              },
+              "M5_conditional_interaction": {
+                "contrast": "M5_conditional_interaction_with_structural_minus_M5_conditional_interaction_without",
+                "arm": "M5_conditional_interaction",
+                "added_layer": "structural",
+                "verdict": "REFUTED_GAIN_BELOW_MARGIN",
+                "relative_gain": -0.06142582519115402,
+                "minimum_interesting_gain": 0.02471491268386536,
+                "what_this_isolates": "the loss of M5_conditional_interaction with the structural block minus the same arm without it, on identical rows and identical folds. Nothing else differs between the two fits.",
+                "gap": -0.030362678122674975,
+                "interval": [
+                  -0.06033804990722037,
+                  0.00014027664141851487
+                ],
+                "excludes_zero": false,
+                "level": "99.38 %",
+                "family_size": 8,
+                "n_bootstrap": 2000,
+                "n_resampling_units": 310,
+                "resampling_unit": "cluster (group resampled with replacement)"
+              }
+            },
+            "ablation_resampled_by_10_residue_blocks": {
+              "M3_mechanism_only": {
+                "contrast": "M3_mechanism_only_with_structural_minus_M3_mechanism_only_without",
+                "arm": "M3_mechanism_only",
+                "added_layer": "structural",
+                "verdict": "NO_DETECTABLE_GAIN_UNDERPOWERED",
+                "relative_gain": -0.027323151450966417,
+                "minimum_interesting_gain": 0.023997548149213562,
+                "what_this_isolates": "the loss of M3_mechanism_only with the structural block minus the same arm without it, on identical rows and identical folds. Nothing else differs between the two fits.",
+                "gap": -0.01311377285065642,
+                "interval": [
+                  -0.07067971834849601,
+                  0.03789687551021975
+                ],
+                "excludes_zero": false,
+                "level": "99.38 %",
+                "family_size": 8,
+                "n_bootstrap": 2000,
+                "n_resampling_units": 33,
+                "resampling_unit": "cluster (group resampled with replacement)"
+              },
+              "M4_fixed_union": {
+                "contrast": "M4_fixed_union_with_structural_minus_M4_fixed_union_without",
+                "arm": "M4_fixed_union",
+                "added_layer": "structural",
+                "verdict": "NO_DETECTABLE_GAIN_UNDERPOWERED",
+                "relative_gain": -0.040681394527890755,
+                "minimum_interesting_gain": 0.02456920126378576,
+                "what_this_isolates": "the loss of M4_fixed_union with the structural block minus the same arm without it, on identical rows and identical folds. Nothing else differs between the two fits.",
+                "gap": -0.01999018739694441,
+                "interval": [
+                  -0.08180624032893316,
+                  0.031693200622987236
+                ],
+                "excludes_zero": false,
+                "level": "99.38 %",
+                "family_size": 8,
+                "n_bootstrap": 2000,
+                "n_resampling_units": 33,
+                "resampling_unit": "cluster (group resampled with replacement)"
+              }
+            },
+            "ablation_of_a_threshold_free_block": {
+              "M3_mechanism_only": {
+                "contrast": "M3_mechanism_only_with_structural_continuous_only_minus_M3_mechanism_only_without",
+                "arm": "M3_mechanism_only",
+                "added_layer": "structural_continuous_only",
+                "verdict": "NO_DETECTABLE_GAIN_UNDERPOWERED",
+                "relative_gain": 0.016426759239654674,
+                "minimum_interesting_gain": 0.023997548149213562,
+                "what_this_isolates": "the loss of M3_mechanism_only with the structural_continuous_only block minus the same arm without it, on identical rows and identical folds. Nothing else differs between the two fits.",
+                "gap": 0.007884038915783036,
+                "interval": [
+                  -0.015572313932345809,
+                  0.03036901654166451
+                ],
+                "excludes_zero": false,
+                "level": "99.38 %",
+                "family_size": 8,
+                "n_bootstrap": 2000,
+                "n_resampling_units": 310,
+                "resampling_unit": "cluster (group resampled with replacement)"
+              },
+              "M4_fixed_union": {
+                "contrast": "M4_fixed_union_with_structural_continuous_only_minus_M4_fixed_union_without",
+                "arm": "M4_fixed_union",
+                "added_layer": "structural_continuous_only",
+                "verdict": "REFUTED_GAIN_BELOW_MARGIN",
+                "relative_gain": -0.0037508581830007497,
+                "minimum_interesting_gain": 0.02456920126378576,
+                "what_this_isolates": "the loss of M4_fixed_union with the structural_continuous_only block minus the same arm without it, on identical rows and identical folds. Nothing else differs between the two fits.",
+                "gap": -0.0018431117922012635,
+                "interval": [
+                  -0.026596509905844216,
+                  0.021825442510019683
+                ],
+                "excludes_zero": false,
+                "level": "99.38 %",
+                "family_size": 8,
+                "n_bootstrap": 2000,
+                "n_resampling_units": 310,
+                "resampling_unit": "cluster (group resampled with replacement)"
+              }
+            },
+            "threshold_free_block_columns": [
+              "log1p_angstrom_to_cofactor",
+              "log1p_angstrom_to_substrate",
+              "unresolved_in_structure"
+            ],
+            "ablation_of_a_cofactor_only_block": {
+              "M3_mechanism_only": {
+                "contrast": "M3_mechanism_only_with_structural_cofactor_only_minus_M3_mechanism_only_without",
+                "arm": "M3_mechanism_only",
+                "added_layer": "structural_cofactor_only",
+                "verdict": "NO_DETECTABLE_GAIN_UNDERPOWERED",
+                "relative_gain": 0.030741506387969405,
+                "minimum_interesting_gain": 0.023997548149213562,
+                "what_this_isolates": "the loss of M3_mechanism_only with the structural_cofactor_only block minus the same arm without it, on identical rows and identical folds. Nothing else differs between the two fits.",
+                "gap": 0.01475441559449304,
+                "interval": [
+                  -0.014924792164648662,
+                  0.0412481894868254
+                ],
+                "excludes_zero": false,
+                "level": "99.38 %",
+                "family_size": 8,
+                "n_bootstrap": 2000,
+                "n_resampling_units": 310,
+                "resampling_unit": "cluster (group resampled with replacement)"
+              },
+              "M4_fixed_union": {
+                "contrast": "M4_fixed_union_with_structural_cofactor_only_minus_M4_fixed_union_without",
+                "arm": "M4_fixed_union",
+                "added_layer": "structural_cofactor_only",
+                "verdict": "NO_DETECTABLE_GAIN_UNDERPOWERED",
+                "relative_gain": 0.030670759410664963,
+                "minimum_interesting_gain": 0.02456920126378576,
+                "what_this_isolates": "the loss of M4_fixed_union with the structural_cofactor_only block minus the same arm without it, on identical rows and identical folds. Nothing else differs between the two fits.",
+                "gap": 0.01507112121747557,
+                "interval": [
+                  -0.015543676577144405,
+                  0.04359751907675655
+                ],
+                "excludes_zero": false,
+                "level": "99.38 %",
+                "family_size": 8,
+                "n_bootstrap": 2000,
+                "n_resampling_units": 310,
+                "resampling_unit": "cluster (group resampled with replacement)"
+              }
+            },
+            "cofactor_only_block_columns": [
+              "log1p_angstrom_to_cofactor",
+              "in_cofactor_contact",
+              "unresolved_in_structure"
+            ],
+            "relative_change_in_M3_from_adding_structure": -0.02732315145096642,
+            "relative_change_in_M4_from_adding_structure": -0.04068139452789077,
+            "what_must_happen": "if annotation coverage was the binding constraint, the mechanism arm M3 must improve when the ruler becomes three-dimensional. If it does not, the diagnosis was wrong."
+          }
+        }
+      },
+      "contrasts": {
+        "grouped_by_position": {
+          "M5_vs_M4": {
+            "contrast": "M5_conditional_interaction_minus_M4_fixed_union",
+            "verdict": "REFUTED_GAIN_BELOW_MARGIN",
+            "relative_gain": -0.015338019323382135,
+            "minimum_interesting_gain": 0.021960525445369968,
+            "an_interval_containing_zero_is_not_a_refutation": true,
+            "gap": -0.006736619272654192,
+            "interval": [
+              -0.013412966540817863,
+              7.85403773050978e-05
+            ],
+            "excludes_zero": false,
+            "level": "99.38 %",
+            "family_size": 8,
+            "n_bootstrap": 2000,
+            "n_resampling_units": 310,
+            "resampling_unit": "cluster (group resampled with replacement)"
+          },
+          "M6_vs_M4": {
+            "contrast": "M6_trust_gate_minus_M4_fixed_union",
+            "verdict": "REFUTED_GAIN_BELOW_MARGIN",
+            "relative_gain": 0.003304526582517766,
+            "minimum_interesting_gain": 0.021960525445369968,
+            "an_interval_containing_zero_is_not_a_refutation": true,
+            "gap": 0.0014513828020056572,
+            "interval": [
+              -0.014434134520635869,
+              0.016251215279587974
+            ],
+            "excludes_zero": false,
+            "level": "99.38 %",
+            "family_size": 8,
+            "n_bootstrap": 2000,
+            "n_resampling_units": 310,
+            "resampling_unit": "cluster (group resampled with replacement)"
+          },
+          "M4_vs_M1": {
+            "contrast": "M4_fixed_union_minus_M1_abundance_only",
+            "verdict": "NO_DETECTABLE_GAIN_UNDERPOWERED",
+            "relative_gain": 0.04373028883287515,
+            "minimum_interesting_gain": 0.02296478199499511,
+            "an_interval_containing_zero_is_not_a_refutation": true,
+            "gap": 0.020085130992502937,
+            "interval": [
+              -0.0026044557570886577,
+              0.04452719573201949
+            ],
+            "excludes_zero": false,
+            "level": "99.38 %",
+            "family_size": 8,
+            "n_bootstrap": 2000,
+            "n_resampling_units": 310,
+            "resampling_unit": "cluster (group resampled with replacement)"
+          },
+          "M1_vs_M0": {
+            "contrast": "M1_abundance_only_minus_M0_intercept",
+            "verdict": "GAIN_PRESENT_BUT_BELOW_MARGIN",
+            "relative_gain": 0.004065184174127469,
+            "minimum_interesting_gain": 0.023058519122008722,
+            "an_interval_containing_zero_is_not_a_refutation": true,
+            "gap": 0.0018747425402721094,
+            "interval": [
+              0.000950548231705646,
+              0.0028344305311556353
+            ],
+            "excludes_zero": true,
+            "level": "99.38 %",
+            "family_size": 8,
+            "n_bootstrap": 2000,
+            "n_resampling_units": 310,
+            "resampling_unit": "cluster (group resampled with replacement)"
+          },
+          "M3_vs_M0": {
+            "contrast": "M3_mechanism_only_minus_M0_intercept",
+            "verdict": "NO_DETECTABLE_GAIN_UNDERPOWERED",
+            "relative_gain": 0.04690797675734392,
+            "minimum_interesting_gain": 0.023058519122008722,
+            "an_interval_containing_zero_is_not_a_refutation": true,
+            "gap": 0.021632569580679106,
+            "interval": [
+              -0.0004071664320303217,
+              0.04570265586931641
+            ],
+            "excludes_zero": false,
+            "level": "99.38 %",
+            "family_size": 8,
+            "n_bootstrap": 2000,
+            "n_resampling_units": 310,
+            "resampling_unit": "cluster (group resampled with replacement)"
+          },
+          "M5_vs_M4_permuted_mechanism": {
+            "contrast": "M5_conditional_interaction_minus_M4_fixed_union",
+            "verdict": "DETECTABLY_WORSE",
+            "relative_gain": -0.0044161655810394124,
+            "minimum_interesting_gain": 0.022883260711241787,
+            "an_interval_containing_zero_is_not_a_refutation": true,
+            "gap": -0.0020211253666987485,
+            "interval": [
+              -0.003564296099058796,
+              -0.000684529593613368
+            ],
+            "excludes_zero": false,
+            "level": "99.38 %",
+            "family_size": 8,
+            "n_bootstrap": 2000,
+            "n_resampling_units": 310,
+            "resampling_unit": "cluster (group resampled with replacement)"
+          },
+          "resampling_unit": "protein_position (cluster bootstrap)",
+          "design_effect_on_M4_vs_M1": {
+            "row_wise_interval": [
+              0.011340918085078498,
+              0.02838300327837828
+            ],
+            "clustered_interval": [
+              -0.0026044557570886577,
+              0.04452719573201949
+            ],
+            "width_ratio": 2.765603560510207,
+            "row_wise_verdict": "GAIN_PRESENT_MARGIN_UNDECIDED",
+            "clustered_verdict": "NO_DETECTABLE_GAIN_UNDERPOWERED",
+            "verdict_changed": true,
+            "n_rows": 6105,
+            "n_clusters": 310
+          }
+        },
+        "grouped_by_contiguous_region": {
+          "M5_vs_M4": {
+            "contrast": "M5_conditional_interaction_minus_M4_fixed_union",
+            "verdict": "REFUTED_GAIN_BELOW_MARGIN",
+            "relative_gain": -0.005930653524922461,
+            "minimum_interesting_gain": 0.02456920126378576,
+            "an_interval_containing_zero_is_not_a_refutation": true,
+            "gap": -0.0029142284015920075,
+            "interval": [
+              -0.008733644252661647,
+              0.0028754218553415922
+            ],
+            "excludes_zero": false,
+            "level": "99.38 %",
+            "family_size": 8,
+            "n_bootstrap": 2000,
+            "n_resampling_units": 310,
+            "resampling_unit": "cluster (group resampled with replacement)"
+          },
+          "M6_vs_M4": {
+            "contrast": "M6_trust_gate_minus_M4_fixed_union",
+            "verdict": "GAIN_PRESENT_MARGIN_UNDECIDED",
+            "relative_gain": 0.05935788993452552,
+            "minimum_interesting_gain": 0.02456920126378576,
+            "an_interval_containing_zero_is_not_a_refutation": true,
+            "gap": 0.02916751888790001,
+            "interval": [
+              0.01657066506674785,
+              0.04152739515333966
+            ],
+            "excludes_zero": true,
+            "level": "99.38 %",
+            "family_size": 8,
+            "n_bootstrap": 2000,
+            "n_resampling_units": 310,
+            "resampling_unit": "cluster (group resampled with replacement)"
+          },
+          "M4_vs_M1": {
+            "contrast": "M4_fixed_union_minus_M1_abundance_only",
+            "verdict": "REFUTED_GAIN_BELOW_MARGIN",
+            "relative_gain": -0.045395928106831955,
+            "minimum_interesting_gain": 0.023502292866473616,
+            "an_interval_containing_zero_is_not_a_refutation": true,
+            "gap": -0.021338167946242916,
+            "interval": [
+              -0.04410819188471799,
+              0.0022562327320148163
+            ],
+            "excludes_zero": false,
+            "level": "99.38 %",
+            "family_size": 8,
+            "n_bootstrap": 2000,
+            "n_resampling_units": 310,
+            "resampling_unit": "cluster (group resampled with replacement)"
+          },
+          "M1_vs_M0": {
+            "contrast": "M1_abundance_only_minus_M0_intercept",
+            "verdict": "REFUTED_GAIN_BELOW_MARGIN",
+            "relative_gain": -0.004580521994125436,
+            "minimum_interesting_gain": 0.023395130954580706,
+            "an_interval_containing_zero_is_not_a_refutation": true,
+            "gap": -0.002143238237858035,
+            "interval": [
+              -0.004686435323116206,
+              0.00045709044142114096
+            ],
+            "excludes_zero": false,
+            "level": "99.38 %",
+            "family_size": 8,
+            "n_bootstrap": 2000,
+            "n_resampling_units": 310,
+            "resampling_unit": "cluster (group resampled with replacement)"
+          },
+          "M3_vs_M0": {
+            "contrast": "M3_mechanism_only_minus_M0_intercept",
+            "verdict": "REFUTED_GAIN_BELOW_MARGIN",
+            "relative_gain": -0.02574968252164877,
+            "minimum_interesting_gain": 0.023395130954580706,
+            "an_interval_containing_zero_is_not_a_refutation": true,
+            "gap": -0.012048343892657017,
+            "interval": [
+              -0.0331961944793995,
+              0.008100913494601014
+            ],
+            "excludes_zero": false,
+            "level": "99.38 %",
+            "family_size": 8,
+            "n_bootstrap": 2000,
+            "n_resampling_units": 310,
+            "resampling_unit": "cluster (group resampled with replacement)"
+          },
+          "M5_vs_M4_permuted_mechanism": {
+            "contrast": "M5_conditional_interaction_minus_M4_fixed_union",
+            "verdict": "DETECTABLY_WORSE",
+            "relative_gain": -0.004940449481417185,
+            "minimum_interesting_gain": 0.02386623309870238,
+            "an_interval_containing_zero_is_not_a_refutation": true,
+            "gap": -0.0023581983787173163,
+            "interval": [
+              -0.004131813935509826,
+              -0.0006607096919780722
+            ],
+            "excludes_zero": false,
+            "level": "99.38 %",
+            "family_size": 8,
+            "n_bootstrap": 2000,
+            "n_resampling_units": 310,
+            "resampling_unit": "cluster (group resampled with replacement)"
+          },
+          "resampling_unit": "protein_position (cluster bootstrap)",
+          "design_effect_on_M4_vs_M1": {
+            "row_wise_interval": [
+              -0.02813831043219551,
+              -0.014354952506500148
+            ],
+            "clustered_interval": [
+              -0.04410819188471799,
+              0.0022562327320148163
+            ],
+            "width_ratio": 3.363797477122669,
+            "row_wise_verdict": "DETECTABLY_WORSE",
+            "clustered_verdict": "REFUTED_GAIN_BELOW_MARGIN",
+            "verdict_changed": true,
+            "n_rows": 6105,
+            "n_clusters": 310
+          }
+        }
+      },
+      "can_we_anticipate_where_abundance_fails": {
+        "target": "|standardised abundance - standardised activity|, the per-variant disagreement between the two assays",
+        "spearman_out_of_sample": 0.17921157020403664,
+        "spearman_interval": [
+          0.15299927123077087,
+          0.20500880334625982
+        ],
+        "n": 6105,
         "grouping": "protein position",
         "how_to_read": "this is the user's question asked directly: can variant and mechanism information predict, for an unseen residue, that abundance will disagree with activity? It is a correlation, not a performance, and it carries no margin verdict."
       }
