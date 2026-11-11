@@ -98,6 +98,14 @@ FROZEN = {
     # neighbours of its target in standardised (mean, log variance) space.
     # Wide enough to randomise, narrow enough to match.
     "match_neighbourhood": 25,
+    # Confirmatory replication. With 40 pools the smallest empirical p is
+    # 1/41 = 0.0244, which cannot clear 0.05 Bonferroni-corrected over three
+    # endpoints (0.0167). 1000 draws reach 1/1001 = 0.000999 and can.
+    "n_matched_pools_confirmatory": 1000,
+    # Candidates examined per growth step when a pool is built to a target
+    # internal correlation. A random subset keeps the draw random; examining
+    # all 30 000 at every step would be deterministic and far slower.
+    "cluster_candidates_per_step": 1500,
     # The share of the validated gain a parsimonious panel must retain.
     "parsimony_retention": (0.80, 0.90),
     # Reused verbatim from `hlc_real_xgboost_validation`, where it was fixed
@@ -119,6 +127,7 @@ SELECTORS = (
     "S6_knowledge_then_shap",   # knowledge proposes, SHAP disposes
     "S7_shap_deduplicated",     # S4, with near-duplicate candidates removed
     "S8_pool_then_univariate",  # knowledge restricts the POOL, data ranks in it
+    "S9_matched_pool_then_univariate",  # S8 with the pool drawn at matched random
 )
 
 
@@ -218,7 +227,8 @@ def drop_redundant(order, design, *, threshold=None, keep_columns=()):
     return np.asarray(kept, dtype=int), dropped
 
 
-def matched_random_pool(design, pool, *, exclude=(), seed, neighbourhood=None):
+def matched_random_pool(design, pool, *, exclude=(), seed, neighbourhood=None,
+                        match_redundancy=False, tries=None):
     """A random pool the same size as `pool`, matched on level and spread.
 
     **Why this exists.** Comparing a 31-probe mechanistic pool against 30 218
@@ -250,20 +260,46 @@ def matched_random_pool(design, pool, *, exclude=(), seed, neighbourhood=None):
     scale = features.std(axis=0)
     scale[scale == 0] = 1.0
     standardised = (features - centre) / scale
-    rng = np.random.default_rng(seed)
-    taken, chosen = set(banned), []
+    neighbours = {}
     for target in pool:
         distance = np.sqrt(((standardised - standardised[int(target)]) ** 2
                             ).sum(axis=1))
-        order = np.argsort(distance, kind="mergesort")
-        candidates = [int(c) for c in order if int(c) not in taken]
-        if not candidates:
-            break
-        window = candidates[:max(int(neighbourhood), 1)]
-        pick = int(rng.choice(window))
-        chosen.append(pick)
-        taken.add(pick)
-    chosen = np.asarray(chosen, dtype=int)
+        neighbours[int(target)] = np.argsort(distance, kind="mergesort")
+
+    def one_draw(draw_rng):
+        taken, picked = set(banned), []
+        for target in pool:
+            candidates = [int(c) for c in neighbours[int(target)]
+                          if int(c) not in taken]
+            if not candidates:
+                break
+            window = candidates[:max(int(neighbourhood), 1)]
+            pick = int(draw_rng.choice(window))
+            picked.append(pick)
+            taken.add(pick)
+        return np.asarray(picked, dtype=int)
+
+    rng = np.random.default_rng(seed)
+    target_redundancy = _mean_abs_correlation(design, pool)
+    if not match_redundancy:
+        chosen = one_draw(rng)
+    else:
+        # **Rejection sampling cannot do this, and that was measured rather
+        # than assumed.** A mechanistic pool reaching an internal mean |r| of
+        # 0.83 is co-regulated; drawing 24 level-matched pools from an array
+        # whose typical probe pair is uncorrelated reached 0.05, and calling
+        # that a redundancy-matched control would have been false. So the
+        # pool is GROWN to the target correlation instead: a random start
+        # probe, then members added whose mean |r| with the growing pool is
+        # closest to the target, each step choosing among a random subset of
+        # candidates so the draw stays random rather than deterministic.
+        #
+        # The cost is declared: size and internal correlation are matched,
+        # and level and spread then drift. Both are reported. One cannot
+        # match all three at once, and pretending otherwise would be the
+        # real error.
+        chosen = _grow_to_redundancy(
+            design, pool.size, target_redundancy, banned=banned, rng=rng)
     return chosen, {
         "requested": int(pool.size),
         "drawn": int(chosen.size),
@@ -273,9 +309,14 @@ def matched_random_pool(design, pool, *, exclude=(), seed, neighbourhood=None):
         "target_mean_log_variance": float(spread[pool].mean()),
         "matched_mean_log_variance": float(spread[chosen].mean())
             if chosen.size else float("nan"),
-        "target_within_pool_redundancy": _mean_abs_correlation(design, pool),
+        "target_within_pool_redundancy": target_redundancy,
         "matched_within_pool_redundancy": _mean_abs_correlation(design, chosen),
-        "matched_on": "mean and log variance; redundancy is REPORTED not matched",
+        "redundancy_matched": bool(match_redundancy),
+        "matched_on": ("size and within-pool redundancy, by growth; level and "
+                       "spread then drift and are reported"
+                       if match_redundancy else
+                       "mean and log variance; redundancy is REPORTED not "
+                       "matched"),
         "why_redundancy_is_only_reported": (
             "a mechanistic pool is correlated because its members are "
             "co-regulated, which is part of what makes it a mechanism. "
@@ -284,6 +325,48 @@ def matched_random_pool(design, pool, *, exclude=(), seed, neighbourhood=None):
             "test. It is measured on both sides so a reader can see whether "
             "the pools differ in it."),
     }
+
+
+def _grow_to_redundancy(design, size, target, *, banned, rng,
+                        candidates_per_step=None):
+    """Build a random pool whose internal mean |r| lands near `target`.
+
+    A random start, then each addition is the candidate whose mean absolute
+    correlation with the growing pool is closest to the target, chosen from a
+    random subset so that the pool is a draw and not a deterministic maximum.
+
+    This is the only way to produce a co-regulated random pool: such pools are
+    vanishingly rare under level-matched rejection sampling, which was
+    measured before this function was written.
+    """
+    candidates_per_step = (FROZEN["cluster_candidates_per_step"]
+                           if candidates_per_step is None
+                           else candidates_per_step)
+    design = np.asarray(design, dtype=float)
+    n_columns = design.shape[1]
+    centred = design - design.mean(axis=0)
+    norms = np.sqrt((centred ** 2).sum(axis=0))
+    safe = norms.copy()
+    safe[safe == 0] = 1.0
+    allowed = np.array([c for c in range(n_columns)
+                        if c not in set(int(b) for b in banned)], dtype=int)
+    if allowed.size < size:
+        return np.zeros(0, dtype=int)
+    chosen = [int(rng.choice(allowed))]
+    while len(chosen) < int(size):
+        taken = set(chosen)
+        offer = rng.choice(allowed, size=min(int(candidates_per_step),
+                                             allowed.size), replace=False)
+        offer = np.array([c for c in offer if int(c) not in taken], dtype=int)
+        if offer.size == 0:
+            break
+        block = centred[:, chosen] / safe[chosen]
+        against = centred[:, offer] / safe[offer]
+        # Mean |r| of each candidate against every member already kept.
+        strength = np.abs(against.T @ block).mean(axis=1)
+        pick = int(offer[int(np.argmin(np.abs(strength - target)))])
+        chosen.append(pick)
+    return np.asarray(chosen, dtype=int)
 
 
 def _mean_abs_correlation(design, columns):
@@ -397,7 +480,8 @@ def _elastic_net_support(design, target, *, groups, seed):
 # the selectors
 # --------------------------------------------------------------------------
 def rank_candidates(name, design, target, *, baseline_columns, knowledge_order,
-                    groups, seed, pool_size=None):
+                    groups, seed, pool_size=None, match_target_pool=None,
+                    match_redundancy=False, pool_draw_seed=None):
     """An ORDERING of candidate columns, strongest first. No budget applied yet.
 
     Every selector that sees the outcome sees only training rows, because this
@@ -440,6 +524,26 @@ def rank_candidates(name, design, target, *, baseline_columns, knowledge_order,
         strength, diagnostics = shap_importance(design, target, groups=groups,
                                                 seed=seed)
         return strength.argsort()[::-1], {"uses_outcome": True, **diagnostics}
+    if name == "S9_matched_pool_then_univariate":
+        # **Inductive**, not transductive. The pool is drawn from the rows
+        # this call was handed, which are training rows only. A pool matched
+        # once on every donor would use the test donors' expression values --
+        # outcome-blind, but still information from rows the arm is about to
+        # be scored on, which is a transductive design and a different claim.
+        _check(match_target_pool is not None,
+               "the matched-pool selector needs the pool it must match")
+        target_pool = np.asarray(match_target_pool, dtype=int)
+        drawn, report = matched_random_pool(
+            design, target_pool, exclude=baseline_columns,
+            seed=seed if pool_draw_seed is None else pool_draw_seed,
+            match_redundancy=bool(match_redundancy))
+        if drawn.size == 0:
+            return np.arange(design.shape[1]), {
+                "uses_outcome": False, "unavailable": "no pool was drawable"}
+        strength = _abs_correlation(_rank(design[:, drawn]), _rank(target))
+        return drawn[strength.argsort()[::-1]], {
+            "uses_outcome": True, "pool_size": int(drawn.size),
+            "drawn_in_fold": True, "match_report": report}
     if name == "S8_pool_then_univariate":
         # The arm that asks the question a restricted pool actually poses: if
         # a mechanistically chosen handful of candidates is as good as ranking
@@ -471,7 +575,9 @@ def rank_candidates(name, design, target, *, baseline_columns, knowledge_order,
 
 
 def selector_ordering(name, design, target, *, baseline_columns,
-                      knowledge_order, groups, seed, max_k, pool_size=None):
+                      knowledge_order, groups, seed, max_k, pool_size=None,
+                      match_target_pool=None, match_redundancy=False,
+                      pool_draw_seed=None):
     """One ordering per selector per training set. Budgets are PREFIXES of it.
 
     Computing this once instead of once per k is not only cheaper, it is
@@ -486,7 +592,8 @@ def selector_ordering(name, design, target, *, baseline_columns,
     order, diagnostics = rank_candidates(
         name, design, target, baseline_columns=baseline_columns,
         knowledge_order=knowledge_order, groups=groups, seed=seed,
-        pool_size=pool_size)
+        pool_size=pool_size, match_target_pool=match_target_pool,
+        match_redundancy=match_redundancy, pool_draw_seed=pool_draw_seed)
     if name == "S6_knowledge_then_shap":
         width = min(max(int(max_k) * FROZEN["oversample"], int(max_k)),
                     design.shape[1])
@@ -535,7 +642,9 @@ def _fit_predict(design, target, train, test, *, estimator, seed):
 def screen(target, design, groups, *, baseline_columns=(), knowledge_order=None,
            feature_names=None, estimator="ridge", seed=None, k_grid=None,
            selectors=None, permute_target=False, permute_knowledge=False,
-           pool_size=None, prefilter_top_variance=None):
+           pool_size=None, prefilter_top_variance=None,
+           match_target_pool=None, match_redundancy=False,
+           pool_draw_seed=None):
     """Every selector, same folds, same estimator; k chosen inside each fold.
 
     `baseline_columns` are columns every panel keeps — the information already
@@ -610,7 +719,10 @@ def screen(target, design, groups, *, baseline_columns=(), knowledge_order=None,
                     name, design[rows], target[rows],
                     baseline_columns=baseline_columns,
                     knowledge_order=knowledge_order, groups=groups[rows],
-                    seed=seed, max_k=max_k, pool_size=pool_size)
+                    seed=seed, max_k=max_k, pool_size=pool_size,
+                    match_target_pool=match_target_pool,
+                    match_redundancy=match_redundancy,
+                    pool_draw_seed=pool_draw_seed)
             else:
                 prefilter_sizes.append(int(columns.size))
                 position = {int(c): i for i, c in enumerate(columns)}
@@ -621,11 +733,19 @@ def screen(target, design, groups, *, baseline_columns=(), knowledge_order=None,
                                 for c in np.asarray(knowledge_order, int)
                                 if int(c) in position], dtype=int)
                     if knowledge_order is not None else None)
+                local_pool = (
+                    np.asarray([position[int(c)]
+                                for c in np.asarray(match_target_pool, int)
+                                if int(c) in position], dtype=int)
+                    if match_target_pool is not None else None)
                 local_order, diagnostics = selector_ordering(
                     name, design[np.ix_(rows, columns)], target[rows],
                     baseline_columns=local_baseline,
                     knowledge_order=local_knowledge, groups=groups[rows],
-                    seed=seed, max_k=max_k, pool_size=pool_size)
+                    seed=seed, max_k=max_k, pool_size=pool_size,
+                    match_target_pool=local_pool,
+                    match_redundancy=match_redundancy,
+                    pool_draw_seed=pool_draw_seed)
                 # Straight back to original column numbers.
                 orderings[key] = (columns[np.asarray(local_order, int)],
                                   diagnostics)
@@ -726,6 +846,8 @@ def screen(target, design, groups, *, baseline_columns=(), knowledge_order=None,
         "n_orderings_computed": len(orderings),
         "one_ordering_per_selector_per_training_set": True,
         "pool_size": None if pool_size is None else int(pool_size),
+        "pool_matching_was_inductive": match_target_pool is not None,
+        "pool_redundancy_matched": bool(match_redundancy),
         "prefilter_top_variance": None if not prefilter else int(prefilter),
         "prefiltered_candidates_per_fold": sorted(set(prefilter_sizes)),
         "the_prefilter_is_outcome_blind": (

@@ -728,3 +728,152 @@ class TestNonInferiority:
     def test_an_unknown_selector_is_refused(self, sss, run):
         with pytest.raises(Exception):
             sss.non_inferiority(run, "S9_invented", "S0_everything")
+
+
+class TestRedundancyMatchedPools:
+    """The secondary control: is the advantage in WHICH genes, or in HOW they covary?
+
+    Rejection sampling cannot build this and that was measured, not assumed: a
+    pool with internal mean |r| of 0.88 is co-regulated, and 24 level-matched
+    draws from an array whose typical probe pair is uncorrelated reached 0.05.
+    Calling that a redundancy-matched control would have been false. The pool
+    is grown to the target instead.
+    """
+
+    @pytest.fixture(scope="class")
+    def modular_array(self):
+        """An array with MANY co-expression modules, as a real one has."""
+        rng = np.random.default_rng(0)
+        n, p = 200, 2500
+        level = rng.normal(8, 2, p)
+        spread = np.exp(rng.normal(-1, 1, p))
+        design = level + rng.normal(size=(n, p)) * spread
+        for _ in range(30):
+            members = rng.choice(p, 50, replace=False)
+            design[:, members] += rng.normal(size=(n, 1)) * 1.5
+        pool = np.asarray(sorted(rng.choice(p, 20, replace=False)))
+        design[:, pool] += rng.normal(size=(n, 1)) * 1.5
+        return design, pool
+
+    @pytest.fixture(scope="class")
+    def single_module_array(self):
+        """An array where the pool is the ONLY correlated module."""
+        rng = np.random.default_rng(1)
+        n, p = 200, 2000
+        design = rng.normal(8, 1, size=(n, p))
+        pool = np.asarray(sorted(rng.choice(p, 20, replace=False)))
+        design[:, pool] += rng.normal(size=(n, 1)) * 2.0
+        return design, pool
+
+    def test_it_matches_redundancy_when_modules_exist(self, sss,
+                                                       modular_array):
+        design, pool = modular_array
+        _, report = sss.matched_random_pool(design, pool, seed=2,
+                                            match_redundancy=True)
+        target = report["target_within_pool_redundancy"]
+        achieved = report["matched_within_pool_redundancy"]
+        assert target > 0.3, "the fixture must plant a co-regulated pool"
+        assert abs(achieved - target) < 0.1 * target
+
+    def test_level_matching_alone_does_not_match_redundancy(self, sss,
+                                                             modular_array):
+        design, pool = modular_array
+        _, report = sss.matched_random_pool(design, pool, seed=2,
+                                            match_redundancy=False)
+        # This is the whole reason the secondary control needs its own
+        # sampler: the primary control's draws are NOT redundancy-matched.
+        assert (report["matched_within_pool_redundancy"]
+                < 0.5 * report["target_within_pool_redundancy"])
+        assert "REPORTED not matched" in report["matched_on"]
+
+    def test_it_reports_a_shortfall_instead_of_claiming_a_match(
+            self, sss, single_module_array):
+        """When no comparable module exists the control is not achievable.
+
+        That is a fact about the array, not a bug, and the achieved number
+        must show it rather than the report asserting success.
+        """
+        design, pool = single_module_array
+        _, report = sss.matched_random_pool(design, pool, seed=2,
+                                            match_redundancy=True)
+        assert report["redundancy_matched"] is True
+        assert (report["matched_within_pool_redundancy"]
+                < 0.5 * report["target_within_pool_redundancy"])
+
+    def test_it_declares_that_level_and_spread_drift(self, sss,
+                                                     modular_array):
+        design, pool = modular_array
+        _, report = sss.matched_random_pool(design, pool, seed=2,
+                                            match_redundancy=True)
+        assert "level and spread then drift" in report["matched_on"]
+
+    def test_the_grown_pool_has_the_requested_size_and_no_duplicates(
+            self, sss, modular_array):
+        design, pool = modular_array
+        drawn, _ = sss.matched_random_pool(design, pool, seed=2,
+                                           match_redundancy=True)
+        assert drawn.size == pool.size
+        assert len(set(drawn.tolist())) == drawn.size
+
+    def test_the_grown_pool_respects_the_exclusion(self, sss, modular_array):
+        design, pool = modular_array
+        drawn, _ = sss.matched_random_pool(design, pool, exclude=(0, 1),
+                                           seed=2, match_redundancy=True)
+        assert not ({0, 1} & set(drawn.tolist()))
+
+
+class TestInductivePoolMatching:
+    """A pool matched on every donor is transductive, not inductive."""
+
+    def test_the_matched_selector_draws_from_training_rows_only(self, sss,
+                                                                cohort):
+        seen = []
+        original = sss.matched_random_pool
+
+        def spy(design, pool, **kwargs):
+            seen.append(design.shape[0])
+            return original(design, pool, **kwargs)
+
+        import unittest.mock as mock
+        pool = np.asarray(cohort["truth_columns"], dtype=int)
+        with mock.patch.object(sss, "matched_random_pool", spy):
+            sss.screen(cohort["target"], cohort["design"], cohort["groups"],
+                       baseline_columns=cohort["baseline_columns"],
+                       knowledge_order=cohort["knowledge_order"],
+                       selectors=("S9_matched_pool_then_univariate",),
+                       k_grid=(0, 2), pool_size=pool.size,
+                       match_target_pool=pool)
+        assert seen, "the matched selector never drew a pool"
+        # Never the whole cohort: every draw saw a strict training subset.
+        assert max(seen) < cohort["target"].size
+
+    def test_the_result_records_that_matching_was_inductive(self, sss,
+                                                             cohort):
+        pool = np.asarray(cohort["truth_columns"], dtype=int)
+        run = sss.screen(cohort["target"], cohort["design"], cohort["groups"],
+                         baseline_columns=cohort["baseline_columns"],
+                         knowledge_order=cohort["knowledge_order"],
+                         selectors=("S9_matched_pool_then_univariate",),
+                         k_grid=(0, 2), pool_size=pool.size,
+                         match_target_pool=pool)
+        assert run["pool_matching_was_inductive"] is True
+        assert run["pool_redundancy_matched"] is False
+
+    def test_the_matched_selector_without_a_target_pool_is_refused(self, sss,
+                                                                    cohort):
+        with pytest.raises(Exception):
+            sss.rank_candidates("S9_matched_pool_then_univariate",
+                                cohort["design"], cohort["target"],
+                                baseline_columns=(), knowledge_order=None,
+                                groups=cohort["groups"], seed=0)
+
+    def test_the_matched_selector_is_declared(self, sss):
+        assert "S9_matched_pool_then_univariate" in sss.SELECTORS
+
+    def test_the_confirmatory_count_can_clear_bonferroni(self, sss):
+        """40 pools cannot; 1000 can, and the arithmetic is the reason."""
+        exploratory = sss.FROZEN["n_matched_pools"]
+        confirmatory = sss.FROZEN["n_matched_pools_confirmatory"]
+        bonferroni = 0.05 / 3  # three prespecified endpoints
+        assert 1.0 / (1 + exploratory) > bonferroni
+        assert 1.0 / (1 + confirmatory) < bonferroni

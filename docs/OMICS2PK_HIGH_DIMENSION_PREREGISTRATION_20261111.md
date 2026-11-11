@@ -1,6 +1,6 @@
 # Pré-enregistration : trois protocoles, gelés avant exécution
 
-**Version 1.1.0 — 2026-11-11.** Statut : **DÉCLARÉ, AUCUN NON ENCORE EXÉCUTÉ.** Le protocole 1 a été lancé puis **arrêté et sa sortie partielle supprimée sans être lue**, pour que les ajouts de la §4.1 soient antérieurs à tout résultat. Aucun résultat d'aucun protocole n'a été examiné à ce jour.
+**Version 1.2.0 — 2026-11-11.** Statut : **DÉCLARÉ, AUCUN NON ENCORE EXÉCUTÉ.** Le protocole 1 a été lancé puis **arrêté et sa sortie partielle supprimée sans être lue**, pour que les ajouts de la §4.1 soient antérieurs à tout résultat. Aucun résultat d'aucun protocole n'a été examiné à ce jour.
 
 Ce document est commité **avant** l'exécution du protocole 1 et **avant tout
 téléchargement** des données des protocoles 2 et 3. Rien ici ne peut changer
@@ -156,10 +156,11 @@ ayant abstenu.
 * **Le filtre de variance coûte un gain atteignant la marge** → les bras
   filtrés ne sont pas comparables aux bras entiers, et seuls `S1`, `S2`, `S8`
   pourront être interprétés.
-* **Le pool mécanistique ne bat pas le 5ᵉ centile des 40 pools appariés** → il
-  a **réduit la dimension et non appliqué des connaissances**. C'est un
-  résultat négatif sur la thèse centrale du projet et il sera rapporté comme
-  tel (§4.1.1).
+* **Le pool mécanistique ne bat pas le 5ᵉ centile des 40 pools appariés** →
+  **l'avantage des connaissances n'est pas établi dans cette expérience.**
+  Formulation corrigée en §1b.5 : ce n'est pas « les connaissances sont
+  inutiles », et avec 40 pools transductifs ce protocole ne peut de toute
+  façon pas trancher confirmatoirement — le protocole 1b est là pour cela.
 * **`S8` contre `S4` sort `UNDECIDED` au test de non-infériorité** → le
   protocole n'autorise pas la conclusion « le pipeline simple suffit », quelle
   que soit la valeur ponctuelle (§4.1.2).
@@ -171,6 +172,101 @@ coût du filtre et le compte d'abstentions. **Une absence de gain est un
 résultat scientifique valable.** Aucun bras ne sera ajouté, aucun filtre
 déplacé, aucun endpoint échangé après lecture des résultats ; tout écart
 figurera en §4 avec sa raison avant qu'un contraste ne soit cité.
+
+---
+
+## 1bis. Protocole 1b — la réplication confirmatoire du contrôle de pool
+
+**Statut : DÉCLARÉ, NON EXÉCUTÉ.** Protocole **distinct**. Il **ne modifie pas**
+le protocole 1, qui tourne et doit aller à son terme sans interruption. Le
+protocole 1 reste **exploratoire sur la question du pool** pour les trois
+raisons ci-dessous ; le protocole 1b est le confirmatoire.
+
+### 1b.1 Pourquoi le protocole 1 ne peut pas être confirmatoire sur ce point
+
+**Trois limites, toutes justes, toutes acceptées.**
+
+1. **La résolution du p empirique.** Avec 40 pools, le plus petit p atteignable
+   est **1/41 = 0,0244**. Un seuil de 0,05 corrigé par Bonferroni sur les trois
+   endpoints prédéfinis vaut **0,0167**. **40 pools ne peuvent donc pas, même
+   en principe, franchir ce seuil** — quelle que soit la force de l'effet. Le
+   protocole 1 est structurellement incapable d'une affirmation confirmatoire
+   ici, et ce n'est pas une question de puissance mais d'arithmétique.
+2. **L'appariement est transductif.** Les pools du protocole 1 sont appariés une
+   fois sur **tous** les donneurs retenus. L'appariement n'utilise aucune
+   activité, donc il ne fuite pas d'issue — mais il utilise les valeurs
+   d'expression de donneurs sur lesquels le bras va être évalué. C'est un
+   design **transductif**, et une validation strictement **inductive** exige
+   que l'appariement n'emploie que les lignes d'entraînement.
+3. **Ne pas battre le 5ᵉ centile ne démontre pas que les connaissances sont
+   inutiles.** Cela démontre que *leur avantage n'est pas établi dans cette
+   expérience*. La §1.7 et la §4.1.1 du protocole 1 étaient trop fortes sur ce
+   point et sont corrigées ici en §1b.5 ; le **seuil reste gelé**, c'est son
+   **interprétation** qui est nuancée.
+
+### 1b.2 Ce qui change, et rien d'autre
+
+| | Protocole 1 (en cours) | **Protocole 1b** |
+|---|---|---|
+| nombre de pools | 40 | **1 000** → p minimal **0,000999**, qui franchit 0,0167 |
+| appariement | une fois, sur tous les donneurs — **transductif** | **dans chaque pli, sur les lignes d'entraînement seules — inductif** |
+| contrôle secondaire | aucun | **pools à redondance appariée** (§1b.3) |
+| tout le reste | — | **identique** : mêmes endpoints, mêmes plis, même marge, même graine, même estimateur, mêmes filtres |
+
+Le sélecteur `S9_matched_pool_then_univariate` tire son pool **à partir des
+lignes qui lui sont passées**, qui sont les lignes d'entraînement. Un test le
+vérifie par espion : aucun tirage ne voit la cohorte entière.
+
+### 1b.3 Le contrôle secondaire : le choix des gènes, ou leur covariance ?
+
+Votre distinction, et elle sépare deux choses que le contrôle principal
+confond :
+
+* **l'intérêt du choix des gènes et des voies** — ce que mesure le contrôle
+  principal, à niveau et dispersion appariés, redondance libre ;
+* **l'intérêt de leur structure de corrélation** — un pool aléatoire de même
+  taille **et de même cohérence interne**. S'il égale le pool mécanistique,
+  l'avantage vient de la covariance et non de l'identité des gènes.
+
+**L'échantillonnage par rejet ne peut pas construire ce pool, et c'est mesuré,
+pas supposé.** Un pool mécanistique atteignant une corrélation interne moyenne
+de 0,88 est co-régulé ; 24 tirages appariés sur le niveau, dans un réseau dont
+la paire de sondes typique est décorrélée, ont atteint **0,05**. Appeler cela
+un contrôle à redondance appariée aurait été faux.
+
+Le pool est donc **construit** jusqu'à la cible : une sonde de départ
+aléatoire, puis des membres ajoutés dont la corrélation moyenne avec le pool en
+croissance est la plus proche de la cible, chaque étape choisissant parmi un
+sous-ensemble aléatoire de **1 500** candidats pour que le tirage reste
+aléatoire et non déterministe. Vérifié sur un réseau synthétique à 30 modules
+de co-expression : cible **0,557**, obtenu **0,554**.
+
+**Le coût est déclaré : on ne peut pas apparier taille, niveau, dispersion et
+redondance simultanément.** Ce contrôle apparie la taille et la redondance ; le
+niveau et la dispersion dérivent, et les quatre chiffres sont rapportés des deux
+côtés.
+
+**Et sa faisabilité dépend du réseau réel.** Si HLC ne contient aucun module de
+cohérence comparable au panel mécanistique, la redondance atteinte restera loin
+de la cible. **Ce serait un fait sur le réseau, pas un bug** — et il serait
+rapporté comme tel, avec les deux nombres, plutôt que présenté comme un
+appariement réussi.
+
+### 1b.4 Le contraste principal du protocole 1b
+
+> La perte hors échantillon du pool mécanistique contre la distribution des
+> **1 000** pools appariés **tirés dans les plis**, sur les trois endpoints
+> prédéfinis, avec un p empirique corrigé par Bonferroni à **0,0167**.
+
+Secondaire déclaré : la même chose contre les pools à **redondance appariée**.
+
+### 1b.5 Lecture, et ce qu'elle ne permet pas de dire
+
+| Résultat | Ce qu'il autorise |
+|---|---|
+| pool mécanistique sous le 5ᵉ centile **et** p < 0,0167 | **les connaissances constituent un pool meilleur que des pools comparables.** C'est le résultat déterminant du projet |
+| au-dessus du 5ᵉ centile | **l'avantage des connaissances n'est pas établi dans cette expérience.** Ce n'est **pas** « les connaissances sont inutiles » : un pool aléatoire apparié sur le niveau et la dispersion dans un réseau hépatique contient lui-même beaucoup de biologie pertinente, et le panel mécanistique pourrait être supérieur sans que ces 1 000 tirages ne le montrent |
+| égalé par les pools à **redondance appariée** mais non par les pools à redondance libre | l'avantage vient de la **structure de covariance**, pas de l'identité des gènes. Conclusion différente, et plus intéressante que les deux autres |
 
 ---
 
@@ -333,5 +429,6 @@ l'absence de significativité.
 
 | Version | Date | Change |
 |---|---|---|
-| **1.1.0** | **2026-11-11** | **Trois ajouts, antérieurs à tout résultat** (§4.1). Le protocole 1 avait été lancé ; il a été **arrêté et sa sortie partielle supprimée sans être lue**. (1) **40 pools aléatoires appariés** sonde par sonde sur la moyenne et la log-variance, 25 plus proches voisins, redondance interne mesurée mais délibérément non appariée — parce que comparer 31 sondes mécanistiques à 30 218 faisait varier la biologie **et** la dimension, et qu'un pool mécanistique pouvait gagner en ayant seulement réduit la dimension. Nouvelle condition de réfutation : ne pas battre le 5ᵉ centile des pools appariés signifie dimension réduite, pas connaissance appliquée. (2) **`non_inferiority()`**, un test séparé appliquant la marge à **moins** le seuil, parce qu'une différence non significative n'est pas une équivalence et que « le pipeline simple suffit » exige `NON_INFERIOR`. (3) **Protocole 2** : le comparateur devient la meilleure politique **fixe choisie sur l'entraînement**, « ne rien mesurer » devient une action admissible, le **coût d'acquisition** entre dans la comparaison, et **la couche acquise ne peut jamais être l'endpoint** — imposé par assertion, même circularité que la règle MAPBE. |
+| **1.2.0** | **2026-11-11** | **Protocole 1b déclaré, distinct, sans modifier le protocole 1 qui tourne.** Le protocole 1 reste **exploratoire sur la question du pool** pour trois raisons acceptées : avec 40 pools le p minimal est **1/41 = 0,0244** et ne peut pas franchir un Bonferroni de 0,0167 sur trois endpoints, ce qui est une impossibilité arithmétique et non un manque de puissance ; son appariement est **transductif**, fait une fois sur tous les donneurs ; et « ne pas battre le 5ᵉ centile » ne démontre pas l'inutilité des connaissances mais seulement que leur avantage n'est pas établi ici — le seuil reste gelé, son interprétation est corrigée. Le protocole 1b porte **1 000 pools** (p minimal 0,000999), un appariement **inductif tiré dans chaque pli sur les lignes d'entraînement seules** (sélecteur `S9`, vérifié par espion), et un **contrôle secondaire à redondance appariée** qui sépare l'intérêt du choix des gènes de celui de leur covariance. Ce dernier ne peut pas être obtenu par rejet — mesuré : cible 0,88, atteint 0,05 sur 24 tirages — donc le pool est **construit** jusqu'à la cible, vérifié à 0,554 contre 0,557 sur un réseau à 30 modules, au prix déclaré d'une dérive du niveau et de la dispersion. |
+| 1.1.0 | 2026-11-11 | **Trois ajouts, antérieurs à tout résultat** (§4.1). Le protocole 1 avait été lancé ; il a été **arrêté et sa sortie partielle supprimée sans être lue**. (1) **40 pools aléatoires appariés** sonde par sonde sur la moyenne et la log-variance, 25 plus proches voisins, redondance interne mesurée mais délibérément non appariée — parce que comparer 31 sondes mécanistiques à 30 218 faisait varier la biologie **et** la dimension, et qu'un pool mécanistique pouvait gagner en ayant seulement réduit la dimension. Nouvelle condition de réfutation : ne pas battre le 5ᵉ centile des pools appariés signifie dimension réduite, pas connaissance appliquée. (2) **`non_inferiority()`**, un test séparé appliquant la marge à **moins** le seuil, parce qu'une différence non significative n'est pas une équivalence et que « le pipeline simple suffit » exige `NON_INFERIOR`. (3) **Protocole 2** : le comparateur devient la meilleure politique **fixe choisie sur l'entraînement**, « ne rien mesurer » devient une action admissible, le **coût d'acquisition** entre dans la comparaison, et **la couche acquise ne peut jamais être l'endpoint** — imposé par assertion, même circularité que la règle MAPBE. |
 | 1.0.0 | 2026-11-11 | Trois protocoles déclarés. **Protocole 1**, HLC complet : 466 × 40 638 sondes, 30 218 complètes, panel mécanistique 31, deux filtres aveugles à l'issue (complétude ; 2 000 plus variables dans le pli) dont le coût est mesuré par ablation appariée contre la largeur entière, sept bras, contraste principal **`S8` contre `S4`** déclaré singulier avec lecture d'**équivalence**, six conditions de réfutation dont une qui déclare explicitement l'absence de puissance comme un échec. **Protocole 2**, COMT : conditionnel à l'existence d'un jeu d'activité, sinon `NOT_EVALUABLE` ; contraste principal une **politique d'acquisition par variant** contre la meilleure couche fixe, avec l'oracle comme plafond, distincte des nuls antérieurs sur la pondération conditionnelle. **Protocole 3**, ARAF : réplication mot pour mot du protocole BRAF, plus la seule prédiction qui peut échouer seule — l'abondance sous inhibition d'HSP90 comme meilleur proxy. Corrections `k = 0` et déduplication consignées comme déjà faites, et donc non pré-enregistrées. |
