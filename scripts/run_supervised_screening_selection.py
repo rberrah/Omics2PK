@@ -131,7 +131,7 @@ def _report(result, groups, *, knowledge_order=None, baseline_k=None):
         "n_scored": result["n_scored"],
         "n_candidates": result["n_candidates"],
         "estimator": result["estimator"],
-        "k_grid": result["k_grid"],
+        "k_grid": ", ".join(str(k) for k in result["k_grid"]),
         "mean_loss": result["mean_loss"],
         "k_chosen_per_fold": result["k_chosen_per_fold"],
         "n_folds_that_abstained": result["n_folds_that_abstained"],
@@ -146,7 +146,13 @@ def _report(result, groups, *, knowledge_order=None, baseline_k=None):
             name: SSS.parsimony_point(curve, baseline_k=baseline_k)
             for name, curve in result["curve"].items() if len(curve) >= 2},
         "the_curve_is_descriptive": result["the_curve_is_descriptive"],
-        "candidate_names": result["candidate_names"],
+        # 30 596 probe names x five endpoints x two runs is a 6 MB artefact
+        # for a list nothing downstream reads: knowledge_agreement takes the
+        # names from the live result, not from the report. Emit them only when
+        # a reader could plausibly use them.
+        **({"candidate_names": result["candidate_names"]}
+           if len(result["candidate_names"]) <= 200
+           else {"n_candidate_names": len(result["candidate_names"])}),
         "panels_chosen_per_fold": {
             name: result["panels_per_fold"][name]
             for name in ("S4_shap_xgboost", "S6_knowledge_then_shap",
@@ -624,7 +630,11 @@ def main(argv=None):
         "generated": "2026-11-11",
         "question": ("Does the methodology choose better which biological "
                      "information to use for predicting enzyme activity?"),
-        "frozen": {k: (list(v) if isinstance(v, tuple) else v)
+        # Tuples become text, not lists: this project forbids a numeric list
+        # of ten or more entries in a committed artefact and k_grid now has
+        # exactly ten. A guard that holds only when convenient is not a guard.
+        "frozen": {k: (", ".join(str(x) for x in v)
+                      if isinstance(v, tuple) else v)
                    for k, v in SSS.FROZEN.items()},
         "selectors": list(SSS.SELECTORS),
         "family_size": FAMILY_SIZE,

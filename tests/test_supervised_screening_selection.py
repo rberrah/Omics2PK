@@ -877,3 +877,212 @@ class TestInductivePoolMatching:
         bonferroni = 0.05 / 3  # three prespecified endpoints
         assert 1.0 / (1 + exploratory) > bonferroni
         assert 1.0 / (1 + confirmatory) < bonferroni
+
+
+class TestFullArrayArtefact:
+    """Guards on the high-dimension artefact, including the project's own rules.
+
+    The pre-registration declared one refutation condition that fired: the
+    variance filter costs a margin-reaching gain on CYP2D6, so the arms that
+    need it are not interpretable there. That has to stay visible in the
+    artefact, not only in prose.
+    """
+
+    @pytest.fixture(scope="class")
+    def payload(self):
+        import json
+        path = (ROOT / "reports" / "data"
+                / "supervised_screening_fullarray.json")
+        if not path.is_file():
+            pytest.skip("the high-dimension artefact has not been generated")
+        return json.loads(path.read_text(encoding="utf-8"))
+
+    def test_no_numeric_list_of_ten_or_more_entries(self, payload):
+        """The project's rule against per-row data in a committed artefact.
+
+        It exists to stop per-individual material entering the repository.
+        k_grid is not that, but a guard that holds only when convenient is not
+        a guard, so the declared grids are written as text.
+        """
+        offenders = []
+
+        def walk(node, path):
+            if isinstance(node, list):
+                if node and all(isinstance(v, (int, float)) for v in node) \
+                        and len(node) >= 10:
+                    offenders.append((path, len(node)))
+                for index, value in enumerate(node):
+                    walk(value, f"{path}[{index}]")
+            elif isinstance(node, dict):
+                for key, value in node.items():
+                    walk(value, f"{path}.{key}")
+
+        walk(payload, "")
+        assert not offenders, offenders
+
+    def test_it_carries_no_donor_level_material(self, payload):
+        import json
+        raw = json.dumps(payload)
+        assert payload["no_individual_level_data_in_this_artefact"] is True
+        # 30 596 probe names per endpoint made a 6 MB artefact for a list
+        # nothing reads; the count is kept instead.
+        assert len(raw) < 2_000_000, len(raw)
+
+    def test_it_names_the_protocol_it_followed(self, payload):
+        block = payload["hlc_full_array"]
+        assert block["protocol"] == \
+            "OMICS2PK_HIGH_DIMENSION_PREREGISTRATION_20261111.md"
+        assert block["prefilter_top_variance"] == 2000
+        assert block["mechanistic_panel_size"] == 31
+
+    def test_the_completeness_filter_shrank_the_mechanistic_pool(self,
+                                                                 payload):
+        # 6 of 31 mechanistic probes are not finite across donors. A knowledge
+        # pool that shrinks in silence would invalidate the arm that uses it.
+        for entry in payload["hlc_full_array"]["endpoints"].values():
+            assert entry["n_mechanistic_probes_dropped_as_incomplete"] >= 1
+            assert entry["pool_size"] < block_size(payload)
+
+    def test_the_prefilter_cost_is_reported_for_every_endpoint(self, payload):
+        for name, entry in payload["hlc_full_array"]["endpoints"].items():
+            cost = entry["cost_of_the_variance_prefilter"]
+            assert "S1_univariate_outcome" in cost, name
+            assert "verdict" in cost["S1_univariate_outcome"], name
+
+    def test_the_refutation_condition_that_fired_is_visible(self, payload):
+        """CYP2D6: the whole array beats the filtered array by ~14 %."""
+        cost = payload["hlc_full_array"]["endpoints"]["CYP2D6_activity"][
+            "cost_of_the_variance_prefilter"]["S1_univariate_outcome"]
+        assert cost["verdict"] == "GAIN_REACHES_MARGIN"
+        assert cost["relative_gain"] > 0.10
+
+    def test_the_matched_pool_control_ran_on_every_endpoint(self, payload):
+        for name, entry in payload["hlc_full_array"]["endpoints"].items():
+            pools = entry["matched_random_pools"]
+            assert pools["n_pools"] >= 30, name
+            assert "empirical_p" in pools, name
+
+    def test_the_empirical_p_floor_is_respected(self, payload):
+        """No p may be below 1/(1+n_pools); the floor is arithmetic."""
+        for name, entry in payload["hlc_full_array"]["endpoints"].items():
+            pools = entry["matched_random_pools"]
+            floor = 1.0 / (1 + pools["n_pools"])
+            assert pools["empirical_p"] >= floor - 1e-12, name
+
+    def test_the_permuted_control_reached_the_margin_nowhere(self, payload):
+        for name, entry in payload["hlc_full_array"]["endpoints"].items():
+            control = entry["permuted_outcome_control"][
+                "best_selector_vs_everything"]
+            assert control["verdict"] != "GAIN_REACHES_MARGIN", name
+
+    def test_abstention_was_available_and_used(self, payload):
+        negative = payload["hlc_full_array"]["endpoints"]["CYP2E1_activity"]
+        block = negative["variance_prefiltered"]
+        assert block["abstention_was_available"] is True
+        # The tree-based arms abstain fully on the endpoint where selecting
+        # hurt; the univariate ones do not, which is reported, not hidden.
+        assert block["n_folds_that_abstained"]["S4_shap_xgboost"] >= 3
+
+
+def block_size(payload):
+    return payload["hlc_full_array"]["mechanistic_panel_size"]
+
+
+class TestVarianceProfileDiagnostic:
+    """The secondary diagnostic added to protocol 1b, and its own limits.
+
+    It exists because the variance filter cost +13.98 % on CYP2D6, the very
+    endpoint where the mechanistic pool beat matched chance. The first reading
+    -- that the pool wins by bypassing a filter the other arms suffer -- is
+    false for the matched comparison, because those pools are matched ON log
+    variance. These tests pin that down so the claim cannot drift back.
+    """
+
+    @pytest.fixture(scope="class")
+    def low_variance_pool(self):
+        rng = np.random.default_rng(0)
+        n, p = 200, 4000
+        spread = np.exp(rng.normal(-1, 1.2, p))
+        design = rng.normal(8, 1, size=(n, p)) * spread
+        order = np.argsort(design.var(axis=0))
+        pool = np.asarray(sorted(rng.choice(order[:1000], 20, replace=False)))
+        return design, pool
+
+    def test_matched_pools_cannot_differ_in_variance_by_construction(
+            self, sss, low_variance_pool):
+        """The measurement behind the correction, not an assertion about it."""
+        design, pool = low_variance_pool
+        matched = [sss.matched_random_pool(design, pool, exclude=(0, 1),
+                                           seed=100 + i)[0]
+                   for i in range(12)]
+        profile = sss.variance_profile(design, pool, prefilter_n=2000,
+                                       matched_pools=matched, exclude=(0, 1))
+        assert abs(profile["delta_median_variance_percentile"]) < 2.0
+        assert profile["pool_is_lower_variance_than_its_matches"] is False
+
+    def test_it_detects_a_pool_the_filter_would_discard(self, sss,
+                                                         low_variance_pool):
+        design, pool = low_variance_pool
+        profile = sss.variance_profile(design, pool, prefilter_n=2000,
+                                       exclude=(0, 1))
+        assert profile["pool"]["share_excluded_by_the_filter"] > 0.5
+        assert profile["pool"]["median_variance_percentile"] < 50.0
+
+    def test_a_high_variance_pool_survives_the_filter(self, sss,
+                                                       low_variance_pool):
+        design, _ = low_variance_pool
+        order = np.argsort(design.var(axis=0))[::-1]
+        pool = np.asarray(sorted(order[:20]))
+        profile = sss.variance_profile(design, pool, prefilter_n=2000,
+                                       exclude=(0, 1))
+        assert profile["pool"]["share_excluded_by_the_filter"] == 0.0
+        assert profile["pool"]["median_variance_percentile"] > 90.0
+
+    def test_it_reads_no_outcome(self, sss, low_variance_pool):
+        design, pool = low_variance_pool
+        profile = sss.variance_profile(design, pool, prefilter_n=2000,
+                                       exclude=(0, 1))
+        assert profile["this_reads_no_outcome"] is True
+        # The signature takes no target, which is the real guarantee.
+        import inspect
+        parameters = inspect.signature(sss.variance_profile).parameters
+        assert "target" not in parameters
+        assert "activity" not in parameters
+
+    def test_it_states_what_it_cannot_show(self, sss, low_variance_pool):
+        design, pool = low_variance_pool
+        profile = sss.variance_profile(design, pool, prefilter_n=2000,
+                                       exclude=(0, 1))
+        assert "cannot explain the mechanistic pool's advantage over THEM" \
+            in profile["what_it_cannot_show"]
+
+    def test_the_predictive_split_partitions_the_pool(self, sss,
+                                                       low_variance_pool):
+        design, pool = low_variance_pool
+        kept, dropped = sss.split_pool_by_filter(design, pool,
+                                                 prefilter_n=2000,
+                                                 exclude=(0, 1))
+        assert kept.size + dropped.size == pool.size
+        assert not (set(kept.tolist()) & set(dropped.tolist()))
+        assert set(kept.tolist()) | set(dropped.tolist()) == set(pool.tolist())
+
+    def test_the_split_reads_no_outcome_either(self, sss):
+        import inspect
+        parameters = inspect.signature(sss.split_pool_by_filter).parameters
+        assert "target" not in parameters
+
+    def test_a_wide_filter_keeps_everything(self, sss, low_variance_pool):
+        design, pool = low_variance_pool
+        kept, dropped = sss.split_pool_by_filter(
+            design, pool, prefilter_n=design.shape[1], exclude=(0, 1))
+        assert dropped.size == 0
+        assert kept.size == pool.size
+
+    def test_the_amendment_is_recorded_as_prior_to_execution(self):
+        text = (ROOT / "docs"
+                / "OMICS2PK_HIGH_DIMENSION_PREREGISTRATION_20261111.md"
+                ).read_text(encoding="utf-8")
+        assert "amendement ajout\u00e9 avant ex\u00e9cution de 1b" in text
+        assert "n'est **pas** relanc\u00e9 pour cette question" in text
+        # And it records that the first reading of the problem was wrong.
+        assert "Cette lecture est fausse pour la comparaison principale" in text

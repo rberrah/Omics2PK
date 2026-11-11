@@ -369,6 +369,120 @@ def _grow_to_redundancy(design, size, target, *, banned, rng,
     return np.asarray(chosen, dtype=int)
 
 
+def variance_profile(design, pool, *, prefilter_n, matched_pools=(),
+                     exclude=()):
+    """Where a pool sits in the transcriptome's variance distribution.
+
+    **Outcome-blind: no activity value is read.** A secondary diagnostic for
+    one question only -- does a mechanistic pool hold probes that an
+    unsupervised variance filter would discard?
+
+    **It cannot explain an advantage over matched pools, and does not claim
+    to.** Those pools are matched on log variance by construction, so there is
+    no variance difference between them to explain anything. What it can
+    explain is an advantage over *filtered* arms, and what it can suggest is
+    the more interesting property: that pharmacological knowledge preserves
+    informative biomarkers unsupervised filtering removes. **Suggest, not
+    show** -- that claim needs the predictive split, not these distributions.
+    """
+    design = np.asarray(design, dtype=float)
+    pool = np.asarray(pool, dtype=int)
+    banned = set(int(c) for c in exclude)
+    variance = design.var(axis=0)
+    eligible = np.array([c for c in range(design.shape[1])
+                         if c not in banned], dtype=int)
+    order = eligible[np.argsort(variance[eligible])[::-1]]
+    rank = {int(c): i for i, c in enumerate(order)}
+    survivors = set(int(c) for c in order[:int(prefilter_n)])
+
+    def describe(columns):
+        columns = np.asarray(columns, dtype=int)
+        if columns.size == 0:
+            return {"n": 0}
+        percentiles = np.array([
+            100.0 * (1.0 - rank[int(c)] / max(len(order) - 1, 1))
+            for c in columns if int(c) in rank])
+        dropped = [int(c) for c in columns if int(c) not in survivors]
+        return {
+            "n": int(columns.size),
+            "median_variance_percentile": float(np.median(percentiles)),
+            "mean_variance_percentile": float(percentiles.mean()),
+            "share_excluded_by_the_filter": float(len(dropped)
+                                                  / columns.size),
+            "n_excluded_by_the_filter": len(dropped),
+        }
+
+    out = {"prefilter_n": int(prefilter_n),
+           "n_eligible_candidates": int(eligible.size),
+           "pool": describe(pool),
+           "a_high_percentile_means_high_variance": True,
+           "this_reads_no_outcome": True,
+           "what_it_cannot_show": (
+               "the matched random pools are matched on log variance, so a "
+               "variance difference between them and the mechanistic pool "
+               "cannot explain the mechanistic pool's advantage over THEM. "
+               "It can explain an advantage over the FILTERED arms, and it "
+               "can only suggest -- never establish -- that knowledge "
+               "preserves informative low-variance biomarkers. That needs "
+               "the predictive split."),
+           }
+    if len(matched_pools):
+        rows = [describe(columns) for columns in matched_pools]
+        rows = [row for row in rows if row.get("n")]
+        if rows:
+            shares = np.array([row["share_excluded_by_the_filter"]
+                               for row in rows])
+            medians = np.array([row["median_variance_percentile"]
+                                for row in rows])
+            out["matched_pools"] = {
+                "n_pools": len(rows),
+                "median_variance_percentile_mean": float(medians.mean()),
+                "median_variance_percentile_interval": [
+                    float(np.percentile(medians, 2.5)),
+                    float(np.percentile(medians, 97.5))],
+                "share_excluded_mean": float(shares.mean()),
+                "share_excluded_interval": [
+                    float(np.percentile(shares, 2.5)),
+                    float(np.percentile(shares, 97.5))],
+            }
+            out["delta_median_variance_percentile"] = float(
+                out["pool"]["median_variance_percentile"] - medians.mean())
+            out["delta_share_excluded"] = float(
+                out["pool"]["share_excluded_by_the_filter"] - shares.mean())
+            out["pool_is_lower_variance_than_its_matches"] = bool(
+                out["pool"]["median_variance_percentile"]
+                < np.percentile(medians, 2.5))
+    return out
+
+
+def split_pool_by_filter(design, pool, *, prefilter_n, exclude=()):
+    """Split a pool into the probes a variance filter keeps and those it drops.
+
+    The **predictive** half of the diagnostic. If the dropped probes carry the
+    information, then unsupervised filtering removes biomarkers that knowledge
+    retained -- and that is a claim about prediction, not about distributions,
+    so it has to be measured by running both halves as pools in their own
+    right.
+
+    The split uses variance only and reads no outcome. It is computed on the
+    retained donors rather than per fold, which makes it **transductive**; it
+    is therefore a diagnostic and never a confirmatory arm, and the arms built
+    from it inherit that status.
+    """
+    design = np.asarray(design, dtype=float)
+    pool = np.asarray(pool, dtype=int)
+    banned = set(int(c) for c in exclude)
+    variance = design.var(axis=0)
+    eligible = np.array([c for c in range(design.shape[1])
+                         if c not in banned], dtype=int)
+    order = eligible[np.argsort(variance[eligible])[::-1]]
+    survivors = set(int(c) for c in order[:int(prefilter_n)])
+    kept = np.array([int(c) for c in pool if int(c) in survivors], dtype=int)
+    dropped = np.array([int(c) for c in pool if int(c) not in survivors],
+                       dtype=int)
+    return kept, dropped
+
+
 def _mean_abs_correlation(design, columns):
     columns = np.asarray(columns, dtype=int)
     if columns.size < 2:
