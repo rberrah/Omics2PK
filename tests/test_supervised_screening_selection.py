@@ -1109,3 +1109,88 @@ class TestVarianceProfileDiagnostic:
         assert "PROTOCOLES 1 (\u00a75) ET 1b (\u00a76) EX\u00c9CUT\u00c9S" in text
         # Protocols 2 and 3 are still wholly prior, and say so.
         assert "aucune de leurs donn\u00e9es t\u00e9l\u00e9charg\u00e9e" in text
+
+
+class TestCyp2d6NetworkAblation:
+    """The exploratory ablation that bounded the CYP2D6 result.
+
+    Protocol 1b found the mechanistic pool beating 0 of 1000 matched pools,
+    and the panel selected inside the folds contained POR, the obligate
+    electron donor of microsomal CYPs. Biologically coherent -- and the
+    ablation showed it adds nothing. These guards keep that bound visible.
+    """
+
+    @pytest.fixture(scope="class")
+    def payload(self):
+        import json
+        path = ROOT / "reports" / "data" / "cyp2d6_network_ablation.json"
+        if not path.is_file():
+            pytest.skip("the ablation artefact has not been generated")
+        return json.loads(path.read_text(encoding="utf-8"))
+
+    def test_it_is_labelled_exploratory_in_the_artefact(self, payload):
+        assert payload["status"] == "EXPLORATORY"
+        assert payload["not_part_of_any_frozen_protocol"] is True
+        assert "same cohort and the same donors" in payload["why_exploratory"]
+
+    def test_the_single_transcript_arm_exists_and_is_one_probe(self, payload):
+        arm = payload["arms"]["CYP2D6_alone"]
+        assert arm["n_probes"] == 1
+        assert arm["genes"] == ["CYP2D6"]
+
+    def test_the_pool_does_not_beat_the_single_transcript(self, payload):
+        out = payload["contrasts"]["full_pool_vs_CYP2D6_alone"]
+        assert out["verdict"] == "REFUTED_GAIN_BELOW_MARGIN"
+        assert out["relative_gain"] < 0.0
+
+    def test_the_single_transcript_is_non_inferior_to_the_pool(self, payload):
+        out = payload["non_inferiority"][
+            "CYP2D6_alone_non_inferior_to_full_pool"]
+        assert out["verdict"] == "NON_INFERIOR"
+
+    def test_por_adds_nothing(self, payload):
+        out = payload["contrasts"]["CYP2D6_plus_POR_vs_CYP2D6_alone"]
+        assert out["verdict"] == "REFUTED_GAIN_BELOW_MARGIN"
+
+    def test_the_network_without_the_target_carries_nothing_detectable(
+            self, payload):
+        out = payload["contrasts"]["pool_without_CYP2D6_vs_baseline_only"]
+        assert out["verdict"] != "GAIN_REACHES_MARGIN"
+        assert out["interval"][0] < 0.0 < out["interval"][1]
+
+    def test_the_transcript_still_beats_age_and_sex_by_a_margin(self, payload):
+        out = payload["contrasts"]["CYP2D6_alone_vs_baseline_only"]
+        assert out["verdict"] == "GAIN_REACHES_MARGIN"
+
+    def test_it_records_why_the_ablation_followed(self, payload):
+        prior = payload["from_protocol_1b"]
+        assert prior["folds_that_chose_k_equal_1"] == 2
+        assert prior["folds_containing_POR"] == 2
+        assert prior["folds_containing_CYP2D6"] == 5
+        assert "not evidence of added information" in \
+            prior["why_this_ablation_follows"]
+
+    def test_the_document_retracts_the_word_confirmatory(self):
+        text = (ROOT / "docs"
+                / "OMICS2PK_HIGH_DIMENSION_PREREGISTRATION_20261111.md"
+                ).read_text(encoding="utf-8")
+        assert "\u00ab Confirmatoire \u00bb est retir\u00e9" in text
+        assert "AJOUT POST\u00c9RIEUR" in text
+        # And the declared protocol text is NOT rewritten, only annotated.
+        assert "## 1bis. Protocole 1b \u2014 la r\u00e9plication confirmatoire" in text
+        assert "exige de **nouveaux donneurs**" in text
+
+    def test_the_document_states_the_result_is_one_transcript(self):
+        text = (ROOT / "docs"
+                / "OMICS2PK_HIGH_DIMENSION_PREREGISTRATION_20261111.md"
+                ).read_text(encoding="utf-8")
+        assert "est, en entier, le transcrit CYP2D6" in text
+        # And keeps the one thing knowledge demonstrably did.
+        assert "transcrit unique conserver quand un filtre" in text
+
+    def test_the_per_fold_correction_is_recorded(self):
+        text = (ROOT / "docs"
+                / "OMICS2PK_HIGH_DIMENSION_PREREGISTRATION_20261111.md"
+                ).read_text(encoding="utf-8")
+        assert "Compt\u00e9 en PLIS, pas en sondes" in text
+        assert "CYP2D6 seul**" in text

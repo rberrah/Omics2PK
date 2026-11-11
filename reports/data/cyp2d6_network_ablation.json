@@ -1,0 +1,334 @@
+{
+  "run": "cyp2d6_network_ablation",
+  "generated": "2026-11-11",
+  "status": "EXPLORATORY",
+  "why_exploratory": "specified after seeing protocol 1b's CYP2D6 result, on the same cohort and the same donors. It bounds the claim; it cannot confirm it.",
+  "not_part_of_any_frozen_protocol": true,
+  "endpoint": "CYP2D6_activity",
+  "question": "is the CYP2D6 result a network, or one transcript travelling in a panel?",
+  "from_protocol_1b": {
+    "pool_beats_0_of_1000_matched_pools": true,
+    "folds_that_chose_k_equal_1": 2,
+    "folds_containing_POR": 2,
+    "folds_containing_CYP2D6": 5,
+    "why_this_ablation_follows": "two folds of five selected the CYP2D6 probe alone, so the panel is a single probe in 40 % of the folds and POR appears in 2 of 5. Biological coherence is not evidence of added information."
+  },
+  "arms": {
+    "baseline_only": {
+      "n_probes": 0,
+      "genes": [],
+      "mean_loss": 109.51181582338441,
+      "k_chosen_per_fold": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "n_folds_that_abstained": 5,
+      "selected_genes_per_fold": [
+        [],
+        [],
+        [],
+        [],
+        []
+      ]
+    },
+    "CYP2D6_alone": {
+      "n_probes": 1,
+      "genes": [
+        "CYP2D6"
+      ],
+      "mean_loss": 91.76372645157295,
+      "k_chosen_per_fold": [
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "n_folds_that_abstained": 0,
+      "selected_genes_per_fold": [
+        [
+          "CYP2D6"
+        ],
+        [
+          "CYP2D6"
+        ],
+        [
+          "CYP2D6"
+        ],
+        [
+          "CYP2D6"
+        ],
+        [
+          "CYP2D6"
+        ]
+      ]
+    },
+    "CYP2D6_plus_POR": {
+      "n_probes": 2,
+      "genes": [
+        "CYP2D6",
+        "POR"
+      ],
+      "mean_loss": 91.89725584611324,
+      "k_chosen_per_fold": [
+        1,
+        2,
+        2,
+        2,
+        1
+      ],
+      "n_folds_that_abstained": 0,
+      "selected_genes_per_fold": [
+        [
+          "CYP2D6"
+        ],
+        [
+          "CYP2D6",
+          "POR"
+        ],
+        [
+          "CYP2D6",
+          "POR"
+        ],
+        [
+          "CYP2D6",
+          "POR"
+        ],
+        [
+          "CYP2D6"
+        ]
+      ]
+    },
+    "pool_without_CYP2D6": {
+      "n_probes": 24,
+      "genes": [
+        "ABCB1",
+        "CYP1A2",
+        "CYP2A6",
+        "CYP2B6",
+        "CYP2C19",
+        "CYP2C8",
+        "CYP2C9",
+        "CYP2E1",
+        "CYP3A4",
+        "CYP3A5",
+        "POR"
+      ],
+      "mean_loss": 107.05694215288554,
+      "k_chosen_per_fold": [
+        1,
+        3,
+        2,
+        8,
+        3
+      ],
+      "n_folds_that_abstained": 0,
+      "selected_genes_per_fold": [
+        [
+          "CYP2E1"
+        ],
+        [
+          "CYP2E1",
+          "POR"
+        ],
+        [
+          "CYP2E1"
+        ],
+        [
+          "CYP2A6",
+          "CYP2C19",
+          "CYP2E1",
+          "CYP3A5",
+          "POR"
+        ],
+        [
+          "CYP2E1",
+          "POR"
+        ]
+      ]
+    },
+    "full_pool": {
+      "n_probes": 25,
+      "genes": [
+        "ABCB1",
+        "CYP1A2",
+        "CYP2A6",
+        "CYP2B6",
+        "CYP2C19",
+        "CYP2C8",
+        "CYP2C9",
+        "CYP2D6",
+        "CYP2E1",
+        "CYP3A4",
+        "CYP3A5",
+        "POR"
+      ],
+      "mean_loss": 92.78947922925973,
+      "k_chosen_per_fold": [
+        3,
+        5,
+        8,
+        1,
+        1
+      ],
+      "n_folds_that_abstained": 0,
+      "selected_genes_per_fold": [
+        [
+          "CYP2D6",
+          "CYP2E1"
+        ],
+        [
+          "CYP2C19",
+          "CYP2D6",
+          "CYP2E1",
+          "POR"
+        ],
+        [
+          "CYP2C19",
+          "CYP2C8",
+          "CYP2D6",
+          "CYP2E1",
+          "CYP3A5",
+          "POR"
+        ],
+        [
+          "CYP2D6"
+        ],
+        [
+          "CYP2D6"
+        ]
+      ]
+    }
+  },
+  "contrasts": {
+    "full_pool_vs_CYP2D6_alone": {
+      "contrast": "full_pool_minus_CYP2D6_alone",
+      "verdict": "REFUTED_GAIN_BELOW_MARGIN",
+      "relative_gain": -0.01117819444950407,
+      "minimum_interesting_gain": 4.588186322578648,
+      "gap": -1.0257527776867825,
+      "interval": [
+        -2.3880061685385963,
+        0.3454947723983595
+      ],
+      "excludes_zero": false,
+      "level": "99.17 %",
+      "family_size": 6,
+      "n_bootstrap": 2000,
+      "n_resampling_units": 396,
+      "resampling_unit": "individual"
+    },
+    "CYP2D6_plus_POR_vs_CYP2D6_alone": {
+      "contrast": "CYP2D6_plus_POR_minus_CYP2D6_alone",
+      "verdict": "REFUTED_GAIN_BELOW_MARGIN",
+      "relative_gain": -0.0014551435485868106,
+      "minimum_interesting_gain": 4.588186322578648,
+      "gap": -0.13352939454029125,
+      "interval": [
+        -1.0536523767265493,
+        0.7644783902216121
+      ],
+      "excludes_zero": false,
+      "level": "99.17 %",
+      "family_size": 6,
+      "n_bootstrap": 2000,
+      "n_resampling_units": 396,
+      "resampling_unit": "individual"
+    },
+    "full_pool_vs_CYP2D6_plus_POR": {
+      "contrast": "full_pool_minus_CYP2D6_plus_POR",
+      "verdict": "REFUTED_GAIN_BELOW_MARGIN",
+      "relative_gain": -0.009708923024214847,
+      "minimum_interesting_gain": 4.594862792305662,
+      "gap": -0.8922233831464913,
+      "interval": [
+        -2.1254650503146477,
+        0.38318557371634493
+      ],
+      "excludes_zero": false,
+      "level": "99.17 %",
+      "family_size": 6,
+      "n_bootstrap": 2000,
+      "n_resampling_units": 396,
+      "resampling_unit": "individual"
+    },
+    "pool_without_CYP2D6_vs_baseline_only": {
+      "contrast": "pool_without_CYP2D6_minus_baseline_only",
+      "verdict": "NO_DETECTABLE_GAIN_UNDERPOWERED",
+      "relative_gain": 0.02241651872943083,
+      "minimum_interesting_gain": 5.475590791169221,
+      "gap": 2.4548736704988765,
+      "interval": [
+        -2.0192481188640725,
+        7.066485838375433
+      ],
+      "excludes_zero": false,
+      "level": "99.17 %",
+      "family_size": 6,
+      "n_bootstrap": 2000,
+      "n_resampling_units": 396,
+      "resampling_unit": "individual"
+    },
+    "CYP2D6_alone_vs_baseline_only": {
+      "contrast": "CYP2D6_alone_minus_baseline_only",
+      "verdict": "GAIN_REACHES_MARGIN",
+      "relative_gain": 0.16206551994749815,
+      "minimum_interesting_gain": 5.475590791169221,
+      "gap": 17.74808937181145,
+      "interval": [
+        8.847860112783984,
+        25.988540788766237
+      ],
+      "excludes_zero": true,
+      "level": "99.17 %",
+      "family_size": 6,
+      "n_bootstrap": 2000,
+      "n_resampling_units": 396,
+      "resampling_unit": "individual"
+    },
+    "full_pool_vs_baseline_only": {
+      "contrast": "full_pool_minus_baseline_only",
+      "verdict": "GAIN_REACHES_MARGIN",
+      "relative_gain": 0.15269892539352722,
+      "minimum_interesting_gain": 5.475590791169221,
+      "gap": 16.72233659412467,
+      "interval": [
+        7.724785236296489,
+        25.325444550000135
+      ],
+      "excludes_zero": true,
+      "level": "99.17 %",
+      "family_size": 6,
+      "n_bootstrap": 2000,
+      "n_resampling_units": 396,
+      "resampling_unit": "individual"
+    }
+  },
+  "non_inferiority": {
+    "CYP2D6_alone_non_inferior_to_full_pool": {
+      "test": "CYP2D6_alone_non_inferior_to_full_pool",
+      "verdict": "NON_INFERIOR",
+      "relative_gap": 0.011054623716040076,
+      "non_inferiority_margin": 4.639473961462986,
+      "relative_margin": 0.05,
+      "an_undecided_result_is_not_equivalence": true,
+      "how_to_read": "NON_INFERIOR means the candidate cannot be worse by more than 5% of the incumbent's loss. UNDECIDED means the design lacks the power to say that, which is not the same claim and must not be reported as one.",
+      "gap": 1.0257527776867825,
+      "interval": [
+        -0.34549477239836496,
+        2.3880061685385914
+      ],
+      "excludes_zero": false,
+      "level": "99.17 %",
+      "family_size": 6,
+      "n_bootstrap": 2000,
+      "n_resampling_units": 396,
+      "resampling_unit": "individual"
+    }
+  },
+  "what_this_cannot_settle": "one cohort, one endpoint, specified after the result it examines. A win for CYP2D6_alone bounds the claim; a win for the full pool does not establish the network, because both arms were chosen by looking at the same donors.",
+  "no_individual_level_data_in_this_artefact": true
+}
