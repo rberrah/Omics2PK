@@ -297,6 +297,21 @@ def region_groups(positions, blocks, length):
     return np.clip(np.digitize(positions, edges) - 1, 0, blocks - 1)
 
 
+def contiguous_blocks(positions, width):
+    """Label each row by the contiguous sequence block of `width` it falls in.
+
+    This is the **resampling** unit, not a fold assignment, and the two want
+    different granularities. Folds want few, large, well-separated blocks;
+    a percentile bootstrap wants enough units to have a distribution at all —
+    resampling the eight region folds themselves would leave eight. Blocks of
+    ten residues keep the local structural dependence inside a cluster while
+    leaving tens of clusters to resample.
+    """
+    positions = np.asarray(positions, dtype=int)
+    _check(width >= 1, "a block must be at least one residue wide")
+    return positions // int(width)
+
+
 # --------------------------------------------------------------------------
 # the comparators
 # --------------------------------------------------------------------------
@@ -426,6 +441,10 @@ def evaluate(activity, abundance, substitution, mechanism, groups, positions,
     return {
         "n_scored": int(complete.sum()),
         "n_groups": int(np.unique(groups).size),
+        # The mask is returned so a caller can (a) attach group labels to the
+        # rows that were actually scored, for a cluster bootstrap, and (b)
+        # assert that two runs it wants to pair scored the SAME rows.
+        "scored_rows": complete,
         "permuted_abundance": bool(permute_abundance),
         "permuted_mechanism": bool(permute_mechanism),
         "losses": losses,
@@ -444,32 +463,112 @@ def evaluate(activity, abundance, substitution, mechanism, groups, positions,
     }
 
 
-def contrast(result, better, worse, *, family_size=1, margin=None, seed=None):
-    """Paired interval and the project's six-rung verdict ladder."""
+def _ladder(interval, threshold):
+    """The project's six rungs, applied to the interval's LOWER bound.
+
+    Written once and shared, because the last time a second contrast grew its
+    own copy of this ladder the copy announced a gain of +0.62 % as present
+    against a 5 % margin. A rung is a claim about where the interval sits
+    relative to the smallest gain worth having, and `threshold` is that gain.
+    """
+    low, high = float(interval[0]), float(interval[1])
+    if low >= threshold:
+        return "GAIN_REACHES_MARGIN"
+    if low > 0.0 and high < threshold:
+        return "GAIN_PRESENT_BUT_BELOW_MARGIN"
+    if low > 0.0:
+        return "GAIN_PRESENT_MARGIN_UNDECIDED"
+    if high < 0.0:
+        return "DETECTABLY_WORSE"
+    if high < threshold:
+        return "REFUTED_GAIN_BELOW_MARGIN"
+    return "NO_DETECTABLE_GAIN_UNDERPOWERED"
+
+
+def ablation(richer, plainer, arm, *, label, family_size=1, margin=None,
+             seed=None, groups=None):
+    """Paired contrast of ONE arm between two knowledge layers.
+
+    `M4` beating `M1` says the union beats the best single measurement. It
+    does **not** say what the newest block contributed, because the union
+    already contained everything that came before. The direct question is
+    whether *these* features, added to *that* arm, on *those* rows, reduce the
+    loss — and it has to be asked as a paired interval, not as a difference of
+    two mean losses reported side by side.
+
+    Both runs must have scored exactly the same rows, which is asserted rather
+    than assumed: a fold where one layer produced a non-finite prediction
+    would otherwise silently compare different cohorts.
+    """
+    margin = (FROZEN["minimum_interesting_relative_gain"] if margin is None
+              else margin)
+    for name, block in (("richer", richer), ("plainer", plainer)):
+        _check(arm in block["losses"], f"{name} has no arm {arm!r}")
+        _check(block.get("scored_rows") is not None,
+               f"{name} predates scored_rows; re-run evaluate")
+    mask_r = np.asarray(richer["scored_rows"], dtype=bool)
+    mask_p = np.asarray(plainer["scored_rows"], dtype=bool)
+    _check(mask_r.size == mask_p.size and bool((mask_r == mask_p).all()),
+           "the two layers scored different rows, so the arms are not paired")
+    cluster = None
+    if groups is not None:
+        labels = np.asarray(groups)
+        _check(labels.size == mask_r.size,
+               "the group labels must cover every row evaluate saw")
+        cluster = labels[mask_r]
+    worse, better = plainer["losses"][arm], richer["losses"][arm]
+    gap = paired_gap(worse, better, family_size=family_size,
+                     n_boot=FROZEN["n_bootstrap"], alpha=FROZEN["alpha"],
+                     seed=FROZEN["seed"] if seed is None else seed,
+                     groups=cluster)
+    reference = float(np.mean(worse))
+    _check(reference > 0.0, "the reference loss must be positive")
+    threshold = margin * reference
+    return {"contrast": f"{arm}_with_{label}_minus_{arm}_without",
+            "arm": arm, "added_layer": label,
+            "verdict": _ladder(gap["interval"], threshold),
+            "relative_gain": float(gap["gap"] / reference),
+            "minimum_interesting_gain": float(threshold),
+            "what_this_isolates": (
+                f"the loss of {arm} with the {label} block minus the same arm "
+                "without it, on identical rows and identical folds. Nothing "
+                "else differs between the two fits."),
+            **gap}
+
+
+def contrast(result, better, worse, *, family_size=1, margin=None, seed=None,
+             groups=None):
+    """Paired interval and the project's six-rung verdict ladder.
+
+    `groups` is a **full-length** per-row label array — the protein position,
+    or a contiguous-region block. It is subset to the rows this run actually
+    scored and handed to `paired_gap` as the resampling unit. Supply it
+    whenever rows are not independent, which for a deep-mutational-scanning
+    cohort means always: the folds being grouped does not make the interval
+    grouped, and only the interval decides a verdict.
+    """
     margin = (FROZEN["minimum_interesting_relative_gain"] if margin is None
               else margin)
     losses = result["losses"]
     _check(better in losses and worse in losses,
            f"unknown comparator in {better!r} vs {worse!r}")
+    cluster = None
+    if groups is not None:
+        labels = np.asarray(groups)
+        mask = result.get("scored_rows")
+        _check(mask is not None,
+               "this result predates scored_rows; re-run evaluate")
+        _check(labels.size == np.asarray(mask).size,
+               "the group labels must cover every row evaluate saw")
+        cluster = labels[np.asarray(mask, dtype=bool)]
     gap = paired_gap(losses[worse], losses[better], family_size=family_size,
                      n_boot=FROZEN["n_bootstrap"], alpha=FROZEN["alpha"],
-                     seed=FROZEN["seed"] if seed is None else seed)
+                     seed=FROZEN["seed"] if seed is None else seed,
+                     groups=cluster)
     reference = float(np.mean(losses[worse]))
     _check(reference > 0.0, "the reference loss must be positive")
     threshold = margin * reference
-    low, high = gap["interval"]
-    if low >= threshold:
-        name = "GAIN_REACHES_MARGIN"
-    elif low > 0.0 and high < threshold:
-        name = "GAIN_PRESENT_BUT_BELOW_MARGIN"
-    elif low > 0.0:
-        name = "GAIN_PRESENT_MARGIN_UNDECIDED"
-    elif high < 0.0:
-        name = "DETECTABLY_WORSE"
-    elif high < threshold:
-        name = "REFUTED_GAIN_BELOW_MARGIN"
-    else:
-        name = "NO_DETECTABLE_GAIN_UNDERPOWERED"
+    name = _ladder(gap["interval"], threshold)
     return {"contrast": f"{better}_minus_{worse}", "verdict": name,
             "relative_gain": float(gap["gap"] / reference),
             "minimum_interesting_gain": float(threshold),
@@ -518,9 +617,27 @@ def self_test():
     gain = contrast(live, "M5_conditional_interaction", "M4_fixed_union")
     control = contrast(dead, "M5_conditional_interaction", "M4_fixed_union")
     gate = contrast(live, "M6_trust_gate", "M4_fixed_union")
+    # The cluster bootstrap must still SEE an effect that is there. Widening
+    # every interval until nothing is ever detected would not be rigour, it
+    # would be trading one error for the opposite one, so the positive control
+    # is run under the resampling unit the real analysis uses.
+    clustered = contrast(live, "M5_conditional_interaction", "M4_fixed_union",
+                         groups=positions)
     _check(gain["verdict"] == "GAIN_REACHES_MARGIN",
            "the harness must detect a conditional rule that exists; got "
            f"{gain['verdict']} ({gain['relative_gain']:+.3f})")
+    _check(clustered["verdict"] == "GAIN_REACHES_MARGIN",
+           "the POSITION-CLUSTERED bootstrap must also detect a conditional "
+           f"rule that exists; got {clustered['verdict']}")
+    # No assertion on the DIRECTION of the width change. A cluster bootstrap
+    # widens an interval when the statistic is positively correlated within a
+    # cluster and can narrow it otherwise, and in this synthetic cohort only
+    # the mechanism indicator is shared within a position while the activity,
+    # the abundance and the carrier are all drawn per row — so the gap has
+    # little intra-cluster correlation and the clustered interval comes out
+    # slightly NARROWER. This assertion was written the other way round and
+    # fired on its own control. The ratio is measured and reported; it is not
+    # a law.
     _check(live["blend_weight_spread"] > 0.01,
            "the trust gate must actually vary its weight; spread "
            f"{live['blend_weight_spread']:.4f}")
@@ -536,6 +653,16 @@ def self_test():
                                 "blend_spread": live["blend_weight_spread"]},
         "with_permuted_mechanism": {"M5_vs_M4": control["verdict"],
                                     "relative_gain": control["relative_gain"]},
+        "position_clustered_bootstrap": {
+            "M5_vs_M4": clustered["verdict"],
+            "interval": clustered["interval"],
+            "n_clusters": clustered["n_resampling_units"],
+            "width_ratio_against_row_wise": float(
+                (clustered["interval"][1] - clustered["interval"][0])
+                / (gain["interval"][1] - gain["interval"][0])),
+            "why": ("a resampling unit that can no longer detect a real "
+                    "effect is not a stricter analysis, it is a broken one."),
+        },
         "what_this_proves": (
             "a mechanism-conditional choice of which measurement to trust is "
             "recoverable by this harness when it is really there, and is lost "

@@ -506,8 +506,27 @@ def _spearman(left, right):
 # intervals, and a verdict rule that does not mistake non-detection for proof
 # --------------------------------------------------------------------------
 def paired_gap(reference_losses, ceiling_losses, *, n_boot=None, seed=None,
-               alpha=None, family_size=1):
-    """Interval for the per-individual gap `reference - ceiling`, resampled."""
+               alpha=None, family_size=1, groups=None):
+    """Interval for the per-row gap `reference - ceiling`, resampled.
+
+    The resampling unit must match the unit of independence, and those are not
+    always the row. In the MaveDB benchmark a row is one *substitution* and up
+    to nineteen of them share a protein *position*: they see the same residue,
+    the same structural environment and largely the same assay artefacts. An
+    i.i.d. row bootstrap then counts nineteen correlated observations as
+    nineteen independent ones and returns an interval that is too narrow — in
+    the wrong direction, because every verdict in this project is decided by
+    whether the interval's **lower** bound clears a margin.
+
+    Pass `groups` (one label per row) to resample **clusters** with
+    replacement instead. The estimator is unchanged: the mean over the
+    resampled rows, computed exactly as a ratio of summed group totals to
+    summed group sizes, so no row is materialised twice.
+
+    `groups=None` keeps the row bootstrap bit-for-bit, because the frozen HLC
+    analyses were published with it and a row there is a donor, which *is* the
+    unit of independence.
+    """
     n_boot = FROZEN["n_bootstrap"] if n_boot is None else n_boot
     seed = FROZEN["seed"] if seed is None else seed
     alpha = FROZEN["alpha"] if alpha is None else alpha
@@ -517,8 +536,24 @@ def paired_gap(reference_losses, ceiling_losses, *, n_boot=None, seed=None,
            "the two loss vectors must cover the same individuals")
     difference = reference - ceiling
     rng = np.random.default_rng(seed + 3)
-    draws = difference[rng.integers(0, difference.size,
-                                    size=(n_boot, difference.size))].mean(axis=1)
+    if groups is None:
+        draws = difference[rng.integers(
+            0, difference.size, size=(n_boot, difference.size))].mean(axis=1)
+        unit, n_clusters = "individual", int(difference.size)
+    else:
+        labels = np.asarray(groups)
+        _check(labels.shape == difference.shape,
+               "one group label per row is required")
+        keys, codes = np.unique(labels, return_inverse=True)
+        _check(keys.size >= 3,
+               f"a cluster bootstrap needs 3 clusters, got {keys.size}")
+        # mean over a concatenation of clusters == sum of sums / sum of sizes,
+        # so the cluster bootstrap is exact without building the index lists.
+        sums = np.bincount(codes, weights=difference, minlength=keys.size)
+        sizes = np.bincount(codes, minlength=keys.size).astype(float)
+        picked = rng.integers(0, keys.size, size=(n_boot, keys.size))
+        draws = sums[picked].sum(axis=1) / sizes[picked].sum(axis=1)
+        unit, n_clusters = "cluster (group resampled with replacement)",             int(keys.size)
     half = 100.0 * alpha / (2.0 * family_size)
     low, high = (float(v) for v in np.percentile(draws, [half, 100.0 - half]))
     return {"gap": float(difference.mean()),
@@ -527,7 +562,8 @@ def paired_gap(reference_losses, ceiling_losses, *, n_boot=None, seed=None,
             "level": f"{100.0 * (1.0 - alpha / family_size):.2f} %",
             "family_size": int(family_size),
             "n_bootstrap": int(n_boot),
-            "resampling_unit": "individual"}
+            "n_resampling_units": n_clusters,
+            "resampling_unit": unit}
 
 
 def verdict(gap, reference_mean_loss, *, margin=None):

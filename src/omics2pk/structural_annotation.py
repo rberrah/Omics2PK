@@ -341,7 +341,17 @@ def coverage(positions, discordant, distances, *, cutoff=None):
 
 
 def enrichment_interval(positions, discordant, distances, *, cutoff=None,
-                        n_boot=2000, seed=20261112):
+                        n_boot=2000, seed=20261112, groups=None):
+    """Interval for the enrichment ratio, resampling rows or clusters.
+
+    **The resampling unit matters more here than anywhere else in the
+    project.** `reach` is a function of the *position*, so every substitution
+    at one residue carries an identical value of the explanatory variable. A
+    row bootstrap therefore treats nineteen substitutions at one near-the-heme
+    residue as nineteen independent pieces of evidence that near-the-heme
+    residues are discordant, when they are one. Pass `groups` — the position
+    label, or a coarser region label — to resample clusters instead.
+    """
     cutoff = FROZEN["second_shell_angstrom"] if cutoff is None else cutoff
     positions = np.asarray(positions, dtype=int)
     discordant = np.asarray(discordant, dtype=bool)
@@ -349,19 +359,54 @@ def enrichment_interval(positions, discordant, distances, *, cutoff=None,
         min(distances[int(p)]["to_cofactor"], distances[int(p)]["to_substrate"])
         <= cutoff if int(p) in distances else False
         for p in positions])
+    return discordance_ratio_interval(reach, discordant, groups=groups,
+                                      n_boot=n_boot, seed=seed)
+
+
+def discordance_ratio_interval(reach, discordant, *, groups=None, n_boot=2000,
+                               seed=20261112):
+    """Interval for P(discordant | reached) / P(discordant | not reached).
+
+    One implementation serves the sequence ruler and the three-dimensional
+    one, so the two enrichment figures cannot be resampled by different rules
+    and then printed in the same table.
+
+    With `groups`, clusters are resampled with replacement. The ratio over a
+    resampled cluster set is a ratio of summed cluster totals, which is exact,
+    so nothing is materialised per draw.
+    """
+    reach = np.asarray(reach, dtype=bool)
+    discordant = np.asarray(discordant, dtype=bool)
+    if reach.shape != discordant.shape:
+        raise ValueError("reach and discordant must align")
     rng = np.random.default_rng(seed)
-    draws = []
-    for _ in range(n_boot):
-        picked = rng.integers(0, positions.size, size=positions.size)
-        near, far = reach[picked], ~reach[picked]
-        if near.sum() < 5 or far.sum() < 5:
-            continue
-        denominator = discordant[picked][far].mean()
-        if denominator <= 0:
-            continue
-        draws.append(discordant[picked][near].mean() / denominator)
-    if len(draws) < 100:
+    if groups is None:
+        codes = np.arange(reach.size)
+        n_units = reach.size
+    else:
+        labels = np.asarray(groups)
+        if labels.shape != reach.shape:
+            raise ValueError("one group label per row is required")
+        keys, codes = np.unique(labels, return_inverse=True)
+        n_units = keys.size
+        if n_units < 3:
+            return [float("nan"), float("nan")]
+    n_near = np.bincount(codes, weights=reach.astype(float), minlength=n_units)
+    d_near = np.bincount(codes, weights=(reach & discordant).astype(float),
+                         minlength=n_units)
+    n_far = np.bincount(codes, weights=(~reach).astype(float),
+                        minlength=n_units)
+    d_far = np.bincount(codes, weights=(~reach & discordant).astype(float),
+                        minlength=n_units)
+    picked = rng.integers(0, n_units, size=(n_boot, n_units))
+    near_total, far_total = n_near[picked].sum(axis=1), n_far[picked].sum(axis=1)
+    d_near_total = d_near[picked].sum(axis=1)
+    d_far_total = d_far[picked].sum(axis=1)
+    usable = (near_total >= 5) & (far_total >= 5) & (d_far_total > 0)
+    if usable.sum() < 100:
         return [float("nan"), float("nan")]
+    draws = ((d_near_total[usable] / near_total[usable])
+             / (d_far_total[usable] / far_total[usable]))
     return [float(np.percentile(draws, 2.5)),
             float(np.percentile(draws, 97.5))]
 

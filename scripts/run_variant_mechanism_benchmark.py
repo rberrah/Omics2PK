@@ -160,6 +160,34 @@ def verify_uniprot(gene, annotation):
             "functional_sites": sorted(sites), "motifs": sorted(motifs)}
 
 
+#: The structural columns that involve no threshold at all: two continuous
+#: log-distances and the flag for a position the crystal does not resolve.
+CONTINUOUS_COLUMNS = [0, 1, 5]
+
+
+def design_effect(row_wise, clustered):
+    """How much wider the clustered interval is, and whether a verdict moved.
+
+    Reported rather than asserted. A factor near 1 would mean the rows were
+    effectively independent after all and the objection did not bite; a large
+    factor means the published row-wise interval was too narrow, in the
+    direction that manufactures a verdict.
+    """
+    width_row = row_wise["interval"][1] - row_wise["interval"][0]
+    width_cluster = clustered["interval"][1] - clustered["interval"][0]
+    return {
+        "row_wise_interval": row_wise["interval"],
+        "clustered_interval": clustered["interval"],
+        "width_ratio": float(width_cluster / width_row)
+            if width_row > 0 else float("nan"),
+        "row_wise_verdict": row_wise["verdict"],
+        "clustered_verdict": clustered["verdict"],
+        "verdict_changed": bool(row_wise["verdict"] != clustered["verdict"]),
+        "n_rows": int(row_wise["n_resampling_units"]),
+        "n_clusters": int(clustered["n_resampling_units"]),
+    }
+
+
 def analyse(gene, directory, *, verify=False, pdb_dir=None):
     annotation = ANNOTATION[gene]
     activity_path = (directory
@@ -196,6 +224,17 @@ def analyse(gene, directory, *, verify=False, pdb_dir=None):
                                          VMS.FROZEN["seed"])
     region_folds = VMS.region_groups(positions, VMS.FROZEN["region_blocks"],
                                      annotation["length"])
+    # The folds being grouped does not make the INTERVAL grouped, and only the
+    # interval decides a verdict. Up to nineteen substitutions share one
+    # residue here, so a row bootstrap counts correlated observations as
+    # independent and narrows every interval in the direction that
+    # manufactures a verdict. Primary unit: the position, where the
+    # dependence is mechanical. Sensitivity: ten-residue blocks, which also
+    # absorb local structural context.
+    boot_units = {
+        "protein_position": positions,
+        "contiguous_block_of_10_residues": VMS.contiguous_blocks(positions, 10),
+    }
 
     out = {
         "gene": gene,
@@ -243,17 +282,14 @@ def analyse(gene, directory, *, verify=False, pdb_dir=None):
                              for p in positions], dtype=float)
         near = distance <= 3.0
         far = ~near
-        rng_e = np.random.default_rng(VMS.FROZEN["seed"] + 5)
-        ratios = []
-        for _ in range(2000):
-            picked = rng_e.integers(0, positions.size, size=positions.size)
-            n_mask, f_mask = near[picked], far[picked]
-            if n_mask.sum() < 5 or f_mask.sum() < 5:
-                continue
-            denominator = discordant[picked][f_mask].mean()
-            if denominator <= 0:
-                continue
-            ratios.append(discordant[picked][n_mask].mean() / denominator)
+        seq_intervals = {
+            "variant_iid_too_narrow": SA.discordance_ratio_interval(
+                near, discordant, n_boot=2000, seed=VMS.FROZEN["seed"] + 5),
+        }
+        for unit, labels in boot_units.items():
+            seq_intervals[unit] = SA.discordance_ratio_interval(
+                near, discordant, groups=labels, n_boot=2000,
+                seed=VMS.FROZEN["seed"] + 5)
         out["discordance_near_annotated_sites"] = {
             "n_variants_within_3_residues": int(near.sum()),
             "n_variants_beyond": int(far.sum()),
@@ -264,10 +300,11 @@ def analyse(gene, directory, *, verify=False, pdb_dir=None):
                                        / discordant[far].mean())
                                  if near.any() and discordant[far].mean() > 0
                                  else float("nan")),
-            "enrichment_interval": ([float(np.percentile(ratios, 2.5)),
-                                     float(np.percentile(ratios, 97.5))]
-                                    if len(ratios) >= 100
-                                    else [float("nan"), float("nan")]),
+            # Headline: the position-clustered interval. The row-wise one is
+            # kept visible so the design effect can be read off, not hidden.
+            "enrichment_interval": seq_intervals["protein_position"],
+            "enrichment_interval_by_resampling_unit": seq_intervals,
+            "resampling_unit": "protein_position",
             "share_of_discordant_variants_the_annotation_reaches": float(
                 near[discordant].mean()) if discordant.any() else float("nan"),
             "how_to_read": (
@@ -306,7 +343,29 @@ def analyse(gene, directory, *, verify=False, pdb_dir=None):
                     path.read_bytes()).hexdigest(),
                 "coverage": reach,
                 "enrichment_interval": SA.enrichment_interval(
-                    positions, discordant, distances),
+                    positions, discordant, distances,
+                    groups=boot_units["protein_position"]),
+                "enrichment_interval_by_resampling_unit": {
+                    "variant_iid_too_narrow": SA.enrichment_interval(
+                        positions, discordant, distances),
+                    **{unit: SA.enrichment_interval(
+                        positions, discordant, distances, groups=labels)
+                       for unit, labels in boot_units.items()},
+                },
+                "resampling_unit": "protein_position",
+                # The 8 A cutoff was declared before this run, but it was
+                # declared AFTER the discordant residues of these two proteins
+                # had been looked at. A single threshold cannot answer that
+                # objection; a sweep can show whether the threshold is
+                # carrying the result or merely sitting inside a broad plateau.
+                "enrichment_by_cutoff": {
+                    f"{cut:g}": dict(
+                        SA.coverage(positions, discordant, distances,
+                                    cutoff=cut),
+                        interval_position_clustered=SA.enrichment_interval(
+                            positions, discordant, distances, cutoff=cut,
+                            groups=boot_units["protein_position"]))
+                    for cut in (4.0, 5.0, 6.0, 8.0, 10.0, 12.0, 15.0)},
                 "distance_for_the_residues_the_sequence_ruler_missed": {
                     str(int(p)): {
                         "to_cofactor": distances[int(p)]["to_cofactor"],
@@ -334,7 +393,10 @@ def analyse(gene, directory, *, verify=False, pdb_dir=None):
         on_abundance = VMS.evaluate(x, y, substitution, mechanism, folds,
                                     positions)
         runs[label] = {
-            "real": {k: v for k, v in real.items() if k != "losses"},
+            # scored_rows is a per-variant mask: it belongs in memory for the
+            # pairing assertion, never in a committed artefact.
+            "real": {k: v for k, v in real.items()
+                     if k not in ("losses", "scored_rows")},
             "permuted_abundance_control": no_abundance["mean_loss"],
             "permuted_mechanism_control": no_mechanism["mean_loss"],
             "predicting_abundance_instead_specificity_control": {
@@ -348,23 +410,62 @@ def analyse(gene, directory, *, verify=False, pdb_dir=None):
                     "variant in general and not its functional consequence."),
             },
         }
+        cluster = boot_units["protein_position"]
         if structural is not None:
             richer = np.column_stack([mechanism, structural])
             with_structure = VMS.evaluate(y, x, substitution, richer, folds,
                                           positions)
+            threshold_free = VMS.evaluate(
+                y, x, substitution,
+                np.column_stack([mechanism, structural[:, CONTINUOUS_COLUMNS]]),
+                folds, positions)
             runs[label]["with_structural_layer"] = {
                 "mean_loss": with_structure["mean_loss"],
                 "mean_abundance_blend_weight":
                     with_structure["mean_abundance_blend_weight"],
                 "M5_vs_M4": VMS.contrast(
                     with_structure, "M5_conditional_interaction",
-                    "M4_fixed_union", family_size=PRIMARY_FAMILY_SIZE),
+                    "M4_fixed_union", family_size=PRIMARY_FAMILY_SIZE,
+                    groups=cluster),
                 "M3_vs_M0": VMS.contrast(
                     with_structure, "M3_mechanism_only", "M0_intercept",
-                    family_size=PRIMARY_FAMILY_SIZE),
+                    family_size=PRIMARY_FAMILY_SIZE, groups=cluster),
                 "M4_vs_M1": VMS.contrast(
                     with_structure, "M4_fixed_union", "M1_abundance_only",
-                    family_size=PRIMARY_FAMILY_SIZE),
+                    family_size=PRIMARY_FAMILY_SIZE, groups=cluster),
+                # THE DIRECT CONTRAST. M4 beating M1 says the union beats the
+                # best single measurement; it does not say what the six
+                # structural variables contributed, because the union already
+                # held the sequence mechanism block. This pairs the SAME arm,
+                # on the SAME rows and the SAME folds, with and without them.
+                "ablation_of_the_structural_block": {
+                    arm: VMS.ablation(with_structure, real, arm,
+                                      label="structural",
+                                      family_size=PRIMARY_FAMILY_SIZE,
+                                      groups=cluster)
+                    for arm in ("M3_mechanism_only", "M4_fixed_union",
+                                "M5_conditional_interaction")},
+                "ablation_resampled_by_10_residue_blocks": {
+                    arm: VMS.ablation(
+                        with_structure, real, arm, label="structural",
+                        family_size=PRIMARY_FAMILY_SIZE,
+                        groups=boot_units["contiguous_block_of_10_residues"])
+                    for arm in ("M3_mechanism_only", "M4_fixed_union")},
+                # The 5 A and 8 A thresholds were declared before this run but
+                # AFTER these proteins' discordant residues had been looked
+                # at, so a reader is entitled to ask whether they are carrying
+                # the result. This arm removes all three threshold indicators
+                # and keeps only the two continuous log-distances and the
+                # unresolved flag. If the gain survives with no threshold in
+                # the model, no threshold can be carrying it.
+                "ablation_of_a_threshold_free_block": {
+                    arm: VMS.ablation(threshold_free, real, arm,
+                                      label="structural_continuous_only",
+                                      family_size=PRIMARY_FAMILY_SIZE,
+                                      groups=cluster)
+                    for arm in ("M3_mechanism_only", "M4_fixed_union")},
+                "threshold_free_block_columns": [
+                    SA.STRUCTURAL_NAMES[i] for i in CONTINUOUS_COLUMNS],
                 "relative_change_in_M3_from_adding_structure": float(
                     1.0 - with_structure["mean_loss"]["M3_mechanism_only"]
                     / real["mean_loss"]["M3_mechanism_only"]),
@@ -381,20 +482,34 @@ def analyse(gene, directory, *, verify=False, pdb_dir=None):
         contrasts[label] = {
             "M5_vs_M4": VMS.contrast(real, "M5_conditional_interaction",
                                      "M4_fixed_union",
-                                     family_size=PRIMARY_FAMILY_SIZE),
+                                     family_size=PRIMARY_FAMILY_SIZE,
+                                     groups=cluster),
             "M6_vs_M4": VMS.contrast(real, "M6_trust_gate", "M4_fixed_union",
-                                     family_size=PRIMARY_FAMILY_SIZE),
+                                     family_size=PRIMARY_FAMILY_SIZE,
+                                     groups=cluster),
             "M4_vs_M1": VMS.contrast(real, "M4_fixed_union",
                                      "M1_abundance_only",
-                                     family_size=PRIMARY_FAMILY_SIZE),
+                                     family_size=PRIMARY_FAMILY_SIZE,
+                                     groups=cluster),
             "M1_vs_M0": VMS.contrast(real, "M1_abundance_only",
                                      "M0_intercept",
-                                     family_size=PRIMARY_FAMILY_SIZE),
+                                     family_size=PRIMARY_FAMILY_SIZE,
+                                     groups=cluster),
             "M3_vs_M0": VMS.contrast(real, "M3_mechanism_only", "M0_intercept",
-                                     family_size=PRIMARY_FAMILY_SIZE),
+                                     family_size=PRIMARY_FAMILY_SIZE,
+                                     groups=cluster),
             "M5_vs_M4_permuted_mechanism": VMS.contrast(
                 no_mechanism, "M5_conditional_interaction", "M4_fixed_union",
-                family_size=PRIMARY_FAMILY_SIZE),
+                family_size=PRIMARY_FAMILY_SIZE, groups=cluster),
+            "resampling_unit": "protein_position (cluster bootstrap)",
+            # How much the row bootstrap was understating the width, measured
+            # on the headline contrast rather than asserted.
+            "design_effect_on_M4_vs_M1": design_effect(
+                VMS.contrast(real, "M4_fixed_union", "M1_abundance_only",
+                             family_size=PRIMARY_FAMILY_SIZE),
+                VMS.contrast(real, "M4_fixed_union", "M1_abundance_only",
+                             family_size=PRIMARY_FAMILY_SIZE,
+                             groups=cluster)),
         }
     out["runs"] = runs
     out["contrasts"] = contrasts
@@ -509,9 +624,34 @@ def main(argv=None):
             print("      " + "  ".join(
                 f"{k.split('_')[0]}={v:.3f}" for k, v in loss.items()))
             for key, value in cell.items():
+                if not (isinstance(value, dict) and "relative_gain" in value):
+                    continue
                 print(f"      {key:<32} {value['relative_gain']:+7.2%} "
-                      f"[{value['interval'][0]:+.4f},{value['interval'][1]:+.4f}] "
-                      f"{value['verdict']}")
+                      f"[{value['interval'][0]:+.4f},"
+                      f"{value['interval'][1]:+.4f}] {value['verdict']}")
+            effect = cell.get("design_effect_on_M4_vs_M1")
+            if effect:
+                print(f"      {'(row bootstrap would give)':<32} "
+                      f"[{effect['row_wise_interval'][0]:+.4f},"
+                      f"{effect['row_wise_interval'][1]:+.4f}] "
+                      f"{effect['row_wise_verdict']}  "
+                      f"width x{effect['width_ratio']:.2f} from "
+                      f"{effect['n_rows']} rows to "
+                      f"{effect['n_clusters']} positions")
+            layer = block["runs"][label].get("with_structural_layer")
+            if layer:
+                print("      --- with the structural block")
+                for key in ("M3_vs_M0", "M4_vs_M1", "M5_vs_M4"):
+                    value = layer[key]
+                    print(f"      {key:<32} {value['relative_gain']:+7.2%} "
+                          f"[{value['interval'][0]:+.4f},"
+                          f"{value['interval'][1]:+.4f}] {value['verdict']}")
+                for arm, value in layer[
+                        "ablation_of_the_structural_block"].items():
+                    print(f"      ABLATE {arm:<25} "
+                          f"{value['relative_gain']:+7.2%} "
+                          f"[{value['interval'][0]:+.4f},"
+                          f"{value['interval'][1]:+.4f}] {value['verdict']}")
     print(f"\nartefact: {out}")
     return 0
 
