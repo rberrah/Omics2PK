@@ -107,7 +107,7 @@ jobs:
             tests/test_supervised_screening_selection.py \
             | grep -c '::' || true)
           echo "collected $count pytest tests"
-          if [ "$count" -lt 1770 ]; then
-            echo "ERROR: expected at least 1770 collected tests, got $count." >&2
+          if [ "$count" -lt 1830 ]; then
+            echo "ERROR: expected at least 1830 collected tests, got $count." >&2
             exit 1
           fi

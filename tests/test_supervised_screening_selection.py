@@ -1079,10 +1079,33 @@ class TestVarianceProfileDiagnostic:
         assert kept.size == pool.size
 
     def test_the_amendment_is_recorded_as_prior_to_execution(self):
+        """The chronology table, not a sentence in the banner.
+
+        A banner claiming "nothing here postdates a result" stops being true
+        the moment results are added, and it was quietly false for one
+        revision. A per-commit table cannot go stale that way: each row says
+        what was declared and when, and the rows above the results sections
+        are the ones that have to predate them.
+        """
         text = (ROOT / "docs"
                 / "OMICS2PK_HIGH_DIMENSION_PREREGISTRATION_20261111.md"
                 ).read_text(encoding="utf-8")
-        assert "amendement ajout\u00e9 avant ex\u00e9cution de 1b" in text
-        assert "n'est **pas** relanc\u00e9 pour cette question" in text
+        assert "Chronologie" in text
+        for commit in ("b1b4f23", "6e3549f", "fcd2a2a", "83aa8c2"):
+            assert commit in text, commit
+        # The two facts that make the chronology meaningful.
+        assert "arr\u00eat\u00e9 et sa sortie partielle supprim\u00e9e sans \u00eatre lue" in text
+        assert "**avant** l'ex\u00e9cution de 1b" in text
+        assert "le protocole 1 n'est pas relanc\u00e9 pour lui" in text
         # And it records that the first reading of the problem was wrong.
         assert "Cette lecture est fausse pour la comparaison principale" in text
+
+    def test_the_banner_no_longer_claims_what_became_false(self):
+        """It said no result of any protocol had been examined. Two have."""
+        text = (ROOT / "docs"
+                / "OMICS2PK_HIGH_DIMENSION_PREREGISTRATION_20261111.md"
+                ).read_text(encoding="utf-8")
+        assert "Aucun r\u00e9sultat d'aucun protocole" not in text
+        assert "PROTOCOLES 1 (\u00a75) ET 1b (\u00a76) EX\u00c9CUT\u00c9S" in text
+        # Protocols 2 and 3 are still wholly prior, and say so.
+        assert "aucune de leurs donn\u00e9es t\u00e9l\u00e9charg\u00e9e" in text

@@ -436,7 +436,7 @@ def pool_arm_loss(target, design, groups, *, baseline_columns, pool_for_fold,
     baseline = tuple(int(c) for c in baseline_columns)
     outer = grouped_folds(groups, min(n_outer, np.unique(groups).size), seed)
     scored = np.full(target.size, np.nan)
-    budgets = []
+    budgets, selected = [], []
 
     def fit(columns, train, test):
         if columns.size == 0:
@@ -487,12 +487,18 @@ def pool_arm_loss(target, design, groups, *, baseline_columns, pool_for_fold,
             | set(baseline)), dtype=int)
         scored[held] = fit(columns, keep, held)
         budgets.append(int(best_k))
+        # Which candidates were actually kept, per fold. Without this the
+        # interpretability question -- is the advantage carried by a gene one
+        # can name? -- can only be answered at pool level, which is the whole
+        # panel and says nothing.
+        selected.append([int(c) for c in columns if int(c) not in set(baseline)])
     complete = np.isfinite(scored)
     _check(complete.sum() >= 20,
            f"only {int(complete.sum())} rows were scored by the pool arm")
     losses = np.abs(scored[complete] - target[complete])
     return {"mean_loss": float(losses.mean()), "losses": losses,
             "scored_rows": complete, "k_chosen_per_fold": budgets,
+            "selected_per_fold": selected,
             "n_folds_that_abstained": int(sum(1 for k in budgets if k == 0))}
 
 

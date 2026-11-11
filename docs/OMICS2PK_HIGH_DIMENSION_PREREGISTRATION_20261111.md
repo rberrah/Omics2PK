@@ -1,11 +1,20 @@
 # Pré-enregistration : trois protocoles, gelés avant exécution
 
-**Version 2.1.0 — 2026-11-11.** Statut : **PROTOCOLE 1 EXÉCUTÉ (§5). Protocoles 1b, 2 et 3 déclarés, non exécutés.** La §1b.6 est un **amendement ajouté avant exécution de 1b**. Le protocole 1 n'est **pas** relancé pour cette question. Le protocole 1 a été lancé puis **arrêté et sa sortie partielle supprimée sans être lue**, pour que les ajouts de la §4.1 soient antérieurs à tout résultat. Aucun résultat d'aucun protocole n'a été examiné à ce jour.
+**Version 3.0.0 — 2026-11-11.** Statut : **PROTOCOLES 1 (§5) ET 1b (§6) EXÉCUTÉS. Protocoles 2 et 3 déclarés, aucune de leurs données téléchargée.**
 
-Ce document est commité **avant** l'exécution du protocole 1 et **avant tout
-téléchargement** des données des protocoles 2 et 3. Rien ici ne peut changer
-après lecture d'un résultat ; une version ultérieure ne peut qu'**ajouter** une
-section de résultats et consigner les écarts.
+**Chronologie, parce que c'est tout ce qui donne sa valeur à ce document.**
+
+| Commit | Ce qui était déclaré, et quand |
+|---|---|
+| `b1b4f23` | protocoles 1, 2 et 3 gelés — **avant** toute exécution, et sans aucune donnée COMT ou ARAF sur le disque |
+| `6e3549f` | §4.1 : pools appariés, test de non-infériorité, quatre contraintes COMT. Le protocole 1 avait été lancé ; il a été **arrêté et sa sortie partielle supprimée sans être lue** |
+| `fcd2a2a` | §1b.6 : diagnostic de variance — **avant** l'exécution de 1b, et sans relancer le protocole 1 |
+| `83aa8c2` | §1b.7 : restriction de 1b aux trois endpoints prédéfinis — **avant** l'exécution de 1b |
+| cette version | §5 et §6 : les résultats des protocoles 1 et 1b. **Rien au-dessus de la §5 n'a été modifié après lecture d'un résultat** |
+
+Les protocoles **2 et 3 n'ont encore aucune donnée téléchargée**, et leurs
+sections restent donc intégralement antérieures à tout résultat. Une version
+ultérieure ne peut qu'**ajouter** des résultats et consigner les écarts.
 
 ---
 
@@ -502,6 +511,128 @@ mesuré — mais elle n'est pas une amélioration démontrée.
 
 ---
 
+## 6. Résultats du protocole 1b
+
+Exécuté le 2026-11-11, `reports/data/supervised_screening_1b.json`. Trois
+endpoints prédéfinis, **1 000 pools appariés tirés dans les plis**, pool
+mécanistique de **25** sondes sur **30 596** candidats.
+
+### 6.1 Le contraste principal : CYP2D6 franchit, les deux autres non
+
+| Endpoint | pool méca. | appariés (moyenne) | gain | aussi bons | p | Bonferroni 0,0167 |
+|---|---|---|---|---|---|---|
+| CYP3A4T | 3245,4 | 3291,8 | +1,41 % | 284/1000 | 0,285 | non |
+| **CYP2D6** | **92,79** | **107,88** | **+13,98 %** | **0/1000** | **0,000999** | **franchi** |
+| CYP2C9 | 249,1 | 240,7 | **−3,50 %** | 986/1000 | 0,986 | non |
+
+**Aucun des 1 000 pools appariés n'égale le pool mécanistique sur CYP2D6.** Le
+p est au plancher déclaré, il franchit le seuil corrigé, et l'appariement est
+**inductif** — tiré dans chaque pli, sur les lignes d'entraînement seules. Le
++14,35 % transductif du protocole 1 devient **+13,98 %** : l'effet n'était pas
+un artefact de l'appariement global.
+
+**Et deux endpoints sur trois échouent, dont un dans le mauvais sens.** Sur
+CYP2C9, **986 pools appariés sur 1 000 font mieux** que le pool mécanistique.
+Même panel de 25 sondes, même procédure, même cohorte : il aide pour CYP2D6 et
+il nuit pour CYP2C9. C'est une réussite **sur un endpoint**, pas une
+méthodologie validée.
+
+### 6.2 Le contrôle secondaire tranche, et dans le sens le plus fort
+
+Redondance interne : cible **0,4806**, atteinte **0,4805** — appariement
+essentiellement parfait, et la faisabilité craignée en §1b.6 n'était pas un
+problème sur ce réseau.
+
+| CYP2D6, 200 pools construits | |
+|---|---|
+| pool mécanistique | **92,79** |
+| pools à redondance appariée, moyenne | 109,17 |
+| aussi bons | **0/200** |
+| p | **0,00498**, franchit 0,0167 |
+
+Selon la §1b.5 : **l'avantage ne vient pas de la structure de covariance, il
+vient de l'identité des gènes choisis.** C'était la lecture la plus
+intéressante des trois possibles, et c'est celle que les données donnent.
+
+### 6.3 Le diagnostic de variance : mon hypothèse est morte, la vôtre tient
+
+**La mienne.** Le pool mécanistique n'est pas un pool peu variable : médiane au
+**98,6ᵉ percentile**, appariés au 98,6ᵉ [98,6 ; 98,7], écart **+0,01**, part
+exclue 32 % contre 30 %. `pool_is_lower_variance_than_its_matches` est **faux**
+sur les trois endpoints. Exactement ce que la §1b.6.1 annonçait comme
+impossible par construction.
+
+**La vôtre, et elle est démontrée prédictivement.**
+
+| CYP2D6, scission par le filtre *(EXPLORATOIRE)* | n | perte |
+|---|---|---|
+| sondes que le filtre **conserve** | 17 | **109,72** |
+| sondes que le filtre **écarte** | 8 | **92,11** |
+
+La moitié écartée fait **tout** le travail — 92,11 contre 92,79 pour le pool
+entier — et elle contient **CYP2D6 lui-même**, avec ABCB1, CYP1A2, CYP2E1 et
+POR. La moitié conservée ne contient pas CYP2D6.
+
+**La sonde CYP2D6 est parmi les 32 % que le filtre de variance jette, et c'est
+elle qui porte le signal.** Cela explique le coût de +13,98 % du filtre mesuré
+en §5.2, et c'est votre formulation vérifiée : *les connaissances
+pharmacologiques préservent un biomarqueur informatif qu'un filtrage non
+supervisé aurait éliminé.*
+
+**Spécifique à CYP2D6** : sur CYP3A4T et CYP2C9 la moitié écartée est **pire**
+(3487 contre 3245 ; 260 contre 249). Statut **EXPLORATOIRE** maintenu —
+coupure transductive, deux pools très petits, un seul réseau.
+
+### 6.4 Interprétabilité biologique : les gènes effectivement retenus
+
+| Endpoint | retenu dans **tous** les plis | fréquence sur les 5 plis |
+|---|---|---|
+| CYP3A4T | **CYP3A4** | CYP3A4 11, CYP2B6 3, CYP2A6 2, CYP2C19 2, CYP3A5 2 |
+| **CYP2D6** | **CYP2D6** | CYP2E1 6, **CYP2D6 5**, CYP2C19 2, CYP3A5 2, **POR 2** |
+| CYP2C9 | **CYP3A4** | CYP3A4 13, CYP2C9 7, CYP2A6 6, CYP2C19 6, CYP2C8 6 |
+
+**Trois lectures, dont deux inconfortables.**
+
+1. **Le succès CYP2D6 est interprétable et n'est pas réductible à une sonde.**
+   CYP2D6 est retenu dans les cinq plis, mais le panel retient aussi **POR**,
+   qui est le **donneur d'électrons obligatoire de tous les CYP
+   microsomaux** — CYP2D6 compris. C'est précisément le genre de raisonnement
+   qu'encode NetPK, et il sort de la sélection au lieu d'y être écrit.
+2. **L'échec CYP2C9 est interprétable aussi, et il est gênant.** Le gène retenu
+   dans tous les plis est **CYP3A4, pas CYP2C9** — CYP3A4 treize fois contre
+   sept pour CYP2C9. Le sélecteur va chercher le transcrit du CYP le plus
+   abondant du foie, plausiblement comme marqueur global de qualité tissulaire.
+   **Le gène mécanistiquement correct n'est pas celui que les données
+   choisissent**, et c'est cohérent avec l'échec du pool sur cet endpoint.
+3. **CYP3A4T retient CYP3A4 dans tous les plis et n'a pourtant aucun avantage**
+   sur les pools appariés (p = 0,285). Retenir le bon gène ne suffit donc pas :
+   il faut aussi que ce gène porte une information que des sondes appariées ne
+   portent pas.
+
+**Une question que ces chiffres ne tranchent pas**, et qui borne la portée du
+seul résultat positif : *le pool de 25 sondes bat-il la sonde de l'enzyme cible
+seule ?* Les budgets retenus sur CYP2D6 sont `[3, 5, 8, 1, 1]` — jamais 1
+partout, et POR est co-retenu, ce qui plaide pour un panel plutôt qu'une sonde.
+Mais cela ne le démontre pas. **Déclaré ici comme non résolu**, et à
+pré-enregistrer séparément plutôt qu'à ajouter après coup.
+
+### 6.5 Ce que le protocole 1b autorise à dire
+
+| Question | Réponse |
+|---|---|
+| les connaissances constituent-elles un pool meilleur que des pools comparables ? | **oui sur CYP2D6, au niveau confirmatoire** : 0/1000 inductifs, p = 0,000999, Bonferroni franchi. **Non sur CYP3A4T, et le contraire sur CYP2C9** |
+| l'avantage est-il la covariance ou l'identité des gènes ? | **l'identité** : 0/200 pools à redondance appariée |
+| l'avantage est-il biologiquement interprétable ? | **oui** : CYP2D6 dans les cinq plis, plus POR, son donneur d'électrons obligatoire |
+| les connaissances préservent-elles des biomarqueurs qu'un filtre non supervisé élimine ? | **oui sur CYP2D6, exploratoire** : la moitié écartée par le filtre porte tout le signal et contient la sonde CYP2D6 |
+| la méthodologie est-elle validée ? | **non.** Un endpoint sur trois, et un échec inversé. C'est un résultat, pas une méthode |
+
+**Obtenu avec une corrélation de rang sur 25 sondes.** Aucun GNN, aucune
+fusion, aucun elastic net, aucun SHAP — conformément à l'interdiction de
+complexifier avant démonstration de nécessité, et rien dans ces chiffres ne la
+démontre.
+
+---
+
 ## 2. Protocole 2 — COMT : quelle **couche** mesurer, pas quelle variable
 
 **Statut : déclaré, aucune donnée téléchargée.**
@@ -661,7 +792,8 @@ l'absence de significativité.
 
 | Version | Date | Change |
 |---|---|---|
-| **2.2.0** | **2026-11-11** | **Restriction de 1b déclarée avant exécution (§1b.7).** Les 1 000 pools inductifs portent sur les **trois endpoints predefinis** — la famille que le seuil Bonferroni de 0,0167 suppose déjà — et CYP2E1 et CYP3A4M conservent leurs résultats du protocole 1 comme contrôles négatif et de spécificité. Aucun changement d'hypothèse ni de seuil. Le controle secondaire a **redondance appariee** porte sur **CYP2D6 seulement, 200 pools** : un pool construit coûte 2,46 s à cette largeur et 200 × 5 × 3 vaudrait deux heures pour un contrôle secondaire ; le plancher 1/201 = 0,00498 franchit toujours 0,0167. La **scission prédictive** est inscrite **EXPLORATOIRE** dans l'artefact. Les **gènes** du pool et de chaque moitié sont nommés, pour que l'interprétabilité biologique du +14,35 % soit vérifiable et non supposée. Moteur dédié `pool_arm_loss` avec voisinages mis en cache par pli : 25 cibles contre 30 596 candidats recalculées à chaque tirage seraient 46 milliards de distances pour trois endpoints ; mises en cache, vingt calculs suffisent. |
+| **3.0.0** | **2026-11-11** | **Protocole 1b exécuté (§6). Premier résultat de niveau confirmatoire du projet sur sa thèse centrale, et il porte sur un seul endpoint.** Sur **CYP2D6**, le pool mécanistique bat **0 des 1 000 pools appariés tirés dans les plis** : +13,98 %, p = **0,000999** au plancher, **Bonferroni 0,0167 franchi**, appariement **inductif**. Le +14,35 % transductif du protocole 1 n'était donc pas un artefact. **CYP3A4T échoue** (p = 0,285) et **CYP2C9 échoue à l'envers** : 986 pools appariés sur 1 000 font mieux. Le **contrôle à redondance appariée** (CYP2D6, 200 pools construits, redondance 0,4806 → 0,4805) donne **0/200**, p = 0,00498 : l'avantage vient de **l'identité des gènes**, pas de leur covariance. Le **diagnostic de variance** tue mon hypothèse comme annoncé (98,6ᵉ percentile des deux côtés, écart +0,01) et la **scission prédictive** confirme la vôtre : la moitié que le filtre écarte porte **tout** le signal (92,11 contre 109,72) et contient la sonde **CYP2D6**. **Interprétabilité** : CYP2D6 retenu dans les cinq plis, avec **POR**, donneur d'électrons obligatoire des CYP microsomaux ; mais sur CYP2C9 le gène retenu partout est **CYP3A4 et non CYP2C9**, ce qui explique l'échec. Une question déclarée non résolue : le pool de 25 sondes bat-il la sonde de l'enzyme cible seule ? À pré-enregistrer, pas à ajouter après coup. |
+| 2.2.0 | 2026-11-11 | **Restriction de 1b déclarée avant exécution (§1b.7).** Les 1 000 pools inductifs portent sur les **trois endpoints predefinis** — la famille que le seuil Bonferroni de 0,0167 suppose déjà — et CYP2E1 et CYP3A4M conservent leurs résultats du protocole 1 comme contrôles négatif et de spécificité. Aucun changement d'hypothèse ni de seuil. Le controle secondaire a **redondance appariee** porte sur **CYP2D6 seulement, 200 pools** : un pool construit coûte 2,46 s à cette largeur et 200 × 5 × 3 vaudrait deux heures pour un contrôle secondaire ; le plancher 1/201 = 0,00498 franchit toujours 0,0167. La **scission prédictive** est inscrite **EXPLORATOIRE** dans l'artefact. Les **gènes** du pool et de chaque moitié sont nommés, pour que l'interprétabilité biologique du +14,35 % soit vérifiable et non supposée. Moteur dédié `pool_arm_loss` avec voisinages mis en cache par pli : 25 cibles contre 30 596 candidats recalculées à chaque tirage seraient 46 milliards de distances pour trois endpoints ; mises en cache, vingt calculs suffisent. |
 | 2.1.0 | 2026-11-11 | **Diagnostic secondaire ajouté à 1b (§1b.6), avant exécution, sans toucher aux contrastes principaux ni aux seuils, et sans relancer le protocole 1.** Ma formulation initiale était fausse et la correction est enregistrée : les 40 pools appariés le sont **sur la log-variance**, donc il n'existe par construction aucune différence de variance entre eux et le pool mécanistique — vérifié à un delta de percentile médian de −0,017 sur un pool synthétique à faible variance. L'enrichissement en sondes peu variables **ne peut donc pas** expliquer le +14,35 % comme un artefact du filtre ; il peut seulement expliquer l'avantage sur les bras **filtrés**. Trois mesures déclarées, toutes aveugles à l'issue : percentile de variance du pool, part exclue par le filtre des 2 000, et les mêmes pour les 1 000 pools appariés avec écarts et distribution. Plus une **moitié prédictive** — le pool est scindé par le filtre et les deux moitiés sont évaluées comme des pools — parce qu'une distribution de variance ne démontre pas qu'une sonde porte de l'information. La coupure est **transductive**, donc diagnostic et jamais confirmatoire, et les bras qui en dérivent héritent de ce statut. |
 | 2.0.0 | 2026-11-11 | **Protocole 1 exécuté (§5).** Contrôle principal : le pool mécanistique bat le hasard apparié sur **1 endpoint sur 5** (CYP2D6, +14,35 %, p = **0,0244** qui est le plancher 1/41 — 0 des 40 pools aussi bon), ce qui **ne peut pas** franchir Bonferroni 0,0167, donc **l'avantage des connaissances n'est pas établi** et le protocole 1b est requis. Sur **CYP2C9 le pool mécanistique est pire que la moyenne des pools appariés** (−3,20 %). **Une condition de réfutation pré-déclarée s'est déclenchée** : le filtre de variance coûte **+13,98 % `GAIN_REACHES_MARGIN`** sur CYP2D6, donc `S3`, `S4`, `S7` n'y sont pas interprétables — un filtre de variance est aveugle à l'issue mais **pas à l'information**. `S4` contre `S1` n'atteint la marge sur aucun endpoint à **p = 2 000**, confirmant à une largeur nouvelle ce que p ≤ 33 ne pouvait pas trancher. Non-infériorité de `S8` acquise sur **CYP2D6 seulement**, `UNDECIDED` sur 3 des 5. **L'abstention fonctionne** : sur CYP2E1 les bras à arbres choisissent `k = 0` dans **5 plis sur 5**, mais les univariés dans 0 à 1 — asymétrie non prévue, rapportée. **La déduplication n'apporte rien** et est `DETECTABLY_WORSE` une fois (−5,91 %, CYP3A4M). Issue permutée : aucune cellule n'atteint la marge. |
 | 1.2.0 | 2026-11-11 | **Protocole 1b déclaré, distinct, sans modifier le protocole 1 qui tourne.** Le protocole 1 reste **exploratoire sur la question du pool** pour trois raisons acceptées : avec 40 pools le p minimal est **1/41 = 0,0244** et ne peut pas franchir un Bonferroni de 0,0167 sur trois endpoints, ce qui est une impossibilité arithmétique et non un manque de puissance ; son appariement est **transductif**, fait une fois sur tous les donneurs ; et « ne pas battre le 5ᵉ centile » ne démontre pas l'inutilité des connaissances mais seulement que leur avantage n'est pas établi ici — le seuil reste gelé, son interprétation est corrigée. Le protocole 1b porte **1 000 pools** (p minimal 0,000999), un appariement **inductif tiré dans chaque pli sur les lignes d'entraînement seules** (sélecteur `S9`, vérifié par espion), et un **contrôle secondaire à redondance appariée** qui sépare l'intérêt du choix des gènes de celui de leur covariance. Ce dernier ne peut pas être obtenu par rejet — mesuré : cible 0,88, atteint 0,05 sur 24 tirages — donc le pool est **construit** jusqu'à la cible, vérifié à 0,554 contre 0,557 sur un réseau à 30 modules, au prix déclaré d'une dérive du niveau et de la dispersion. |

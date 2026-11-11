@@ -80,6 +80,17 @@ PREFILTER_TOP_VARIANCE = 2000
 #: matched on level and spread, chosen with no biology at all.
 N_MATCHED_POOLS = 40
 
+
+#: The permuted-outcome control only needs the arms it reports, which is the
+#: strongest data-driven selector against no selection at all. Running all
+#: seven under permutation would double the cost of the whole run to produce
+#: six numbers nobody reads. Declared, not quietly trimmed.
+CONTROL_SELECTORS = ("S0_everything", "S4_shap_xgboost")
+
+#: HLC endpoints: three prespecified, one negative and one specificity control.
+HLC_PRESPECIFIED = ("CYP3A4T_activity", "CYP2D6_activity", "CYP2C9_activity")
+HLC_NEGATIVE_CONTROL = "CYP2E1_activity"
+HLC_SPECIFICITY_CONTROL = "CYP3A4M_activity"
 # ---- protocol 1b, all declared before execution -------------------------
 #: Confirmatory replication. 1/1001 = 0.000999 clears Bonferroni 0.0167.
 N_POOLS_1B = 1000
@@ -94,16 +105,6 @@ ENDPOINTS_1B = HLC_PRESPECIFIED
 N_POOLS_REDUNDANCY_1B = 200
 REDUNDANCY_ENDPOINT_1B = "CYP2D6_activity"
 
-#: The permuted-outcome control only needs the arms it reports, which is the
-#: strongest data-driven selector against no selection at all. Running all
-#: seven under permutation would double the cost of the whole run to produce
-#: six numbers nobody reads. Declared, not quietly trimmed.
-CONTROL_SELECTORS = ("S0_everything", "S4_shap_xgboost")
-
-#: HLC endpoints: three prespecified, one negative and one specificity control.
-HLC_PRESPECIFIED = ("CYP3A4T_activity", "CYP2D6_activity", "CYP2C9_activity")
-HLC_NEGATIVE_CONTROL = "CYP2E1_activity"
-HLC_SPECIFICITY_CONTROL = "CYP3A4M_activity"
 
 
 class RunError(RuntimeError):
@@ -665,9 +666,28 @@ def run_hlc_1b(expression_zip, phenotype_zip):
                                 gene_of_probe(loaded, int(c), pool["names"])
                                 for c in columns})}
         entry["predictive_split_by_the_variance_filter"] = split
-        # ---- which genes the pool actually is, for interpretability
+        # ---- interpretability: the pool, and what was actually SELECTED
         entry["pool_genes"] = sorted({
             gene_of_probe(loaded, int(c), pool["names"]) for c in real_pool})
+        entry["selected_genes_per_fold"] = [
+            sorted({gene_of_probe(loaded, int(c), pool["names"])
+                    for c in columns})
+            for columns in observed["selected_per_fold"]]
+        chosen = [int(c) for columns in observed["selected_per_fold"]
+                  for c in columns]
+        counts = {}
+        for column in chosen:
+            gene = gene_of_probe(loaded, column, pool["names"])
+            counts[gene] = counts.get(gene, 0) + 1
+        entry["selected_gene_frequency_across_folds"] = dict(
+            sorted(counts.items(), key=lambda row: (-row[1], row[0])))
+        entry["genes_selected_in_every_fold"] = sorted(
+            set.intersection(*[set(g) for g in
+                               entry["selected_genes_per_fold"]])
+            if entry["selected_genes_per_fold"] else set())
+        entry["why_this_matters"] = (
+            "an advantage with no nameable gene behind it is a different "
+            "result from one carried by the target enzyme's own transcript.")
         # ---- the redundancy-matched secondary control, CYP2D6 only
         if activity == REDUNDANCY_ENDPOINT_1B:
             print(f"    redundancy-matched control, "
