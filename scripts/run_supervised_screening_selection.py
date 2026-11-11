@@ -75,6 +75,11 @@ NEEDS_PREFILTER = ("S0_everything", "S1_univariate_outcome",
 #: inside each training fold for the arms that cannot run on the whole array.
 PREFILTER_TOP_VARIANCE = 2000
 
+#: Matched random pools, declared before execution. The control that separates
+#: biological knowledge from mere dimension reduction: a pool of the same size,
+#: matched on level and spread, chosen with no biology at all.
+N_MATCHED_POOLS = 40
+
 #: The permuted-outcome control only needs the arms it reports, which is the
 #: strongest data-driven selector against no selection at all. Running all
 #: seven under permutation would double the cost of the whole run to produce
@@ -440,6 +445,71 @@ def hlc_fullarray_pools(expression_zip, phenotype_zip, endpoints):
     return out, skipped, int(mechanistic.size)
 
 
+def matched_pool_null(pool, *, estimator="ridge"):
+    """The mechanistic pool against `N_MATCHED_POOLS` random pools of its size.
+
+    Every draw is matched on mean and log variance, excludes the real pool and
+    the baseline columns, and is ordered by the same Spearman step. The
+    statistic is where the mechanistic pool's out-of-fold loss falls in the
+    distribution of matched-random-pool losses.
+
+    Matching is outcome-blind -- mean, variance and correlation involve no
+    activity -- so the draws are made once on the retained donors without
+    leaking into any fold.
+    """
+    real_pool = np.asarray(
+        pool["knowledge_order"], dtype=int)[:pool["pool_size"]]
+    shared = dict(baseline_columns=pool["baseline_columns"],
+                  feature_names=pool["names"], estimator=estimator,
+                  pool_size=pool["pool_size"],
+                  selectors=("S8_pool_then_univariate",))
+    real = SSS.screen(pool["target"], pool["design"], pool["groups"],
+                      knowledge_order=pool["knowledge_order"], **shared)
+    observed = float(real["mean_loss"]["S8_pool_then_univariate"])
+    draws, diagnostics = [], []
+    for index in range(N_MATCHED_POOLS):
+        drawn, report = SSS.matched_random_pool(
+            pool["design"], real_pool,
+            exclude=pool["baseline_columns"],
+            seed=SSS.FROZEN["seed"] + 1000 + index)
+        if drawn.size < real_pool.size:
+            continue
+        order = np.concatenate([
+            drawn,
+            np.asarray([i for i in range(len(pool["names"]))
+                        if i not in set(drawn.tolist())], dtype=int)])
+        run = SSS.screen(pool["target"], pool["design"], pool["groups"],
+                         knowledge_order=order, **shared)
+        draws.append(float(run["mean_loss"]["S8_pool_then_univariate"]))
+        if index < 3:
+            diagnostics.append(report)
+    draws = np.asarray(draws, dtype=float)
+    if draws.size < 10:
+        return {"verdict": "NOT_EVALUABLE",
+                "reason": f"only {int(draws.size)} matched pools were drawable"}
+    better = int((draws <= observed).sum())
+    return {
+        "n_pools": int(draws.size),
+        "mechanistic_pool_loss": observed,
+        "matched_random_pool_loss_mean": float(draws.mean()),
+        "matched_random_pool_loss_best": float(draws.min()),
+        "matched_random_pool_loss_5th_percentile": float(
+            np.percentile(draws, 5)),
+        "n_random_pools_at_least_as_good": better,
+        "empirical_p": float((1 + better) / (1 + draws.size)),
+        "mechanistic_pool_beats_matched_chance": bool(
+            observed < np.percentile(draws, 5)),
+        "relative_gain_over_the_mean_random_pool": float(
+            1.0 - observed / draws.mean()) if draws.mean() > 0 else float("nan"),
+        "match_quality_first_three_draws": diagnostics,
+        "what_this_isolates": (
+            "the pool size, the probes' expression level and their spread are "
+            "held fixed; only the biology used to choose them differs. A "
+            "mechanistic pool that does not beat matched chance has reduced "
+            "dimension, not applied knowledge."),
+    }
+
+
 def run_hlc_fullarray(expression_zip, phenotype_zip, *, estimator="ridge"):
     """The pre-registered high-dimension protocol. p >> n, for the first time."""
     endpoints = (*HLC_PRESPECIFIED, HLC_NEGATIVE_CONTROL,
@@ -479,6 +549,28 @@ def run_hlc_fullarray(expression_zip, phenotype_zip, *, estimator="ridge"):
             "n_target_enzyme_probes": pool["n_target_probes"],
             "variance_prefiltered": _report(filtered, pool["groups"]),
             "whole_array_no_prefilter": _report(whole, pool["groups"]),
+        }
+        # THE CONTROL THAT ISOLATES THE KNOWLEDGE. S8 against S1 changes two
+        # things at once -- the biology used to choose, and the dimension
+        # searched. A random pool of the same size, matched on level and
+        # spread, holds the dimension fixed and removes the biology, so what
+        # is left between them is what the knowledge contributed.
+        entry["matched_random_pools"] = matched_pool_null(
+            pool, estimator=estimator)
+        entry["non_inferiority"] = {
+            "S8_vs_S4": SSS.non_inferiority(
+                filtered, "S8_pool_then_univariate", "S4_shap_xgboost",
+                groups=pool["groups"], family_size=FAMILY_SIZE),
+            "S8_vs_S1_whole_array": SSS.non_inferiority(
+                whole, "S8_pool_then_univariate", "S1_univariate_outcome",
+                groups=pool["groups"], family_size=FAMILY_SIZE),
+            "why_a_second_test": (
+                "a non-significant difference is not equivalence. Concluding "
+                "that the simple pipeline suffices requires excluding the "
+                "possibility that it is worse by an amount that matters, "
+                "which is a statement about the LOWER bound against minus "
+                "the margin and a different test from the superiority "
+                "ladder."),
         }
         # What the variance filter COSTS, paired on identical rows and folds.
         # Reported rather than assumed harmless.

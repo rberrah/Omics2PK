@@ -582,3 +582,149 @@ class TestDeduplication:
 
     def test_the_deduplicated_selector_is_declared(self, sss):
         assert "S7_shap_deduplicated" in sss.SELECTORS
+
+
+class TestMatchedRandomPools:
+    """The control that separates knowledge from dimension reduction.
+
+    Comparing 31 mechanistic probes against 30 218 candidates changes two
+    things at once: the biology used to choose, and the dimension searched. A
+    matched random pool holds the dimension fixed and removes the biology.
+    """
+
+    @pytest.fixture(scope="class")
+    def array_like(self):
+        rng = np.random.default_rng(3)
+        n, p = 200, 3000
+        level = rng.normal(8, 2, p)
+        spread = np.exp(rng.normal(-1, 1, p))
+        design = level + rng.normal(size=(n, p)) * spread
+        pool = np.asarray(sorted(rng.choice(p, 20, replace=False)))
+        return design, pool
+
+    def test_it_draws_the_requested_size_without_overlap(self, sss,
+                                                          array_like):
+        design, pool = array_like
+        drawn, report = sss.matched_random_pool(design, pool, seed=0)
+        assert drawn.size == pool.size == report["drawn"]
+        assert not (set(drawn.tolist()) & set(pool.tolist()))
+        assert len(set(drawn.tolist())) == drawn.size
+
+    def test_it_matches_level_and_spread_closely(self, sss, array_like):
+        design, pool = array_like
+        _, report = sss.matched_random_pool(design, pool, seed=0)
+        assert abs(report["matched_mean_level"]
+                   - report["target_mean_level"]) < 0.5
+        assert abs(report["matched_mean_log_variance"]
+                   - report["target_mean_log_variance"]) < 0.2
+
+    def test_an_unmatched_draw_would_be_detectably_different(self, sss,
+                                                             array_like):
+        """Shows the matching is doing work, not decorating the output."""
+        design, pool = array_like
+        _, report = sss.matched_random_pool(design, pool, seed=0)
+        rng = np.random.default_rng(0)
+        naive = rng.choice(design.shape[1], size=pool.size, replace=False)
+        naive_level = float(design.mean(axis=0)[naive].mean())
+        matched_error = abs(report["matched_mean_level"]
+                            - report["target_mean_level"])
+        naive_error = abs(naive_level - report["target_mean_level"])
+        # Matching must be at least as close as an unmatched draw, and on a
+        # design with a wide level range it is usually much closer.
+        assert matched_error <= naive_error + 1e-9
+
+    def test_it_excludes_the_baseline(self, sss, array_like):
+        design, pool = array_like
+        drawn, _ = sss.matched_random_pool(design, pool, exclude=(0, 1),
+                                           seed=0)
+        assert 0 not in drawn.tolist()
+        assert 1 not in drawn.tolist()
+
+    def test_different_seeds_give_different_pools(self, sss, array_like):
+        design, pool = array_like
+        first, _ = sss.matched_random_pool(design, pool, seed=0)
+        second, _ = sss.matched_random_pool(design, pool, seed=1)
+        assert first.tolist() != second.tolist()
+
+    def test_redundancy_is_reported_and_declared_unmatched(self, sss,
+                                                            array_like):
+        design, pool = array_like
+        _, report = sss.matched_random_pool(design, pool, seed=0)
+        assert "target_within_pool_redundancy" in report
+        assert "matched_within_pool_redundancy" in report
+        assert "REPORTED not matched" in report["matched_on"]
+        assert "co-regulated" in report["why_redundancy_is_only_reported"]
+
+    def test_the_runner_declares_the_number_of_pools(self):
+        script = (ROOT / "scripts"
+                  / "run_supervised_screening_selection.py").read_text(
+                      encoding="utf-8")
+        assert "N_MATCHED_POOLS = 40" in script
+        assert "matched_pool_null" in script
+
+
+class TestNonInferiority:
+    """A non-significant difference is not equivalence."""
+
+    @pytest.fixture(scope="class")
+    def run(self, sss, cohort):
+        return sss.screen(cohort["target"], cohort["design"],
+                          cohort["groups"],
+                          baseline_columns=cohort["baseline_columns"],
+                          knowledge_order=cohort["knowledge_order"],
+                          selectors=("S0_everything",
+                                     "S1_univariate_outcome"),
+                          k_grid=(0, 3, 8))
+
+    def test_an_identical_arm_is_non_inferior_to_itself(self, sss, run,
+                                                        cohort):
+        out = sss.non_inferiority(run, "S1_univariate_outcome",
+                                  "S1_univariate_outcome",
+                                  groups=cohort["groups"])
+        assert out["verdict"] == "NON_INFERIOR"
+        assert out["relative_gap"] == pytest.approx(0.0)
+
+    def test_a_much_worse_arm_is_inferior(self, sss, run, cohort):
+        # S0 keeps every column including 17 noise ones, so on this cohort it
+        # is substantially worse than selecting.
+        out = sss.non_inferiority(run, "S0_everything",
+                                  "S1_univariate_outcome",
+                                  groups=cohort["groups"])
+        assert out["verdict"] == "INFERIOR"
+
+    def test_the_verdict_set_is_closed(self, sss, run, cohort):
+        for candidate in ("S0_everything", "S1_univariate_outcome"):
+            out = sss.non_inferiority(run, candidate, "S1_univariate_outcome",
+                                       groups=cohort["groups"])
+            assert out["verdict"] in {"NON_INFERIOR", "INFERIOR", "UNDECIDED"}
+
+    def test_undecided_is_never_called_equivalence(self, sss, run, cohort):
+        out = sss.non_inferiority(run, "S1_univariate_outcome",
+                                  "S0_everything", groups=cohort["groups"])
+        assert out["an_undecided_result_is_not_equivalence"] is True
+        assert "not the same claim" in out["how_to_read"]
+
+    def test_it_is_a_separate_test_from_the_superiority_ladder(self, sss):
+        source = (ROOT / "src" / "omics2pk"
+                  / "supervised_screening_selection.py").read_text(
+                      encoding="utf-8")
+        # The non-inferiority margin is applied to MINUS the threshold, which
+        # the six-rung ladder never does.
+        assert "low > -threshold" in source
+        assert "high < -threshold" in source
+
+    def test_a_tighter_margin_is_harder_to_satisfy(self, sss, run, cohort):
+        wide = sss.non_inferiority(run, "S0_everything",
+                                   "S1_univariate_outcome",
+                                   groups=cohort["groups"], margin=0.5)
+        tight = sss.non_inferiority(run, "S0_everything",
+                                    "S1_univariate_outcome",
+                                    groups=cohort["groups"], margin=0.001)
+        assert wide["non_inferiority_margin"] > tight[
+            "non_inferiority_margin"]
+        assert not (wide["verdict"] == "INFERIOR"
+                    and tight["verdict"] == "NON_INFERIOR")
+
+    def test_an_unknown_selector_is_refused(self, sss, run):
+        with pytest.raises(Exception):
+            sss.non_inferiority(run, "S9_invented", "S0_everything")

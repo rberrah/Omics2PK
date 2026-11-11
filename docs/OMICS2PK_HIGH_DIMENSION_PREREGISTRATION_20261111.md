@@ -1,6 +1,6 @@
 # Pré-enregistration : trois protocoles, gelés avant exécution
 
-**Version 1.0.0 — 2026-11-11.** Statut : **DÉCLARÉ, AUCUN NON ENCORE EXÉCUTÉ.**
+**Version 1.1.0 — 2026-11-11.** Statut : **DÉCLARÉ, AUCUN NON ENCORE EXÉCUTÉ.** Le protocole 1 a été lancé puis **arrêté et sa sortie partielle supprimée sans être lue**, pour que les ajouts de la §4.1 soient antérieurs à tout résultat. Aucun résultat d'aucun protocole n'a été examiné à ce jour.
 
 Ce document est commité **avant** l'exécution du protocole 1 et **avant tout
 téléchargement** des données des protocoles 2 et 3. Rien ici ne peut changer
@@ -114,6 +114,14 @@ d'**ordonner**.
 C'est exactement l'affirmation à tester : *un pool mécanistique trié par
 Spearman vaut-il un screening XGBoost/SHAP quand p ≫ n ?*
 
+**Lu en deux temps** : la supériorité par l'échelle à six barreaux, et la
+**non-infériorité de `S8`** par le test de la §4.1.2. Conclure que le pipeline
+simple suffit exige **`NON_INFERIOR`**, pas une absence de significativité.
+
+**Et le principal ne suffit pas sans le contrôle de la §4.1.1** : `S8` contre
+`S4` ou contre `S1` ne dit pas si la connaissance a servi, seulement si un
+petit pool a servi. Les **40 pools aléatoires appariés** le disent.
+
 Secondaires déclarés, rapportés mais non décisifs : `S8` contre `S1` (les
 connaissances délimitent-elles mieux que ne cherche la largeur entière) ;
 `S7` contre `S4` (ce qu'apporte la déduplication) ; chaque sélecteur contre
@@ -148,6 +156,13 @@ ayant abstenu.
 * **Le filtre de variance coûte un gain atteignant la marge** → les bras
   filtrés ne sont pas comparables aux bras entiers, et seuls `S1`, `S2`, `S8`
   pourront être interprétés.
+* **Le pool mécanistique ne bat pas le 5ᵉ centile des 40 pools appariés** → il
+  a **réduit la dimension et non appliqué des connaissances**. C'est un
+  résultat négatif sur la thèse centrale du projet et il sera rapporté comme
+  tel (§4.1.1).
+* **`S8` contre `S4` sort `UNDECIDED` au test de non-infériorité** → le
+  protocole n'autorise pas la conclusion « le pipeline simple suffit », quelle
+  que soit la valeur ponctuelle (§4.1.2).
 
 ### 1.8 Ce qui sera rapporté quoi qu'il arrive
 
@@ -243,9 +258,74 @@ Lys–Glu évident est rompu à 12,69 Å dans une conformation αC-out et aurait
 
 ---
 
-## 4. Écarts
+## 4. Écarts et amendements
 
-*Aucun. Section en ajout seul.*
+Section en ajout seul.
+
+### 4.1 Trois ajouts, antérieurs à tout résultat
+
+Demandés après le gel de la version 1.0.0 et **avant la lecture du moindre
+résultat** : le protocole 1 avait été lancé, il a été **arrêté et sa sortie
+partielle effacée sans être lue**, puis relancé après ces ajouts. C'est la
+seule façon dont un ajout peut rester admissible.
+
+#### 4.1.1 Pools aléatoires appariés — le contrôle qui isole la connaissance
+
+**L'objection est juste et le protocole 1.0.0 ne pouvait pas y répondre.**
+Comparer `S8` (31 sondes mécanistiques) à `S1` (30 218 sondes) fait varier
+**deux** choses à la fois : la biologie employée pour choisir, et la dimension
+fouillée. Un pool mécanistique pourrait gagner en n'ayant **réduit la
+dimension**, sans avoir appliqué aucune connaissance.
+
+**Nouveau contrôle, déclaré ici.** `N_MATCHED_POOLS = 40` pools aléatoires de
+la même taille, chacun apparié **sonde par sonde** sur la moyenne et la
+log-variance : chaque sonde mécanistique est remplacée par un tirage uniforme
+parmi ses **25** plus proches voisins dans l'espace standardisé (moyenne,
+log-variance), sans remise, en excluant le pool réel et la base. Chaque pool
+est ensuite trié par la même étape Spearman. La statistique est la position de
+la perte hors échantillon du pool mécanistique dans la distribution des pertes
+des pools appariés, avec un p empirique.
+
+**L'appariement est aveugle à l'issue** — moyenne, variance et corrélation ne
+font intervenir aucune activité — donc les tirages sont faits une fois sur les
+donneurs retenus sans rien faire fuiter dans un pli.
+
+**La redondance interne est mesurée des deux côtés mais n'est pas appariée**, et
+c'est un choix, pas un oubli : un pool mécanistique est corrélé **parce que**
+ses membres sont co-régulés, ce qui fait partie de ce qui en fait un mécanisme.
+Forcer un pool aléatoire à la même corrélation interne y introduirait un
+morceau de la structure même que la comparaison doit tester. Les deux chiffres
+sont rapportés pour qu'un lecteur voie si les pools diffèrent sur ce point.
+
+**Nouvelle condition de réfutation, et elle est sévère :** *si le pool
+mécanistique ne bat pas le 5ᵉ centile des pools appariés, il a réduit la
+dimension et non appliqué des connaissances.* Ce serait un résultat négatif sur
+la thèse centrale du projet, et il sera rapporté comme tel.
+
+#### 4.1.2 La non-infériorité devient un test, pas une lecture
+
+La §1.6 annonçait une « équivalence » lue sur l'échelle de supériorité, ce qui
+était insuffisant. `non_inferiority()` est ajoutée : avec
+`gap = perte(titulaire) − perte(candidat)`, le verdict est **`NON_INFERIOR`**
+quand la borne **inférieure** dépasse **moins** la marge, **`INFERIOR`** quand
+la borne supérieure est sous moins la marge, et **`UNDECIDED`** sinon —
+explicitement **pas** une équivalence. Marge inchangée à 5 %.
+
+Le principal du protocole 1 se lit donc en deux temps : la supériorité par
+l'échelle à six barreaux, et **la non-infériorité de `S8` par ce test-ci**. La
+conclusion « le pipeline simple suffit » exige **`NON_INFERIOR`**, pas
+l'absence de significativité.
+
+#### 4.1.3 Protocole 2 — quatre contraintes ajoutées
+
+| Contrainte | Pourquoi |
+|---|---|
+| le comparateur principal est **la meilleure politique fixe choisie sur l'entraînement**, pas la meilleure couche connue après coup | sinon le comparateur bénéficie d'une information que la politique n'a pas, et le contraste est truqué dans le sens inverse |
+| **« ne rien mesurer » est une action admissible** de la politique | une politique d'acquisition qui ne peut pas s'abstenir n'est pas une politique, c'est une obligation d'achat. Même raison que `k = 0` |
+| le **coût d'acquisition** entre dans la comparaison, et non la seule perte | à perte égale, acquérir une couche de moins est strictement meilleur. Les coûts seront déclarés en unités relatives explicites avant exécution, puisqu'aucun prix réel n'est disponible publiquement |
+| **la couche acquise ne peut jamais être l'endpoint** | sinon la politique « acquérir l'activité » prédit l'activité par elle-même. C'est la même circularité que la règle MAPBE du cahier des charges, et elle sera imposée par une assertion, pas par une convention |
+
+---
 
 ---
 
@@ -253,4 +333,5 @@ Lys–Glu évident est rompu à 12,69 Å dans une conformation αC-out et aurait
 
 | Version | Date | Change |
 |---|---|---|
+| **1.1.0** | **2026-11-11** | **Trois ajouts, antérieurs à tout résultat** (§4.1). Le protocole 1 avait été lancé ; il a été **arrêté et sa sortie partielle supprimée sans être lue**. (1) **40 pools aléatoires appariés** sonde par sonde sur la moyenne et la log-variance, 25 plus proches voisins, redondance interne mesurée mais délibérément non appariée — parce que comparer 31 sondes mécanistiques à 30 218 faisait varier la biologie **et** la dimension, et qu'un pool mécanistique pouvait gagner en ayant seulement réduit la dimension. Nouvelle condition de réfutation : ne pas battre le 5ᵉ centile des pools appariés signifie dimension réduite, pas connaissance appliquée. (2) **`non_inferiority()`**, un test séparé appliquant la marge à **moins** le seuil, parce qu'une différence non significative n'est pas une équivalence et que « le pipeline simple suffit » exige `NON_INFERIOR`. (3) **Protocole 2** : le comparateur devient la meilleure politique **fixe choisie sur l'entraînement**, « ne rien mesurer » devient une action admissible, le **coût d'acquisition** entre dans la comparaison, et **la couche acquise ne peut jamais être l'endpoint** — imposé par assertion, même circularité que la règle MAPBE. |
 | 1.0.0 | 2026-11-11 | Trois protocoles déclarés. **Protocole 1**, HLC complet : 466 × 40 638 sondes, 30 218 complètes, panel mécanistique 31, deux filtres aveugles à l'issue (complétude ; 2 000 plus variables dans le pli) dont le coût est mesuré par ablation appariée contre la largeur entière, sept bras, contraste principal **`S8` contre `S4`** déclaré singulier avec lecture d'**équivalence**, six conditions de réfutation dont une qui déclare explicitement l'absence de puissance comme un échec. **Protocole 2**, COMT : conditionnel à l'existence d'un jeu d'activité, sinon `NOT_EVALUABLE` ; contraste principal une **politique d'acquisition par variant** contre la meilleure couche fixe, avec l'oracle comme plafond, distincte des nuls antérieurs sur la pondération conditionnelle. **Protocole 3**, ARAF : réplication mot pour mot du protocole BRAF, plus la seule prédiction qui peut échouer seule — l'abondance sous inhibition d'HSP90 comme meilleur proxy. Corrections `k = 0` et déduplication consignées comme déjà faites, et donc non pré-enregistrées. |

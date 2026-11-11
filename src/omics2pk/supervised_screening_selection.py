@@ -91,6 +91,13 @@ FROZEN = {
     # even see the test rows' variance. None means no filter, which is the
     # default and what every run so far used.
     "prefilter_top_variance": None,
+    # Matched random pools, for separating knowledge from mere dimension
+    # reduction. 40 draws give a 2.5 %% resolution on an empirical p.
+    "n_matched_pools": 40,
+    # A candidate is an admissible match when it sits within this many nearest
+    # neighbours of its target in standardised (mean, log variance) space.
+    # Wide enough to randomise, narrow enough to match.
+    "match_neighbourhood": 25,
     # The share of the validated gain a parsimonious panel must retain.
     "parsimony_retention": (0.80, 0.90),
     # Reused verbatim from `hlc_real_xgboost_validation`, where it was fixed
@@ -209,6 +216,87 @@ def drop_redundant(order, design, *, threshold=None, keep_columns=()):
         if not redundant:
             kept.append(column)
     return np.asarray(kept, dtype=int), dropped
+
+
+def matched_random_pool(design, pool, *, exclude=(), seed, neighbourhood=None):
+    """A random pool the same size as `pool`, matched on level and spread.
+
+    **Why this exists.** Comparing a 31-probe mechanistic pool against 30 218
+    candidates changes two things at once: the biology used to choose, and the
+    dimension searched. A random pool of 31 probes holds the dimension fixed
+    and removes the biology, so the difference between them is what the
+    knowledge contributed and nothing else.
+
+    Matching is on the mean and the log variance of each probe, because an
+    unmatched draw would mostly pick low-expressed, low-variance probes and
+    lose to the mechanistic pool for a reason that has nothing to do with
+    biology either. Each target probe is replaced by a uniform draw from its
+    `neighbourhood` nearest neighbours in standardised (mean, log variance)
+    space, sampled without replacement.
+
+    **Outcome-blind by construction**: mean, variance and correlation involve
+    no activity value, so this can be computed once on the retained donors
+    without leaking anything into a fold.
+    """
+    neighbourhood = (FROZEN["match_neighbourhood"] if neighbourhood is None
+                     else neighbourhood)
+    design = np.asarray(design, dtype=float)
+    pool = np.asarray(pool, dtype=int)
+    banned = set(int(c) for c in exclude) | set(int(c) for c in pool)
+    level = design.mean(axis=0)
+    spread = np.log1p(design.var(axis=0))
+    features = np.column_stack([level, spread])
+    centre = features.mean(axis=0)
+    scale = features.std(axis=0)
+    scale[scale == 0] = 1.0
+    standardised = (features - centre) / scale
+    rng = np.random.default_rng(seed)
+    taken, chosen = set(banned), []
+    for target in pool:
+        distance = np.sqrt(((standardised - standardised[int(target)]) ** 2
+                            ).sum(axis=1))
+        order = np.argsort(distance, kind="mergesort")
+        candidates = [int(c) for c in order if int(c) not in taken]
+        if not candidates:
+            break
+        window = candidates[:max(int(neighbourhood), 1)]
+        pick = int(rng.choice(window))
+        chosen.append(pick)
+        taken.add(pick)
+    chosen = np.asarray(chosen, dtype=int)
+    return chosen, {
+        "requested": int(pool.size),
+        "drawn": int(chosen.size),
+        "target_mean_level": float(level[pool].mean()),
+        "matched_mean_level": float(level[chosen].mean())
+            if chosen.size else float("nan"),
+        "target_mean_log_variance": float(spread[pool].mean()),
+        "matched_mean_log_variance": float(spread[chosen].mean())
+            if chosen.size else float("nan"),
+        "target_within_pool_redundancy": _mean_abs_correlation(design, pool),
+        "matched_within_pool_redundancy": _mean_abs_correlation(design, chosen),
+        "matched_on": "mean and log variance; redundancy is REPORTED not matched",
+        "why_redundancy_is_only_reported": (
+            "a mechanistic pool is correlated because its members are "
+            "co-regulated, which is part of what makes it a mechanism. "
+            "Forcing a random pool to the same internal correlation would "
+            "smuggle in a piece of the structure the comparison is meant to "
+            "test. It is measured on both sides so a reader can see whether "
+            "the pools differ in it."),
+    }
+
+
+def _mean_abs_correlation(design, columns):
+    columns = np.asarray(columns, dtype=int)
+    if columns.size < 2:
+        return float("nan")
+    block = np.asarray(design, dtype=float)[:, columns]
+    centred = block - block.mean(axis=0)
+    norms = np.sqrt((centred ** 2).sum(axis=0))
+    norms[norms == 0] = 1.0
+    matrix = np.abs((centred.T @ centred) / np.outer(norms, norms))
+    upper = matrix[np.triu_indices(columns.size, k=1)]
+    return float(np.nanmean(upper)) if upper.size else float("nan")
 
 
 def grouped_folds(groups, n_folds, seed):
@@ -703,6 +791,69 @@ def contrast(result, better, worse, *, groups=None, family_size=1, margin=None,
             "verdict": _ladder(gap["interval"], threshold),
             "relative_gain": float(gap["gap"] / reference),
             "minimum_interesting_gain": float(threshold), **gap}
+
+
+def non_inferiority(result, candidate, incumbent, *, groups=None,
+                    family_size=1, margin=None, seed=None):
+    """Is `candidate` no worse than `incumbent` by more than the margin?
+
+    **A non-significant difference is not equivalence.** To conclude that the
+    simple method suffices, the interval has to exclude the possibility that
+    it is worse by an amount that would matter. That is a statement about the
+    gap's **lower** bound against **minus** the margin, and it is a different
+    test from the superiority ladder used everywhere else in this project --
+    which is why it is a separate function rather than another rung.
+
+    `gap` is `loss(incumbent) - loss(candidate)`, so a positive gap means the
+    candidate is better.
+
+    * `NON_INFERIOR` -- the lower bound is above minus the margin. The
+      candidate cannot be worse by an amount that matters.
+    * `INFERIOR` -- the upper bound is below minus the margin. It is worse by
+      an amount that matters.
+    * `UNDECIDED` -- the interval spans minus the margin. **This answers
+      nothing**, and in particular it is not evidence of equivalence.
+    """
+    margin = (FROZEN["minimum_interesting_relative_gain"] if margin is None
+              else margin)
+    losses = result["losses"]
+    _check(candidate in losses and incumbent in losses,
+           f"unknown selector in {candidate!r} vs {incumbent!r}")
+    cluster = None
+    if groups is not None:
+        labels = np.asarray(groups)
+        mask = np.asarray(result["scored_rows"], dtype=bool)
+        _check(labels.size == mask.size,
+               "the group labels must cover every row screen() saw")
+        cluster = labels[mask]
+    gap = paired_gap(losses[incumbent], losses[candidate],
+                     family_size=family_size, n_boot=FROZEN["n_bootstrap"],
+                     alpha=FROZEN["alpha"],
+                     seed=FROZEN["seed"] if seed is None else seed,
+                     groups=cluster)
+    reference = float(np.mean(losses[incumbent]))
+    _check(reference > 0.0, "the reference loss must be positive")
+    threshold = margin * reference
+    low, high = gap["interval"]
+    if low > -threshold:
+        verdict = "NON_INFERIOR"
+    elif high < -threshold:
+        verdict = "INFERIOR"
+    else:
+        verdict = "UNDECIDED"
+    return {
+        "test": f"{candidate}_non_inferior_to_{incumbent}",
+        "verdict": verdict,
+        "relative_gap": float(gap["gap"] / reference),
+        "non_inferiority_margin": float(threshold),
+        "relative_margin": float(margin),
+        "an_undecided_result_is_not_equivalence": True,
+        "how_to_read": (
+            "NON_INFERIOR means the candidate cannot be worse by more than "
+            f"{margin:.0%} of the incumbent's loss. UNDECIDED means the "
+            "design lacks the power to say that, which is not the same claim "
+            "and must not be reported as one."),
+        **gap}
 
 
 def parsimony_point(curve, *, retention=None, baseline_k=None):
