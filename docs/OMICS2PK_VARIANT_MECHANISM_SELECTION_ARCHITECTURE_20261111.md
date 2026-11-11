@@ -46,7 +46,7 @@ prediction fusion.
 
 ## 1. Deliverable 1 — audit: what is reusable
 
-### 1.1 Omics2PK, 67 modules
+### 1.1 Omics2PK, 68 modules
 
 | What the new direction needs | Where it already exists | Verdict |
 |---|---|---|

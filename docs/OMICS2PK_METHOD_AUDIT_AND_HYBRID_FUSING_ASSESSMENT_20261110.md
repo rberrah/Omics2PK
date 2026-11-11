@@ -48,7 +48,7 @@ points to.
 
 ---
 
-## 1. Audit of Omics2PK — 67 modules, and a category that was empty until 2026-11-11
+## 1. Audit of Omics2PK — 68 modules, and a category that was empty until 2026-11-11
 
 ### 1.1 Selection, richly developed
 
