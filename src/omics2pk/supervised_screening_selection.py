@@ -369,6 +369,133 @@ def _grow_to_redundancy(design, size, target, *, banned, rng,
     return np.asarray(chosen, dtype=int)
 
 
+def neighbour_lists(design, pool, *, exclude=()):
+    """Nearest neighbours of each pool member in (mean, log variance) space.
+
+    Computed once per training set and reused across every replicate. Drawing
+    1000 matched pools by recomputing 25 x 30 596 distances each time would be
+    46 billion distance computations for three endpoints; computed once per
+    fold it is twenty.
+    """
+    design = np.asarray(design, dtype=float)
+    pool = np.asarray(pool, dtype=int)
+    banned = set(int(c) for c in exclude) | set(int(c) for c in pool)
+    level = design.mean(axis=0)
+    spread = np.log1p(design.var(axis=0))
+    features = np.column_stack([level, spread])
+    centre = features.mean(axis=0)
+    scale = features.std(axis=0)
+    scale[scale == 0] = 1.0
+    standardised = (features - centre) / scale
+    lists = {}
+    for target in pool:
+        distance = np.sqrt(((standardised - standardised[int(target)]) ** 2
+                            ).sum(axis=1))
+        order = np.argsort(distance, kind="mergesort")
+        lists[int(target)] = np.array([int(c) for c in order
+                                       if int(c) not in banned], dtype=int)
+    return lists
+
+
+def draw_from_neighbours(lists, *, rng, neighbourhood=None):
+    """One matched pool, from cached neighbour lists. No distance recomputed."""
+    neighbourhood = (FROZEN["match_neighbourhood"] if neighbourhood is None
+                     else neighbourhood)
+    taken, picked = set(), []
+    for target, order in lists.items():
+        window = [int(c) for c in order[:max(int(neighbourhood) * 3, 1)]
+                  if int(c) not in taken][:max(int(neighbourhood), 1)]
+        if not window:
+            continue
+        pick = int(rng.choice(window))
+        picked.append(pick)
+        taken.add(pick)
+    return np.asarray(picked, dtype=int)
+
+
+def pool_arm_loss(target, design, groups, *, baseline_columns, pool_for_fold,
+                  k_grid=None, seed=None, n_outer=None, n_inner=None):
+    """Out-of-fold loss of "a pool delimits, Spearman orders, inner folds pick k".
+
+    `pool_for_fold(train_rows, fold_index)` returns the candidate pool for that
+    fold, so the caller decides whether the pool is fixed (the mechanistic one)
+    or drawn (a matched replicate). When it is drawn, it is drawn from the
+    rows handed to it, which are the **training** rows -- that is what makes
+    this arm inductive rather than transductive.
+
+    Written as its own routine rather than as a `screen()` call because a
+    thousand replicates through the general harness is not computable.
+    """
+    seed = FROZEN["seed"] if seed is None else seed
+    k_grid = tuple(FROZEN["k_grid"] if k_grid is None else k_grid)
+    n_outer = FROZEN["outer_folds"] if n_outer is None else n_outer
+    n_inner = FROZEN["inner_folds"] if n_inner is None else n_inner
+    target = np.asarray(target, dtype=float)
+    design = np.asarray(design, dtype=float)
+    groups = np.asarray(groups)
+    baseline = tuple(int(c) for c in baseline_columns)
+    outer = grouped_folds(groups, min(n_outer, np.unique(groups).size), seed)
+    scored = np.full(target.size, np.nan)
+    budgets = []
+
+    def fit(columns, train, test):
+        if columns.size == 0:
+            return np.full(test.size, float(np.mean(target[train])))
+        return ridge_predict(design[np.ix_(train, columns)], target[train],
+                             design[np.ix_(test, columns)],
+                             penalty=FROZEN["ridge_penalty"])
+
+    def ordered(pool, rows):
+        pool = np.asarray(pool, dtype=int)
+        if pool.size == 0:
+            return pool
+        strength = _abs_correlation(_rank(design[np.ix_(rows, pool)]),
+                                    _rank(target[rows]))
+        return pool[strength.argsort()[::-1]]
+
+    for fold in np.unique(outer):
+        held = np.flatnonzero(outer == fold)
+        keep = np.flatnonzero(outer != fold)
+        if keep.size < 10 or held.size == 0:
+            continue
+        pool = np.asarray(pool_for_fold(keep, int(fold)), dtype=int)
+        grid = tuple(k for k in k_grid if k <= pool.size) or (0,)
+        inner = grouped_folds(groups[keep],
+                              min(n_inner, np.unique(groups[keep]).size),
+                              seed + 1)
+        inner_loss = {}
+        for k in grid:
+            losses = []
+            for inner_fold in np.unique(inner):
+                inner_held = keep[inner == inner_fold]
+                inner_keep = keep[inner != inner_fold]
+                if inner_keep.size < 10 or inner_held.size == 0:
+                    continue
+                columns = np.asarray(sorted(
+                    set(int(c) for c in ordered(pool, inner_keep)[:k])
+                    | set(baseline)), dtype=int)
+                prediction = fit(columns, inner_keep, inner_held)
+                losses.append(float(np.abs(prediction
+                                           - target[inner_held]).mean()))
+            if losses:
+                inner_loss[k] = float(np.mean(losses))
+        if not inner_loss:
+            continue
+        best_k = min(sorted(inner_loss), key=lambda k: (inner_loss[k], k))
+        columns = np.asarray(sorted(
+            set(int(c) for c in ordered(pool, keep)[:best_k])
+            | set(baseline)), dtype=int)
+        scored[held] = fit(columns, keep, held)
+        budgets.append(int(best_k))
+    complete = np.isfinite(scored)
+    _check(complete.sum() >= 20,
+           f"only {int(complete.sum())} rows were scored by the pool arm")
+    losses = np.abs(scored[complete] - target[complete])
+    return {"mean_loss": float(losses.mean()), "losses": losses,
+            "scored_rows": complete, "k_chosen_per_fold": budgets,
+            "n_folds_that_abstained": int(sum(1 for k in budgets if k == 0))}
+
+
 def variance_profile(design, pool, *, prefilter_n, matched_pools=(),
                      exclude=()):
     """Where a pool sits in the transcriptome's variance distribution.

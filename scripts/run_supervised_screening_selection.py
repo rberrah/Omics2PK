@@ -80,6 +80,20 @@ PREFILTER_TOP_VARIANCE = 2000
 #: matched on level and spread, chosen with no biology at all.
 N_MATCHED_POOLS = 40
 
+# ---- protocol 1b, all declared before execution -------------------------
+#: Confirmatory replication. 1/1001 = 0.000999 clears Bonferroni 0.0167.
+N_POOLS_1B = 1000
+#: The three prespecified endpoints, which are the family the 0.0167 assumes.
+#: CYP2E1 and CYP3A4M keep their protocol-1 results as negative and
+#: specificity controls; running a thousand pools for endpoints outside the
+#: primary contrast would multiply cost without touching the hypothesis.
+ENDPOINTS_1B = HLC_PRESPECIFIED
+#: Secondary redundancy-matched control: 200 pools, and CYP2D6 only. A grown
+#: pool costs 2.46 s at this width, so 200 x 5 folds x 3 endpoints would be
+#: two hours for a secondary control. 1/201 = 0.00498 still clears 0.0167.
+N_POOLS_REDUNDANCY_1B = 200
+REDUNDANCY_ENDPOINT_1B = "CYP2D6_activity"
+
 #: The permuted-outcome control only needs the arms it reports, which is the
 #: strongest data-driven selector against no selection at all. Running all
 #: seven under permutation would double the cost of the whole run to produce
@@ -516,6 +530,190 @@ def matched_pool_null(pool, *, estimator="ridge"):
     }
 
 
+def gene_of_probe(loaded, column_index, names):
+    """Which gene a pool probe belongs to, for the interpretability check."""
+    from omics2pk import hlc_real_cyp_validation as HLC
+
+    feature = names[column_index].replace("probe_", "")
+    lookup = {}
+    for gene in HLC.GENES:
+        for row in loaded["gene_rows"][gene]:
+            lookup[str(loaded["feature_ids"][row])] = gene
+    return lookup.get(feature, "unmapped")
+
+
+def run_hlc_1b(expression_zip, phenotype_zip):
+    """Protocol 1b: 1000 inductive matched pools on the three prespecified endpoints.
+
+    Every pool is drawn **inside each training fold**, from the training rows
+    only, which is what makes this inductive where protocol 1 was
+    transductive. The engine is `pool_arm_loss`, written for this because a
+    thousand replicates through the general harness is not computable: 25
+    targets against 30 596 candidates, recomputed per draw, is 46 billion
+    distance computations for three endpoints. Cached per fold it is twenty.
+    """
+    from omics2pk import hlc_real_cyp_validation as HLC
+
+    loaded = HLC.load_original_hlc(expression_zip, phenotype_zip)
+    pools, skipped, mechanistic_size = hlc_fullarray_pools(
+        expression_zip, phenotype_zip, ENDPOINTS_1B)
+    for activity in ENDPOINTS_1B:
+        if activity not in pools:
+            raise RunError(f"prespecified endpoint {activity} is absent: "
+                           f"{skipped.get(activity, 'reason not recorded')}")
+    out = {
+        "protocol": "OMICS2PK_HIGH_DIMENSION_PREREGISTRATION_20261111.md §1b",
+        "n_pools": N_POOLS_1B,
+        "endpoints_run": list(ENDPOINTS_1B),
+        "endpoints_kept_from_protocol_1": [HLC_NEGATIVE_CONTROL,
+                                           HLC_SPECIFICITY_CONTROL],
+        "bonferroni_threshold": 0.05 / len(ENDPOINTS_1B),
+        "empirical_p_floor": 1.0 / (1 + N_POOLS_1B),
+        "matching_is_inductive": True,
+        "endpoints": {},
+    }
+    for activity in ENDPOINTS_1B:
+        pool = pools[activity]
+        real_pool = np.asarray(pool["knowledge_order"],
+                               dtype=int)[:pool["pool_size"]]
+        design, target = pool["design"], pool["target"]
+        groups, baseline = pool["groups"], pool["baseline_columns"]
+        print(f"  1b {activity}: {N_POOLS_1B} inductive pools, "
+              f"n={target.size} p={design.shape[1]}", flush=True)
+
+        observed = SSS.pool_arm_loss(
+            target, design, groups, baseline_columns=baseline,
+            pool_for_fold=lambda rows, fold: real_pool)
+
+        cache = {}
+
+        def neighbours_for(rows):
+            key = rows.tobytes()
+            if key not in cache:
+                cache[key] = SSS.neighbour_lists(design[rows], real_pool,
+                                                 exclude=baseline)
+            return cache[key]
+
+        draws, first_pools = [], []
+        for index in range(N_POOLS_1B):
+            replicate = np.random.default_rng(SSS.FROZEN["seed"] + index)
+            drawn_here = {}
+
+            def provider(rows, fold, _rng=replicate, _store=drawn_here):
+                pool_now = SSS.draw_from_neighbours(neighbours_for(rows),
+                                                    rng=_rng)
+                _store[fold] = pool_now
+                return pool_now
+
+            result = SSS.pool_arm_loss(
+                target, design, groups, baseline_columns=baseline,
+                pool_for_fold=provider)
+            draws.append(result["mean_loss"])
+            if index < 3 and drawn_here:
+                first_pools.append(next(iter(drawn_here.values())))
+        draws = np.asarray(draws, dtype=float)
+        better = int((draws <= observed["mean_loss"]).sum())
+        entry = {
+            "n_candidates": pool["n_candidates"],
+            "pool_size": pool["pool_size"],
+            "mechanistic_pool_loss": observed["mean_loss"],
+            "k_chosen_per_fold": observed["k_chosen_per_fold"],
+            "n_folds_that_abstained": observed["n_folds_that_abstained"],
+            "matched_pool_loss_mean": float(draws.mean()),
+            "matched_pool_loss_best": float(draws.min()),
+            "matched_pool_loss_5th_percentile": float(np.percentile(draws, 5)),
+            "n_pools_at_least_as_good": better,
+            "empirical_p": float((1 + better) / (1 + draws.size)),
+            "clears_bonferroni": bool((1 + better) / (1 + draws.size)
+                                      < 0.05 / len(ENDPOINTS_1B)),
+            "beats_the_5th_percentile": bool(
+                observed["mean_loss"] < np.percentile(draws, 5)),
+            "relative_gain_over_the_mean_matched_pool": float(
+                1.0 - observed["mean_loss"] / draws.mean()),
+        }
+        # ---- the secondary diagnostic (§1b.6), outcome-blind
+        matched_for_profile = [
+            SSS.draw_from_neighbours(
+                neighbours_for(np.arange(target.size)),
+                rng=np.random.default_rng(SSS.FROZEN["seed"] + 5000 + i))
+            for i in range(60)]
+        entry["variance_profile"] = SSS.variance_profile(
+            design, real_pool, prefilter_n=PREFILTER_TOP_VARIANCE,
+            matched_pools=matched_for_profile, exclude=baseline)
+        kept, dropped = SSS.split_pool_by_filter(
+            design, real_pool, prefilter_n=PREFILTER_TOP_VARIANCE,
+            exclude=baseline)
+        split = {"n_kept_by_the_filter": int(kept.size),
+                 "n_dropped_by_the_filter": int(dropped.size),
+                 "status": "EXPLORATORY",
+                 "why_exploratory": (
+                     "the split uses the variance of every retained donor "
+                     "rather than each fold's, so it is transductive; and "
+                     "comparing the halves cannot on its own show that "
+                     "knowledge is responsible for the signal.")}
+        for label, columns in (("filter_keeps", kept),
+                               ("filter_drops", dropped)):
+            if columns.size == 0:
+                split[label] = {"n": 0, "verdict": "NOT_EVALUABLE"}
+                continue
+            half = SSS.pool_arm_loss(
+                target, design, groups, baseline_columns=baseline,
+                pool_for_fold=lambda rows, fold, c=columns: c)
+            split[label] = {"n": int(columns.size),
+                            "mean_loss": half["mean_loss"],
+                            "genes": sorted({
+                                gene_of_probe(loaded, int(c), pool["names"])
+                                for c in columns})}
+        entry["predictive_split_by_the_variance_filter"] = split
+        # ---- which genes the pool actually is, for interpretability
+        entry["pool_genes"] = sorted({
+            gene_of_probe(loaded, int(c), pool["names"]) for c in real_pool})
+        # ---- the redundancy-matched secondary control, CYP2D6 only
+        if activity == REDUNDANCY_ENDPOINT_1B:
+            print(f"    redundancy-matched control, "
+                  f"{N_POOLS_REDUNDANCY_1B} grown pools", flush=True)
+            grown = []
+            for index in range(N_POOLS_REDUNDANCY_1B):
+                seed = SSS.FROZEN["seed"] + 20000 + index
+
+                def grow(rows, fold, _seed=seed):
+                    drawn, _ = SSS.matched_random_pool(
+                        design[rows], real_pool, exclude=baseline,
+                        seed=_seed + fold, match_redundancy=True)
+                    return drawn
+
+                result = SSS.pool_arm_loss(
+                    target, design, groups, baseline_columns=baseline,
+                    pool_for_fold=grow)
+                grown.append(result["mean_loss"])
+            grown = np.asarray(grown, dtype=float)
+            at_least = int((grown <= observed["mean_loss"]).sum())
+            sample = SSS.matched_random_pool(
+                design, real_pool, exclude=baseline,
+                seed=SSS.FROZEN["seed"] + 20000, match_redundancy=True)[1]
+            entry["redundancy_matched_control"] = {
+                "n_pools": int(grown.size),
+                "status": "SECONDARY",
+                "matched_pool_loss_mean": float(grown.mean()),
+                "matched_pool_loss_5th_percentile": float(
+                    np.percentile(grown, 5)),
+                "n_pools_at_least_as_good": at_least,
+                "empirical_p": float((1 + at_least) / (1 + grown.size)),
+                "beats_the_5th_percentile": bool(
+                    observed["mean_loss"] < np.percentile(grown, 5)),
+                "achieved_redundancy": sample[
+                    "matched_within_pool_redundancy"],
+                "target_redundancy": sample["target_within_pool_redundancy"],
+                "what_it_separates": (
+                    "whether the advantage lies in WHICH genes were chosen or "
+                    "in HOW they covary. If these pools match the mechanistic "
+                    "one while the level-matched pools do not, the advantage "
+                    "is the covariance structure."),
+            }
+        out["endpoints"][activity] = entry
+    return out
+
+
 def run_hlc_fullarray(expression_zip, phenotype_zip, *, estimator="ridge"):
     """The pre-registered high-dimension protocol. p >> n, for the first time."""
     endpoints = (*HLC_PRESPECIFIED, HLC_NEGATIVE_CONTROL,
@@ -608,6 +806,9 @@ def main(argv=None):
                         default=["NUDT15", "CYP2C9", "BRAF"])
     parser.add_argument("--hlc-expression", default=None)
     parser.add_argument("--hlc-phenotype", default=None)
+    parser.add_argument("--hlc-1b", action="store_true",
+                        help="run protocol 1b: 1000 inductive matched pools "
+                             "on the three prespecified endpoints")
     parser.add_argument("--hlc-fullarray", action="store_true",
                         help="run the pre-registered high-dimension protocol "
                              "on the whole processed array instead of the "
@@ -654,7 +855,13 @@ def main(argv=None):
                              "reason": "--mavedb-dir was not given"}
 
     if args.hlc_expression and args.hlc_phenotype:
-        if args.hlc_fullarray:
+        if args.hlc_1b:
+            print("HLC protocol 1b ...", flush=True)
+            payload["hlc_1b"] = run_hlc_1b(args.hlc_expression,
+                                           args.hlc_phenotype)
+            payload["hlc"] = {"verdict": "NOT_RUN",
+                              "reason": "--hlc-1b selected protocol 1b"}
+        elif args.hlc_fullarray:
             print("HLC FULL ARRAY cohort ...", flush=True)
             payload["hlc_full_array"] = run_hlc_fullarray(
                 args.hlc_expression, args.hlc_phenotype,
@@ -688,7 +895,7 @@ def main(argv=None):
     print(f"\nartefact: {out}  sha256 "
           f"{hashlib.sha256(text.encode('utf-8')).hexdigest()[:16]}")
 
-    for cohort in ("mavedb", "hlc", "hlc_full_array"):
+    for cohort in ("mavedb", "hlc", "hlc_full_array", "hlc_1b"):
         if cohort not in payload:
             continue
         block = payload[cohort]
