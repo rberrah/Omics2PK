@@ -305,7 +305,7 @@ class TestCoverage:
 # --------------------------------------------------------------------------
 class TestDeclarations:
     def test_every_gene_declares_a_centre(self, sa):
-        assert set(sa.CATALYTIC_CENTRES) == {"CYP2C9", "NUDT15", "BRAF"}
+        assert set(sa.CATALYTIC_CENTRES) == {"CYP2C9", "NUDT15", "BRAF", "ARAF"}
 
     def test_each_centre_names_its_structure_and_a_substrate(self, sa):
         for gene, centre in sa.CATALYTIC_CENTRES.items():
@@ -419,3 +419,86 @@ class TestAgainstTheRealStructures:
         distances = sa.residue_distances(residues, ligands, centre)
         assert distances[301]["to_cofactor"] < 5.0
         assert abs(301 - centre["axial_residue"]) > 100
+
+
+class TestArafCentreAndMmcifReader:
+    """ARAF, and the mmCIF reader that had to exist for it.
+
+    ARAF has seven RCSB entries and exactly one carries an ATP analogue --
+    9AXM -- which RCSB serves only as mmCIF. The declared selection rule said
+    "legacy PDB format", which was a limitation of this module's reader rather
+    than a scientific criterion, so the clause was lifted and recorded as a
+    deviation. The rule picks 9AXM either way, so the lift could not steer the
+    choice.
+    """
+
+    def test_araf_is_declared_with_its_chain_and_protein_substrate(self, sa):
+        centre = sa.CATALYTIC_CENTRES["ARAF"]
+        assert centre["pdb"] == "9AXM"
+        assert centre["uniprot"] == "P10398"
+        # MEK1 carries its own AMP-PNP and Mg, as in 6PP9.
+        assert centre["chain"] == "B"
+        assert centre["substrate_chain"] == "A"
+        assert centre["substrate_is_a_protein"] == "MEK1"
+
+    def test_the_araf_guard_is_identities_plus_a_nucleotide_contact(self, sa):
+        centre = sa.CATALYTIC_CENTRES["ARAF"]
+        assert centre["axial_residue"] is None
+        identities = centre["residue_identities"]
+        assert identities[336] == "LYS"      # UniProt catalytic lysine
+        assert identities[429] == "ASP"      # UniProt proton acceptor
+        assert (identities[447], identities[448], identities[449]) == \
+            ("ASP", "PHE", "GLY")            # DFG, found by scanning
+        assert centre["nucleotide_contact"]["residue"] == 336
+        assert centre["nucleotide_contact"]["max_angstrom"] <= 4.0
+
+    def test_the_mmcif_reader_uses_author_numbering(self, sa):
+        source = (ROOT / "src" / "omics2pk"
+                  / "structural_annotation.py").read_text(encoding="utf-8")
+        # label_seq_id restarts at 1 per entity and would shift every residue.
+        assert "auth_seq_id" in source
+        assert "label_seq_id` restarts at 1" in source
+
+    def test_the_dispatcher_detects_the_format(self, sa):
+        assert hasattr(sa, "parse_structure")
+        assert hasattr(sa, "chain_points")
+        source = (ROOT / "src" / "omics2pk"
+                  / "structural_annotation.py").read_text(encoding="utf-8")
+        assert '"_atom_site." in text' in source
+
+    def test_an_mmcif_without_an_atom_site_loop_is_refused(self, sa):
+        with pytest.raises(Exception):
+            sa.parse_mmcif("data_XXXX\n_entry.id XXXX\n")
+
+    def test_both_readers_agree_where_both_formats_exist(self, sa):
+        """The validation that keeps the reader from rewriting BRAF silently."""
+        pdb = pathlib.Path(
+            r"C:\Users\abdel\Documents\Omics\PDB_public_structures\6PP9.pdb")
+        cif = pathlib.Path(r"C:\Users\abdel\Documents\Omics"
+                           r"\PDB_public_structures_araf\6PP9_validation.cif")
+        if not (pdb.is_file() and cif.is_file()):
+            pytest.skip("both formats of 6PP9 are not present locally")
+        centre = sa.CATALYTIC_CENTRES["BRAF"]
+        from_pdb = sa.parse_pdb(pdb.read_text(encoding="utf-8",
+                                              errors="replace"), chain="A")
+        from_cif = sa.parse_mmcif(cif.read_text(encoding="utf-8",
+                                                errors="replace"), chain="A")
+        assert set(from_pdb[0]) == set(from_cif[0])
+        assert {k: len(v) for k, v in from_pdb[1].items()} == \
+            {k: len(v) for k, v in from_cif[1].items()}
+        guard_pdb = sa.verify_catalytic_geometry(*from_pdb, centre)
+        guard_cif = sa.verify_catalytic_geometry(*from_cif, centre)
+        assert guard_pdb["nucleotide_contact_angstrom"] == \
+            guard_cif["nucleotide_contact_angstrom"]
+
+    def test_the_deviations_are_declared_in_the_protocol(self):
+        text = (ROOT / "docs"
+                / "OMICS2PK_HIGH_DIMENSION_PREREGISTRATION_20261111.md"
+                ).read_text(encoding="utf-8")
+        # No .lower(): the search string carries "PDB" in capitals, so
+        # folding the document would guarantee a miss.
+        assert "clause \u00ab format PDB h\u00e9ritable \u00bb est lev\u00e9e" in text
+        assert "ne peut donc pas avoir \u00e9t\u00e9 dirig\u00e9e par le r\u00e9sultat" in text
+        assert "n'a pas d'abondance au d\u00e9part" in text
+        assert "2,979" in text
+        assert "rompu \u00e0 10,49" in text

@@ -74,6 +74,38 @@ CATALYTIC_CENTRES = {
         "axial_atom": "SG",
         "uniprot": "P11712",
     },
+    # Pre-registered in OMICS2PK_HIGH_DIMENSION_PREREGISTRATION_20261111.md
+    # §3.3, selected by the same rule as BRAF: the best-resolution RCSB entry
+    # for UniProt P10398 carrying an ATP analogue in the ARAF chain. The rule
+    # picks 9AXM uniquely -- it is the ONLY ARAF entry with an ATP analogue at
+    # all -- so dropping the "legacy PDB format" clause could not steer the
+    # choice. See §4.2 for that deviation.
+    "ARAF": {
+        "pdb": "9AXM",
+        "resolution_angstrom": 2.42,
+        "title": ("ARAF:MEK1 with AMP-PNP and Mg, inactive aC-out "
+                  "conformation"),
+        # MEK1 is chain A and carries its own AMP-PNP and Mg, exactly as in
+        # 6PP9, so the chain restriction is load-bearing here too.
+        "chain": "B",
+        "cofactor_ligands": ("ANP", "MG"),
+        "substrate_ligands": (),
+        "substrate_chain": "A",
+        "substrate_is_a_protein": "MEK1",
+        "metal_atom": "MG",
+        "axial_residue": None,
+        # Verified against the coordinates BEFORE being declared, which is
+        # what BRAF taught: 336 is UniProt's catalytic lysine, 429 its
+        # proton-acceptor aspartate, 447-449 the DFG motif found by scanning
+        # the activation segment rather than assumed, 354 the aC glutamate
+        # and 382 the gatekeeper by alignment with BRAF's E501 and T529.
+        "residue_identities": {336: "LYS", 354: "GLU", 382: "THR",
+                               429: "ASP", 447: "ASP", 448: "PHE",
+                               449: "GLY"},
+        "nucleotide_contact": {"residue": 336, "atom": "NZ", "ligand": "ANP",
+                               "max_angstrom": 4.0},
+        "uniprot": "P10398",
+    },
     # Pre-registered in OMICS2PK_BRAF_PREREGISTRATION_20261111.md, selected
     # by rule rather than by hand: the best-resolution RCSB entry for
     # UniProt P15056 carrying an ATP-analogue ligand in the BRAF chain.
@@ -189,6 +221,121 @@ def parse_pdb(text, chain=None):
     _check(residues, "no polymer residue was parsed from this file"
                      + (f" for chain {wanted}" if wanted else ""))
     return residues, ligands
+
+
+def parse_mmcif(text, chain=None):
+    """Same contract as `parse_pdb`, for entries RCSB serves only as mmCIF.
+
+    Recent depositions have no legacy PDB file at all -- 9AXM, the only ARAF
+    entry carrying an ATP analogue, returns 404 for `.pdb` and 200 for
+    `.cif`. Refusing it would declare a protocol unevaluable because of this
+    module's reader rather than because of the data, which is the wrong kind
+    of strictness when the brief requires using public data that is actually
+    accessible.
+
+    **`auth_asym_id` and `auth_seq_id` are used, not the label_ fields.** The
+    author numbering is the one a UniProt position refers to and the one a PDB
+    file would have carried; `label_seq_id` restarts at 1 per entity and would
+    silently shift every residue number. Only the first model is read.
+    """
+    wanted = chain.strip().upper() if isinstance(chain, str) else None
+    residues, ligands = {}, {}
+    lines = text.splitlines()
+    index = 0
+    columns = None
+    while index < len(lines):
+        line = lines[index].strip()
+        if line == "loop_":
+            headers, cursor = [], index + 1
+            while cursor < len(lines) and lines[cursor].strip().startswith("_"):
+                headers.append(lines[cursor].strip())
+                cursor += 1
+            if headers and headers[0].startswith("_atom_site."):
+                columns = {name.split(".", 1)[1]: position
+                           for position, name in enumerate(headers)}
+                index = cursor
+                break
+            index = cursor
+            continue
+        index += 1
+    _check(columns is not None, "no _atom_site loop found in this mmCIF file")
+    for required in ("group_PDB", "label_atom_id", "label_comp_id",
+                     "Cartn_x", "Cartn_y", "Cartn_z", "auth_seq_id",
+                     "auth_asym_id"):
+        _check(required in columns,
+               f"the mmCIF _atom_site loop lacks {required}")
+    while index < len(lines):
+        raw = lines[index]
+        index += 1
+        stripped = raw.strip()
+        if not stripped or stripped.startswith("#"):
+            break
+        if stripped.startswith("_") or stripped == "loop_":
+            break
+        fields = stripped.split()
+        if len(fields) < len(columns):
+            continue
+        if "pdbx_PDB_model_num" in columns and \
+                fields[columns["pdbx_PDB_model_num"]] not in ("1", "."):
+            continue
+        record = fields[columns["group_PDB"]]
+        name = fields[columns["label_comp_id"]].strip().upper()
+        if FROZEN["exclude_water"] and name in ("HOH", "DOD", "WAT"):
+            continue
+        element = (fields[columns["type_symbol"]].strip().upper()
+                   if "type_symbol" in columns else "")
+        if FROZEN["exclude_hydrogen"] and element in ("H", "D"):
+            continue
+        atom = fields[columns["label_atom_id"]].strip().strip('"').upper()
+        try:
+            point = (float(fields[columns["Cartn_x"]]),
+                     float(fields[columns["Cartn_y"]]),
+                     float(fields[columns["Cartn_z"]]))
+        except ValueError:
+            continue
+        this_chain = fields[columns["auth_asym_id"]].strip().upper()
+        if record == "HETATM" and name not in _THREE_TO_ONE:
+            if wanted is None or this_chain == wanted:
+                ligands.setdefault(name, []).append((atom, point))
+            continue
+        if wanted is not None and this_chain != wanted:
+            continue
+        if "pdbx_PDB_ins_code" in columns and \
+                fields[columns["pdbx_PDB_ins_code"]] not in (".", "?"):
+            continue
+        try:
+            number = int(fields[columns["auth_seq_id"]])
+        except ValueError:
+            continue
+        entry = residues.setdefault(number, {"name": name, "atoms": {}})
+        entry["atoms"][atom] = point
+    _check(residues, "no polymer residue was parsed from this mmCIF file"
+                     + (f" for chain {wanted}" if wanted else ""))
+    return residues, ligands
+
+
+def parse_structure(text, chain=None):
+    """Read either format. mmCIF is detected by its own loop header."""
+    if "_atom_site." in text:
+        return parse_mmcif(text, chain=chain)
+    return parse_pdb(text, chain=chain)
+
+
+def mmcif_chain_points(text, chain):
+    """`polymer_chain_points` for mmCIF: a protein substrate's heavy atoms."""
+    wanted = chain.strip().upper()
+    residues, _ = parse_mmcif(text, chain=wanted)
+    points = [point for entry in residues.values()
+              for point in entry["atoms"].values()]
+    _check(points, f"no polymer atom found for chain {wanted}")
+    return points
+
+
+def chain_points(text, chain):
+    """Either format."""
+    if "_atom_site." in text:
+        return mmcif_chain_points(text, chain)
+    return polymer_chain_points(text, chain)
 
 
 def polymer_chain_points(text, chain):

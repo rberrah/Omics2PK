@@ -881,6 +881,76 @@ Lys–Glu évident est rompu à 12,69 Å dans une conformation αC-out et aurait
 
 Section en ajout seul.
 
+### 4.2 Protocole 3 : la clause « format PDB héritable » est levée
+
+**Écart, déclaré avant tout téléchargement de score ARAF.**
+
+La §3.3 exigeait *« la meilleure résolution parmi les entrées RCSB de l'UniProt
+d'ARAF portant un analogue d'ATP dans la chaîne ARAF, **en format PDB
+héritable** »*. Cette dernière clause était une limite de **mon lecteur**, pas
+un critère scientifique, et elle rendrait le protocole inévaluable à cause de
+l'outil plutôt que des données.
+
+**Inventaire complet : ARAF n'a que 7 entrées RCSB.** 1WXM et 2MSE sont des
+structures RMN du seul domaine RBD ; 8VSL, 8VSM et 8VSN sont des complexes
+14-3-3σ avec un **phosphopeptide** ARAF, sans domaine kinase ni analogue
+d'ATP ; 9ZDQ (2,51 Å) porte un inhibiteur et non un analogue. **Une seule
+entrée porte un analogue d'ATP : 9AXM**, 2,42 Å, ARAF/MEK1 avec **ANP et Mg**.
+
+**La levée de la clause ne peut donc pas avoir été dirigée par le résultat :
+la règle, avec ou sans elle, désigne exactement une entrée.** 9AXM n'existe
+qu'en mmCIF — `.pdb` renvoie 404, `.cif` renvoie 200.
+
+**Ce que la levée change :** rien de l'hypothèse, rien des seuils, rien du
+contraste principal. Un lecteur mmCIF est ajouté, qui emploie `auth_asym_id`
+et `auth_seq_id` — la numérotation d'auteur, celle à laquelle une position
+UniProt se réfère ; `label_seq_id` recommence à 1 par entité et décalerait
+chaque résidu en silence.
+
+**Et il est validé contre le lecteur PDB sur la même entrée.** Sur 6PP9, les
+deux lecteurs rendent 276 résidus 447–722, des comptes de ligands identiques,
+les mêmes sept identités de résidus et **la même distance de 2,875 Å**. Un
+lecteur qui divergerait du précédent réécrirait les résultats BRAF sans le
+dire.
+
+### 4.3 Protocole 3 : le construit ARAF, et le garde-fou vérifié
+
+**Écart, déclaré avant tout téléchargement.** Le protocole BRAF employait le
+construit **C-terminal** pour les deux dosages. **Le construit C-terminal
+d'ARAF n'a pas d'abondance au départ** — seulement DMSO et HSP90i. Le
+construit **N-terminal** est le seul à porter ensemble l'abondance au départ,
+l'activité au départ et l'abondance sous HSP90i, c'est-à-dire les trois
+mesures dont la §3.1 a besoin.
+
+| Rôle | URN | n déclaré |
+|---|---|---|
+| **abondance, départ** | `urn:mavedb:00001314-e-1` | 5 882 |
+| **activité, départ** | `urn:mavedb:00001314-f-1` | 6 076 |
+| **abondance, inhibition d'HSP90** | `urn:mavedb:00001314-d-1` | 5 839 |
+
+**Le garde-fou de numérotation, vérifié contre les coordonnées avant d'être
+déclaré**, comme la §3.3 l'exigeait :
+
+| Contrôle | Requis | Mesuré |
+|---|---|---|
+| 336 | LYS, la lysine catalytique (UniProt) | **LYS** |
+| 354 | GLU, le glutamate de l'hélice αC | **GLU** |
+| 382 | THR, le résidu portier | **THR** |
+| 429 | ASP, accepteur de proton (UniProt) | **ASP** |
+| 447, 448, 449 | ASP, PHE, GLY — le motif DFG | **ASP, PHE, GLY** |
+| Lys336 NZ au plus proche atome d'ANP | ≤ 4,0 Å | **2,979 Å** |
+
+Le DFG a été **trouvé en balayant le segment d'activation**, non supposé par
+homologie. Et comme pour BRAF, **le garde-fou n'est pas le pont salin
+Lys336–Glu354** : il est **rompu à 10,49 Å**, 9AXM étant lui aussi en
+conformation αC-out — comme 6PP9 à 12,69 Å. Les deux structures sont donc
+dans le même état inactif, ce qui rend la comparaison ARAF/BRAF **plus**
+parallèle et non moins.
+
+**MEK1 est la chaîne A et porte son propre ANP et son propre Mg**, exactement
+comme dans 6PP9 : la restriction de chaîne est encore une fois décisive, pas
+cosmétique.
+
 ### 4.1 Trois ajouts, antérieurs à tout résultat
 
 Demandés après le gel de la version 1.0.0 et **avant la lecture du moindre
@@ -952,7 +1022,8 @@ l'absence de significativité.
 
 | Version | Date | Change |
 |---|---|---|
-| **4.0.0** | **2026-11-11** | **Protocole 2 : `NOT_EVALUABLE` (§7), par le verdict déclaré en §2.2 et non par révision.** MaveDB contient **exactement quatre jeux COMT et les quatre sont des mesures d'abondance** — ARN, protéine, et deux occupations polysomales ; **aucune activité**. Ni l'abondance protéique promue en endpoint, ni l'occupation polysomale promue en proxy d'activité : l'une remplacerait la question par l'axe A, l'autre transformerait un `NOT_EVALUABLE` en résultat apparent. **Inventaire** : sur 26 gènes avec activité et 68 avec abondance, **4 ont les deux**, et **ARAF et BRAF seuls** ont ≥ 2 mesures candidates plus une activité — mais ce sont **trois conditions d'une même couche**, pas trois couches, donc une version affaiblie de la question. Aucune donnée supplémentaire téléchargée, et le choix entre déclarer un protocole 4 ou consigner l'absence de véhicule n'est pas pris unilatéralement. |
+| **4.1.0** | **2026-11-11** | **Protocole 3 préparé et ses deux écarts déclarés avant tout téléchargement de score ARAF (§4.2, §4.3).** La clause « format PDB héritable » est **levée** : c'était une limite de mon lecteur, pas un critère scientifique, et ARAF n'a que **7 entrées RCSB** dont **une seule porte un analogue d'ATP** — 9AXM, 2,42 Å, qui n'existe qu'en mmCIF. La règle désigne donc exactement une entrée avec ou sans la clause, et la levée ne peut pas avoir été dirigée par un résultat. Un lecteur mmCIF est ajouté, employant `auth_seq_id` et non `label_seq_id`, et **validé contre le lecteur PDB sur 6PP9** : 276 résidus 447–722, ligands identiques, sept identités identiques, **2,875 Å identique**. Second écart : le construit **N-terminal** est employé là où BRAF employait le C-terminal, parce que le C-terminal d'ARAF **n'a pas d'abondance au départ** ; les trois URN sont nommées. Le **garde-fou est vérifié contre les coordonnées avant déclaration** : sept identités (K336, E354, T382, D429, DFG 447-449, DFG **trouvé par balayage** et non supposé) et **Lys336 NZ à 2,979 Å de l'ANP**. Ce n'est **pas** le pont salin K336–E354, **rompu à 10,49 Å** : 9AXM est αC-out comme 6PP9 à 12,69 Å, ce qui rend la comparaison plus parallèle. |
+| 4.0.0 | 2026-11-11 | **Protocole 2 : `NOT_EVALUABLE` (§7), par le verdict déclaré en §2.2 et non par révision.** MaveDB contient **exactement quatre jeux COMT et les quatre sont des mesures d'abondance** — ARN, protéine, et deux occupations polysomales ; **aucune activité**. Ni l'abondance protéique promue en endpoint, ni l'occupation polysomale promue en proxy d'activité : l'une remplacerait la question par l'axe A, l'autre transformerait un `NOT_EVALUABLE` en résultat apparent. **Inventaire** : sur 26 gènes avec activité et 68 avec abondance, **4 ont les deux**, et **ARAF et BRAF seuls** ont ≥ 2 mesures candidates plus une activité — mais ce sont **trois conditions d'une même couche**, pas trois couches, donc une version affaiblie de la question. Aucune donnée supplémentaire téléchargée, et le choix entre déclarer un protocole 4 ou consigner l'absence de véhicule n'est pas pris unilatéralement. |
 | 3.0.0 | 2026-11-11 | **Protocole 1b exécuté (§6), puis borné par une ablation exploratoire (§6.6).** Premier résultat **positif robuste** du projet sur sa thèse centrale — **et non confirmatoire** : même cohorte, protocole conçu après le signal. Il porte sur un seul endpoint, et l ablation montre qu il se réduit à un transcrit. Sur **CYP2D6**, le pool mécanistique bat **0 des 1 000 pools appariés tirés dans les plis** : +13,98 %, p = **0,000999** au plancher, **Bonferroni 0,0167 franchi**, appariement **inductif**. Le +14,35 % transductif du protocole 1 n'était donc pas un artefact. **CYP3A4T échoue** (p = 0,285) et **CYP2C9 échoue à l'envers** : 986 pools appariés sur 1 000 font mieux. Le **contrôle à redondance appariée** (CYP2D6, 200 pools construits, redondance 0,4806 → 0,4805) donne **0/200**, p = 0,00498 : l'avantage vient de **l'identité des gènes**, pas de leur covariance. Le **diagnostic de variance** tue mon hypothèse comme annoncé (98,6ᵉ percentile des deux côtés, écart +0,01) et la **scission prédictive** confirme la vôtre : la moitié que le filtre écarte porte **tout** le signal (92,11 contre 109,72) et contient la sonde **CYP2D6**. **Interprétabilité** : CYP2D6 retenu dans les cinq plis, avec **POR**, donneur d'électrons obligatoire des CYP microsomaux ; mais sur CYP2C9 le gène retenu partout est **CYP3A4 et non CYP2C9**, ce qui explique l'échec. Une question déclarée non résolue : le pool de 25 sondes bat-il la sonde de l'enzyme cible seule ? À pré-enregistrer, pas à ajouter après coup. |
 | 2.2.0 | 2026-11-11 | **Restriction de 1b déclarée avant exécution (§1b.7).** Les 1 000 pools inductifs portent sur les **trois endpoints predefinis** — la famille que le seuil Bonferroni de 0,0167 suppose déjà — et CYP2E1 et CYP3A4M conservent leurs résultats du protocole 1 comme contrôles négatif et de spécificité. Aucun changement d'hypothèse ni de seuil. Le controle secondaire a **redondance appariee** porte sur **CYP2D6 seulement, 200 pools** : un pool construit coûte 2,46 s à cette largeur et 200 × 5 × 3 vaudrait deux heures pour un contrôle secondaire ; le plancher 1/201 = 0,00498 franchit toujours 0,0167. La **scission prédictive** est inscrite **EXPLORATOIRE** dans l'artefact. Les **gènes** du pool et de chaque moitié sont nommés, pour que l'interprétabilité biologique du +14,35 % soit vérifiable et non supposée. Moteur dédié `pool_arm_loss` avec voisinages mis en cache par pli : 25 cibles contre 30 596 candidats recalculées à chaque tirage seraient 46 milliards de distances pour trois endpoints ; mises en cache, vingt calculs suffisent. |
 | 2.1.0 | 2026-11-11 | **Diagnostic secondaire ajouté à 1b (§1b.6), avant exécution, sans toucher aux contrastes principaux ni aux seuils, et sans relancer le protocole 1.** Ma formulation initiale était fausse et la correction est enregistrée : les 40 pools appariés le sont **sur la log-variance**, donc il n'existe par construction aucune différence de variance entre eux et le pool mécanistique — vérifié à un delta de percentile médian de −0,017 sur un pool synthétique à faible variance. L'enrichissement en sondes peu variables **ne peut donc pas** expliquer le +14,35 % comme un artefact du filtre ; il peut seulement expliquer l'avantage sur les bras **filtrés**. Trois mesures déclarées, toutes aveugles à l'issue : percentile de variance du pool, part exclue par le filtre des 2 000, et les mêmes pour les 1 000 pools appariés avec écarts et distribution. Plus une **moitié prédictive** — le pool est scindé par le filtre et les deux moitiés sont évaluées comme des pools — parce qu'une distribution de variance ne démontre pas qu'une sonde porte de l'information. La coupure est **transductive**, donc diagnostic et jamais confirmatoire, et les bras qui en dérivent héritent de ce statut. |

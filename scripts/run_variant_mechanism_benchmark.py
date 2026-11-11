@@ -96,6 +96,32 @@ ANNOTATION = {
             "score sets mix the N- and C-terminal constructs and are a "
             "declared sensitivity only."),
     },
+    # Declared before any ARAF score was downloaded, from UniProt P10398
+    # (retrieved 2026-11-11), mapped by the convention the first three genes
+    # used: point sites to functional_sites, a SHORT functional range to
+    # motifs, domains recorded but never used as features. P10398 annotates
+    # one active site (429, proton acceptor), eight point binding sites in the
+    # cysteine-rich region, one binding range (316-324, the ATP glycine-rich
+    # loop) and binding site 336, the catalytic lysine.
+    "ARAF": {
+        "uniprot": "P10398",
+        "length": 606,
+        "functional_sites": (99, 112, 115, 125, 128, 133, 136, 144, 336, 429),
+        "motifs": ((316, 324),),
+        "motif_names": ("ATP glycine-rich loop",),
+        "domains_not_used_as_features": ((19, 91), (310, 570)),
+        "domain_names": ("RBD", "protein kinase"),
+        "activity_urn": "urn:mavedb:00001314-f-1",
+        "abundance_urn": "urn:mavedb:00001314-e-1",
+        "role": "pre_registered_generalisation_test",
+        "assay_confound": (
+            "both assays are the N-terminal construct at baseline. BRAF used "
+            "the C-terminal construct; ARAF's C-terminal construct has no "
+            "BASELINE abundance set, only DMSO and HSP90i, so the N-terminal "
+            "one is the only construct carrying baseline abundance, baseline "
+            "activity and HSP90i abundance together. Recorded as a deviation "
+            "in \u00a74.3 rather than passed over."),
+    },
     "CYP2C9": {
         "uniprot": "P11712",
         "length": 490,
