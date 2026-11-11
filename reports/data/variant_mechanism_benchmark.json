@@ -1,0 +1,846 @@
+{
+  "run": "variant_mechanism_omic_selection",
+  "generated": "2026-11-11",
+  "question": "Given a variant, can its presumed mechanism tell us which biological measurement carries the information about its functional consequence?",
+  "frozen": {
+    "seed": 20261112,
+    "position_folds": 5,
+    "region_blocks": 8,
+    "n_bootstrap": 2000,
+    "alpha": 0.05,
+    "minimum_interesting_relative_gain": 0.05,
+    "ridge_penalty": 1.0,
+    "loss": "absolute_error",
+    "target": "activity_score",
+    "grouping": "protein_position, and contiguous region as a harder split"
+  },
+  "primary_family_size": 8,
+  "primary_gene": "NUDT15",
+  "positive_control": {
+    "with_real_mechanism": {
+      "mean_loss": {
+        "M0_intercept": 0.7972257972229997,
+        "M1_abundance_only": 0.6389478640236619,
+        "M2_substitution_only": 0.6632812409208995,
+        "M3_mechanism_only": 0.8004186868269862,
+        "M4_fixed_union": 0.5762565580540512,
+        "M5_conditional_interaction": 0.4229183437790453,
+        "M6_trust_gate": 0.5575369596556435
+      },
+      "M5_vs_M4": "GAIN_REACHES_MARGIN",
+      "relative_gain": 0.26609365591050377,
+      "M6_vs_M4": "NO_DETECTABLE_GAIN_UNDERPOWERED",
+      "M6_relative_gain": 0.03248483359846095,
+      "blend_spread": 0.1664315400308959
+    },
+    "with_permuted_mechanism": {
+      "M5_vs_M4": "REFUTED_GAIN_BELOW_MARGIN",
+      "relative_gain": -0.0013592298476672506
+    },
+    "what_this_proves": "a mechanism-conditional choice of which measurement to trust is recoverable by this harness when it is really there, and is lost when the mechanism feature is permuted. A null on real data is therefore about the data."
+  },
+  "what_this_is_not": {
+    "is_not_a_pharmacokinetic_result": "the target is a functional-screen activity score. Not a clearance, not an AUC, not a concentration.",
+    "is_not_a_multi_omic_measurement_in_individuals": "these are engineered single variants in cell or yeast systems. No individual is measured on several layers.",
+    "does_not_confirm_a_mechanism": "mechanism_hypotheses ranks candidates and nothing treats a candidate as established.",
+    "does_not_treat_an_annotation_as_causal": "a UniProt binding-site annotation is an annotation. Proximity to one is a hypothesis about function, not a causal claim, and its predictive usefulness is measured by M3 rather than assumed.",
+    "measurement_type_versus_biomarker": "this asks which measurement TYPE is informative. Which specific biomarker to measure in a cohort is a separate question."
+  },
+  "genes": {
+    "NUDT15": {
+      "gene": "NUDT15",
+      "role": "primary",
+      "uniprot": "Q9NV35",
+      "assay_confound": null,
+      "n_activity": 2935,
+      "n_abundance": 2923,
+      "n_shared_parsed": 2844,
+      "n_distinct_positions": 163,
+      "n_nonsense": 0,
+      "n_synonymous_dropped": 0,
+      "annotated_functional_sites": [
+        47,
+        49,
+        63,
+        67
+      ],
+      "annotated_motifs": [
+        [
+          48,
+          69
+        ]
+      ],
+      "spearman_abundance_activity": 0.3402659342100572,
+      "spearman_excluding_nonsense": 0.3402659342100572,
+      "activity_score_file_sha256": "5685a9f55cd5d9235efe293cad15e1faee029104ff43e4e8a345a3c375d59447",
+      "abundance_score_file_sha256": "f42c775fa969057a720e083a1c20453450d17a0016a1bcec32e5009201450acd",
+      "discordant_share_abundance_high_activity_low": 0.04254571026722925,
+      "discordant_positions_most_frequent": [
+        [
+          44,
+          14
+        ],
+        [
+          47,
+          13
+        ],
+        [
+          113,
+          11
+        ],
+        [
+          67,
+          10
+        ],
+        [
+          117,
+          10
+        ],
+        [
+          63,
+          8
+        ],
+        [
+          137,
+          7
+        ],
+        [
+          15,
+          6
+        ]
+      ],
+      "discordance_near_annotated_sites": {
+        "n_variants_within_3_residues": 352,
+        "n_variants_beyond": 2492,
+        "discordance_rate_near": 0.16761363636363635,
+        "discordance_rate_far": 0.024879614767255216,
+        "enrichment_ratio": 6.736986803519062,
+        "enrichment_interval": [
+          4.8232324897783005,
+          9.42050966989118
+        ],
+        "share_of_discordant_variants_the_annotation_reaches": 0.48760330578512395,
+        "how_to_read": "an enrichment above 1 supports the hypothesis that a variant near annotated machinery keeps abundance and loses activity. The LAST figure is the one that decides what to build next: it is the share of discordant variants the annotation can even see. A high enrichment with a low share means the rule is right and the knowledge layer is too sparse to use it."
+      },
+      "runs": {
+        "grouped_by_position": {
+          "real": {
+            "n_scored": 2844,
+            "n_groups": 5,
+            "permuted_abundance": false,
+            "permuted_mechanism": false,
+            "mean_loss": {
+              "M0_intercept": 0.30354706718759533,
+              "M1_abundance_only": 0.26935799209856004,
+              "M2_substitution_only": 0.2905556513971786,
+              "M3_mechanism_only": 0.28254361550894824,
+              "M4_fixed_union": 0.255279179605739,
+              "M5_conditional_interaction": 0.2513819630252731,
+              "M6_trust_gate": 0.25923103912308915
+            },
+            "mean_abundance_blend_weight": 0.5048439699841138,
+            "blend_weight_spread": 0.08398677435017825,
+            "what_the_blend_weight_means": "1.0 means the conditional rule relied entirely on abundance for that variant and 0.0 means it ignored abundance. A spread near zero means the rule chose the same thing everywhere, so it is M4 under another name."
+          },
+          "permuted_abundance_control": {
+            "M0_intercept": 0.30354706718759533,
+            "M1_abundance_only": 0.30357492297970806,
+            "M2_substitution_only": 0.2905556513971786,
+            "M3_mechanism_only": 0.28254361550894824,
+            "M4_fixed_union": 0.27459425888451394,
+            "M5_conditional_interaction": 0.27540228751098345,
+            "M6_trust_gate": 0.27928960308105644
+          },
+          "permuted_mechanism_control": {
+            "M0_intercept": 0.30354706718759533,
+            "M1_abundance_only": 0.26935799209856004,
+            "M2_substitution_only": 0.2905556513971786,
+            "M3_mechanism_only": 0.3043237312932755,
+            "M4_fixed_union": 0.26837205132369735,
+            "M5_conditional_interaction": 0.2685449194530396,
+            "M6_trust_gate": 0.2724705567705831
+          },
+          "predicting_abundance_instead_specificity_control": {
+            "mean_loss": {
+              "M0_intercept": 0.34337210904791793,
+              "M1_abundance_only": 0.3093221650614619,
+              "M2_substitution_only": 0.31012278254431686,
+              "M3_mechanism_only": 0.322283372468516,
+              "M4_fixed_union": 0.29075712309907686,
+              "M5_conditional_interaction": 0.2824831920048556,
+              "M6_trust_gate": 0.30396493289008536
+            },
+            "relative_gain_of_mechanism_over_intercept": 0.061416568275960204,
+            "what_must_happen": "the mechanism block should help LESS for abundance than for activity. If it helps equally, it is describing the variant in general and not its functional consequence."
+          }
+        },
+        "grouped_by_contiguous_region": {
+          "real": {
+            "n_scored": 2844,
+            "n_groups": 8,
+            "permuted_abundance": false,
+            "permuted_mechanism": false,
+            "mean_loss": {
+              "M0_intercept": 0.3073342384470268,
+              "M1_abundance_only": 0.27224186076579016,
+              "M2_substitution_only": 0.294775545125954,
+              "M3_mechanism_only": 0.2996922629454876,
+              "M4_fixed_union": 0.2803588976729834,
+              "M5_conditional_interaction": 0.282348407831287,
+              "M6_trust_gate": 0.2685062577402258
+            },
+            "mean_abundance_blend_weight": 0.5268683086521508,
+            "blend_weight_spread": 0.11182570123512665,
+            "what_the_blend_weight_means": "1.0 means the conditional rule relied entirely on abundance for that variant and 0.0 means it ignored abundance. A spread near zero means the rule chose the same thing everywhere, so it is M4 under another name."
+          },
+          "permuted_abundance_control": {
+            "M0_intercept": 0.3073342384470268,
+            "M1_abundance_only": 0.30745834758199747,
+            "M2_substitution_only": 0.294775545125954,
+            "M3_mechanism_only": 0.2996922629454876,
+            "M4_fixed_union": 0.2884486429758558,
+            "M5_conditional_interaction": 0.2889388796198923,
+            "M6_trust_gate": 0.28950403368908095
+          },
+          "permuted_mechanism_control": {
+            "M0_intercept": 0.3073342384470268,
+            "M1_abundance_only": 0.27224186076579016,
+            "M2_substitution_only": 0.294775545125954,
+            "M3_mechanism_only": 0.3076242209517607,
+            "M4_fixed_union": 0.2704469597425773,
+            "M5_conditional_interaction": 0.27037821042331817,
+            "M6_trust_gate": 0.27553455397099486
+          },
+          "predicting_abundance_instead_specificity_control": {
+            "mean_loss": {
+              "M0_intercept": 0.34619653562082525,
+              "M1_abundance_only": 0.3115259653928105,
+              "M2_substitution_only": 0.3164059162234345,
+              "M3_mechanism_only": 0.3535145513710722,
+              "M4_fixed_union": 0.33215124437772364,
+              "M5_conditional_interaction": 0.3059955409981023,
+              "M6_trust_gate": 0.32257146145806703
+            },
+            "relative_gain_of_mechanism_over_intercept": -0.021138327502681964,
+            "what_must_happen": "the mechanism block should help LESS for abundance than for activity. If it helps equally, it is describing the variant in general and not its functional consequence."
+          }
+        }
+      },
+      "contrasts": {
+        "grouped_by_position": {
+          "M5_vs_M4": {
+            "contrast": "M5_conditional_interaction_minus_M4_fixed_union",
+            "verdict": "GAIN_PRESENT_BUT_BELOW_MARGIN",
+            "relative_gain": 0.015266488189459136,
+            "minimum_interesting_gain": 0.01276395898028695,
+            "an_interval_containing_zero_is_not_a_refutation": true,
+            "gap": 0.0038972165804658314,
+            "interval": [
+              4.942278970790244e-05,
+              0.00762393203016497
+            ],
+            "excludes_zero": true,
+            "level": "99.38 %",
+            "family_size": 8,
+            "n_bootstrap": 2000,
+            "resampling_unit": "individual"
+          },
+          "M6_vs_M4": {
+            "contrast": "M6_trust_gate_minus_M4_fixed_union",
+            "verdict": "DETECTABLY_WORSE",
+            "relative_gain": -0.015480539867973401,
+            "minimum_interesting_gain": 0.01276395898028695,
+            "an_interval_containing_zero_is_not_a_refutation": true,
+            "gap": -0.003951859517350185,
+            "interval": [
+              -0.007883450430967507,
+              -0.0002291748070354155
+            ],
+            "excludes_zero": false,
+            "level": "99.38 %",
+            "family_size": 8,
+            "n_bootstrap": 2000,
+            "resampling_unit": "individual"
+          },
+          "M4_vs_M1": {
+            "contrast": "M4_fixed_union_minus_M1_abundance_only",
+            "verdict": "GAIN_PRESENT_MARGIN_UNDECIDED",
+            "relative_gain": 0.052268033271014085,
+            "minimum_interesting_gain": 0.013467899604928002,
+            "an_interval_containing_zero_is_not_a_refutation": true,
+            "gap": 0.014078812492821086,
+            "interval": [
+              0.007663595588428433,
+              0.020640206001849303
+            ],
+            "excludes_zero": true,
+            "level": "99.38 %",
+            "family_size": 8,
+            "n_bootstrap": 2000,
+            "resampling_unit": "individual"
+          },
+          "M1_vs_M0": {
+            "contrast": "M1_abundance_only_minus_M0_intercept",
+            "verdict": "GAIN_REACHES_MARGIN",
+            "relative_gain": 0.11263187421246304,
+            "minimum_interesting_gain": 0.015177353359379767,
+            "an_interval_containing_zero_is_not_a_refutation": true,
+            "gap": 0.034189075089035306,
+            "interval": [
+              0.02784774398603632,
+              0.040355233288289334
+            ],
+            "excludes_zero": true,
+            "level": "99.38 %",
+            "family_size": 8,
+            "n_bootstrap": 2000,
+            "resampling_unit": "individual"
+          },
+          "M3_vs_M0": {
+            "contrast": "M3_mechanism_only_minus_M0_intercept",
+            "verdict": "GAIN_PRESENT_MARGIN_UNDECIDED",
+            "relative_gain": 0.06919339354271123,
+            "minimum_interesting_gain": 0.015177353359379767,
+            "an_interval_containing_zero_is_not_a_refutation": true,
+            "gap": 0.02100345167864709,
+            "interval": [
+              0.01422625641063943,
+              0.027520223581385322
+            ],
+            "excludes_zero": true,
+            "level": "99.38 %",
+            "family_size": 8,
+            "n_bootstrap": 2000,
+            "resampling_unit": "individual"
+          },
+          "M5_vs_M4_permuted_mechanism": {
+            "contrast": "M5_conditional_interaction_minus_M4_fixed_union",
+            "verdict": "REFUTED_GAIN_BELOW_MARGIN",
+            "relative_gain": -0.0006441361106329245,
+            "minimum_interesting_gain": 0.013418602566184868,
+            "an_interval_containing_zero_is_not_a_refutation": true,
+            "gap": -0.00017286812934222602,
+            "interval": [
+              -0.0015559497885782717,
+              0.0012159659949446456
+            ],
+            "excludes_zero": false,
+            "level": "99.38 %",
+            "family_size": 8,
+            "n_bootstrap": 2000,
+            "resampling_unit": "individual"
+          }
+        },
+        "grouped_by_contiguous_region": {
+          "M5_vs_M4": {
+            "contrast": "M5_conditional_interaction_minus_M4_fixed_union",
+            "verdict": "REFUTED_GAIN_BELOW_MARGIN",
+            "relative_gain": -0.007096297548666257,
+            "minimum_interesting_gain": 0.01401794488364917,
+            "an_interval_containing_zero_is_not_a_refutation": true,
+            "gap": -0.001989510158303566,
+            "interval": [
+              -0.006067886415901362,
+              0.0013106299051021757
+            ],
+            "excludes_zero": false,
+            "level": "99.38 %",
+            "family_size": 8,
+            "n_bootstrap": 2000,
+            "resampling_unit": "individual"
+          },
+          "M6_vs_M4": {
+            "contrast": "M6_trust_gate_minus_M4_fixed_union",
+            "verdict": "GAIN_PRESENT_MARGIN_UNDECIDED",
+            "relative_gain": 0.04227666762544763,
+            "minimum_interesting_gain": 0.01401794488364917,
+            "an_interval_containing_zero_is_not_a_refutation": true,
+            "gap": 0.0118526399327576,
+            "interval": [
+              0.007194082888138553,
+              0.01637542460162098
+            ],
+            "excludes_zero": true,
+            "level": "99.38 %",
+            "family_size": 8,
+            "n_bootstrap": 2000,
+            "resampling_unit": "individual"
+          },
+          "M4_vs_M1": {
+            "contrast": "M4_fixed_union_minus_M1_abundance_only",
+            "verdict": "DETECTABLY_WORSE",
+            "relative_gain": -0.02981553565774488,
+            "minimum_interesting_gain": 0.01361209303828951,
+            "an_interval_containing_zero_is_not_a_refutation": true,
+            "gap": -0.008117036907193233,
+            "interval": [
+              -0.016047520153541717,
+              -0.0007123793731563004
+            ],
+            "excludes_zero": false,
+            "level": "99.38 %",
+            "family_size": 8,
+            "n_bootstrap": 2000,
+            "resampling_unit": "individual"
+          },
+          "M1_vs_M0": {
+            "contrast": "M1_abundance_only_minus_M0_intercept",
+            "verdict": "GAIN_REACHES_MARGIN",
+            "relative_gain": 0.1141831052035071,
+            "minimum_interesting_gain": 0.01536671192235134,
+            "an_interval_containing_zero_is_not_a_refutation": true,
+            "gap": 0.035092377681236596,
+            "interval": [
+              0.0287770616744814,
+              0.04129550885226088
+            ],
+            "excludes_zero": true,
+            "level": "99.38 %",
+            "family_size": 8,
+            "n_bootstrap": 2000,
+            "resampling_unit": "individual"
+          },
+          "M3_vs_M0": {
+            "contrast": "M3_mechanism_only_minus_M0_intercept",
+            "verdict": "REFUTED_GAIN_BELOW_MARGIN",
+            "relative_gain": 0.024865356818538638,
+            "minimum_interesting_gain": 0.01536671192235134,
+            "an_interval_containing_zero_is_not_a_refutation": true,
+            "gap": 0.007641975501539157,
+            "interval": [
+              -0.0001298473681699611,
+              0.015261175403033265
+            ],
+            "excludes_zero": false,
+            "level": "99.38 %",
+            "family_size": 8,
+            "n_bootstrap": 2000,
+            "resampling_unit": "individual"
+          },
+          "M5_vs_M4_permuted_mechanism": {
+            "contrast": "M5_conditional_interaction_minus_M4_fixed_union",
+            "verdict": "REFUTED_GAIN_BELOW_MARGIN",
+            "relative_gain": 0.0002542062936280992,
+            "minimum_interesting_gain": 0.013522347987128867,
+            "an_interval_containing_zero_is_not_a_refutation": true,
+            "gap": 6.874931925914834e-05,
+            "interval": [
+              -0.00126590158641055,
+              0.0015489825676780506
+            ],
+            "excludes_zero": false,
+            "level": "99.38 %",
+            "family_size": 8,
+            "n_bootstrap": 2000,
+            "resampling_unit": "individual"
+          }
+        }
+      },
+      "can_we_anticipate_where_abundance_fails": {
+        "target": "|standardised abundance - standardised activity|, the per-variant disagreement between the two assays",
+        "spearman_out_of_sample": 0.08252557358616669,
+        "spearman_interval": [
+          0.04467466944810626,
+          0.11965108492871247
+        ],
+        "n": 2844,
+        "grouping": "protein position",
+        "how_to_read": "this is the user's question asked directly: can variant and mechanism information predict, for an unseen residue, that abundance will disagree with activity? It is a correlation, not a performance, and it carries no margin verdict."
+      }
+    },
+    "CYP2C9": {
+      "gene": "CYP2C9",
+      "role": "sensitivity",
+      "uniprot": "P11712",
+      "assay_confound": "the abundance assay is VAMP-seq in HEK293T and the activity assay is Click-seq in humanised yeast. A discordance between them may be a difference of system rather than of biology, and this design cannot separate the two.",
+      "n_activity": 6523,
+      "n_abundance": 6820,
+      "n_shared_parsed": 4478,
+      "n_distinct_positions": 464,
+      "n_nonsense": 57,
+      "n_synonymous_dropped": 165,
+      "annotated_functional_sites": [
+        435
+      ],
+      "annotated_motifs": [],
+      "spearman_abundance_activity": 0.7567914660094422,
+      "spearman_excluding_nonsense": 0.7487541610300357,
+      "activity_score_file_sha256": "5eadb2da3afb6ab8eb820baad71070707c4d1dcf6ea441ab8e19d85193a5655e",
+      "abundance_score_file_sha256": "773c9785b9f2a74c42ea5752369743815c02376d257d02c3764506835bfd6d90",
+      "discordant_share_abundance_high_activity_low": 0.005359535506922733,
+      "discordant_positions_most_frequent": [
+        [
+          301,
+          5
+        ],
+        [
+          113,
+          2
+        ],
+        [
+          300,
+          2
+        ],
+        [
+          365,
+          2
+        ],
+        [
+          427,
+          2
+        ],
+        [
+          435,
+          2
+        ],
+        [
+          125,
+          1
+        ],
+        [
+          132,
+          1
+        ]
+      ],
+      "discordance_near_annotated_sites": {
+        "n_variants_within_3_residues": 66,
+        "n_variants_beyond": 4412,
+        "discordance_rate_near": 0.045454545454545456,
+        "discordance_rate_far": 0.004759746146872167,
+        "enrichment_ratio": 9.54978354978355,
+        "enrichment_interval": [
+          0.0,
+          23.654644643781253
+        ],
+        "share_of_discordant_variants_the_annotation_reaches": 0.125,
+        "how_to_read": "an enrichment above 1 supports the hypothesis that a variant near annotated machinery keeps abundance and loses activity. The LAST figure is the one that decides what to build next: it is the share of discordant variants the annotation can even see. A high enrichment with a low share means the rule is right and the knowledge layer is too sparse to use it."
+      },
+      "runs": {
+        "grouped_by_position": {
+          "real": {
+            "n_scored": 4478,
+            "n_groups": 5,
+            "permuted_abundance": false,
+            "permuted_mechanism": false,
+            "mean_loss": {
+              "M0_intercept": 0.33090987239779884,
+              "M1_abundance_only": 0.1899504018600491,
+              "M2_substitution_only": 0.3023903116249049,
+              "M3_mechanism_only": 0.3113878496677549,
+              "M4_fixed_union": 0.1853938865823188,
+              "M5_conditional_interaction": 0.18475717757986027,
+              "M6_trust_gate": 0.21196554046229005
+            },
+            "mean_abundance_blend_weight": 0.6257011122358705,
+            "blend_weight_spread": 0.05155223046670203,
+            "what_the_blend_weight_means": "1.0 means the conditional rule relied entirely on abundance for that variant and 0.0 means it ignored abundance. A spread near zero means the rule chose the same thing everywhere, so it is M4 under another name."
+          },
+          "permuted_abundance_control": {
+            "M0_intercept": 0.33090987239779884,
+            "M1_abundance_only": 0.3309552089517576,
+            "M2_substitution_only": 0.3023903116249049,
+            "M3_mechanism_only": 0.3113878496677549,
+            "M4_fixed_union": 0.296106279357797,
+            "M5_conditional_interaction": 0.29655905981660197,
+            "M6_trust_gate": 0.30471615335712293
+          },
+          "permuted_mechanism_control": {
+            "M0_intercept": 0.33090987239779884,
+            "M1_abundance_only": 0.1899504018600491,
+            "M2_substitution_only": 0.3023903116249049,
+            "M3_mechanism_only": 0.33140260126875326,
+            "M4_fixed_union": 0.18954437336906158,
+            "M5_conditional_interaction": 0.18974159172097896,
+            "M6_trust_gate": 0.21460739645840993
+          },
+          "predicting_abundance_instead_specificity_control": {
+            "mean_loss": {
+              "M0_intercept": 0.27914664064044453,
+              "M1_abundance_only": 0.16826232654980536,
+              "M2_substitution_only": 0.2454658721761897,
+              "M3_mechanism_only": 0.25693822075803285,
+              "M4_fixed_union": 0.16094139010787714,
+              "M5_conditional_interaction": 0.15769388158373962,
+              "M6_trust_gate": 0.17490595691051122
+            },
+            "relative_gain_of_mechanism_over_intercept": 0.07955825594554544,
+            "what_must_happen": "the mechanism block should help LESS for abundance than for activity. If it helps equally, it is describing the variant in general and not its functional consequence."
+          }
+        },
+        "grouped_by_contiguous_region": {
+          "real": {
+            "n_scored": 4478,
+            "n_groups": 8,
+            "permuted_abundance": false,
+            "permuted_mechanism": false,
+            "mean_loss": {
+              "M0_intercept": 0.33250974025156405,
+              "M1_abundance_only": 0.1917786500552705,
+              "M2_substitution_only": 0.3045871613707255,
+              "M3_mechanism_only": 0.3212156949776474,
+              "M4_fixed_union": 0.19368864651250528,
+              "M5_conditional_interaction": 0.1994088584707579,
+              "M6_trust_gate": 0.21823214436977317
+            },
+            "mean_abundance_blend_weight": 0.6300075952046742,
+            "blend_weight_spread": 0.06476243869611446,
+            "what_the_blend_weight_means": "1.0 means the conditional rule relied entirely on abundance for that variant and 0.0 means it ignored abundance. A spread near zero means the rule chose the same thing everywhere, so it is M4 under another name."
+          },
+          "permuted_abundance_control": {
+            "M0_intercept": 0.33250974025156405,
+            "M1_abundance_only": 0.3325295842861501,
+            "M2_substitution_only": 0.3045871613707255,
+            "M3_mechanism_only": 0.3212156949776474,
+            "M4_fixed_union": 0.3074358497987563,
+            "M5_conditional_interaction": 0.3082233305540478,
+            "M6_trust_gate": 0.31265190059900544
+          },
+          "permuted_mechanism_control": {
+            "M0_intercept": 0.33250974025156405,
+            "M1_abundance_only": 0.1917786500552705,
+            "M2_substitution_only": 0.3045871613707255,
+            "M3_mechanism_only": 0.3329796204211797,
+            "M4_fixed_union": 0.19125198117977674,
+            "M5_conditional_interaction": 0.19137191348701446,
+            "M6_trust_gate": 0.21619234500839474
+          },
+          "predicting_abundance_instead_specificity_control": {
+            "mean_loss": {
+              "M0_intercept": 0.2796408664945635,
+              "M1_abundance_only": 0.1695082361727774,
+              "M2_substitution_only": 0.2465462307518246,
+              "M3_mechanism_only": 0.26531025264895586,
+              "M4_fixed_union": 0.17005477275659095,
+              "M5_conditional_interaction": 0.17094883335834116,
+              "M6_trust_gate": 0.17822525861429064
+            },
+            "relative_gain_of_mechanism_over_intercept": 0.05124649349449162,
+            "what_must_happen": "the mechanism block should help LESS for abundance than for activity. If it helps equally, it is describing the variant in general and not its functional consequence."
+          }
+        }
+      },
+      "contrasts": {
+        "grouped_by_position": {
+          "M5_vs_M4": {
+            "contrast": "M5_conditional_interaction_minus_M4_fixed_union",
+            "verdict": "REFUTED_GAIN_BELOW_MARGIN",
+            "relative_gain": 0.003434358134435235,
+            "minimum_interesting_gain": 0.009269694329115941,
+            "an_interval_containing_zero_is_not_a_refutation": true,
+            "gap": 0.0006367090024585499,
+            "interval": [
+              -0.0005076370914925743,
+              0.0017533964714602304
+            ],
+            "excludes_zero": false,
+            "level": "99.38 %",
+            "family_size": 8,
+            "n_bootstrap": 2000,
+            "resampling_unit": "individual"
+          },
+          "M6_vs_M4": {
+            "contrast": "M6_trust_gate_minus_M4_fixed_union",
+            "verdict": "DETECTABLY_WORSE",
+            "relative_gain": -0.1433254050055899,
+            "minimum_interesting_gain": 0.009269694329115941,
+            "an_interval_containing_zero_is_not_a_refutation": true,
+            "gap": -0.026571653879971242,
+            "interval": [
+              -0.030057111294780343,
+              -0.023064476729793424
+            ],
+            "excludes_zero": false,
+            "level": "99.38 %",
+            "family_size": 8,
+            "n_bootstrap": 2000,
+            "resampling_unit": "individual"
+          },
+          "M4_vs_M1": {
+            "contrast": "M4_fixed_union_minus_M1_abundance_only",
+            "verdict": "GAIN_PRESENT_BUT_BELOW_MARGIN",
+            "relative_gain": 0.023987921231603468,
+            "minimum_interesting_gain": 0.009497520093002455,
+            "an_interval_containing_zero_is_not_a_refutation": true,
+            "gap": 0.004556515277730283,
+            "interval": [
+              0.002006164298390069,
+              0.007296107544377672
+            ],
+            "excludes_zero": true,
+            "level": "99.38 %",
+            "family_size": 8,
+            "n_bootstrap": 2000,
+            "resampling_unit": "individual"
+          },
+          "M1_vs_M0": {
+            "contrast": "M1_abundance_only_minus_M0_intercept",
+            "verdict": "GAIN_REACHES_MARGIN",
+            "relative_gain": 0.42597541595343275,
+            "minimum_interesting_gain": 0.016545493619889943,
+            "an_interval_containing_zero_is_not_a_refutation": true,
+            "gap": 0.1409594705377497,
+            "interval": [
+              0.133441517074454,
+              0.1486397471864262
+            ],
+            "excludes_zero": true,
+            "level": "99.38 %",
+            "family_size": 8,
+            "n_bootstrap": 2000,
+            "resampling_unit": "individual"
+          },
+          "M3_vs_M0": {
+            "contrast": "M3_mechanism_only_minus_M0_intercept",
+            "verdict": "GAIN_PRESENT_MARGIN_UNDECIDED",
+            "relative_gain": 0.05899498430973321,
+            "minimum_interesting_gain": 0.016545493619889943,
+            "an_interval_containing_zero_is_not_a_refutation": true,
+            "gap": 0.019522022730043963,
+            "interval": [
+              0.015035844324524216,
+              0.023786679357565454
+            ],
+            "excludes_zero": true,
+            "level": "99.38 %",
+            "family_size": 8,
+            "n_bootstrap": 2000,
+            "resampling_unit": "individual"
+          },
+          "M5_vs_M4_permuted_mechanism": {
+            "contrast": "M5_conditional_interaction_minus_M4_fixed_union",
+            "verdict": "REFUTED_GAIN_BELOW_MARGIN",
+            "relative_gain": -0.001040486448697526,
+            "minimum_interesting_gain": 0.00947721866845308,
+            "an_interval_containing_zero_is_not_a_refutation": true,
+            "gap": -0.00019721835191737277,
+            "interval": [
+              -0.0006381623863876814,
+              0.00022111966753472716
+            ],
+            "excludes_zero": false,
+            "level": "99.38 %",
+            "family_size": 8,
+            "n_bootstrap": 2000,
+            "resampling_unit": "individual"
+          }
+        },
+        "grouped_by_contiguous_region": {
+          "M5_vs_M4": {
+            "contrast": "M5_conditional_interaction_minus_M4_fixed_union",
+            "verdict": "DETECTABLY_WORSE",
+            "relative_gain": -0.029533026644818217,
+            "minimum_interesting_gain": 0.009684432325625264,
+            "an_interval_containing_zero_is_not_a_refutation": true,
+            "gap": -0.0057202119582525955,
+            "interval": [
+              -0.007597562147986908,
+              -0.0037201786703973064
+            ],
+            "excludes_zero": false,
+            "level": "99.38 %",
+            "family_size": 8,
+            "n_bootstrap": 2000,
+            "resampling_unit": "individual"
+          },
+          "M6_vs_M4": {
+            "contrast": "M6_trust_gate_minus_M4_fixed_union",
+            "verdict": "DETECTABLY_WORSE",
+            "relative_gain": -0.12671624433951142,
+            "minimum_interesting_gain": 0.009684432325625264,
+            "an_interval_containing_zero_is_not_a_refutation": true,
+            "gap": -0.024543497857267876,
+            "interval": [
+              -0.028389706285805588,
+              -0.02063038980708571
+            ],
+            "excludes_zero": false,
+            "level": "99.38 %",
+            "family_size": 8,
+            "n_bootstrap": 2000,
+            "resampling_unit": "individual"
+          },
+          "M4_vs_M1": {
+            "contrast": "M4_fixed_union_minus_M1_abundance_only",
+            "verdict": "REFUTED_GAIN_BELOW_MARGIN",
+            "relative_gain": -0.009959380028404434,
+            "minimum_interesting_gain": 0.009588932502763527,
+            "an_interval_containing_zero_is_not_a_refutation": true,
+            "gap": -0.001909996457234824,
+            "interval": [
+              -0.00507877903558325,
+              0.001118951542239062
+            ],
+            "excludes_zero": false,
+            "level": "99.38 %",
+            "family_size": 8,
+            "n_bootstrap": 2000,
+            "resampling_unit": "individual"
+          },
+          "M1_vs_M0": {
+            "contrast": "M1_abundance_only_minus_M0_intercept",
+            "verdict": "GAIN_REACHES_MARGIN",
+            "relative_gain": 0.4232390007276835,
+            "minimum_interesting_gain": 0.016625487012578204,
+            "an_interval_containing_zero_is_not_a_refutation": true,
+            "gap": 0.14073109019629357,
+            "interval": [
+              0.1334056335870232,
+              0.14841105827015047
+            ],
+            "excludes_zero": true,
+            "level": "99.38 %",
+            "family_size": 8,
+            "n_bootstrap": 2000,
+            "resampling_unit": "individual"
+          },
+          "M3_vs_M0": {
+            "contrast": "M3_mechanism_only_minus_M0_intercept",
+            "verdict": "GAIN_PRESENT_BUT_BELOW_MARGIN",
+            "relative_gain": 0.03396605845402306,
+            "minimum_interesting_gain": 0.016625487012578204,
+            "an_interval_containing_zero_is_not_a_refutation": true,
+            "gap": 0.011294045273916649,
+            "interval": [
+              0.006587137397099635,
+              0.015844449903012016
+            ],
+            "excludes_zero": true,
+            "level": "99.38 %",
+            "family_size": 8,
+            "n_bootstrap": 2000,
+            "resampling_unit": "individual"
+          },
+          "M5_vs_M4_permuted_mechanism": {
+            "contrast": "M5_conditional_interaction_minus_M4_fixed_union",
+            "verdict": "REFUTED_GAIN_BELOW_MARGIN",
+            "relative_gain": -0.0006270905352085133,
+            "minimum_interesting_gain": 0.009562599058988838,
+            "an_interval_containing_zero_is_not_a_refutation": true,
+            "gap": -0.00011993230723771471,
+            "interval": [
+              -0.0005297527629651052,
+              0.0002593242292825795
+            ],
+            "excludes_zero": false,
+            "level": "99.38 %",
+            "family_size": 8,
+            "n_bootstrap": 2000,
+            "resampling_unit": "individual"
+          }
+        }
+      },
+      "can_we_anticipate_where_abundance_fails": {
+        "target": "|standardised abundance - standardised activity|, the per-variant disagreement between the two assays",
+        "spearman_out_of_sample": 0.09283613909249636,
+        "spearman_interval": [
+          0.06148957055232302,
+          0.12041329838654051
+        ],
+        "n": 4478,
+        "grouping": "protein position",
+        "how_to_read": "this is the user's question asked directly: can variant and mechanism information predict, for an unseen residue, that abundance will disagree with activity? It is a correlation, not a performance, and it carries no margin verdict."
+      }
+    }
+  },
+  "no_individual_level_data_in_this_artefact": true
+}

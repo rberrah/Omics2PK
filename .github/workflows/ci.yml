@@ -58,6 +58,7 @@ jobs:
           tests/test_candidate_paired_liver_sources.py
           tests/test_evidence_ledger.py
           tests/test_nested_fusion_evaluation.py
+          tests/test_variant_mechanism_omic_selection.py
       - name: Fail if a pytest module was collected but ran nothing
         run: |
           set -euo pipefail
@@ -97,9 +98,10 @@ jobs:
             tests/test_fusing_assessment_documents.py \
             tests/test_fusion_headroom_diagnostics.py \
             tests/test_nested_fusion_evaluation.py \
+            tests/test_variant_mechanism_omic_selection.py \
             | grep -c '::' || true)
           echo "collected $count pytest tests"
-          if [ "$count" -lt 1470 ]; then
-            echo "ERROR: expected at least 1470 collected tests, got $count." >&2
+          if [ "$count" -lt 1620 ]; then
+            echo "ERROR: expected at least 1620 collected tests, got $count." >&2
             exit 1
           fi

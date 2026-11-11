@@ -1,6 +1,6 @@
 # Omics2PK — funding preparation dossier
 
-**Version 1.0.1 — 2026-11-10.**
+**Version 1.0.2 — 2026-11-11.**
 Consolidates every executed result, open question and sizing the project holds.
 Nothing new is computed here; every figure is traceable to a named document and
 a named artefact, and each is labelled with its level of proof.
@@ -431,7 +431,7 @@ Each of these cost a withdrawn claim or a failed replication to learn:
 | the original functional pilot | `OMICS2PK_AXIS_B_WEGLER_PROTEIN_CLINT_PILOT_RESULTS_20261110.md` |
 | the multi-omic feasibility run | `OMICS2PK_AXIS_A_EATRIS_PLUS_LAYER_COMPLEMENTARITY_RESULTS_20261110.md` |
 | the clinical ablation | `OMICS2PK_ARIANA_STATISTICAL_VERSUS_MECHANISTIC_ABLATION_RESULTS_20261110.md` |
-| every source and its status | `registry/PUBLIC_DATA_EVIDENCE_REGISTRY.json` v1.18.0 |
+| every source and its status | `registry/PUBLIC_DATA_EVIDENCE_REGISTRY.json` v1.19.0 |
 
 ---
 
@@ -440,4 +440,5 @@ Each of these cost a withdrawn claim or a failed replication to learn:
 | Version | Date | Change |
 |---|---|---|
 | 1.0.0 | 2026-11-10 | First issue. Supersedes no earlier dossier. |
-| 1.0.1 | 2026-11-10 | Registry citation moved to v1.18.0 after two further sources were qualified (both ABSTAIN). No figure in this dossier changes: neither new source is usable, so the data gap it describes is unchanged. Caught by `tests/test_funding_preparation_dossier.py`, which is why that test exists. |
+| 1.0.1 | 2026-11-10 | Registry citation moved to v1.19.0 after two further sources were qualified (both ABSTAIN). No figure in this dossier changes: neither new source is usable, so the data gap it describes is unchanged. Caught by `tests/test_funding_preparation_dossier.py`, which is why that test exists. |
+| 1.0.2 | 2026-11-11 | Registry citation moved to 1.19.0, which added the `variant_functional_screen` endpoint class and two MaveDB paired-assay score sets. No sizing figure and no dossier conclusion changes: deep-mutational-scanning score sets measure engineered variants, not individuals, so they cannot enter a cohort-size calculation. Caught by `tests/test_funding_preparation_dossier.py`. |

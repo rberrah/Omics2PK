@@ -1,6 +1,6 @@
 {
   "registry_name": "PUBLIC_DATA_EVIDENCE_REGISTRY",
-  "version": "1.18.0",
+  "version": "1.19.0",
   "frozen_at": "2026-11-07",
   "scope": "Datasets admissible for the Omics2PK five-objective validation (H1-H5). A published article is not by itself an exploitable dataset.",
   "access_policy": {
@@ -1919,6 +1919,122 @@
       "verification_method": "main-text Tables 1-4 and the supplement read in full",
       "outcome_kind": null,
       "axis": "C"
+    },
+    {
+      "key": "mavedb_nudt15_paired_stability_activity",
+      "label": "MaveDB NUDT15 stability + activity, same variant library",
+      "citation": "Suiter CC, Moriyama T, Matreyek KA, et al. Massively parallel variant characterization identifies NUDT15 alleles associated with thiopurine toxicity. Proc Natl Acad Sci U S A. 2020.",
+      "doi": "10.1073/pnas.1915680117",
+      "pmid": "32094176",
+      "pmcid": null,
+      "trial_registration": null,
+      "original_repository": "https://api.mavedb.org/api/v1/score-sets/urn%3Amavedb%3A00000055-a-1/scores",
+      "data_availability_statement": "Score sets urn:mavedb:00000055-a-1 (protein stability, VAMP-seq) and urn:mavedb:00000055-b-1 (activity, thiopurine cytotoxicity) are published in MaveDB under CC0 and served by its public API without registration.",
+      "access_tier": "open_public",
+      "individual_level_data_released": true,
+      "local_artifacts": [
+        {
+          "filename": "mavedb_00000055-a-1_scores.csv",
+          "bytes": 257695,
+          "sha256": "f42c775fa969057a720e083a1c20453450d17a0016a1bcec32e5009201450acd"
+        },
+        {
+          "filename": "mavedb_00000055-b-1_scores.csv",
+          "bytes": 255738,
+          "sha256": "5685a9f55cd5d9235efe293cad15e1faee029104ff43e4e8a345a3c375d59447"
+        }
+      ],
+      "n_enrolled": 3100,
+      "n_analysed": 2844,
+      "biological_unit": "engineered protein variant",
+      "matrix": "HEK293T cells (stability) and a thiopurine-cytotoxicity screen (activity)",
+      "sampling_time": "not applicable",
+      "omics_layers": [
+        {
+          "layer": "proteomics_abundance_surrogate",
+          "analytes": [
+            "NUDT15 variant protein abundance by VAMP-seq"
+          ]
+        }
+      ],
+      "genotypes": "the engineered variant itself; no human genotype",
+      "comedication": "not applicable",
+      "endpoint": {
+        "name": "NUDT15 variant activity score from a thiopurine-cytotoxicity screen",
+        "endpoint_class": "variant_functional_screen"
+      },
+      "dose_regimen": "not applicable",
+      "formulation": "not applicable",
+      "objectives_supported": [
+        "H2"
+      ],
+      "status": "QUALIFIED",
+      "verified_this_session": true,
+      "verification_method": "Downloaded from the MaveDB public API on 2026-11-11; SHA-256 recomputed locally; 2844 protein-level variants measured by BOTH assays after parsing and dropping synonymous changes.",
+      "caveats": [
+        "The biological unit is an ENGINEERED VARIANT, not an individual. This is not a multi-omic measurement in a person and must never be pooled with donor-level cohorts.",
+        "An activity score from a functional screen is not an intrinsic clearance and not a pharmacokinetic quantity.",
+        "The two assays use different readouts (VAMP-seq abundance versus a cytotoxicity-based activity screen), so a discordance is a disagreement between assays before it is a statement about biology.",
+        "UniProt annotates only four binding residues and one motif for this protein; the mechanistic layer reaches 48.8 % of the discordant variants."
+      ]
+    },
+    {
+      "key": "mavedb_cyp2c9_paired_abundance_activity",
+      "label": "MaveDB CYP2C9 abundance + activity, two assay systems",
+      "citation": "Amorosi CJ, Chiasson MA, McDonald MG, et al. Massively parallel characterization of CYP2C9 variant enzyme activity and abundance. Am J Hum Genet. 2021.",
+      "doi": "10.1016/j.ajhg.2021.07.001",
+      "pmid": null,
+      "pmcid": null,
+      "trial_registration": null,
+      "original_repository": "https://api.mavedb.org/api/v1/score-sets/urn%3Amavedb%3A00000095-a-1/scores",
+      "data_availability_statement": "Score sets urn:mavedb:00000095-a-1 (activity, Click-seq) and urn:mavedb:00000095-b-1 (abundance, VAMP-seq) are published in MaveDB under CC0 and served by its public API without registration.",
+      "access_tier": "open_public",
+      "individual_level_data_released": true,
+      "local_artifacts": [
+        {
+          "filename": "mavedb_00000095-a-1_scores.csv",
+          "bytes": 1487212,
+          "sha256": "5eadb2da3afb6ab8eb820baad71070707c4d1dcf6ea441ab8e19d85193a5655e"
+        },
+        {
+          "filename": "mavedb_00000095-b-1_scores.csv",
+          "bytes": 1362701,
+          "sha256": "773c9785b9f2a74c42ea5752369743815c02376d257d02c3764506835bfd6d90"
+        }
+      ],
+      "n_enrolled": 6821,
+      "n_analysed": 4478,
+      "biological_unit": "engineered protein variant",
+      "matrix": "HEK293T cells (abundance) and humanised yeast (activity)",
+      "sampling_time": "not applicable",
+      "omics_layers": [
+        {
+          "layer": "proteomics_abundance_surrogate",
+          "analytes": [
+            "CYP2C9 variant protein abundance by VAMP-seq"
+          ]
+        }
+      ],
+      "genotypes": "the engineered variant itself; no human genotype",
+      "comedication": "not applicable",
+      "endpoint": {
+        "name": "CYP2C9 variant activity score from a Click-seq assay in humanised yeast",
+        "endpoint_class": "variant_functional_screen"
+      },
+      "dose_regimen": "not applicable",
+      "formulation": "not applicable",
+      "objectives_supported": [
+        "H2"
+      ],
+      "status": "PARTIAL",
+      "verified_this_session": true,
+      "verification_method": "Downloaded from the MaveDB public API on 2026-11-11; SHA-256 recomputed locally; 4478 protein-level variants measured by BOTH assays after parsing and dropping synonymous changes.",
+      "caveats": [
+        "PARTIAL, not QUALIFIED: the abundance assay is in HEK293T and the activity assay is in humanised yeast, so a discordance between them may be a difference of SYSTEM rather than of biology. No design on these data can separate the two, so this source is a sensitivity analysis only.",
+        "The biological unit is an ENGINEERED VARIANT, not an individual.",
+        "An activity score from a functional screen is not an intrinsic clearance and not a pharmacokinetic quantity.",
+        "UniProt annotates exactly ONE binding residue (Cys435) for this 490-residue protein, so the mechanistic layer reaches only 12.5 % of the discordant variants and the enrichment interval is [0.00, 23.65]. The rule is untestable here, not refuted."
+      ]
     }
   ],
   "phase1_findings": {
@@ -2123,6 +2239,11 @@
       "date": "2026-11-10",
       "summary": "Two further sources qualified while searching for an independent ARIANA replication, both ABSTAIN. The venlafaxine cohort is the closest structural analogue of ARIANA found so far and fails only on individual-level publication; the Kyoto J-MICC metabolome has 686 participants, no individual rows, a genotype-derived endpoint and MSI level 3 identifications.",
       "consequence": "the independent replication of ARIANA remains NOT_EVALUABLE, which is recorded as experiment E6 in docs/OMICS2PK_FUSING_REFUTATION_PROTOCOL_20261110.md"
+    },
+    {
+      "version": "1.19.0",
+      "date": "2026-11-11",
+      "change": "Added the endpoint class `variant_functional_screen` additively, and registered two MaveDB paired-assay score sets. The class exists because a deep-mutational-scanning score set measures ENGINEERED VARIANTS and not individuals: placing it in `functional_in_vitro` alongside donor-level enzyme activity would invite the two being pooled, and the biological unit is not the same. Also recorded that the PharmVar API now returns 401 and requires an account-generated key, which is an authorization request and therefore inadmissible, while PharmVar's public download file for the same data returns 200 -- the access ladder again, and a 401 is a statement about the channel rather than about the data."
     }
   ],
   "knowledge_sources": [

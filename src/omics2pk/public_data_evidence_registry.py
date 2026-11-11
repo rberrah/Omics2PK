@@ -57,6 +57,13 @@ ENDPOINT_CLASSES = (
     # ``biomarker_only``, which presumes a genotype reference, would misstate
     # what it is, and forcing it into a drug class would overstate it.
     "molecular_only_no_endpoint",
+    # Added 2026-11-11, additively. A deep-mutational-scanning score set
+    # measures ENGINEERED VARIANTS, not individuals: the biological unit is a
+    # protein variant in a cell or yeast system. Calling it
+    # ``functional_in_vitro`` would place it alongside donor-level enzyme
+    # activity and invite the two being pooled or compared as if the unit were
+    # the same, which it is not.
+    "variant_functional_screen",
 )
 
 OBJECTIVES = ("H1", "H2", "H3", "H4", "H5")
