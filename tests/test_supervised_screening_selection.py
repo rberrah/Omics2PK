@@ -1107,8 +1107,10 @@ class TestVarianceProfileDiagnostic:
                 ).read_text(encoding="utf-8")
         assert "Aucun r\u00e9sultat d'aucun protocole" not in text
         assert "PROTOCOLES 1 (\u00a75) ET 1b (\u00a76) EX\u00c9CUT\u00c9S" in text
-        # Protocols 2 and 3 are still wholly prior, and say so.
-        assert "aucune de leurs donn\u00e9es t\u00e9l\u00e9charg\u00e9e" in text
+        # Whatever has not run must still say so. Protocol 2 reached its
+        # declared NOT_EVALUABLE verdict without any download, and protocol 3
+        # is still wholly prior.
+        assert "Protocole 3 d\u00e9clar\u00e9, aucune donn\u00e9e t\u00e9l\u00e9charg\u00e9e" in text
 
 
 class TestCyp2d6NetworkAblation:
@@ -1194,3 +1196,55 @@ class TestCyp2d6NetworkAblation:
                 ).read_text(encoding="utf-8")
         assert "Compt\u00e9 en PLIS, pas en sondes" in text
         assert "CYP2D6 seul**" in text
+
+
+class TestComtVerdict:
+    """Protocol 2 came back NOT_EVALUABLE, by its own declared condition.
+
+    The temptation it was written to resist: take protein abundance as the
+    endpoint and RNA as the predictor. That is predicting one omic from
+    another, which is a different question and says nothing about choosing a
+    measurement in order to predict a FUNCTION.
+    """
+
+    @pytest.fixture(scope="class")
+    def text(self):
+        return (ROOT / "docs"
+                / "OMICS2PK_HIGH_DIMENSION_PREREGISTRATION_20261111.md"
+                ).read_text(encoding="utf-8")
+
+    def test_the_verdict_is_recorded(self, text):
+        assert "PROTOCOLE 2 : `NOT_EVALUABLE`" in text
+        assert "## 7. Protocole 2 \u2014 `NOT_EVALUABLE`" in text
+
+    def test_it_is_the_declared_condition_not_a_revision(self, text):
+        assert "verdict d\u00e9clar\u00e9 en \u00a72.2, pas une r\u00e9vision" in text
+        # The condition itself must still be readable in §2.2.
+        assert "Un jeu d'activit\u00e9 COMT doit exister dans le m\u00eame d\u00e9p\u00f4t" in text
+
+    def test_the_four_score_sets_are_named(self, text):
+        for urn in ("00000661-a-1", "00000661-b-1", "00000661-c-1",
+                    "00000661-d-1"):
+            assert urn in text, urn
+        assert "Les quatre sont des mesures d'abondance" in text
+
+    def test_it_refuses_both_substitutions(self, text):
+        # Protein abundance as endpoint, and polysome occupancy as a proxy.
+        assert "remplacer la question par" in text
+        assert "n'est pas promue en proxy d'activit\u00e9" in text
+
+    def test_the_inventory_is_reported_with_numbers(self, text):
+        assert "| g\u00e8nes avec **les deux** | **4** |" in text
+        assert "ARAF et BRAF, et eux seuls" in text
+
+    def test_the_weaker_question_is_named_as_weaker(self, text):
+        assert "m\u00eame couche omique dans trois conditions" in text
+        assert "version plus faible de la question" in text
+
+    def test_no_further_data_was_downloaded(self, text):
+        assert "Aucune donn\u00e9e ARAF ou BRAF suppl\u00e9mentaire n'est "\
+            "t\u00e9l\u00e9charg\u00e9e" in text
+
+    def test_the_decision_is_left_open_rather_than_taken(self, text):
+        assert "le choix n'est pas le mien" in text
+        assert "Deux voies possibles" in text

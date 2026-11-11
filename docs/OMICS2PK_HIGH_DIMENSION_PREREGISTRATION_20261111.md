@@ -1,6 +1,6 @@
 # Pré-enregistration : trois protocoles, gelés avant exécution
 
-**Version 3.0.0 — 2026-11-11.** Statut : **PROTOCOLES 1 (§5) ET 1b (§6) EXÉCUTÉS. Protocoles 2 et 3 déclarés, aucune de leurs données téléchargée.**
+**Version 4.0.0 — 2026-11-11.** Statut : **PROTOCOLES 1 (§5) ET 1b (§6) EXÉCUTÉS. PROTOCOLE 2 : `NOT_EVALUABLE` (§7) — la condition déclarée en §2.2 n'est pas remplie. Protocole 3 déclaré, aucune donnée téléchargée.**
 
 **Chronologie, parce que c'est tout ce qui donne sa valeur à ce document.**
 
@@ -753,6 +753,89 @@ l'atteindre.
 
 ---
 
+## 7. Protocole 2 — `NOT_EVALUABLE`
+
+**C'est le verdict déclaré en §2.2, pas une révision du protocole.** La §2.2
+disait : *« Un jeu d'activité COMT doit exister dans le même dépôt. S'il n'y en
+a pas, le protocole est `NOT_EVALUABLE` et sera rapporté comme tel. »*
+Vérifié le 2026-11-11, avant tout téléchargement.
+
+### 7.1 La condition n'est pas remplie
+
+MaveDB contient **exactement quatre** jeux COMT, interrogés par l'API publique
+(`api.mavedb.org`, recherche sur `COMT` et listage de l'expérience
+`urn:mavedb:00000661-a`) :
+
+| URN | n | Mesure |
+|---|---|---|
+| `urn:mavedb:00000661-c-1` | 3 463 | **abondance ARN** |
+| `urn:mavedb:00000661-d-1` | 3 050 | **abondance protéique** |
+| `urn:mavedb:00000661-a-1` | 3 317 | abondance polysomale moyenne |
+| `urn:mavedb:00000661-b-1` | 3 117 | abondance polysomale lourde |
+
+**Les quatre sont des mesures d'abondance. Il n'existe aucune mesure d'activité
+COMT.** Les deux jeux polysomaux mesurent l'occupation ribosomale, c'est-à-dire
+une étape de la traduction : une couche de plus en amont de la fonction, pas un
+endpoint fonctionnel.
+
+### 7.2 Ce que je ne fais pas, et pourquoi
+
+Il serait facile de sauver l'expérience en prenant l'abondance protéique comme
+« endpoint » et l'ARN comme prédicteur. **Ce serait remplacer la question par
+une autre** — prédire une omique à partir d'une autre est l'axe A, et n'a rien
+à dire sur le choix d'une mesure en vue de prédire une **fonction**. La
+contrainte le disait avant l'exécution et elle est respectée.
+
+De même, l'occupation polysomale n'est pas promue en proxy d'activité : rien ne
+l'établit pour COMT, et un proxy non qualifié transformerait un
+`NOT_EVALUABLE` en résultat apparent.
+
+### 7.3 Inventaire : la question a-t-elle un véhicule ailleurs ?
+
+La politique d'acquisition exige **au moins deux mesures candidates** et **un
+endpoint fonctionnel indépendant**, chez les mêmes variants. Inventorié dans
+MaveDB le 2026-11-11 :
+
+| | |
+|---|---|
+| gènes avec un jeu d'**activité** | 26 |
+| gènes avec un jeu d'**abondance** | 68 |
+| gènes avec **les deux** | **4** |
+| gènes avec **≥ 2 mesures candidates + activité** | **ARAF et BRAF, et eux seuls** |
+
+`urn:mavedb:00001314` (ARAF) et `urn:mavedb:00001315` (BRAF) portent, sur la
+même librairie, l'**activité** et l'abondance sous **trois conditions** —
+départ, DMSO, et **inhibition d'HSP90** pour ARAF ; départ, HSP90i et
+**activation de SOS1** pour BRAF.
+
+**Mais c'est une version plus faible de la question.** Ces trois mesures sont
+la **même couche omique dans trois conditions**, non trois couches. La question
+devient *« quelle condition de mesure acquérir »* et non *« quelle couche
+omique acquérir »*. Elle reste une décision par variant, antérieure à
+l'acquisition, avec un endpoint fonctionnel indépendant et un coût réel — une
+expérience sous inhibiteur d'HSP90 coûte plus qu'une mesure au départ.
+
+### 7.4 Ce que cela laisse ouvert, et qui doit en décider
+
+**Aucune donnée ARAF ou BRAF supplémentaire n'est téléchargée.** Le protocole 3
+est gelé sur un contraste principal **différent** — la règle structurale 3D —
+et y ajouter une politique d'acquisition serait modifier un protocole gelé.
+
+Deux voies possibles, et le choix n'est pas le mien :
+
+1. **Déclarer un protocole 4** pour la politique d'acquisition sur ARAF ou
+   BRAF, écrit et commité avant tout téléchargement, en nommant explicitement
+   la question affaiblie : choisir une **condition** de mesure, pas une couche.
+2. **Laisser la question sans véhicule** dans les données publiques
+   inventoriées, et le consigner. C'est un résultat sur la disponibilité des
+   données, pas un échec de la méthode : **aucun dépôt public inventorié ne
+   mesure deux couches omiques distinctes et une fonction chez les mêmes
+   variants.**
+
+Le protocole 2 reste `NOT_EVALUABLE` dans les deux cas.
+
+---
+
 ## 3. Protocole 3 — ARAF, et l'explication de l'échec BRAF
 
 **Statut : déclaré, aucune donnée téléchargée.**
@@ -869,7 +952,8 @@ l'absence de significativité.
 
 | Version | Date | Change |
 |---|---|---|
-| **3.0.0** | **2026-11-11** | **Protocole 1b exécuté (§6), puis borné par une ablation exploratoire (§6.6).** Premier résultat **positif robuste** du projet sur sa thèse centrale — **et non confirmatoire** : même cohorte, protocole conçu après le signal. Il porte sur un seul endpoint, et l ablation montre qu il se réduit à un transcrit. Sur **CYP2D6**, le pool mécanistique bat **0 des 1 000 pools appariés tirés dans les plis** : +13,98 %, p = **0,000999** au plancher, **Bonferroni 0,0167 franchi**, appariement **inductif**. Le +14,35 % transductif du protocole 1 n'était donc pas un artefact. **CYP3A4T échoue** (p = 0,285) et **CYP2C9 échoue à l'envers** : 986 pools appariés sur 1 000 font mieux. Le **contrôle à redondance appariée** (CYP2D6, 200 pools construits, redondance 0,4806 → 0,4805) donne **0/200**, p = 0,00498 : l'avantage vient de **l'identité des gènes**, pas de leur covariance. Le **diagnostic de variance** tue mon hypothèse comme annoncé (98,6ᵉ percentile des deux côtés, écart +0,01) et la **scission prédictive** confirme la vôtre : la moitié que le filtre écarte porte **tout** le signal (92,11 contre 109,72) et contient la sonde **CYP2D6**. **Interprétabilité** : CYP2D6 retenu dans les cinq plis, avec **POR**, donneur d'électrons obligatoire des CYP microsomaux ; mais sur CYP2C9 le gène retenu partout est **CYP3A4 et non CYP2C9**, ce qui explique l'échec. Une question déclarée non résolue : le pool de 25 sondes bat-il la sonde de l'enzyme cible seule ? À pré-enregistrer, pas à ajouter après coup. |
+| **4.0.0** | **2026-11-11** | **Protocole 2 : `NOT_EVALUABLE` (§7), par le verdict déclaré en §2.2 et non par révision.** MaveDB contient **exactement quatre jeux COMT et les quatre sont des mesures d'abondance** — ARN, protéine, et deux occupations polysomales ; **aucune activité**. Ni l'abondance protéique promue en endpoint, ni l'occupation polysomale promue en proxy d'activité : l'une remplacerait la question par l'axe A, l'autre transformerait un `NOT_EVALUABLE` en résultat apparent. **Inventaire** : sur 26 gènes avec activité et 68 avec abondance, **4 ont les deux**, et **ARAF et BRAF seuls** ont ≥ 2 mesures candidates plus une activité — mais ce sont **trois conditions d'une même couche**, pas trois couches, donc une version affaiblie de la question. Aucune donnée supplémentaire téléchargée, et le choix entre déclarer un protocole 4 ou consigner l'absence de véhicule n'est pas pris unilatéralement. |
+| 3.0.0 | 2026-11-11 | **Protocole 1b exécuté (§6), puis borné par une ablation exploratoire (§6.6).** Premier résultat **positif robuste** du projet sur sa thèse centrale — **et non confirmatoire** : même cohorte, protocole conçu après le signal. Il porte sur un seul endpoint, et l ablation montre qu il se réduit à un transcrit. Sur **CYP2D6**, le pool mécanistique bat **0 des 1 000 pools appariés tirés dans les plis** : +13,98 %, p = **0,000999** au plancher, **Bonferroni 0,0167 franchi**, appariement **inductif**. Le +14,35 % transductif du protocole 1 n'était donc pas un artefact. **CYP3A4T échoue** (p = 0,285) et **CYP2C9 échoue à l'envers** : 986 pools appariés sur 1 000 font mieux. Le **contrôle à redondance appariée** (CYP2D6, 200 pools construits, redondance 0,4806 → 0,4805) donne **0/200**, p = 0,00498 : l'avantage vient de **l'identité des gènes**, pas de leur covariance. Le **diagnostic de variance** tue mon hypothèse comme annoncé (98,6ᵉ percentile des deux côtés, écart +0,01) et la **scission prédictive** confirme la vôtre : la moitié que le filtre écarte porte **tout** le signal (92,11 contre 109,72) et contient la sonde **CYP2D6**. **Interprétabilité** : CYP2D6 retenu dans les cinq plis, avec **POR**, donneur d'électrons obligatoire des CYP microsomaux ; mais sur CYP2C9 le gène retenu partout est **CYP3A4 et non CYP2C9**, ce qui explique l'échec. Une question déclarée non résolue : le pool de 25 sondes bat-il la sonde de l'enzyme cible seule ? À pré-enregistrer, pas à ajouter après coup. |
 | 2.2.0 | 2026-11-11 | **Restriction de 1b déclarée avant exécution (§1b.7).** Les 1 000 pools inductifs portent sur les **trois endpoints predefinis** — la famille que le seuil Bonferroni de 0,0167 suppose déjà — et CYP2E1 et CYP3A4M conservent leurs résultats du protocole 1 comme contrôles négatif et de spécificité. Aucun changement d'hypothèse ni de seuil. Le controle secondaire a **redondance appariee** porte sur **CYP2D6 seulement, 200 pools** : un pool construit coûte 2,46 s à cette largeur et 200 × 5 × 3 vaudrait deux heures pour un contrôle secondaire ; le plancher 1/201 = 0,00498 franchit toujours 0,0167. La **scission prédictive** est inscrite **EXPLORATOIRE** dans l'artefact. Les **gènes** du pool et de chaque moitié sont nommés, pour que l'interprétabilité biologique du +14,35 % soit vérifiable et non supposée. Moteur dédié `pool_arm_loss` avec voisinages mis en cache par pli : 25 cibles contre 30 596 candidats recalculées à chaque tirage seraient 46 milliards de distances pour trois endpoints ; mises en cache, vingt calculs suffisent. |
 | 2.1.0 | 2026-11-11 | **Diagnostic secondaire ajouté à 1b (§1b.6), avant exécution, sans toucher aux contrastes principaux ni aux seuils, et sans relancer le protocole 1.** Ma formulation initiale était fausse et la correction est enregistrée : les 40 pools appariés le sont **sur la log-variance**, donc il n'existe par construction aucune différence de variance entre eux et le pool mécanistique — vérifié à un delta de percentile médian de −0,017 sur un pool synthétique à faible variance. L'enrichissement en sondes peu variables **ne peut donc pas** expliquer le +14,35 % comme un artefact du filtre ; il peut seulement expliquer l'avantage sur les bras **filtrés**. Trois mesures déclarées, toutes aveugles à l'issue : percentile de variance du pool, part exclue par le filtre des 2 000, et les mêmes pour les 1 000 pools appariés avec écarts et distribution. Plus une **moitié prédictive** — le pool est scindé par le filtre et les deux moitiés sont évaluées comme des pools — parce qu'une distribution de variance ne démontre pas qu'une sonde porte de l'information. La coupure est **transductive**, donc diagnostic et jamais confirmatoire, et les bras qui en dérivent héritent de ce statut. |
 | 2.0.0 | 2026-11-11 | **Protocole 1 exécuté (§5).** Contrôle principal : le pool mécanistique bat le hasard apparié sur **1 endpoint sur 5** (CYP2D6, +14,35 %, p = **0,0244** qui est le plancher 1/41 — 0 des 40 pools aussi bon), ce qui **ne peut pas** franchir Bonferroni 0,0167, donc **l'avantage des connaissances n'est pas établi** et le protocole 1b est requis. Sur **CYP2C9 le pool mécanistique est pire que la moyenne des pools appariés** (−3,20 %). **Une condition de réfutation pré-déclarée s'est déclenchée** : le filtre de variance coûte **+13,98 % `GAIN_REACHES_MARGIN`** sur CYP2D6, donc `S3`, `S4`, `S7` n'y sont pas interprétables — un filtre de variance est aveugle à l'issue mais **pas à l'information**. `S4` contre `S1` n'atteint la marge sur aucun endpoint à **p = 2 000**, confirmant à une largeur nouvelle ce que p ≤ 33 ne pouvait pas trancher. Non-infériorité de `S8` acquise sur **CYP2D6 seulement**, `UNDECIDED` sur 3 des 5. **L'abstention fonctionne** : sur CYP2E1 les bras à arbres choisissent `k = 0` dans **5 plis sur 5**, mais les univariés dans 0 à 1 — asymétrie non prévue, rapportée. **La déduplication n'apporte rien** et est `DETECTABLY_WORSE` une fois (−5,91 %, CYP3A4M). Issue permutée : aucune cellule n'atteint la marge. |
