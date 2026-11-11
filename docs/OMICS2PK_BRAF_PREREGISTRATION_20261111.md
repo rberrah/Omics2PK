@@ -1,6 +1,6 @@
 # Pre-registration: does the structural selection rule generalise to a third protein?
 
-**Version 1.0.1 — 2026-11-11.** Status: **DECLARED, NOT YET RUN.** This
+**Version 2.0.0 — 2026-11-11.** Status: **RUN. THE PRIMARY CONTRAST IS REFUTED.** This
 document is committed **before any BRAF functional score has been
 downloaded**. Nothing below may be changed after the data is read; a later
 version may only *add* a results section and record deviations.
@@ -253,7 +253,148 @@ outside the 8 Å ruler. The best-known BRAF variant is one the structural rule
 cannot see, which is §2.1's declared risk showing up in the geometry before
 any score has been read.
 
-*No deviation from §§2–6 has occurred.*
+### 7.4 One deviation: a control added after the scores were read
+
+§6.3 says no arm will be added after the scores are read. One was, and the
+reason matters: it was added to **attack an unexpected positive**, not to
+rescue the null.
+
+`M6`, the trust gate, came back positive on BRAF — the first time any
+conditional-weighting arm has reached the margin on real data in this project.
+Since `M4`, the union, is *worse* than abundance alone here, the obvious
+alternative explanation is that `M6` wins by **regularisation**: it blends two
+small predictors instead of fitting one large union. The control that separates
+the two is a **constant-weight** blend of the same two components, with the
+weight chosen inside the training folds. It was not pre-registered and it was
+run after `M6`'s result was seen.
+
+The brief this project works to says to seek refutation actively. Withholding
+a control that could kill a surprise finding would be the opposite. It is
+reported in §8.4 and **labelled post-hoc throughout**; it has no bearing on
+the primary contrast, which was refuted before it was run.
+
+*No other deviation from §§2–6 has occurred. No cutoff was moved, no gene
+swapped, and the primary contrast was not substituted.*
+
+---
+
+## 8. Results
+
+Run 2026-11-11 on `urn:mavedb:00001315-c-1` and `-d-1` as declared.
+**n = 6 583 variants over 340 positions**, 1 237 at positions 6PP9 does not
+resolve. The numbering guard passed: seven residue identities and Lys483 NZ at
+**2.875 Å** from AMP-PNP. Artefact:
+`reports/data/variant_mechanism_benchmark.json`.
+
+### 8.1 Every quantitative prediction in §6.1 failed
+
+| §6.1 predicted | Measured | |
+|---|---|---|
+| enrichment near the ATP site > 1, excluding 1 | **0.655, [0.42, 0.96]** | **excludes 1 from below** |
+| share of discordant variants the 8 Å ruler reaches > 70 % | **21.2 %** | failed |
+| **primary**: structural ablation on `M4`, region-grouped, lower bound > 0 | **−1.60 %, [−0.0333, +0.0040]** `REFUTED_GAIN_BELOW_MARGIN` | **refuted** |
+| `M5` vs `M4` does not reach the margin | refuted or detectably worse in all four cells | held |
+| ρ(abundance, activity) between +0.2 and +0.7 | **−0.290** (−0.376 excluding nonsense) | **wrong sign** |
+
+**The primary contrast is a refutation proper, not an absence of power.** Its
+upper bound, +0.0040, lies below the 5 % margin of 0.0436. Position-grouped it
+is worse still: **−5.82 % [−0.0770, −0.0215]**, `DETECTABLY_WORSE`. Adding
+three-dimensional distance to BRAF's catalytic machinery **costs** accuracy.
+
+No cutoff rescues it. The sweep runs 0.55× at 4 Å to 0.92× at 15 Å and never
+exceeds 1. Nor does the sequence ruler: 1.15× [0.46, 2.14], reaching 4.7 % of
+discordant variants. The threshold-free and cofactor-only arms are negative or
+null as well; the single exception is `M3` with the cofactor-only block
+region-grouped, **+4.51 % [+0.0147, +0.0627]**, which says the **MEK1 interface
+column was actively harmful** — a declared sensitivity doing its job.
+
+### 8.2 Why it failed, and why that is a result rather than an excuse
+
+§2.1 declared in advance that BRAF variants may act through dimerisation and
+autoinhibition rather than at the nucleotide, in which case the rule should
+fail here while remaining sound for metabolic enzymes. **The data says that is
+what happened, and says it in three independent ways.**
+
+1. **This is a gain-of-function library.** Mean activity score: nonsense
+   **+0.729**, synonymous **+0.992** (wild type ≈ 1), missense **+1.420**. The
+   average missense substitution makes BRAF **more** active than wild type.
+   BRAF is autoinhibited; most substitutions relieve that autoinhibition.
+2. **Abundance is an *inverted* proxy, not a weak one.** ρ = **−0.290**.
+   Variants that destabilise tend to signal **more**. Both assays are oriented
+   the same way — nonsense is lowest in both — so this is not a scale artefact.
+3. **The rule under test presumes loss of function.** "Missense near catalytic
+   machinery → protein present but inactive" is a statement about losing
+   activity. On a library dominated by activation it describes a minority of
+   variants, and the quadrant it names is **depleted** near the machinery
+   rather than enriched.
+
+**Val600 was the warning, visible before any score was read** (§7.3): the
+best-known BRAF variant sits **9.61 Å** from the nucleotide and 13.66 Å from
+the MEK1 interface, outside the 8 Å ruler.
+
+### 8.3 What this costs the NUDT15 result, and what it does not
+
+**It does not refute it.** A rule that holds for two small-molecule-metabolising
+enzymes and fails for a signalling kinase whose variants act allosterically is
+a rule with a **scope**, and the scope is now measured rather than assumed.
+
+**It does remove the right to generalise.** The claim that survives is: *for an
+enzyme whose variants act by disrupting catalysis at a ligand-binding site,
+three-dimensional distance to that site adds information beyond protein
+abundance.* Every clause is load-bearing, and the first one is what BRAF
+violates. A fourth protein should be chosen to test the clause, not the
+conclusion: an enzyme with a crystallised ligand complex **and** a
+loss-of-function screen.
+
+**The honest reading of the whole programme so far** is that the selection rule
+needs the mechanism class to match, and that **nothing in this architecture
+detects that mismatch automatically.** A system that chose measurements for
+BRAF using this rule would have chosen badly and had no way to know. That is
+the gap the next experiment should attack, and it is more interesting than a
+fourth confirmation would have been.
+
+### 8.4 One unexpected positive, post-hoc, and attacked
+
+`M6`, the trust gate — which learns, **without** abundance, how much abundance
+can be trusted and blends accordingly — is the best arm on BRAF under both
+splits. It uses the **sequence** mechanism block only; no structure.
+
+| Contrast, post-hoc | position-grouped | region-grouped |
+|---|---|---|
+| `M6` vs `M4` | +7.63 % [+0.0287, +0.0968] undecided | **+9.84 % [+0.0575, +0.1129] `GAIN_REACHES_MARGIN`** |
+| `M6` vs `M1` | **+7.24 % [+0.0424, +0.0780] `GAIN_REACHES_MARGIN`** | +6.37 % [+0.0352, +0.0704] undecided |
+| `M6` vs `M0` | **+10.13 % `GAIN_REACHES_MARGIN`** | **+8.66 % `GAIN_REACHES_MARGIN`** |
+
+**The regularisation explanation was tested and does not account for it**
+(§7.4). Against the best **constant** weight chosen inside the training folds:
+
+| | position-grouped | region-grouped |
+|---|---|---|
+| gate vs constant weight | **+5.10 % [+0.0342, +0.0478]** undecided | **+3.62 % [+0.0236, +0.0350]** below margin |
+| constant weight vs `M1` | +2.26 %, refuted below margin | +2.86 %, below margin |
+
+The constant blend captures only a third to a half of the gate's gain over
+abundance alone. **The conditionality is doing real work** — detectably, under
+both splits, with every lower bound above zero. In-fold constant weights landed
+at 0.50–0.80, so the gate is not merely reproducing a fixed compromise.
+
+**Three reasons to hold this loosely.** It is **post-hoc**: `M6` was a declared
+secondary, the constant-weight control was not declared at all, and it was run
+after the result was seen. Region-grouped, the gate's advantage over a constant
+weight is **below the 5 % margin** — present, and by this project's own
+standard not yet interesting enough to build on. And it is **one protein**,
+the one where abundance happens to be an inverted proxy, which is exactly the
+situation a trust gate should exploit.
+
+**It is nonetheless the first real-data evidence in this project that
+conditional weighting beats constant weighting.** It stands against a
+contextual gate failing on 0 of 30 HLC cells and `M5` failing on 0 of 8
+MaveDB cells. The difference worth testing next: those were cases where the
+best measurement was *already good*, and this is a case where it is
+**actively misleading**. That is a pre-registrable hypothesis, and it needs
+its own registration, not an extension of this one.
+
+---
 
 ---
 
@@ -261,5 +402,6 @@ any score has been read.
 
 | Version | Date | Change |
 |---|---|---|
+| **2.0.0** | **2026-11-11** | **Run. The primary contrast is REFUTED.** The structural ablation on `M4`, region-grouped and position-clustered, gives −1.60 % with an upper bound of +0.0040 — below the 5 % margin, so a refutation proper and not an absence of power; position-grouped it is `DETECTABLY_WORSE` at −5.82 %. Enrichment near the ATP site is **0.655 [0.42, 0.96]**, excluding 1 from below, and the 8 Å ruler reaches 21.2 % of discordant variants against the 70 % predicted. ρ(abundance, activity) is **−0.290**, the opposite sign to the prediction: this is a gain-of-function library (missense mean activity +1.420 against a wild type of ~1.0), so "protein present but inactive" is not the dominant mode of dysfunction and the rule under test does not apply. §2.1 declared this failure mode in advance. One unexpected positive, `M6` the trust gate, reported post-hoc in §8.4 with a constant-weight control that does not explain it away. |
 | 1.0.1 | 2026-11-11 | Appended §7: BRAF's sequence annotation declared from UniProt P15056 with the kinase domain deliberately excluded as a feature; the cofactor-only sensitivity declared for a protein substrate; and the observation, from coordinates alone, that Val600 lies 9.61 Å from the nucleotide and so outside the ruler. Still no BRAF score downloaded. |
 | 1.0.0 | 2026-11-11 | Declared. BRAF, `urn:mavedb:00001315-c-1` and `-d-1`, structure 6PP9 chain A selected by rule, numbering guard verified against coordinates, primary contrast and refutation conditions fixed. Committed before any BRAF score was downloaded. |

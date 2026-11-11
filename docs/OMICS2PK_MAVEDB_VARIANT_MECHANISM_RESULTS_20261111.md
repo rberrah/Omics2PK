@@ -80,11 +80,32 @@ Accepted. Two mitigations were run and one is declared for later.
   10 Å, which is exactly the signature of a value chosen after seeing data. It
   is kept because it was declared in code before this run, and the conclusion
   does not depend on it.
-* **A third protein is pre-registered**, in
-  `OMICS2PK_BRAF_PREREGISTRATION_20261111.md`, written and committed before any
-  BRAF score was downloaded. Until it runs, the claim here reads
-  **experimentally supported on these data, pending independent validation**,
-  and the word *confirmed* has been removed from every structural claim below.
+* **A third protein was pre-registered and has now run, and it refuted the
+  rule.** `OMICS2PK_BRAF_PREREGISTRATION_20261111.md` v2.0.0: on BRAF the
+  primary contrast is **−1.60 % with an upper bound of +0.0040**, below the
+  margin — a refutation proper. Discordance enrichment near the ATP site is
+  **0.655 [0.42, 0.96]**, excluding 1 **from below**.
+
+  **This does not refute what is reported here, and it does remove the right
+  to generalise it.** BRAF's library is a *gain-of-function* screen on an
+  autoinhibited kinase (mean missense activity **+1.420** against a synonymous
+  baseline of ~1.0) in which abundance is an **inverted** proxy, ρ = **−0.290**.
+  The rule under test — *missense near catalytic machinery → protein present
+  but inactive* — presumes loss of function, and §2.1 of the registration
+  declared this failure mode before the data was read.
+
+  **The claim that survives, with every clause load-bearing:** *for an enzyme
+  whose variants act by disrupting catalysis at a ligand-binding site*,
+  three-dimensional distance to that site adds information beyond protein
+  abundance. **Nothing in this architecture detects that precondition
+  automatically** — a system selecting measurements for BRAF by this rule would
+  have chosen badly with no way to know, and that is the gap the next
+  experiment should attack.
+
+  The word *confirmed* has been removed from every structural claim below, and
+  the evidence level stands at **experimentally supported on these data,
+  pending independent validation** — now with one independent test that came
+  back negative outside the rule's measured scope.
 
 ---
 
@@ -148,7 +169,15 @@ row bootstrap talking** (§0.1), and it is withdrawn. The surviving claim is the
 commissioned priority met on the primary gene under the easier of two
 validations, and supported but not established under the harder one.
 
-**What still fails:** `M5`, the *conditional* arm, reaches the margin nowhere
+**And one thing that fails here succeeds on BRAF.** `M6`, the trust gate, is
+the best arm on BRAF under both splits and beats the best in-fold **constant**
+weight by **+5.10 %** and **+3.62 %** — reported post-hoc in the registration's
+§8.4, with the regularisation explanation tested and rejected. The difference
+worth testing next: on NUDT15 and CYP2C9 the best measurement is *already
+good*, and on BRAF it is *actively misleading*. A gate has work to do only in
+the second case.
+
+**What still fails here:** `M5`, the *conditional* arm, reaches the margin nowhere
 even with structure (+4.05 % undecided, +1.25 % refuted on NUDT15; +1.14 %
 below margin, −3.10 % worse on CYP2C9). So knowledge helps **select**
 information and does **not** help **weight** it conditionally — the same split

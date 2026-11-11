@@ -451,7 +451,7 @@ class TestArchitectureDocument:
         return ARCHITECTURE.read_text(encoding="utf-8")
 
     def test_it_is_versioned(self, text):
-        assert "**Version 1.1.0 \u2014 2026-11-11.**" in text
+        assert "**Version 1.2.0 \u2014 2026-11-11.**" in text
 
     def test_it_answers_all_six_commissioned_items(self, text):
         for item in range(1, 7):

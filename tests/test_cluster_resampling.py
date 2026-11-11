@@ -338,3 +338,65 @@ class TestTheBenchmarkDeclaresItsUnit:
 
     def test_the_per_variant_mask_stays_out_of_the_artefact(self, script):
         assert 'if k not in ("losses", "scored_rows")' in script
+
+
+class TestBrafPreRegistration:
+    """The pre-registration is a promise, so its text is a contract too.
+
+    A registration that can be quietly edited after the result is in is worth
+    nothing. These assertions pin the parts that make it one: a singular
+    primary contrast, refutation conditions, and the record that the primary
+    came back refuted rather than being swapped for a secondary.
+    """
+
+    @pytest.fixture(scope="class")
+    def prereg(self):
+        return (ROOT / "docs"
+                / "OMICS2PK_BRAF_PREREGISTRATION_20261111.md").read_text(
+                    encoding="utf-8")
+
+    def test_it_records_that_the_primary_was_refuted(self, prereg):
+        assert "THE PRIMARY CONTRAST IS REFUTED" in prereg
+        assert "REFUTED_GAIN_BELOW_MARGIN" in prereg
+
+    def test_the_primary_contrast_is_singular_and_unchanged(self, prereg):
+        assert "primary contrast, declared singular" in prereg.lower()
+        assert "do not substitute a\n  secondary" in prereg
+        assert "the primary contrast was not substituted" in prereg
+
+    def test_it_declared_the_failure_mode_before_the_run(self, prereg):
+        # Section 2.1 exists so that "BRAF variants act allosterically" cannot
+        # become a post-hoc excuse for a null.
+        assert "A reason this may fail that is not about the method" in prereg
+        assert "cannot become a post-hoc excuse" in prereg
+
+    def test_every_quantitative_prediction_is_scored(self, prereg):
+        assert "Every quantitative prediction in \u00a76.1 failed" in prereg
+        for measured in ("0.655", "21.2 %", "\u22120.290", "+1.420"):
+            assert measured in prereg
+
+    def test_the_enrichment_is_recorded_as_excluding_one_from_below(
+            self, prereg):
+        assert "excludes 1 from below" in prereg
+
+    def test_the_post_hoc_control_is_labelled_post_hoc(self, prereg):
+        assert "One deviation: a control added after the scores were read" \
+            in prereg
+        assert "labelled post-hoc throughout" in prereg
+        assert "attack an unexpected positive" in prereg
+
+    def test_the_surviving_claim_is_scoped_not_general(self, prereg):
+        assert "it does remove the right to generalise" in prereg.lower()
+        assert "detects that mismatch automatically" \
+            in prereg.lower()
+
+    def test_the_numbering_guard_is_not_the_salt_bridge(self, prereg):
+        assert "12.69" in prereg
+        assert "2.875" in prereg
+
+    def test_the_results_document_points_at_the_refutation(self):
+        results = (ROOT / "docs"
+                   / "OMICS2PK_MAVEDB_VARIANT_MECHANISM_RESULTS_20261111.md"
+                   ).read_text(encoding="utf-8")
+        assert "it refuted the\n  rule" in results
+        assert "0.655 [0.42, 0.96]" in results

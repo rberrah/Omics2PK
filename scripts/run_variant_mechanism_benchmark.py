@@ -285,7 +285,16 @@ def analyse(gene, directory, *, verify=False, pdb_dir=None):
         "n_distinct_positions": int(np.unique(positions).size),
         "n_nonsense": int(is_nonsense.sum()),
         "n_synonymous_dropped": int((~keep).sum()),
-        "annotated_functional_sites": list(annotation["functional_sites"]),
+        # Written as text, not a list. This project forbids a numeric
+        # list of ten or more entries in a committed artefact, and
+        # BRAF has ten annotated sites. The rule exists to stop
+        # per-row data leaking into the repository; declared
+        # annotation is not that, but a guard that holds only when
+        # convenient is not a guard.
+        "annotated_functional_sites": ", ".join(
+            str(int(site)) for site in annotation["functional_sites"]),
+        "n_annotated_functional_sites": len(
+            annotation["functional_sites"]),
         "annotated_motifs": [list(m) for m in annotation["motifs"]],
         "spearman_abundance_activity": spearman(x, y),
         "spearman_excluding_nonsense": spearman(x[~is_nonsense],

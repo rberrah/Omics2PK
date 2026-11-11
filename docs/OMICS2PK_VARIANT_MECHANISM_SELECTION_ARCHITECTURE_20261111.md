@@ -1,8 +1,9 @@
 # Automating the pharmacological reasoning that chooses which omic to measure
 
-**Version 1.1.0 — 2026-11-11.** Evidence type: **architecture and protocol;
-the first demonstrator is executed, and its diagnosis has been tested.** Answers the six items commissioned on
-2026-11-11. Companion to
+**Version 1.2.0 — 2026-11-11.** Evidence type: **architecture and protocol;
+the demonstrator is executed, its diagnosis was tested and held, and the rule
+it produced has been pre-registered on a third protein and refuted there.**
+Answers the six items commissioned on 2026-11-11. Companion to
 `OMICS2PK_MAVEDB_VARIANT_MECHANISM_RESULTS_20261111.md`.
 
 **H1–H5 and every frozen result are untouched.** The Fusing branch is
@@ -248,8 +249,24 @@ lesson the Fusing work paid for.
 ## 5. Deliverable 5 — the demonstrator, executed
 
 Built, run and reported in
-`OMICS2PK_MAVEDB_VARIANT_MECHANISM_RESULTS_20261111.md`. Headline: **the
-mechanistic rule is confirmed at 6.74× and refuted as a predictive feature.**
+`OMICS2PK_MAVEDB_VARIANT_MECHANISM_RESULTS_20261111.md` (v3.0.0) and, for the
+pre-registered third protein, in
+`OMICS2PK_BRAF_PREREGISTRATION_20261111.md` (v2.0.0).
+
+**Headline, in the order the evidence arrived:** the mechanistic rule holds at
+**6.74× [2.15, 17.83]** and is **refuted as a predictive feature with a
+sequence ruler**; a **three-dimensional** ruler makes it one, contributing
+**+11.19 % / +12.09 %** on NUDT15 as an isolated block; and the whole rule is
+then **refuted on BRAF**, where it was pre-registered, because it presumes
+**loss of function** and BRAF's screen is gain-of-function.
+
+**What that leaves standing, with every clause load-bearing:** *for an enzyme
+whose variants act by disrupting catalysis at a ligand-binding site*,
+three-dimensional distance to that site adds information beyond protein
+abundance. **Nothing in this architecture detects that precondition
+automatically**, which is now the most important open problem in it — a system
+selecting measurements for BRAF by this rule would have chosen badly with no
+way to know.
 
 ---
 
@@ -259,9 +276,13 @@ mechanistic rule is confirmed at 6.74× and refuted as a predictive feature.**
 |---|---|
 | H1–H5 and every frozen contrast | **unchanged.** Nothing here touches them |
 | the Fusing negative results and protocol v3.0.0 | **kept**, branch suspended |
-| the MaveDB variant-mechanism benchmark | **exploratory.** First run, two genes, one data type, and the two genes are not independent evidence of each other |
-| the 6.74× enrichment | **exploratory but robust**: interval excludes 1, and it is a descriptive statistic, not a trained model |
-| the `M5`/`M6` nulls | **exploratory**, and dependent on sparse annotation — a null here is not a null for a better-annotated protein |
+| the MaveDB variant-mechanism benchmark | **exploratory.** Three genes now, one data type, and no two of them are independent evidence of each other |
+| the 6.74× enrichment | **exploratory but robust**: interval excludes 1 even resampled by position, [2.15, 17.83], and it is a descriptive statistic, not a trained model |
+| every interval published before 2026-11-11 commit `593d96f` | **superseded.** They resampled substitutions, not positions, and were 2.3–2.9× too narrow in the direction that manufactures a verdict |
+| the structural layer's **scope** | **measured, not assumed.** It helps on two metabolic enzymes and is `DETECTABLY_WORSE` on a signalling kinase whose variants act allosterically |
+| the BRAF refutation | **confirmatory for the primary contrast** — it was pre-registered before the data was downloaded — and exploratory for everything else in that run |
+| the `M5` nulls | **exploratory**, and no longer attributable to sparse annotation: `M5` fails with the structural layer too |
+| the `M6` positive on BRAF | **exploratory and post-hoc.** It survives a constant-weight control, and it needs its own pre-registration before it is built on |
 | anything about pharmacokinetics | **not addressed.** A functional-screen activity score is not a clearance, an AUC or a concentration |
 | anything about multi-omic measurement in individuals | **not addressed.** These are engineered single variants in cell and yeast systems |
 
@@ -308,5 +329,6 @@ the cheapest large gain available.
 
 | Version | Date | Change |
 |---|---|---|
-| **1.1.0** | **2026-11-11** | §0 rewritten: the version 1.0.0 diagnosis was a prediction, it was tested with two crystal structures, and it holds on both halves — coverage 48.8 %→95.9 % and 12.5 %→87.5 %, enrichment to 55.35× and 29.70×, and `M4` vs `M1` from a sign flip to +15.83 %/+9.47 % reaching the margin under both splits. `structural_annotation.py` added to the audit. RCSB recorded accessible and used; AlphaFold recorded accessible by its API path but unusable here because its models carry no ligands. Roadmap item 1 marked done with its residue — conservation and SRS definitions — and item 1a added for the structural layer's own limits. Conditional weighting (`M5`) still reaches the margin nowhere. |
+| **1.2.0** | **2026-11-11** | **The rule produced by this architecture was pre-registered on a third protein and refuted there, and every earlier interval was resampled by the wrong unit.** (1) The bootstrap now resamples protein positions: widths grow 2.3–2.9× and four verdicts move, so "reaching the margin under both splits" is withdrawn — region-grouped, `M4` vs `M1` is +9.47 % with the margin undecided. (2) A paired **ablation** isolates the structural block for the first time: **+11.19 % / +12.09 %** on NUDT15, more stable across splits than the composite contrast. (3) **BRAF**, declared in `OMICS2PK_BRAF_PREREGISTRATION_20261111.md` before a single score was downloaded, **refutes** the rule: primary contrast −1.60 % with an upper bound of +0.0040, enrichment 0.655 [0.42, 0.96] excluding 1 from below, because the rule presumes loss of function and BRAF's library is gain-of-function (mean missense activity +1.420 against a synonymous ~1.0, ρ = −0.290). §5 now states the scoped claim and names the architecture's biggest gap: it cannot detect that precondition itself. (4) One post-hoc positive: the `M6` trust gate beats the best in-fold **constant** weight by +5.10 % / +3.62 % on BRAF — the project's first real-data evidence that conditional weighting beats constant weighting. |
+| 1.1.0 | 2026-11-11 | §0 rewritten: the version 1.0.0 diagnosis was a prediction, it was tested with two crystal structures, and it holds on both halves — coverage 48.8 %→95.9 % and 12.5 %→87.5 %, enrichment to 55.35× and 29.70×, and `M4` vs `M1` from a sign flip to +15.83 %/+9.47 % reaching the margin under both splits. `structural_annotation.py` added to the audit. RCSB recorded accessible and used; AlphaFold recorded accessible by its API path but unusable here because its models carry no ligands. Roadmap item 1 marked done with its residue — conservation and SRS definitions — and item 1a added for the structural layer's own limits. Conditional weighting (`M5`) still reaches the margin nowhere. |
 | 1.0.0 | 2026-11-11 | First issue. Answers the six commissioned items; audit of 67 Omics2PK modules and 117 MultiOmics R files; a five-layer architecture with no Thesis dependency; nine data sources probed today, of which PharmVar is admissible only by its file channel and VEP is unverified; seven comparators, seven success criteria, six negative controls including a mandatory positive control; the demonstrator executed. |

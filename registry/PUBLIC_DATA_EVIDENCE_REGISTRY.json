@@ -1,6 +1,6 @@
 {
   "registry_name": "PUBLIC_DATA_EVIDENCE_REGISTRY",
-  "version": "1.20.0",
+  "version": "1.21.0",
   "frozen_at": "2026-11-07",
   "scope": "Datasets admissible for the Omics2PK five-objective validation (H1-H5). A published article is not by itself an exploitable dataset.",
   "access_policy": {
@@ -2141,6 +2141,124 @@
         "6-thio-GMP is the substrate analogue actually crystallised, which is unusually apt here because the activity assay is a thiopurine screen. It is still one ligand in one pocket.",
         "A 3D distance to catalytic machinery is a HYPOTHESIS, not a causal claim."
       ]
+    },
+    {
+      "key": "mavedb_braf_paired_abundance_activity",
+      "label": "MaveDB BRAF abundance + activity, same C-terminal construct",
+      "citation": "MaveDB score sets urn:mavedb:00001315-c-1 and urn:mavedb:00001315-d-1, BRAF abundance and activity multiplexed assays of variant effect, C-terminal construct, baseline condition.",
+      "doi": null,
+      "pmid": null,
+      "pmcid": null,
+      "trial_registration": null,
+      "original_repository": "https://api.mavedb.org/api/v1/score-sets/urn%3Amavedb%3A00001315-c-1/scores",
+      "data_availability_statement": "Score sets urn:mavedb:00001315-c-1 (abundance, baseline) and urn:mavedb:00001315-d-1 (activity, baseline) are published in MaveDB under CC0 and served by its public API without registration. The pooled standardised sets -0-3 and -0-4 mix the N- and C-terminal constructs and were declared a sensitivity only.",
+      "access_tier": "open_public",
+      "individual_level_data_released": false,
+      "local_artifacts": [
+        {
+          "filename": "mavedb_00001315-c-1_scores.csv",
+          "bytes": 1090975,
+          "sha256": "d4a22095d4c2d1043b7366a8bdaff64b963d6838bae93499b1d45d0a39e30868"
+        },
+        {
+          "filename": "mavedb_00001315-d-1_scores.csv",
+          "bytes": 1107588,
+          "sha256": "0f58201da439a459aa6d50a17045b45cd627c93ffc33be4ada45c0c0110665ed"
+        }
+      ],
+      "n_enrolled": null,
+      "n_analysed": 6583,
+      "biological_unit": "engineered single protein variant, not an individual",
+      "matrix": "cell line",
+      "sampling_time": "not applicable",
+      "omics_layers": [
+        {
+          "layer": "proteomic",
+          "analytes": [
+            "BRAF protein abundance score"
+          ]
+        },
+        {
+          "layer": "functional",
+          "analytes": [
+            "BRAF signalling activity score"
+          ]
+        }
+      ],
+      "genotypes": "engineered single substitutions, not donor genotypes",
+      "comedication": "not applicable",
+      "endpoint": {
+        "name": "variant activity score paired with variant abundance score in the same library",
+        "endpoint_class": "variant_functional_screen"
+      },
+      "dose_regimen": "not applicable",
+      "formulation": "not applicable",
+      "objectives_supported": [
+        "H2",
+        "H5"
+      ],
+      "status": "QUALIFIED",
+      "verified_this_session": true,
+      "verification_method": "Downloaded from api.mavedb.org on 2026-11-11 after the pre-registration was committed; SHA-256 recorded. Orientation checked by assay polarity: nonsense variants score lowest in both assays (activity +0.729, abundance +0.429) against a synonymous baseline of ~1.0.",
+      "caveats": [
+        "NOT a pharmacokinetic quantity and NOT a multi-omic measurement in individuals. Endpoint class variant_functional_screen exists to stop this being pooled with donor-level activity.",
+        "This is a GAIN-of-function library: mean missense activity is +1.420 against a synonymous baseline of +0.992, because BRAF is autoinhibited and most substitutions relieve that autoinhibition.",
+        "Abundance is an INVERTED proxy for activity here, rho = -0.290, so the mechanism rule 'protein present but inactive' describes a minority of these variants. This is why the pre-registered primary contrast was refuted."
+      ]
+    },
+    {
+      "key": "rcsb_6pp9_braf_mek1_ampnp",
+      "label": "RCSB PDB 6PP9 — BRAF:MEK1 with AMP-PNP and Mg, 2.59 A",
+      "citation": "Crystal structure of the BRAF:MEK1 complex, RCSB PDB entry 6PP9, 2.59 A.",
+      "doi": null,
+      "pmid": null,
+      "pmcid": null,
+      "trial_registration": null,
+      "original_repository": "https://files.rcsb.org/download/6PP9.pdb",
+      "data_availability_statement": "RCSB PDB serves coordinate files without registration or authorization.",
+      "access_tier": "open_public",
+      "individual_level_data_released": false,
+      "local_artifacts": [
+        {
+          "filename": "6PP9.pdb",
+          "bytes": 455382,
+          "sha256": "2b919e7c9423e2b1d41fa7edbdf9bddfd872ac3fdc6dd471260a90f05c6b4e1b"
+        }
+      ],
+      "n_enrolled": null,
+      "n_analysed": 276,
+      "biological_unit": "protein crystal structure, BRAF chain A of a complex",
+      "matrix": "crystal",
+      "sampling_time": "not applicable",
+      "omics_layers": [
+        {
+          "layer": "structural",
+          "analytes": [
+            "BRAF coordinates with AMP-PNP, Mg and the MEK1 chain"
+          ]
+        }
+      ],
+      "genotypes": "not applicable",
+      "comedication": "not applicable",
+      "endpoint": {
+        "name": "per-residue 3D distance to the nucleotide cofactor and to the MEK1 substrate interface",
+        "endpoint_class": "molecular_only_no_endpoint"
+      },
+      "dose_regimen": "not applicable",
+      "formulation": "not applicable",
+      "objectives_supported": [
+        "H2",
+        "H5"
+      ],
+      "status": "QUALIFIED",
+      "verified_this_session": true,
+      "verification_method": "Selected by a rule declared before any BRAF score was downloaded: the best-resolution RCSB entry for UniProt P15056 carrying an ATP-analogue ligand in the BRAF chain. Numbering verified by seven residue identities (K483, E501, T529, DFG 594-596, V600 wild type) and by Lys483 NZ lying 2.875 A from AMP-PNP.",
+      "caveats": [
+        "MEK1 is chain B and carries its OWN AMP-PNP and Mg, so the chain restriction is load-bearing: unrestricted ligands would measure the distance to the other kinase's nucleotide and never say so.",
+        "The substrate is a PROTEIN chain, so to_substrate is an interface distance and not the pocket distance it is for 1R9O and 5LPG. The two quantities are not comparable across proteins.",
+        "Inactive aC-out conformation: the catalytic Lys483-Glu501 salt bridge is broken at 12.69 A, which is why the numbering guard is the nucleotide contact rather than that salt bridge.",
+        "1237 of 6583 assayed variants sit at positions 6PP9 does not resolve; they are flagged, never imputed as 'far from the machinery'."
+      ]
     }
   ],
   "phase1_findings": {
@@ -2355,6 +2473,11 @@
       "version": "1.20.0",
       "date": "2026-11-11",
       "change": "Registered two RCSB PDB structures as a structural knowledge layer, after the 2026-11-11 benchmark diagnosed annotation COVERAGE -- not the algorithm -- as the binding constraint on mechanistic selection. The diagnosis was refutable and was tested: replacing a one-dimensional sequence ruler with a three-dimensional one raises the share of discordant variants the annotation reaches from 48.8 % to 95.9 % on NUDT15 and from 12.5 % to 87.5 % on CYP2C9, and raises the discordance enrichment from 6.74x [4.82, 9.42] to 55.35x [26.95, 251.41] and from 9.55x [0.00, 23.65] to 29.70x [10.78, 105.08]. CYP2C9's enrichment interval excluded 1 only after the structural layer was added, so the rule moved from untestable to confirmed on that gene. Also recorded that AlphaFold's /files/ path returns 403 while its /api/prediction/ endpoint returns 200 -- the access ladder again -- although experimental structures were preferred because AlphaFold models carry no ligands."
+    },
+    {
+      "version": "1.21.0",
+      "date": "2026-11-11",
+      "change": "Registered a PRE-REGISTERED independent test of the structural selection rule and its outcome, which is a refutation. BRAF was declared in OMICS2PK_BRAF_PREREGISTRATION_20261111.md -- gene, both score sets, the structure-selection rule, the numbering guard, every frozen parameter, a singular primary contrast and five refutation conditions -- and committed before a single BRAF score was downloaded, because 1R9O and 5LPG had been chosen after their proteins' discordant residues were examined and no internal validation repairs that. The primary contrast, the paired ablation of the structural block on M4 under the contiguous-region split with position-clustered intervals, came back -1.60 % with an upper bound of +0.0040, below the 5 % margin: a refutation proper rather than an absence of power, and DETECTABLY_WORSE at -5.82 % position-grouped. Discordance enrichment near the ATP site is 0.655 [0.42, 0.96], excluding 1 from BELOW, and no cutoff from 4 to 15 A exceeds 1. The reason is visible and was declared in advance as a possible failure mode: this is a gain-of-function library on an autoinhibited kinase (mean missense activity +1.420 against a synonymous baseline of +0.992), abundance is an inverted proxy at rho = -0.290, and the rule under test presumes loss of function. The NUDT15 result is not refuted but its scope is now measured: it holds for an enzyme whose variants disrupt catalysis at a ligand-binding site, and nothing in the architecture detects that mismatch automatically. One unexpected positive is recorded post-hoc: the M6 trust gate beats abundance alone by +7.24 % position-grouped, and beats the best in-fold CONSTANT weight by +5.10 % and +3.62 %, the first real-data evidence in this project that conditional weighting beats constant weighting."
     }
   ],
   "knowledge_sources": [
