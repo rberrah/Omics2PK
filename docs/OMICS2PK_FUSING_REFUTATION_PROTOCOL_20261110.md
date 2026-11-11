@@ -1,6 +1,6 @@
 # A test that can refute Hybrid Fusing, the comparators it needs, the data that exists, and the order of work
 
-**Version 2.0.0 — 2026-11-11.** Evidence type: **protocol; Gate 1 and the context probe are now executed**.
+**Version 3.0.0 — 2026-11-11.** Evidence type: **protocol; Gate 1, the context probe and Gate 2 steps 3-4 are now executed, and Q1 is answered negatively**.
 Companion to `OMICS2PK_METHOD_AUDIT_AND_HYBRID_FUSING_ASSESSMENT_20261110.md`.
 **No frozen protocol or result is modified. No implementation has begun.**
 
@@ -202,6 +202,25 @@ evaluated out of sample.
 | `X` mixture of experts | w(z_i) from a gating function of **context covariates**, no mechanistic prior |
 | `F` Hybrid Fusing | w(z_i; π), the gating function **with** the mechanistic prior, plus a fallback decided in training folds |
 
+### 2.0 Both questions require a genuinely nested evaluation
+
+A single out-of-fold prediction layer computed over the whole cohort is **not**
+sufficient, even though each prediction is honest for its own individual. The
+weights are fitted on other individuals whose predictions came from base models
+trained on the very rows the weights are then scored on, so the fit depends on
+the held-out outcomes through the base models' training sets. Every comparator
+in the table below must therefore be fitted inside an outer fold on inner
+out-of-fold predictions from arms **refit without the outer-test rows**, and
+every comparator must share the outer partition so each contrast is paired at
+the individual level. `nested_fusion_evaluation` implements this; measured, the
+difference is not cosmetic — the stacking gain on CYP3A4/testosterone falls
+from +167.5 [+29.6, +366] to +58.2 [−31.5, +151.5] and its verdict flips.
+
+**A null contrast is only readable if the harness can detect a gain that
+exists.** A positive control is therefore mandatory before any null is
+reported: a synthetic cohort only a gate can solve, on which the harness must
+recover the gain and must lose it when the context is permuted.
+
 ### 2.1 Two co-primary questions, not one
 
 Version 1.0.0 made `F` vs `K` the single primary contrast. That collapsed two
@@ -212,6 +231,29 @@ the second fails**:
 |---|---|---|
 | **Q1** | does **context** help choose between predictions at all? | **`X` vs `K`** — gate without any mechanistic prior, against constant-weight stacking |
 | **Q2** | does **mechanistic knowledge** help exploit that context? | **`F` vs `X`** — the same gate with the prior, against without |
+
+**Q1 was answered negatively on 2026-11-11.** On HLC, over ten endpoints,
+three context sets and two temperature grids, `X` reaches the declared margin
+in **no** cell. Under §2.1's own logic Q2 is therefore not opened: a prior on
+weights that have nothing to weight would measure the prior's flexibility, not
+its knowledge — the π_m failure mode transposed. What is refuted is contextual
+weighting of prediction **outputs** on in-vitro activity with age and sex as
+context; conditional **selection** of covariates and omic information is a
+different operation and is untouched.
+
+### 2.2 Every verdict ladder applies its margin to both sides
+
+A rung whose name implies the declared margin was met must require the
+**lower** bound to reach that margin. An interval that merely excludes zero
+gets a name that says so and no more. This applies to the context probe
+(`SIGNAL_REACHES_MARGIN` / `..._MARGIN_UNDECIDED` / `..._BUT_BELOW_MARGIN`) and
+identically to every performance contrast (`GAIN_REACHES_MARGIN` /
+`GAIN_PRESENT_MARGIN_UNDECIDED` / `GAIN_PRESENT_BUT_BELOW_MARGIN`), plus
+`DETECTABLY_WORSE` because being worse is a result. Version 2.0.0 declared a
+0.30 association floor and then awarded `CONTEXT_CARRIES_SIGNAL` at ρ 0.17;
+the first contrast ladder written after that correction reproduced the same
+error at a +0.62 % gain against a 5 % margin. Both are fixed and both are
+guarded by tests.
 
 Both are primary. A positive Q1 with a null Q2 is a real and publishable
 result: *context-dependent weighting beats a fixed mixture, and the network
@@ -335,9 +377,9 @@ No step begins before the previous one reports. Each may end the programme.
 | **0** | *(done)* H1–H5 state, method audit, definition, novelty, this protocol | — |
 | **1** | *(done 2026-11-11)* **Gate 1 and the context probe on E1, E3, E4**, under the corrected definitions. One runner over arms that already exist; no new model | every cohort returns `REFUTED_CEILING_BELOW_MARGIN` on the **per-individual** ceiling **and** `REFUTED_CONTEXT_UNINFORMATIVE` on both probes. Then report that **selection is the answer** and stop. **It did not: see `OMICS2PK_FUSION_HEADROOM_RESULTS_20261111.md`** |
 | **2** | **Gate 1 diagnostics**: error decorrelation, best-arm shares, uniform control | the median error correlation exceeds 0.95 — the arms are one arm |
-| **3** | **Gate 2 on E1**, with `S`, `U`, `K` only. Stacking against selection | `K` does not beat `S`. Then **stacking is refuted too**, and the project's existing selection work stands as the conclusion |
-| **4** | **Gate 2 on E1**, adding `X`. Context-dependence without mechanism | `X` does not beat `K`. Then the gating idea is refuted and only the prior remains to test |
-| **5** | **Gate 2 on E1**, adding `F`, with **all** Gate 3 controls | `F` does not beat `X`, **or** the degree-permuted prior performs as well as the real one |
+| **3** | *(done 2026-11-11)* **Gate 2 on E1**, with `S`, `U`, `K` only. Stacking against selection | `K` does not beat `S`. Then **stacking is refuted too**, and the project's existing selection work stands as the conclusion. **`K` reaches the margin on 0 of 10 endpoints: see `OMICS2PK_NESTED_FUSION_Q1_RESULTS_20261111.md`** |
+| **4** | *(done 2026-11-11)* **Gate 2 on E1**, adding `X`. Context-dependence without mechanism | `X` does not beat `K`. Then the gating idea is refuted and only the prior remains to test. **`X` reaches the margin on 0 of 30 cells and is `REFUTED_GAIN_BELOW_MARGIN` on 25. Q1 is answered negatively.** |
+| **5** | **Gate 2 on E1**, adding `F`, with **all** Gate 3 controls. **Now conditional and NOT authorised:** §2.1 makes Q2 meaningful only where context is exploitable, and step 4 found it is not on this cohort | `F` does not beat `X`, **or** the degree-permuted prior performs as well as the real one |
 | **6** | **E2**: representation fusion on EATRIS-Plus against DIABLO, declared non-pharmacological target | no fusion beats the best single family |
 | **7** | Only if steps 3–5 survive: write the method up, and *then* consider whether the PK form is worth pursuing — with E5 still `NOT_EVALUABLE` until new data appears |
 
@@ -390,4 +432,5 @@ to the data gap, which is where H1 says the binding constraint is.
 | Version | Date | Change |
 |---|---|---|
 | 1.0.0 | 2026-11-10 | First issue. Three gates, six comparators, eight negative controls, seven data verdicts of which three are `NOT_EVALUABLE`, and a seven-step roadmap whose first implementation step is the fifth. |
+| **3.0.0** | **2026-11-11** | **Q1 is answered negatively, and two validation defects are closed.** §2.0 (new) requires a genuinely **nested** evaluation — base arms refit inside every outer fold, because a single cached out-of-fold layer leaks the held-out outcomes through the base models' training sets — and makes a **positive control mandatory** before any null may be reported. §2.1 records that `X` reaches the declared margin on **0 of 30** cells and is refuted on 25, so **Q2 is not opened**. §2.2 (new) requires every verdict ladder to apply its margin to the **lower** bound before claiming it was met, after version 2.0.0 awarded `CONTEXT_CARRIES_SIGNAL` at ρ 0.17 against a declared 0.30 floor. Roadmap steps 3 and 4 are marked done; step 5 is explicitly **not authorised**. Results in `OMICS2PK_NESTED_FUSION_Q1_RESULTS_20261111.md`. |
 | **2.0.0** | **2026-11-11** | **Gate 1 was mathematically wrong and is replaced.** Version 1.0.0 used a single **constant**-weight ceiling, which cannot express a gate and therefore does not bound contextual fusion, and it treated an interval containing zero as a refutation. §1 now defines **five** quantities including the per-individual convex ceiling that does bound the family; the verdict rule requires the upper bound to fall below a declared minimum interesting gain before anything is refuted; §1.4 adds a context probe that can refute contextual fusion independently of any ceiling, on two context sets, with its own three-valued verdict and a Bonferroni-adjusted interval; §1.5 requires the weights to be fitted on one partition and scored on another. §2.1 splits the single primary contrast into **two co-primary questions** — does context help at all (`X` vs `K`), and does the mechanistic prior help exploit it (`F` vs `X`) — because the first can succeed while the second fails. Gate 1 and the probe are **executed** on ARIANA, Lee and HLC; results in `OMICS2PK_FUSION_HEADROOM_RESULTS_20261111.md`. |

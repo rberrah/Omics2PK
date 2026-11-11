@@ -282,19 +282,77 @@ def nested_constant_stacking(predictions, truth, *, folds=None, seed=None):
                              "ceiling it could reach in hindsight")}
 
 
+def ridge_predict(train_design, train_target, test_design, *, penalty=1.0):
+    """Standardise on the training rows, solve, apply. No sklearn dependency.
+
+    Standardisation uses the **training** mean and spread only, so no test row
+    influences the fit through the scaling either.
+    """
+    train_design = np.asarray(train_design, dtype=float)
+    test_design = np.asarray(test_design, dtype=float)
+    train_target = np.asarray(train_target, dtype=float)
+    mean = train_design.mean(axis=0)
+    sd = train_design.std(axis=0, ddof=0)
+    safe = np.where(sd > 0.0, sd, 1.0)
+    train = (train_design - mean) / safe
+    test = (test_design - mean) / safe
+    centre = float(train_target.mean())
+    gram = train.T @ train + penalty * np.eye(train.shape[1])
+    coefficients = np.linalg.solve(gram, train.T @ (train_target - centre))
+    return test @ coefficients + centre
+
+
+def expand_basis(block, basis):
+    """`linear` returns the columns; `quadratic` adds squares and products.
+
+    The commissioning review's point: *the failure of a linear ridge probe on
+    two arms does not refute contextual fusion, which may be non-linear.* A
+    second-order expansion is the cheapest honest answer — it stays a linear
+    solve, needs no new dependency, and is declared as its own member of the
+    probe family rather than tried silently until something clears.
+    """
+    block = np.asarray(block, dtype=float)
+    if block.ndim == 1:
+        block = block.reshape(-1, 1)
+    if basis == "linear":
+        return block
+    _check(basis == "quadratic", f"unknown basis {basis!r}")
+    columns = [block]
+    for i in range(block.shape[1]):
+        for j in range(i, block.shape[1]):
+            columns.append((block[:, i] * block[:, j]).reshape(-1, 1))
+    return np.column_stack(columns)
+
+
 def context_informativeness(predictions, truth, context, *, folds=None,
-                            seed=None, family_size=1):
+                            seed=None, family_size=1, basis="linear",
+                            arm_pair=None):
     """Can any context variable predict WHICH ARM WINS, out of sample?
 
     This is the test that bears on contextual fusion directly, and it does not
     depend on the ceiling being tight. The target is the signed advantage of
-    the best-two arms for each individual; a ridge on the context is fitted on
-    a training partition and its out-of-sample rank agreement with the realised
+    two arms for each individual; a ridge on the context is fitted on a
+    training partition and its out-of-sample rank agreement with the realised
     advantage is reported.
 
     **If this has no out-of-sample skill, a contextual gate has nothing to
     condition on**, and contextual fusion is refuted on this cohort whatever
     the ceiling says.
+
+    The leak this version closes
+    ----------------------------
+    Version 2.0.0 picked the two compared arms from the mean losses over
+    **every** individual, before the train/test split, and only then
+    cross-fitted the ridge. The ridge was honest; the choice of what it
+    predicted was not. The bias has **no reliable sign** — on synthetic null
+    cohorts it runs pessimistic, because the globally-best arm is selected to
+    have the lowest total loss and the advantage it defines is then
+    systematically negative — so it has to be measured, not assumed. Measured
+    on the HLC predictions it ran optimistic. The pair
+    is now chosen **inside each fold from the training rows only**, so the
+    realised advantage is itself fold-dependent — which is exactly what a gate
+    faces in deployment. ``arm_pair_stability`` reports how often the folds
+    agreed, because an unstable pair is itself a reason a gate would struggle.
     """
     folds = FROZEN["context_probe_folds"] if folds is None else folds
     seed = FROZEN["seed"] if seed is None else seed
@@ -307,27 +365,30 @@ def context_informativeness(predictions, truth, context, *, folds=None,
     _check(np.isfinite(block).all(), "a context value is missing")
 
     per_individual = np.abs(matrix - target[:, None])
-    order = per_individual.mean(axis=0).argsort()
-    first, second = int(order[0]), int(order[1])
-    # Positive advantage means the runner-up wins for this individual, which is
-    # exactly what a gate would have to detect.
-    advantage = per_individual[:, first] - per_individual[:, second]
+    design = expand_basis(block, basis)
 
     rng = np.random.default_rng(seed + 2)
     predicted = np.zeros(matrix.shape[0])
+    # Fold-dependent, because the compared pair is now a training-set decision.
+    advantage = np.zeros(matrix.shape[0])
+    pairs = []
     for held in _partitions(matrix.shape[0], folds, rng):
         keep = np.setdiff1d(np.arange(matrix.shape[0]), held)
         if keep.size < 3:
             continue
-        mean = block[keep].mean(axis=0)
-        sd = block[keep].std(axis=0, ddof=0)
-        safe = np.where(sd > 0.0, sd, 1.0)
-        train = (block[keep] - mean) / safe
-        test = (block[held] - mean) / safe
-        centre = float(advantage[keep].mean())
-        gram = train.T @ train + 1.0 * np.eye(train.shape[1])
-        coefficients = np.linalg.solve(gram, train.T @ (advantage[keep] - centre))
-        predicted[held] = test @ coefficients + centre
+        if arm_pair is None:
+            # TRAINING ROWS ONLY. This line is the correction.
+            order = per_individual[keep].mean(axis=0).argsort()
+            first, second = int(order[0]), int(order[1])
+        else:
+            first, second = int(arm_pair[0]), int(arm_pair[1])
+        pairs.append((first, second))
+        # Positive advantage means the runner-up wins for this individual,
+        # which is exactly what a gate would have to detect.
+        train_advantage = per_individual[keep, first] - per_individual[keep, second]
+        advantage[held] = per_individual[held, first] - per_individual[held, second]
+        predicted[held] = ridge_predict(design[keep], train_advantage,
+                                        design[held])
 
     observed_rho = _spearman(predicted, advantage)
     # The probe gets the same three-valued treatment as the ceilings: a null
@@ -352,23 +413,24 @@ def context_informativeness(predictions, truth, context, *, folds=None,
                  float(np.percentile(draws, 100.0 - adjusted_half))]
                 if len(draws) >= 100 else [float("nan"), float("nan")])
     floor = FROZEN["minimum_interesting_rank_association"]
-    if adjusted[0] > 0.0:
-        name = "CONTEXT_CARRIES_SIGNAL"
-    elif interval[0] > 0.0:
-        name = "CONTEXT_CARRIES_SIGNAL_UNADJUSTED_ONLY"
-    elif np.isfinite(interval[1]) and interval[1] < floor:
-        name = "REFUTED_CONTEXT_UNINFORMATIVE"
-    else:
-        name = "NO_DETECTABLE_SIGNAL_UNDERPOWERED"
+    name = probe_verdict(interval, adjusted, floor=floor)
 
+    modal = max(set(pairs), key=pairs.count) if pairs else (-1, -1)
     return {
-        "compared_arms": [first, second],
+        "compared_arms": list(modal),
+        "compared_arms_per_fold": [list(pair) for pair in pairs],
+        "arm_pair_stability": (float(pairs.count(modal)) / len(pairs)
+                               if pairs else float("nan")),
+        "arm_pair_chosen_inside_each_fold": arm_pair is None,
+        "basis": basis,
         "spearman_out_of_sample": observed_rho,
         "spearman_interval": interval,
         "spearman_interval_bonferroni": adjusted,
         "family_size": int(family_size),
         "verdict": name,
         "minimum_interesting_rank_association": float(floor),
+        "reaches_minimum_interesting_association": bool(
+            np.isfinite(adjusted[0]) and adjusted[0] >= floor),
         "sign_agreement": float(np.mean(
             np.sign(predicted) == np.sign(advantage))),
         "share_where_the_runner_up_wins": float(np.mean(advantage > 0.0)),
@@ -378,8 +440,47 @@ def context_informativeness(predictions, truth, context, *, folds=None,
             "about which arm will win, so a gate would have nothing to learn. "
             "But that is only a REFUTATION when the interval's upper bound "
             "falls below the minimum interesting association; otherwise it is "
-            "a non-detection, and at these cohort sizes it usually is."),
+            "a non-detection, and at these cohort sizes it usually is. And an "
+            "interval that excludes zero while sitting below the floor is a "
+            "real but TOO SMALL association, which is not the same claim as "
+            "reaching the declared margin."),
     }
+
+
+def probe_verdict(interval, adjusted, *, floor=None):
+    """Six outcomes, because *detectably positive* and *big enough* differ.
+
+    Version 2.0.0 declared a minimum interesting rank association of 0.30 and
+    then awarded `CONTEXT_CARRIES_SIGNAL` to any probe whose adjusted interval
+    excluded zero. That let an association of 0.17 be reported under a name
+    implying the declared margin had been met. The floor is now applied to
+    **both** sides:
+
+    * reaching it requires the adjusted **lower** bound at or above the floor;
+    * an interval that excludes zero but whose **upper** bound is below the
+      floor is a real association that is simultaneously **too small to be
+      worth building on** — a distinct, informative outcome;
+    * refuting still requires the upper bound below the floor with no
+      detectable positive association.
+    """
+    floor = (FROZEN["minimum_interesting_rank_association"] if floor is None
+             else floor)
+    low_nominal, high_nominal = interval
+    low_adjusted, high_adjusted = adjusted
+    finite = np.isfinite(high_adjusted)
+    if np.isfinite(low_adjusted) and low_adjusted >= floor:
+        return "SIGNAL_REACHES_MARGIN"
+    if np.isfinite(low_adjusted) and low_adjusted > 0.0:
+        return ("SIGNAL_POSITIVE_BUT_BELOW_MARGIN" if finite
+                and high_adjusted < floor
+                else "SIGNAL_POSITIVE_MARGIN_UNDECIDED")
+    if np.isfinite(low_nominal) and low_nominal > 0.0:
+        return ("SIGNAL_POSITIVE_UNADJUSTED_ONLY_BELOW_MARGIN"
+                if np.isfinite(high_nominal) and high_nominal < floor
+                else "SIGNAL_POSITIVE_UNADJUSTED_ONLY_MARGIN_UNDECIDED")
+    if np.isfinite(high_nominal) and high_nominal < floor:
+        return "REFUTED_CONTEXT_UNINFORMATIVE"
+    return "NO_DETECTABLE_SIGNAL_UNDERPOWERED"
 
 
 def _spearman(left, right):
@@ -505,12 +606,21 @@ def self_test():
     _check(abs(probe["sign_agreement"] - 1.0) < 1e-9,
            "the context should perfectly predict which arm wins here, got "
            f"{probe['sign_agreement']}")
+    # Positive control for the probe itself, now that the pair is chosen inside
+    # each fold: if the ladder cannot award the margin on a cohort where the
+    # context is a perfect gate, a null elsewhere would be uninterpretable.
+    _check(probe["verdict"] == "SIGNAL_REACHES_MARGIN",
+           "the probe must reach the declared margin on a perfect gate, got "
+           f"{probe['verdict']} (rho {probe['spearman_out_of_sample']})")
     return {
         "best_single_oracle": single,
         "constant_weight_oracle": constant,
         "individual_selection_oracle": selection,
         "individual_convex_oracle": convex,
         "context_sign_agreement": probe["sign_agreement"],
+        "context_probe_verdict": probe["verdict"],
+        "arm_pair_chosen_inside_each_fold": probe[
+            "arm_pair_chosen_inside_each_fold"],
         "what_this_proves": (
             "A constant-weight ceiling can show exactly zero headroom on a "
             "cohort where a contextual gate is perfect. Stopping the "

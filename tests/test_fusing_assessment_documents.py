@@ -118,16 +118,38 @@ class TestAuditIsTrue:
         assert "this is stacking" in audit, (
             "nested_constant_stacking fits constant weights and scores them "
             "out of sample; the audit must not describe it as a ceiling")
-        assert "a **gate**, w(z_i) | **does not exist**" in audit
         assert "a **mechanistic prior on weights** | **does not exist**" in audit
 
-    def test_only_the_diagnostic_module_mentions_stacking(self):
+    #: Stacking is permitted in exactly these modules, both of which exist to
+    #: measure it as a comparator. A third would mean the project has started
+    #: building fusion rather than testing it, which is what this guard is for.
+    STACKING_IS_ALLOWED_IN = {"fusion_headroom_diagnostics.py",
+                              "nested_fusion_evaluation.py"}
+
+    def test_stacking_stays_in_the_two_modules_that_measure_it(self):
         offenders = [p.name for p in SRC.glob("*.py")
                      if "stacking" in p.read_text(encoding="utf-8",
                                                   errors="replace").lower()
-                     and p.name != "fusion_headroom_diagnostics.py"]
+                     and p.name not in self.STACKING_IS_ALLOWED_IN]
         assert not offenders, (
-            f"stacking has spread beyond the diagnostic module: {offenders}")
+            f"stacking has spread beyond the modules that measure it: "
+            f"{offenders}")
+
+    def test_the_audit_records_that_a_gate_now_exists_and_loses(self, audit):
+        """The audit said a gate does not exist. One does now, and it loses.
+
+        Keeping the old sentence would be the same failure the headroom
+        document was corrected for: a true statement left standing after it
+        stopped being true.
+        """
+        assert "nested_fusion_evaluation" in audit
+        assert "0 of 30" in audit
+        assert "a **gate**, w(z_i) | **does not exist**" not in audit
+
+    def test_the_cached_prediction_layer_is_recorded_as_superseded(self):
+        audit = AUDIT.read_text(encoding="utf-8")
+        assert "Amended 2026-11-11" in audit
+        assert "refits the arms inside every outer fold" in audit
 
     def test_the_audit_names_the_degree_strata_safeguard(self, audit):
         source = (SRC / "mechanistic_graph_selection.py").read_text(

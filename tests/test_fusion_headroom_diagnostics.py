@@ -234,7 +234,9 @@ class TestContextProbe:
         predictions, truth, context = \
             mod.counterexample_constant_weights_cannot_see_a_gate(300)
         probe = mod.context_informativeness(predictions, truth, context)
-        assert probe["verdict"].startswith("CONTEXT_CARRIES_SIGNAL")
+        assert probe["verdict"] == "SIGNAL_REACHES_MARGIN", (
+            "a perfect gate must clear the declared 0.30 margin, not merely "
+            "exclude zero")
 
     def test_a_pure_noise_context_at_a_large_n_is_refuted(self, mod):
         rng = np.random.default_rng(6)
@@ -407,9 +409,32 @@ class TestArtefact:
 
 
 class TestDocuments:
-    def test_the_protocol_is_at_version_two(self):
+    def test_the_protocol_is_at_version_three(self):
         text = PROTOCOL.read_text(encoding="utf-8")
-        assert "**Version 2.0.0 — 2026-11-11.**" in text
+        assert "**Version 3.0.0 — 2026-11-11.**" in text
+
+    def test_the_protocol_keeps_every_earlier_change_log_entry(self):
+        """A version bump must not quietly drop the record of what was wrong."""
+        text = PROTOCOL.read_text(encoding="utf-8")
+        for version in ("| 1.0.0 |", "| **2.0.0** |", "| **3.0.0** |"):
+            assert version in text
+
+    def test_the_protocol_requires_a_nested_evaluation(self):
+        flat = re.sub(r"[\s*_`>|]+", " ", PROTOCOL.read_text(encoding="utf-8"))
+        assert "genuinely nested evaluation" in flat
+        assert "A null contrast is only readable if the harness can detect a "             "gain that exists" in flat
+
+    def test_the_protocol_applies_each_margin_to_the_lower_bound(self):
+        flat = re.sub(r"[\s*_`>|]+", " ", PROTOCOL.read_text(encoding="utf-8"))
+        assert "applies its margin to both sides" in flat
+        # the flattening regex strips underscores along with markup
+        assert "GAIN REACHES MARGIN" in flat
+        assert "SIGNAL REACHES MARGIN" in flat
+
+    def test_the_protocol_records_that_q2_is_not_authorised(self):
+        flat = re.sub(r"[\s*_`>|]+", " ", PROTOCOL.read_text(encoding="utf-8"))
+        assert "Q1 was answered negatively" in flat
+        assert "NOT authorised" in flat
 
     def test_the_protocol_records_the_error_rather_than_hiding_it(self):
         flat = re.sub(r"[\s*_`>|]+", " ", PROTOCOL.read_text(encoding="utf-8"))

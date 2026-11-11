@@ -171,8 +171,8 @@ was not designed as a control; the data made it one.
 | Claim | Status |
 |---|---|
 | a fusion method would improve prediction | **not established.** Ceilings are hindsight bounds |
-| contextual fusion is refuted | **no** — refuted on 7 of 10 HLC endpoints, not on 3 |
-| constant-weight stacking is refuted | **on 5 of 13 cells**, and it demonstrably helps on 3 |
+| contextual fusion is refuted | ~~**no** — refuted on 7 of 10 HLC endpoints, not on 3~~ **SUPERSEDED, see §0** |
+| constant-weight stacking is refuted | ~~**on 5 of 13 cells**, and it demonstrably helps on 3~~ **SUPERSEDED, see §0** |
 | the mechanistic prior adds anything | **untested** |
 | anything about pharmacokinetics | **no.** HLC is in-vitro activity; ARIANA is one observed trough; Lee is an activity rate |
 | these are independent replications | **no.** All three cohorts have been analysed before by this project; everything here is **exploratory** |
@@ -184,8 +184,28 @@ frozen artefacts without a re-run.
 
 ---
 
+## 0'. Two findings in this document are superseded, and one withdrawn
+
+**Added 2026-11-11, version 1.1.0, after the commissioning review of
+`5eda7c4`.** Struck rather than deleted, as this project records every
+withdrawal.
+
+| Claim here | What replaced it |
+|---|---|
+| contextual fusion refuted on 7 of 10 HLC endpoints, leaving 3 open | the three left open were tested directly with a gate under a genuinely nested evaluation. **All three are refuted.** `X` reaches the declared margin on 0 of 30 cells |
+| constant-weight stacking "demonstrably helps on 3" cells, recovering **+167.5 [+29.6, +366]** on CYP3A4/testosterone | **WITHDRAWN.** That number came from weights fitted on a cached out-of-fold layer whose base models had trained on the rows the weights were then scored on. Refit inside every outer fold, the same contrast gives **+58.2 [−31.5, +151.5]**, `REFUTED_GAIN_BELOW_MARGIN`. The leak inflated it about **2.9×** and flipped its verdict |
+| four probes named `CONTEXT_CARRIES_SIGNAL` | the name implied a declared 0.30 association had been met when only zero was excluded. Under the corrected six-rung ladder **none of the 40 probes reaches the margin** |
+
+The per-individual convex ceiling result — **headroom present on 13 of 13** —
+**stands**, and so does the correction that produced it. The ceiling was never
+a promise, and this is what a permissive ceiling licensing nothing looks like
+once executed: see `OMICS2PK_NESTED_FUSION_Q1_RESULTS_20261111.md`.
+
+---
+
 ## 5. Change log
 
 | Version | Date | Change |
 |---|---|---|
 | 1.0.0 | 2026-11-11 | First issue. Executes the corrected Gate 1 and the context probe on 13 cells across three cohorts. |
+| **1.1.0** | **2026-11-11** | §0' added. Two findings superseded and one **withdrawn**: the nested stacking gain of +167.5 on CYP3A4/testosterone came from a cached prediction layer that leaked the scored rows' outcomes through the base models' training sets, and is +58.2 [−31.5, +151.5] once the arms are refit inside every outer fold. The four `CONTEXT_CARRIES_SIGNAL` verdicts are renamed under a ladder that applies the 0.30 floor to the lower bound. The convex-ceiling result stands. |

@@ -48,7 +48,7 @@ points to.
 
 ---
 
-## 1. Audit of Omics2PK — 64 modules, and a category that was empty until 2026-11-11
+## 1. Audit of Omics2PK — 65 modules, and a category that was empty until 2026-11-11
 
 ### 1.1 Selection, richly developed
 
@@ -70,7 +70,7 @@ FDR without a resolution floor, Bonferroni within declared families, a
 PCA for fold-safe directions at p ≫ n, and **fourteen modules whose names declare them gates, contracts or
 readiness checks**, all fail-closed: they refuse rather than approximate.
 
-### 1.3 Fusion: the category was empty, and now holds exactly one member
+### 1.3 Fusion: the category was empty, and now holds two members — both of which lose
 
 **As audited on 2026-11-10:** searched across `src/`, **`stacking` 0,
 `ensemble` 0, `model_averag` 0, `mixture` 0, `meta_learner` 0.** The
@@ -87,10 +87,11 @@ contains **one** member of the category, and the distinction matters:
 
 | | Status |
 |---|---|
-| `nested_constant_stacking` — **constant weights fitted on one partition and scored on another** | **this is stacking**, implemented. It exists to measure what stacking *recovers*, and it is reported as a diagnostic, but it is not merely a ceiling and should not be described as one |
+| `nested_constant_stacking` — **constant weights fitted on one partition and scored on another** | **this is stacking**, implemented. It exists to measure what stacking *recovers*, and it is reported as a diagnostic, but it is not merely a ceiling and should not be described as one. **Amended 2026-11-11:** it is nested only in the prediction layer. Because that layer was computed once over the whole cohort, the weights were fitted on individuals whose base-model training sets contained the rows the weights were then scored on. `nested_fusion_evaluation` refits the arms inside every outer fold and supersedes it; measured, the difference is a factor of about **2.9** on the one contrast where the old version found a gain |
+| `nested_fusion_evaluation` — `S`, `U`, `K` and `X` on shared outer folds, arms refit inside each | the category now holds a **contextual gate** as well, and it does **not** beat stacking on HLC: 0 of 30 cells reach the declared margin. A mechanistic prior on fusion weights still does not exist, and under the protocol's own condition it is not authorised |
 | `constant_weight_oracle` | a hindsight ceiling, not a method |
 | `individual_convex_oracle`, `individual_selection_oracle` | hindsight ceilings, not methods |
-| a **gate**, w(z_i) | **does not exist** |
+| a **gate**, w(z_i) | ~~**does not exist**~~ **built and tested 2026-11-11** in `nested_fusion_evaluation.py`, a softmax over ridge-predicted per-arm losses. It reaches the declared margin on **0 of 30** cells on HLC, so the category is no longer empty and no longer promising |
 | a **mechanistic prior on weights** | **does not exist** |
 
 So the honest statement is now: *comparator `K` of the protocol's arm list is
