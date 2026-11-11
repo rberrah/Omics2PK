@@ -45,6 +45,7 @@ ROOT = pathlib.Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 sys.stdout.reconfigure(encoding="utf-8")
 
+from omics2pk import structural_annotation as SA  # noqa: E402
 from omics2pk import variant_mechanism_omic_selection as VMS  # noqa: E402
 
 #: Verified against the UniProt REST API on 2026-11-11. Embedded rather than
@@ -159,7 +160,7 @@ def verify_uniprot(gene, annotation):
             "functional_sites": sorted(sites), "motifs": sorted(motifs)}
 
 
-def analyse(gene, directory, *, verify=False):
+def analyse(gene, directory, *, verify=False, pdb_dir=None):
     annotation = ANNOTATION[gene]
     activity_path = (directory
                      / f"mavedb_{annotation['activity_urn'].split(':')[-1]}"
@@ -278,6 +279,47 @@ def analyse(gene, directory, *, verify=False):
                 "is right and the knowledge layer is too sparse to use it."),
         }
 
+    # ---- the structural layer: a 3D ruler where the sequence ruler failed
+    # The earlier diagnosis said annotation COVERAGE was the binding
+    # constraint. That is refutable: if it was right, 3D proximity to the
+    # catalytic machinery should reach the discordant residues that sequence
+    # proximity misses. If it does not, the diagnosis was wrong.
+    structural = None
+    if pdb_dir is not None and gene in SA.CATALYTIC_CENTRES:
+        centre = SA.CATALYTIC_CENTRES[gene]
+        path = pathlib.Path(pdb_dir) / f"{centre['pdb']}.pdb"
+        if path.is_file():
+            residues, ligands = SA.parse_pdb(
+                path.read_text(encoding="utf-8", errors="replace"))
+            guard = SA.verify_catalytic_geometry(residues, ligands, centre)
+            distances = SA.residue_distances(residues, ligands, centre)
+            structural = SA.build_structural_block(positions, distances)
+            reach = SA.coverage(positions, discordant, distances)
+            out["structural_layer"] = {
+                "pdb": centre["pdb"],
+                "resolution_angstrom": centre["resolution_angstrom"],
+                "title": centre["title"],
+                "cofactor_ligands": list(centre["cofactor_ligands"]),
+                "substrate_ligands": list(centre["substrate_ligands"]),
+                "numbering_guard": guard,
+                "structure_sha256": hashlib.sha256(
+                    path.read_bytes()).hexdigest(),
+                "coverage": reach,
+                "enrichment_interval": SA.enrichment_interval(
+                    positions, discordant, distances),
+                "distance_for_the_residues_the_sequence_ruler_missed": {
+                    str(int(p)): {
+                        "to_cofactor": distances[int(p)]["to_cofactor"],
+                        "to_substrate": distances[int(p)]["to_substrate"],
+                        "sequence_distance_to_nearest_annotation": min(
+                            abs(int(p) - site)
+                            for site in annotation["functional_sites"]),
+                    }
+                    for p, _ in out["discordant_positions_most_frequent"]
+                    if int(p) in distances},
+                "what_this_is_not": SA.what_this_module_does_not_do(),
+            }
+
     runs, contrasts = {}, {}
     for label, folds in (("grouped_by_position", position_folds),
                          ("grouped_by_contiguous_region", region_folds)):
@@ -306,6 +348,36 @@ def analyse(gene, directory, *, verify=False):
                     "variant in general and not its functional consequence."),
             },
         }
+        if structural is not None:
+            richer = np.column_stack([mechanism, structural])
+            with_structure = VMS.evaluate(y, x, substitution, richer, folds,
+                                          positions)
+            runs[label]["with_structural_layer"] = {
+                "mean_loss": with_structure["mean_loss"],
+                "mean_abundance_blend_weight":
+                    with_structure["mean_abundance_blend_weight"],
+                "M5_vs_M4": VMS.contrast(
+                    with_structure, "M5_conditional_interaction",
+                    "M4_fixed_union", family_size=PRIMARY_FAMILY_SIZE),
+                "M3_vs_M0": VMS.contrast(
+                    with_structure, "M3_mechanism_only", "M0_intercept",
+                    family_size=PRIMARY_FAMILY_SIZE),
+                "M4_vs_M1": VMS.contrast(
+                    with_structure, "M4_fixed_union", "M1_abundance_only",
+                    family_size=PRIMARY_FAMILY_SIZE),
+                "relative_change_in_M3_from_adding_structure": float(
+                    1.0 - with_structure["mean_loss"]["M3_mechanism_only"]
+                    / real["mean_loss"]["M3_mechanism_only"]),
+                "relative_change_in_M4_from_adding_structure": float(
+                    1.0 - with_structure["mean_loss"]["M4_fixed_union"]
+                    / real["mean_loss"]["M4_fixed_union"]),
+                "what_must_happen": (
+                    "if annotation coverage was the binding constraint, the "
+                    "mechanism arm M3 must improve when the ruler becomes "
+                    "three-dimensional. If it does not, the diagnosis was "
+                    "wrong."),
+            }
+
         contrasts[label] = {
             "M5_vs_M4": VMS.contrast(real, "M5_conditional_interaction",
                                      "M4_fixed_union",
@@ -371,6 +443,9 @@ def main(argv=None):
     parser.add_argument("--mavedb-dir", required=True)
     parser.add_argument("--genes", nargs="*", default=list(ANNOTATION))
     parser.add_argument("--verify-uniprot", action="store_true")
+    parser.add_argument("--pdb-dir", default=None,
+                        help="directory holding the declared PDB structures; "
+                             "omitted means the structural layer is skipped")
     parser.add_argument("--out",
                         default=str(ROOT / "reports" / "data"
                                     / "variant_mechanism_benchmark.json"))
@@ -386,7 +461,8 @@ def main(argv=None):
         if gene not in ANNOTATION:
             raise RunError(f"unknown gene {gene}; known: {sorted(ANNOTATION)}")
         print(f"  {gene} [{ANNOTATION[gene]['role']}] ...", flush=True)
-        genes[gene] = analyse(gene, directory, verify=args.verify_uniprot)
+        genes[gene] = analyse(gene, directory, verify=args.verify_uniprot,
+                              pdb_dir=args.pdb_dir)
 
     payload = {
         "run": "variant_mechanism_omic_selection",
@@ -398,6 +474,11 @@ def main(argv=None):
                    for k, v in VMS.FROZEN.items()},
         "primary_family_size": PRIMARY_FAMILY_SIZE,
         "primary_gene": "NUDT15",
+        "structural_layer_declared": {
+            gene: {"pdb": c["pdb"], "uniprot": c["uniprot"],
+                   "cofactor": list(c["cofactor_ligands"]),
+                   "substrate": list(c["substrate_ligands"])}
+            for gene, c in SA.CATALYTIC_CENTRES.items()},
         "positive_control": VMS.self_test(),
         "what_this_is_not": VMS.what_this_module_does_not_do(),
         "genes": genes,

@@ -16,6 +16,28 @@
   },
   "primary_family_size": 8,
   "primary_gene": "NUDT15",
+  "structural_layer_declared": {
+    "CYP2C9": {
+      "pdb": "1R9O",
+      "uniprot": "P11712",
+      "cofactor": [
+        "HEM"
+      ],
+      "substrate": [
+        "FLP"
+      ]
+    },
+    "NUDT15": {
+      "pdb": "5LPG",
+      "uniprot": "Q9NV35",
+      "cofactor": [
+        "MG"
+      ],
+      "substrate": [
+        "71V"
+      ]
+    }
+  },
   "positive_control": {
     "with_real_mechanism": {
       "mean_loss": {
@@ -122,6 +144,96 @@
         "share_of_discordant_variants_the_annotation_reaches": 0.48760330578512395,
         "how_to_read": "an enrichment above 1 supports the hypothesis that a variant near annotated machinery keeps abundance and loses activity. The LAST figure is the one that decides what to build next: it is the share of discordant variants the annotation can even see. A high enrichment with a low share means the rule is right and the knowledge layer is too sparse to use it."
       },
+      "structural_layer": {
+        "pdb": "5LPG",
+        "resolution_angstrom": 1.7,
+        "title": "NUDT15 in complex with 6-thio-GMP",
+        "cofactor_ligands": [
+          "MG"
+        ],
+        "substrate_ligands": [
+          "71V"
+        ],
+        "numbering_guard": {
+          "pdb": "5LPG",
+          "uniprot": "Q9NV35",
+          "n_residues_parsed": 156,
+          "residue_range": [
+            9,
+            164
+          ],
+          "motif_to_metal_angstrom": 2.11,
+          "motif_span_checked": [
+            48,
+            69
+          ],
+          "verified": true
+        },
+        "structure_sha256": "07696da29870a8f534489995d9b38a9e5060bf3f62d7843fe0907baed6183f63",
+        "coverage": {
+          "cutoff_angstrom": 8.0,
+          "n_within": 840,
+          "n_beyond": 2004,
+          "n_unresolved": 120,
+          "discordance_rate_within": 0.1380952380952381,
+          "discordance_rate_beyond": 0.00249500998003992,
+          "share_of_discordant_variants_reached": 0.9586776859504132,
+          "enrichment_ratio": 55.34857142857143,
+          "enrichment_unavailable_because": null
+        },
+        "enrichment_interval": [
+          26.949055782635668,
+          251.4087805739231
+        ],
+        "distance_for_the_residues_the_sequence_ruler_missed": {
+          "44": {
+            "to_cofactor": 7.994104953026324,
+            "to_substrate": 3.8788539544561345,
+            "sequence_distance_to_nearest_annotation": 3
+          },
+          "47": {
+            "to_cofactor": 3.6467883130228427,
+            "to_substrate": 2.9857027648444867,
+            "sequence_distance_to_nearest_annotation": 0
+          },
+          "113": {
+            "to_cofactor": 4.2319606567169314,
+            "to_substrate": 6.850187807644403,
+            "sequence_distance_to_nearest_annotation": 46
+          },
+          "67": {
+            "to_cofactor": 2.109897864826636,
+            "to_substrate": 4.4200856326546445,
+            "sequence_distance_to_nearest_annotation": 0
+          },
+          "117": {
+            "to_cofactor": 9.228565923262398,
+            "to_substrate": 7.785906883594229,
+            "sequence_distance_to_nearest_annotation": 50
+          },
+          "63": {
+            "to_cofactor": 2.196861625137096,
+            "to_substrate": 4.57400929163901,
+            "sequence_distance_to_nearest_annotation": 0
+          },
+          "137": {
+            "to_cofactor": 14.035947456441976,
+            "to_substrate": 3.1812929761340762,
+            "sequence_distance_to_nearest_annotation": 70
+          },
+          "15": {
+            "to_cofactor": 10.047994476511223,
+            "to_substrate": 4.900117651648785,
+            "sequence_distance_to_nearest_annotation": 32
+          }
+        },
+        "what_this_is_not": {
+          "a_distance_is_not_a_cause": "proximity to a cofactor or a bound substrate is a hypothesis that a variant affects catalysis rather than folding. Its predictive usefulness is measured by the arms that use it, never assumed.",
+          "one_structure_is_one_conformation": "a crystal structure is one conformation of one construct, often with a flexible region unmodelled and, for a microsomal CYP, the membrane anchor truncated. Unresolved positions are flagged, not quietly imputed.",
+          "a_bound_ligand_is_not_every_substrate": "flurbiprofen in 1R9O and 6-thio-GMP in 5LPG define one pocket each. A different substrate can occupy a different volume, so `to_substrate` is specific to the complex that was crystallised.",
+          "numbering_is_verified_not_trusted": "verify_catalytic_geometry fails unless a fact that depends on correct numbering holds, because an offset would produce plausible wrong distances rather than an error."
+        }
+      },
       "runs": {
         "grouped_by_position": {
           "real": {
@@ -172,6 +284,72 @@
             },
             "relative_gain_of_mechanism_over_intercept": 0.061416568275960204,
             "what_must_happen": "the mechanism block should help LESS for abundance than for activity. If it helps equally, it is describing the variant in general and not its functional consequence."
+          },
+          "with_structural_layer": {
+            "mean_loss": {
+              "M0_intercept": 0.30354706718759533,
+              "M1_abundance_only": 0.26935799209856004,
+              "M2_substitution_only": 0.2905556513971786,
+              "M3_mechanism_only": 0.25314146524824294,
+              "M4_fixed_union": 0.22672299402864254,
+              "M5_conditional_interaction": 0.2175371353892987,
+              "M6_trust_gate": 0.23663899801598562
+            },
+            "mean_abundance_blend_weight": 0.4874436844175019,
+            "M5_vs_M4": {
+              "contrast": "M5_conditional_interaction_minus_M4_fixed_union",
+              "verdict": "GAIN_PRESENT_MARGIN_UNDECIDED",
+              "relative_gain": 0.04051577864300521,
+              "minimum_interesting_gain": 0.011336149701432128,
+              "an_interval_containing_zero_is_not_a_refutation": true,
+              "gap": 0.009185858639343873,
+              "interval": [
+                0.005087312729117725,
+                0.0130782562680084
+              ],
+              "excludes_zero": true,
+              "level": "99.38 %",
+              "family_size": 8,
+              "n_bootstrap": 2000,
+              "resampling_unit": "individual"
+            },
+            "M3_vs_M0": {
+              "contrast": "M3_mechanism_only_minus_M0_intercept",
+              "verdict": "GAIN_REACHES_MARGIN",
+              "relative_gain": 0.1660553086754129,
+              "minimum_interesting_gain": 0.015177353359379767,
+              "an_interval_containing_zero_is_not_a_refutation": true,
+              "gap": 0.050405601939352444,
+              "interval": [
+                0.04178204771237733,
+                0.059308196236511526
+              ],
+              "excludes_zero": true,
+              "level": "99.38 %",
+              "family_size": 8,
+              "n_bootstrap": 2000,
+              "resampling_unit": "individual"
+            },
+            "M4_vs_M1": {
+              "contrast": "M4_fixed_union_minus_M1_abundance_only",
+              "verdict": "GAIN_REACHES_MARGIN",
+              "relative_gain": 0.15828376851842957,
+              "minimum_interesting_gain": 0.013467899604928002,
+              "an_interval_containing_zero_is_not_a_refutation": true,
+              "gap": 0.04263499806991746,
+              "interval": [
+                0.03439180119772337,
+                0.051136086205508385
+              ],
+              "excludes_zero": true,
+              "level": "99.38 %",
+              "family_size": 8,
+              "n_bootstrap": 2000,
+              "resampling_unit": "individual"
+            },
+            "relative_change_in_M3_from_adding_structure": 0.10406234169454853,
+            "relative_change_in_M4_from_adding_structure": 0.11186257187601234,
+            "what_must_happen": "if annotation coverage was the binding constraint, the mechanism arm M3 must improve when the ruler becomes three-dimensional. If it does not, the diagnosis was wrong."
           }
         },
         "grouped_by_contiguous_region": {
@@ -223,6 +401,72 @@
             },
             "relative_gain_of_mechanism_over_intercept": -0.021138327502681964,
             "what_must_happen": "the mechanism block should help LESS for abundance than for activity. If it helps equally, it is describing the variant in general and not its functional consequence."
+          },
+          "with_structural_layer": {
+            "mean_loss": {
+              "M0_intercept": 0.3073342384470268,
+              "M1_abundance_only": 0.27224186076579016,
+              "M2_substitution_only": 0.294775545125954,
+              "M3_mechanism_only": 0.27693249500026135,
+              "M4_fixed_union": 0.2464710317923953,
+              "M5_conditional_interaction": 0.2434013641973315,
+              "M6_trust_gate": 0.24080622473119778
+            },
+            "mean_abundance_blend_weight": 0.5160707196716315,
+            "M5_vs_M4": {
+              "contrast": "M5_conditional_interaction_minus_M4_fixed_union",
+              "verdict": "REFUTED_GAIN_BELOW_MARGIN",
+              "relative_gain": 0.012454476182212983,
+              "minimum_interesting_gain": 0.012323551589619765,
+              "an_interval_containing_zero_is_not_a_refutation": true,
+              "gap": 0.003069667595063846,
+              "interval": [
+                -0.0023855530930731385,
+                0.008288639694868333
+              ],
+              "excludes_zero": false,
+              "level": "99.38 %",
+              "family_size": 8,
+              "n_bootstrap": 2000,
+              "resampling_unit": "individual"
+            },
+            "M3_vs_M0": {
+              "contrast": "M3_mechanism_only_minus_M0_intercept",
+              "verdict": "GAIN_REACHES_MARGIN",
+              "relative_gain": 0.09892078279461075,
+              "minimum_interesting_gain": 0.01536671192235134,
+              "an_interval_containing_zero_is_not_a_refutation": true,
+              "gap": 0.030401743446765446,
+              "interval": [
+                0.019081261166906678,
+                0.04097092145561023
+              ],
+              "excludes_zero": true,
+              "level": "99.38 %",
+              "family_size": 8,
+              "n_bootstrap": 2000,
+              "resampling_unit": "individual"
+            },
+            "M4_vs_M1": {
+              "contrast": "M4_fixed_union_minus_M1_abundance_only",
+              "verdict": "GAIN_REACHES_MARGIN",
+              "relative_gain": 0.0946615222982389,
+              "minimum_interesting_gain": 0.01361209303828951,
+              "an_interval_containing_zero_is_not_a_refutation": true,
+              "gap": 0.025770828973394895,
+              "interval": [
+                0.015099976137551681,
+                0.03573457475364416
+              ],
+              "excludes_zero": true,
+              "level": "99.38 %",
+              "family_size": 8,
+              "n_bootstrap": 2000,
+              "resampling_unit": "individual"
+            },
+            "relative_change_in_M3_from_adding_structure": 0.07594379555059172,
+            "relative_change_in_M4_from_adding_structure": 0.12087315994556247,
+            "what_must_happen": "if annotation coverage was the binding constraint, the mechanism arm M3 must improve when the ruler becomes three-dimensional. If it does not, the diagnosis was wrong."
           }
         }
       },
@@ -515,6 +759,93 @@
         "share_of_discordant_variants_the_annotation_reaches": 0.125,
         "how_to_read": "an enrichment above 1 supports the hypothesis that a variant near annotated machinery keeps abundance and loses activity. The LAST figure is the one that decides what to build next: it is the share of discordant variants the annotation can even see. A high enrichment with a low share means the rule is right and the knowledge layer is too sparse to use it."
       },
+      "structural_layer": {
+        "pdb": "1R9O",
+        "resolution_angstrom": 2.0,
+        "title": "CYP2C9 with flurbiprofen bound",
+        "cofactor_ligands": [
+          "HEM"
+        ],
+        "substrate_ligands": [
+          "FLP"
+        ],
+        "numbering_guard": {
+          "pdb": "1R9O",
+          "uniprot": "P11712",
+          "n_residues_parsed": 455,
+          "residue_range": [
+            26,
+            492
+          ],
+          "axial_bond_angstrom": 2.378,
+          "axial_residue_checked": "Cys435",
+          "verified": true
+        },
+        "structure_sha256": "16860aca35da55e576db41e3ff6a69227b41f771ba5ff4691d1d61eeef10e136",
+        "coverage": {
+          "cutoff_angstrom": 8.0,
+          "n_within": 854,
+          "n_beyond": 3624,
+          "n_unresolved": 327,
+          "discordance_rate_within": 0.02459016393442623,
+          "discordance_rate_beyond": 0.0008278145695364238,
+          "share_of_discordant_variants_reached": 0.875,
+          "enrichment_ratio": 29.704918032786885,
+          "enrichment_unavailable_because": null
+        },
+        "enrichment_interval": [
+          10.776209007371016,
+          105.07542458945545
+        ],
+        "distance_for_the_residues_the_sequence_ruler_missed": {
+          "301": {
+            "to_cofactor": 3.1472384720576843,
+            "to_substrate": 3.8285592590424926,
+            "sequence_distance_to_nearest_annotation": 134
+          },
+          "113": {
+            "to_cofactor": 3.6453500517782933,
+            "to_substrate": 3.721902470511553,
+            "sequence_distance_to_nearest_annotation": 322
+          },
+          "300": {
+            "to_cofactor": 6.677896225608781,
+            "to_substrate": 6.155254746962144,
+            "sequence_distance_to_nearest_annotation": 135
+          },
+          "365": {
+            "to_cofactor": 2.8785020409928506,
+            "to_substrate": 6.866785710942201,
+            "sequence_distance_to_nearest_annotation": 70
+          },
+          "427": {
+            "to_cofactor": 3.4461638092232354,
+            "to_substrate": 8.726808007513402,
+            "sequence_distance_to_nearest_annotation": 8
+          },
+          "435": {
+            "to_cofactor": 2.3777653374544765,
+            "to_substrate": 7.193688483663996,
+            "sequence_distance_to_nearest_annotation": 0
+          },
+          "125": {
+            "to_cofactor": 7.914204002930428,
+            "to_substrate": 15.08352415717229,
+            "sequence_distance_to_nearest_annotation": 310
+          },
+          "132": {
+            "to_cofactor": 9.015071824450429,
+            "to_substrate": 17.395776987533498,
+            "sequence_distance_to_nearest_annotation": 303
+          }
+        },
+        "what_this_is_not": {
+          "a_distance_is_not_a_cause": "proximity to a cofactor or a bound substrate is a hypothesis that a variant affects catalysis rather than folding. Its predictive usefulness is measured by the arms that use it, never assumed.",
+          "one_structure_is_one_conformation": "a crystal structure is one conformation of one construct, often with a flexible region unmodelled and, for a microsomal CYP, the membrane anchor truncated. Unresolved positions are flagged, not quietly imputed.",
+          "a_bound_ligand_is_not_every_substrate": "flurbiprofen in 1R9O and 6-thio-GMP in 5LPG define one pocket each. A different substrate can occupy a different volume, so `to_substrate` is specific to the complex that was crystallised.",
+          "numbering_is_verified_not_trusted": "verify_catalytic_geometry fails unless a fact that depends on correct numbering holds, because an offset would produce plausible wrong distances rather than an error."
+        }
+      },
       "runs": {
         "grouped_by_position": {
           "real": {
@@ -565,6 +896,72 @@
             },
             "relative_gain_of_mechanism_over_intercept": 0.07955825594554544,
             "what_must_happen": "the mechanism block should help LESS for abundance than for activity. If it helps equally, it is describing the variant in general and not its functional consequence."
+          },
+          "with_structural_layer": {
+            "mean_loss": {
+              "M0_intercept": 0.33090987239779884,
+              "M1_abundance_only": 0.1899504018600491,
+              "M2_substitution_only": 0.3023903116249049,
+              "M3_mechanism_only": 0.30383044907699575,
+              "M4_fixed_union": 0.18178123796752985,
+              "M5_conditional_interaction": 0.1797108661074383,
+              "M6_trust_gate": 0.20681305016472049
+            },
+            "mean_abundance_blend_weight": 0.6150810616699736,
+            "M5_vs_M4": {
+              "contrast": "M5_conditional_interaction_minus_M4_fixed_union",
+              "verdict": "GAIN_PRESENT_BUT_BELOW_MARGIN",
+              "relative_gain": 0.011389359447872881,
+              "minimum_interesting_gain": 0.009089061898376492,
+              "an_interval_containing_zero_is_not_a_refutation": true,
+              "gap": 0.0020703718600915146,
+              "interval": [
+                0.00042641463378991683,
+                0.0036226246228496604
+              ],
+              "excludes_zero": true,
+              "level": "99.38 %",
+              "family_size": 8,
+              "n_bootstrap": 2000,
+              "resampling_unit": "individual"
+            },
+            "M3_vs_M0": {
+              "contrast": "M3_mechanism_only_minus_M0_intercept",
+              "verdict": "GAIN_REACHES_MARGIN",
+              "relative_gain": 0.08183322886254024,
+              "minimum_interesting_gain": 0.016545493619889943,
+              "an_interval_containing_zero_is_not_a_refutation": true,
+              "gap": 0.02707942332080306,
+              "interval": [
+                0.022332463369592895,
+                0.03213863827639725
+              ],
+              "excludes_zero": true,
+              "level": "99.38 %",
+              "family_size": 8,
+              "n_bootstrap": 2000,
+              "resampling_unit": "individual"
+            },
+            "M4_vs_M1": {
+              "contrast": "M4_fixed_union_minus_M1_abundance_only",
+              "verdict": "GAIN_PRESENT_MARGIN_UNDECIDED",
+              "relative_gain": 0.043006826058405084,
+              "minimum_interesting_gain": 0.009497520093002455,
+              "an_interval_containing_zero_is_not_a_refutation": true,
+              "gap": 0.008169163892519277,
+              "interval": [
+                0.0049516262396864475,
+                0.011520372723874359
+              ],
+              "excludes_zero": true,
+              "level": "99.38 %",
+              "family_size": 8,
+              "n_bootstrap": 2000,
+              "resampling_unit": "individual"
+            },
+            "relative_change_in_M3_from_adding_structure": 0.024270056133605555,
+            "relative_change_in_M4_from_adding_structure": 0.019486341655526318,
+            "what_must_happen": "if annotation coverage was the binding constraint, the mechanism arm M3 must improve when the ruler becomes three-dimensional. If it does not, the diagnosis was wrong."
           }
         },
         "grouped_by_contiguous_region": {
@@ -616,6 +1013,72 @@
             },
             "relative_gain_of_mechanism_over_intercept": 0.05124649349449162,
             "what_must_happen": "the mechanism block should help LESS for abundance than for activity. If it helps equally, it is describing the variant in general and not its functional consequence."
+          },
+          "with_structural_layer": {
+            "mean_loss": {
+              "M0_intercept": 0.33250974025156405,
+              "M1_abundance_only": 0.1917786500552705,
+              "M2_substitution_only": 0.3045871613707255,
+              "M3_mechanism_only": 0.30888116500484214,
+              "M4_fixed_union": 0.18630733203262984,
+              "M5_conditional_interaction": 0.1920901496812546,
+              "M6_trust_gate": 0.2106763955184075
+            },
+            "mean_abundance_blend_weight": 0.6186713089794161,
+            "M5_vs_M4": {
+              "contrast": "M5_conditional_interaction_minus_M4_fixed_union",
+              "verdict": "DETECTABLY_WORSE",
+              "relative_gain": -0.03103913080356916,
+              "minimum_interesting_gain": 0.009315366601631491,
+              "an_interval_containing_zero_is_not_a_refutation": true,
+              "gap": -0.005782817648624788,
+              "interval": [
+                -0.0077722442649632885,
+                -0.003740271238704643
+              ],
+              "excludes_zero": false,
+              "level": "99.38 %",
+              "family_size": 8,
+              "n_bootstrap": 2000,
+              "resampling_unit": "individual"
+            },
+            "M3_vs_M0": {
+              "contrast": "M3_mechanism_only_minus_M0_intercept",
+              "verdict": "GAIN_REACHES_MARGIN",
+              "relative_gain": 0.0710613025316054,
+              "minimum_interesting_gain": 0.016625487012578204,
+              "an_interval_containing_zero_is_not_a_refutation": true,
+              "gap": 0.023628575246721923,
+              "interval": [
+                0.017923909465707506,
+                0.029742275149329325
+              ],
+              "excludes_zero": true,
+              "level": "99.38 %",
+              "family_size": 8,
+              "n_bootstrap": 2000,
+              "resampling_unit": "individual"
+            },
+            "M4_vs_M1": {
+              "contrast": "M4_fixed_union_minus_M1_abundance_only",
+              "verdict": "GAIN_PRESENT_MARGIN_UNDECIDED",
+              "relative_gain": 0.028529338490305485,
+              "minimum_interesting_gain": 0.009588932502763527,
+              "an_interval_containing_zero_is_not_a_refutation": true,
+              "gap": 0.005471318022640655,
+              "interval": [
+                0.0012852793188478794,
+                0.009625633203361746
+              ],
+              "excludes_zero": true,
+              "level": "99.38 %",
+              "family_size": 8,
+              "n_bootstrap": 2000,
+              "resampling_unit": "individual"
+            },
+            "relative_change_in_M3_from_adding_structure": 0.03839952457386486,
+            "relative_change_in_M4_from_adding_structure": 0.03810917476465958,
+            "what_must_happen": "if annotation coverage was the binding constraint, the mechanism arm M3 must improve when the ruler becomes three-dimensional. If it does not, the diagnosis was wrong."
           }
         }
       },

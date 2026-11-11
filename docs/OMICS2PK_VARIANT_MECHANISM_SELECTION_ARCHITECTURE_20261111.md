@@ -1,7 +1,7 @@
 # Automating the pharmacological reasoning that chooses which omic to measure
 
-**Version 1.0.0 — 2026-11-11.** Evidence type: **architecture and protocol;
-the first demonstrator is executed.** Answers the six items commissioned on
+**Version 1.1.0 — 2026-11-11.** Evidence type: **architecture and protocol;
+the first demonstrator is executed, and its diagnosis has been tested.** Answers the six items commissioned on
 2026-11-11. Companion to
 `OMICS2PK_MAVEDB_VARIANT_MECHANISM_RESULTS_20261111.md`.
 
@@ -17,21 +17,35 @@ information* — and that negative result does not transfer.
 
 The commissioned priority was to show that *pharmacological knowledge helps
 choose which biological information is useful, rather than making prediction
-models more complex without measurable gain.* **Executed on public data, the
-first half is confirmed and the second half is refuted.** A variant within
-three residues of an annotated functional site is **6.74× [4.82, 9.42]** more
-likely to keep protein abundance while losing activity — the mechanistic rule
-is right. But using that rule as a predictive feature reaches the declared 5 %
-margin **nowhere**, and the annotation reaches only **48.8 %** of the cases it
-would need to cover on the best-annotated of the two proteins, and **12.5 %**
-on the other. **The binding constraint is annotation coverage, not the
-algorithm.** That is where the next effort belongs, and §7 says so concretely.
+models more complex without measurable gain.* **Executed on public data, it is
+confirmed — once the knowledge layer is adequate.**
+
+A variant within three residues of an annotated functional site is **6.74×
+[4.82, 9.42]** more likely to keep protein abundance while losing activity, so
+the mechanistic rule is right. With that **sequence** annotation it bought no
+prediction, and the reason was measurable: the annotation reached only **48.8 %**
+of the discordant cases on the better-annotated protein and **12.5 %** on the
+other. The diagnosis — *the binding constraint is annotation coverage, not the
+algorithm* — was a prediction, and it was tested by adding two crystal
+structures. **It holds on both halves:** coverage rises to **95.9 %** and
+**87.5 %**, enrichment to **55.35× [26.95, 251.41]** and **29.70× [10.78,
+105.08]**, and the contrast that matters — *does knowledge-derived information
+add to the best single measurement?* — goes from **+5.23 % / −2.98 %** (a sign
+flip between the two validation splits) to **+15.83 % / +9.47 %, reaching the
+declared margin under both.**
+
+**So the commissioned priority is met**, on the primary gene, under the harder
+validation, against a measurement that was already the best single predictor.
+One part still fails: **conditional weighting** (`M5`) reaches the margin
+nowhere, with either knowledge layer. Knowledge helps **select** information
+and does not help **weight** it — the same split this project found for
+prediction fusion.
 
 ---
 
 ## 1. Deliverable 1 — audit: what is reusable
 
-### 1.1 Omics2PK, 66 modules
+### 1.1 Omics2PK, 67 modules
 
 | What the new direction needs | Where it already exists | Verdict |
 |---|---|---|
@@ -50,6 +64,7 @@ algorithm.** That is where the next effort belongs, and §7 says so concretely.
 | Missing | Status |
 |---|---|
 | variant-level annotation and mechanism rules | **built: `variant_mechanism_omic_selection.py`** |
+| **3D structural proximity to catalytic machinery** | **built: `structural_annotation.py`** — a minimal PDB reader, declared catalytic centres, and a numbering guard that fails unless a fact requiring correct numbering holds. This is what converted the rule from true-but-useless to useful |
 | pharmacogenetic knowledge ingestion (CPIC, PharmVar) | **absent.** §3 shows why it cannot yet be a feature |
 | CollecTRI / OmniPath regulatory ingestion | data is downloaded; **no module reads it** |
 | multi-layer supervised selection (sPLS, block sPLS) | absent from Omics2PK; exists in MultiOmics as DIABLO |
@@ -137,6 +152,8 @@ Every row below was probed on **2026-11-11**, not inferred from a publication.
 | Source | Channel | Status | What it gives |
 |---|---|---|---|
 | **MaveDB** | `api.mavedb.org`, CC0 | **ACCESSIBLE, used** | variant→function at scale; and, rarely, **two assays on one library** |
+| **RCSB PDB** | `files.rcsb.org`, `search.rcsb.org` | **ACCESSIBLE, used** | experimental coordinates **with ligands**: 1R9O, 5LPG |
+| **AlphaFold DB** | `/files/` path **403** → `/api/prediction/` **200** | accessible by the API path; **not used** | predicted coordinates, but **no ligands**, so it cannot define a catalytic centre |
 | **UniProt** | `rest.uniprot.org` | **ACCESSIBLE, used** | sequence length, binding/active sites, motifs, domains |
 | **CPIC** | `api.cpicpgx.org` | **ACCESSIBLE** | allele functional status: 94 CYP2C9 alleles, 23 NUDT15 |
 | **PharmVar** | API **401, key requires an account** → public download file **200** | **ACCESSIBLE by the file channel only** | haplotype definitions: CYP2C9 v6.2.29, 345 variant rows; NUDT15, 57 |
@@ -252,12 +269,21 @@ mechanistic rule is confirmed at 6.74× and refuted as a predictive feature.**
 
 ## 7. What to do next, in the order the measurements imply
 
-1. **Fix the knowledge layer, not the model.** The rule works where annotation
-   exists and the annotation reaches half the cases at best. Concretely: add
-   PDB/AlphaFold structural proximity to the heme and substrate pocket, the
-   CYP substrate-recognition-site definitions, and cross-species conservation.
-   CYP2C9's one UniProt binding residue is why its enrichment interval is
-   `[0.00, 23.65]` — the rule is untestable there, not wrong.
+1. ~~**Fix the knowledge layer, not the model.**~~ **DONE 2026-11-11 and it
+   worked.** Structural proximity to the heme and substrate pocket was added
+   from 1R9O and 5LPG; coverage went 48.8 %→95.9 % and 12.5 %→87.5 %,
+   enrichment 6.74×→55.35× and 9.55×→29.70×, and `M4` vs `M1` on NUDT15 went
+   from a sign flip to **+15.83 % / +9.47 %, reaching the margin under both
+   splits**. CYP2C9's interval moved from `[0.00, 23.65]` to `[10.78, 105.08]`.
+   **Still outstanding from this item:** cross-species conservation, and the
+   CYP substrate-recognition-site definitions, which would be literature-derived
+   and must be labelled as such rather than database-derived.
+1a. **The structural layer's own limits now bound it.** It needs a crystallised
+   ligand complex: a protein without one gets nothing. 327 CYP2C9 and 120
+   NUDT15 assayed variants sit at **unresolved** positions — for a microsomal
+   CYP that is the truncated membrane anchor — and are flagged, never silently
+   imputed, because "absent from the structure" and "far from the machinery"
+   are opposite claims.
 2. **Map PharmVar to protein positions** so the PGx stratum can be used at all.
    Needs a coordinate→protein route; VEP did not answer today, so this is a
    data-access task before it is an analysis task.
@@ -282,4 +308,5 @@ the cheapest large gain available.
 
 | Version | Date | Change |
 |---|---|---|
-| 1.0.0 | 2026-11-11 | First issue. Answers the six commissioned items; audit of 66 Omics2PK modules and 117 MultiOmics R files; a five-layer architecture with no Thesis dependency; nine data sources probed today, of which PharmVar is admissible only by its file channel and VEP is unverified; seven comparators, seven success criteria, six negative controls including a mandatory positive control; the demonstrator executed. |
+| **1.1.0** | **2026-11-11** | §0 rewritten: the version 1.0.0 diagnosis was a prediction, it was tested with two crystal structures, and it holds on both halves — coverage 48.8 %→95.9 % and 12.5 %→87.5 %, enrichment to 55.35× and 29.70×, and `M4` vs `M1` from a sign flip to +15.83 %/+9.47 % reaching the margin under both splits. `structural_annotation.py` added to the audit. RCSB recorded accessible and used; AlphaFold recorded accessible by its API path but unusable here because its models carry no ligands. Roadmap item 1 marked done with its residue — conservation and SRS definitions — and item 1a added for the structural layer's own limits. Conditional weighting (`M5`) still reaches the margin nowhere. |
+| 1.0.0 | 2026-11-11 | First issue. Answers the six commissioned items; audit of 67 Omics2PK modules and 117 MultiOmics R files; a five-layer architecture with no Thesis dependency; nine data sources probed today, of which PharmVar is admissible only by its file channel and VEP is unverified; seven comparators, seven success criteria, six negative controls including a mandatory positive control; the demonstrator executed. |

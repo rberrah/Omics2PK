@@ -451,16 +451,16 @@ class TestArchitectureDocument:
         return ARCHITECTURE.read_text(encoding="utf-8")
 
     def test_it_is_versioned(self, text):
-        assert "**Version 1.0.0 \u2014 2026-11-11.**" in text
+        assert "**Version 1.1.0 \u2014 2026-11-11.**" in text
 
     def test_it_answers_all_six_commissioned_items(self, text):
         for item in range(1, 7):
             assert f"Deliverable {item}" in text
 
     def test_it_states_the_headline_both_ways(self, text):
-        # the sentence wraps in the document
-        assert "first half is confirmed and the second half is refuted" in text
+        assert "confirmed — once the knowledge layer is adequate" in text
         assert "6.74" in text
+        assert "+15.83 % / +9.47 %" in text
 
     def test_it_names_annotation_coverage_as_the_constraint(self, text):
         assert "binding constraint is annotation coverage, not the" in text
@@ -506,7 +506,7 @@ class TestResultsDocument:
         return RESULTS.read_text(encoding="utf-8")
 
     def test_it_is_versioned(self, text):
-        assert "**Version 1.0.0 \u2014 2026-11-11.**" in text
+        assert "**Version 2.0.0 \u2014 2026-11-11.**" in text
 
     def test_it_reports_the_enrichment_with_its_interval(self, text):
         assert "6.74\u00d7 [4.82, 9.42]" in text
@@ -551,3 +551,77 @@ class TestResultsDocument:
 
     def test_the_status_ceiling_is_exploratory(self, text):
         assert "Status ceiling: `exploratory`" in text
+
+
+# --------------------------------------------------------------------------
+# 11. the structural layer: the documents must keep reporting what it changed
+# --------------------------------------------------------------------------
+class TestStructuralLayerIsReported:
+    @pytest.fixture(scope="class")
+    def results(self):
+        return RESULTS.read_text(encoding="utf-8")
+
+    @pytest.fixture(scope="class")
+    def architecture(self):
+        return ARCHITECTURE.read_text(encoding="utf-8")
+
+    def test_the_title_no_longer_calls_the_rule_useless(self, results):
+        first = results.splitlines()[0]
+        assert "becomes useful" in first, (
+            "the conclusion changed when the structural layer was added; a "
+            "title left saying otherwise is a stale claim")
+
+    def test_the_diagnosis_is_recorded_as_tested_not_asserted(self, results):
+        assert "diagnosis was refutable, and it was tested" in results
+
+    def test_the_coverage_gain_is_reported(self, results):
+        for figure in ("48.8 %", "95.9 %", "12.5 %", "87.5 %"):
+            assert figure in results
+
+    def test_the_enrichment_gain_is_reported_with_intervals(self, results):
+        assert "55.35\u00d7 [26.95, 251.41]" in results
+        assert "29.70\u00d7 [10.78, 105.08]" in results
+
+    def test_cyp2c9_is_recorded_as_moving_from_untestable_to_confirmed(
+            self, results):
+        assert "from *untestable* to *confirmed*" in results
+
+    def test_the_split_that_no_longer_reverses_is_reported(self, results):
+        assert "+15.83 %" in results and "+9.47 %" in results
+
+    def test_the_conditional_arm_is_still_reported_as_failing(self, results):
+        assert "reaches the margin nowhere" in results
+
+    def test_the_numbering_guard_measurement_is_reported(self, results):
+        assert "2.378 \u00c5" in results
+        assert "2.11 \u00c5" in results
+
+    def test_why_a_sequence_ruler_had_to_fail_is_shown(self, results):
+        assert "134 residues" in results
+        assert "I-helix" in results
+
+    def test_the_structural_layer_limits_are_declared(self, results):
+        assert "crystallised ligand complex" in results \
+            or "crystallised\nligand complex" in results
+
+    def test_the_architecture_records_the_module(self, architecture):
+        assert "`structural_annotation.py`" in architecture
+
+    def test_the_architecture_marks_item_one_done_with_its_residue(
+            self, architecture):
+        assert "DONE 2026-11-11 and it" in architecture
+        assert "Still outstanding from this item" in architecture
+
+    def test_the_architecture_records_why_alphafold_was_not_used(
+            self, architecture):
+        assert "no ligands" in architecture
+
+    def test_the_architecture_separates_selecting_from_weighting(
+            self, architecture):
+        assert "helps **select** information" in architecture
+        assert "does not help **weight**" in architecture
+
+    def test_both_documents_keep_their_earlier_change_log_entries(
+            self, results, architecture):
+        assert "| 1.0.0 | 2026-11-11 | First issue." in results
+        assert "| 1.0.0 | 2026-11-11 | First issue." in architecture

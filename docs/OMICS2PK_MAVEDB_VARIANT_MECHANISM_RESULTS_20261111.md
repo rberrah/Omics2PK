@@ -1,8 +1,8 @@
-# The mechanistic rule is right, and it is not yet a useful feature
+# The mechanistic rule is right, and it becomes useful when the ruler is three-dimensional
 
-**Version 1.0.0 — 2026-11-11.** Evidence type: **exploratory; two genes, one
-data type, position- and region-grouped validation, five negative controls and
-one positive control.** Artefact:
+**Version 2.0.0 — 2026-11-11.** Evidence type: **exploratory; two genes, two
+knowledge layers, position- and region-grouped validation, five negative
+controls and one positive control.** Artefact:
 `reports/data/variant_mechanism_benchmark.json`. Protocol and architecture:
 `OMICS2PK_VARIANT_MECHANISM_SELECTION_ARCHITECTURE_20261111.md`.
 
@@ -13,17 +13,83 @@ variants in cell and yeast systems.
 
 ---
 
-## 1. The three findings, and they point in different directions
+## 1. Three findings with a sequence ruler, and what a structural ruler changed
 
 | | Result |
 |---|---|
 | **The premise is true.** The measurement closest to the gene is not reliably the one that reports its function | ρ(abundance, activity) = **+0.340** for NUDT15 but **+0.757** for CYP2C9. On NUDT15, **4.3 %** of variants keep abundance in the top quartile and lose activity to the bottom |
 | **The mechanistic rule is confirmed** | a variant within 3 residues of an annotated functional site is **6.74× [4.82, 9.42]** more likely to be discordant. The interval excludes 1 comfortably |
-| **It is not yet a useful feature** | conditional use of abundance (`M5` vs `M4`) reaches the declared 5 % margin in **none** of the four cells, and predicting *where* the assays disagree gives ρ **+0.083 [+0.045, +0.120]** — real, and far too small to act on |
+| **With a sequence ruler it was not a useful feature** | conditional use of abundance (`M5` vs `M4`) reaches the declared 5 % margin in **none** of the four cells, and predicting *where* the assays disagree gives ρ **+0.083 [+0.045, +0.120]** — real, and far too small to act on |
 
 **And the reason the second and third coexist is measurable:** the annotation
 reaches only **48.8 %** of NUDT15's discordant variants and **12.5 %** of
 CYP2C9's. The rule is correct about the cases it can see and blind to the rest.
+
+### 1.1 That diagnosis was refutable, and it was tested — it holds
+
+Version 1.0.0 concluded that **annotation coverage, not the algorithm**, was
+the binding constraint. That is a prediction: a ruler that measures distance in
+**three dimensions** should reach the discordant residues a **sequence** ruler
+misses. Tested by adding two crystal structures — **1R9O** (CYP2C9 with heme
+and flurbiprofen, 2.0 Å) and **5LPG** (NUDT15 with Mg and 6-thio-GMP, 1.7 Å):
+
+| | sequence ruler, ≤3 residues | **3D ruler, ≤8 Å** |
+|---|---|---|
+| NUDT15 discordant variants reached | 48.8 % | **95.9 %** |
+| NUDT15 enrichment | 6.74× [4.82, 9.42] | **55.35× [26.95, 251.41]** |
+| CYP2C9 discordant variants reached | 12.5 % | **87.5 %** |
+| CYP2C9 enrichment | 9.55× **[0.00, 23.65]** | **29.70× [10.78, 105.08]** |
+
+**CYP2C9's interval excludes 1 only after the structural layer is added**, so
+on that gene the rule moved from *untestable* to *confirmed*.
+
+**And prediction improved too, which version 1.0.0 did not promise.** On
+NUDT15, position-grouped, the mechanism arm `M3` improves **+10.4 %** and:
+
+| Contrast, NUDT15 | sequence annotation | **+ structure** |
+|---|---|---|
+| `M3` vs `M0`, position-grouped | +6.92 % undecided | **+16.61 % `GAIN_REACHES_MARGIN`** |
+| `M4` vs `M1`, position-grouped | +5.23 % undecided | **+15.83 % `GAIN_REACHES_MARGIN`** |
+| `M3` vs `M0`, **region-grouped** | +2.49 % refuted | **+9.89 % `GAIN_REACHES_MARGIN`** |
+| `M4` vs `M1`, **region-grouped** | **−2.98 % `DETECTABLY_WORSE`** | **+9.47 % `GAIN_REACHES_MARGIN`** |
+
+**The contrast that reversed sign under the harder split now reaches the margin
+under both.** This is the commissioned priority — *that pharmacological
+knowledge helps choose which biological information is useful* — met on the
+primary gene, under the harder of two validations, against the measurement that
+was already the best single predictor.
+
+**What still fails:** `M5`, the *conditional* arm, reaches the margin nowhere
+even with structure (+4.05 % undecided, +1.25 % refuted on NUDT15; +1.14 %
+below margin, −3.10 % worse on CYP2C9). So knowledge helps **select**
+information and does **not** help **weight** it conditionally — the same split
+this project found for prediction fusion.
+
+### 1.2 Why a sequence ruler was always going to fail
+
+| Residue | sequence distance to the nearest annotation | 3D to cofactor | 3D to substrate |
+|---|---|---|---|
+| CYP2C9 **Thr301**, most discordant | **134 residues** | **3.15 Å** | 3.83 Å |
+| CYP2C9 Val113 | 322 residues | 3.65 Å | 3.72 Å |
+| CYP2C9 Ser365 | 70 residues | 2.88 Å | 6.87 Å |
+| NUDT15 Gly137 | 70 residues | 14.04 Å | **3.18 Å** |
+| NUDT15 Gly15 | 32 residues | 10.05 Å | 4.90 Å |
+
+Thr301 sits in the I-helix, which packs directly against the heme. It is in
+contact with the catalytic centre and 134 positions away in sequence. A
+one-dimensional ruler cannot see a folded protein, and NUDT15's missed residues
+are reached mostly through the **substrate** pocket rather than the metal.
+
+### 1.3 The numbering was verified, not trusted
+
+A crystal structure's residue numbers need not match the reference sequence,
+and an offset would produce **plausible wrong distances** rather than an error.
+The guard asserts a fact that is only true under correct numbering: UniProt
+annotates **Cys435 as CYP2C9's axial heme ligand**, so its sulphur must lie
+within a coordinate bond of the iron. Measured: **2.378 Å**. For NUDT15 the
+nearest Nudix-box residue lies **2.11 Å** from the catalytic Mg. Tests confirm
+the guard fires when the numbering is shifted, the residue identity is wrong,
+or the metal is moved away.
 
 ---
 
@@ -200,7 +266,9 @@ substrate-pocket knowledge would reach and a UniProt feature table does not.
 
 | | |
 |---|---|
-| that conditional selection cannot work | **no.** It is refuted *with this annotation*, on two proteins, for one pair of assay types. §5 gives a specific reason to expect better with better annotation |
+| that conditional selection cannot work | **no**, but it is now refuted with **good** annotation too: `M5` reaches the margin on none of eight cells across two knowledge layers. The remaining escape routes are a different conditional form or a different protein, not better annotation |
+| that the structural gain transfers beyond these two proteins | **no.** Two proteins, both with a crystallised ligand complex. A protein with no structure, or none with a bound substrate, gets nothing from this layer |
+| that a 3D distance is causal | **no.** It is a hypothesis that a variant affects catalysis rather than folding, and only the arms that use it earn it |
 | that abundance is a poor proxy in general | **no.** It is the single most useful thing measured here, by a wide margin, on both genes |
 | anything about CYP2C9 biology | the assay-system confound is unresolved and its annotation is one residue |
 | that the two genes replicate each other | **no.** Two genes with different annotation density and different assay pairs. They are not independent evidence of one another |
@@ -230,4 +298,5 @@ from inside it. The artefact holds no per-variant values.
 
 | Version | Date | Change |
 |---|---|---|
+| **2.0.0** | **2026-11-11** | **The version 1.0.0 diagnosis was tested and holds.** Adding a 3D structural layer (1R9O, 5LPG) raises discordant-variant coverage from 48.8 % to **95.9 %** (NUDT15) and 12.5 % to **87.5 %** (CYP2C9), enrichment from 6.74× to **55.35×** and from 9.55× **[0.00, 23.65]** to **29.70× [10.78, 105.08]** — so CYP2C9 moved from untestable to confirmed. Prediction improved as well: `M4` vs `M1` on NUDT15 goes from +5.23 %/−2.98 % (sign flip between splits) to **+15.83 %/+9.47 %, reaching the margin under both**. `M5`, the conditional arm, still reaches the margin nowhere. Residue numbering verified by the Cys435–Fe coordinate bond at 2.378 Å. |
 | 1.0.0 | 2026-11-11 | First issue. The mechanistic rule confirmed at 6.74× [4.82, 9.42] and refuted as a feature — 0 of 4 cells reach the margin; annotation coverage identified as the binding constraint at 48.8 % and 12.5 %; the region-grouped split reverses the run's most promising contrast. |
