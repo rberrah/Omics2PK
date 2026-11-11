@@ -1,6 +1,6 @@
 # Pre-registration: does the structural selection rule generalise to a third protein?
 
-**Version 1.0.0 — 2026-11-11.** Status: **DECLARED, NOT YET RUN.** This
+**Version 1.0.1 — 2026-11-11.** Status: **DECLARED, NOT YET RUN.** This
 document is committed **before any BRAF functional score has been
 downloaded**. Nothing below may be changed after the data is read; a later
 version may only *add* a results section and record deviations.
@@ -208,9 +208,52 @@ deviation, with the reason, before any contrast is quoted.
 
 ---
 
-## 7. Deviations from this registration
+## 7. Deviations and additional declarations
 
-*None yet. This section is append-only.*
+Append-only. Nothing here was written after a BRAF score was read.
+
+### 7.1 The sequence-layer annotation, declared at implementation time
+
+Version 1.0.0 fixed the structural layer, the data, the parameters and the
+primary contrast, but not BRAF's **sequence** annotation, which is new per-gene
+data. It is declared here, before download, from UniProt P15056
+(`rest.uniprot.org`, retrieved 2026-11-11), and mapped by the convention the
+first two genes used — point sites to `functional_sites`, a **short**
+functional range to `motifs`:
+
+| UniProt class | Positions | Mapped to |
+|---|---|---|
+| Active site, proton acceptor | 576 | `functional_sites` |
+| Binding site | 235, 248, 251, 261, 264, 269, 272, 280, 483 | `functional_sites` |
+| Binding site, range | 463–471, the ATP glycine-rich loop | `motifs` |
+| Domain | 155–227 RBD; 457–717 protein kinase | **recorded, not used as a feature** |
+
+**Why the kinase domain is not a feature.** The assayed region lies inside
+457–717, so an "in domain" indicator would be near-constant: no information,
+dressed as knowledge. The RBD and kinase domain are recorded in the
+annotation block as `domains_not_used_as_features` so the choice is visible
+rather than silent. The eight cysteine-rich-region binding sites are **kept**
+even though they are zinc sites in a different functional module, because
+dropping them would be a hand-picked restriction of what "annotated functional
+site" means.
+
+### 7.2 One structural column changes meaning, and one arm removes it
+
+`to_substrate` is an interface distance to the MEK1 chain here, not a pocket
+distance to a small molecule (§4.1). The **cofactor-only** arm — log distance
+to AMP-PNP/Mg, the cofactor contact indicator and the unresolved flag — is
+therefore run as a declared sensitivity. The second-shell indicator is
+**excluded** from that arm because it is computed from
+`min(cofactor, substrate)` and would smuggle the substrate distance back in.
+
+### 7.3 Noted before the run, from the coordinates alone
+
+**Val600 is 9.61 Å from the nucleotide and 13.66 Å from the MEK1 interface** —
+outside the 8 Å ruler. The best-known BRAF variant is one the structural rule
+cannot see, which is §2.1's declared risk showing up in the geometry before
+any score has been read.
+
+*No deviation from §§2–6 has occurred.*
 
 ---
 
@@ -218,4 +261,5 @@ deviation, with the reason, before any contrast is quoted.
 
 | Version | Date | Change |
 |---|---|---|
+| 1.0.1 | 2026-11-11 | Appended §7: BRAF's sequence annotation declared from UniProt P15056 with the kinase domain deliberately excluded as a feature; the cofactor-only sensitivity declared for a protein substrate; and the observation, from coordinates alone, that Val600 lies 9.61 Å from the nucleotide and so outside the ruler. Still no BRAF score downloaded. |
 | 1.0.0 | 2026-11-11 | Declared. BRAF, `urn:mavedb:00001315-c-1` and `-d-1`, structure 6PP9 chain A selected by rule, numbering guard verified against coordinates, primary contrast and refutation conditions fixed. Committed before any BRAF score was downloaded. |

@@ -67,6 +67,35 @@ ANNOTATION = {
         "role": "primary",
         "assay_confound": None,
     },
+    # Pre-registered in OMICS2PK_BRAF_PREREGISTRATION_20261111.md and
+    # declared here before any BRAF score was downloaded. UniProt P15056
+    # annotates one active site (576, proton acceptor), eight point binding
+    # sites in the cysteine-rich region (235-280, zinc), one binding range
+    # (463-471, the ATP glycine-rich loop) and binding site 483.
+    #
+    # Mapping, to keep the earlier two genes' convention: point sites go to
+    # functional_sites, a SHORT functional range goes to motifs. The protein
+    # kinase domain 457-717 is a domain, not a motif, and is recorded for the
+    # reader rather than used as a feature -- a near-constant indicator over
+    # an assayed region that lies inside it would carry no information while
+    # looking like knowledge.
+    "BRAF": {
+        "uniprot": "P15056",
+        "length": 766,
+        "functional_sites": (235, 248, 251, 261, 264, 269, 272, 280, 483, 576),
+        "motifs": ((463, 471),),
+        "motif_names": ("ATP glycine-rich loop",),
+        "domains_not_used_as_features": ((155, 227), (457, 717)),
+        "domain_names": ("RBD", "protein kinase"),
+        "activity_urn": "urn:mavedb:00001315-d-1",
+        "abundance_urn": "urn:mavedb:00001315-c-1",
+        "role": "pre_registered_independent_test",
+        "assay_confound": (
+            "both assays are the C-terminal construct at baseline, so they "
+            "share a construct and a condition. The pooled standardised "
+            "score sets mix the N- and C-terminal constructs and are a "
+            "declared sensitivity only."),
+    },
     "CYP2C9": {
         "uniprot": "P11712",
         "length": 490,
@@ -163,6 +192,15 @@ def verify_uniprot(gene, annotation):
 #: The structural columns that involve no threshold at all: two continuous
 #: log-distances and the flag for a position the crystal does not resolve.
 CONTINUOUS_COLUMNS = [0, 1, 5]
+
+#: The cofactor half only, dropping every substrate column. For BRAF the
+#: substrate is a protein chain, so `to_substrate` is an interface distance
+#: rather than a pocket distance; this arm shows what the ruler does without
+#: it. Columns: log distance to cofactor, cofactor contact, second shell,
+#: unresolved. `in_second_shell` is EXCLUDED: it is computed from
+#: min(cofactor, substrate), so keeping it would smuggle the substrate
+#: distance into an arm whose point is to be without it.
+COFACTOR_ONLY_COLUMNS = [0, 2, 5]
 
 
 def design_effect(row_wise, clustered):
@@ -326,18 +364,29 @@ def analyse(gene, directory, *, verify=False, pdb_dir=None):
         centre = SA.CATALYTIC_CENTRES[gene]
         path = pathlib.Path(pdb_dir) / f"{centre['pdb']}.pdb"
         if path.is_file():
-            residues, ligands = SA.parse_pdb(
-                path.read_text(encoding="utf-8", errors="replace"))
+            text = path.read_text(encoding="utf-8", errors="replace")
+            # A chain must be named for a complex: in 6PP9 the substrate MEK1
+            # is chain B and carries its own AMP-PNP and Mg, so unrestricted
+            # ligands would measure the distance to the OTHER kinase's
+            # nucleotide and never say so.
+            residues, ligands = SA.parse_pdb(text, chain=centre.get("chain"))
             guard = SA.verify_catalytic_geometry(residues, ligands, centre)
-            distances = SA.residue_distances(residues, ligands, centre)
+            substrate_points = (
+                SA.polymer_chain_points(text, centre["substrate_chain"])
+                if centre.get("substrate_chain") else None)
+            distances = SA.residue_distances(
+                residues, ligands, centre, substrate_points=substrate_points)
             structural = SA.build_structural_block(positions, distances)
             reach = SA.coverage(positions, discordant, distances)
             out["structural_layer"] = {
                 "pdb": centre["pdb"],
                 "resolution_angstrom": centre["resolution_angstrom"],
                 "title": centre["title"],
+                "chain": centre.get("chain"),
                 "cofactor_ligands": list(centre["cofactor_ligands"]),
                 "substrate_ligands": list(centre["substrate_ligands"]),
+                "substrate_chain": centre.get("substrate_chain"),
+                "substrate_is_a_protein": centre.get("substrate_is_a_protein"),
                 "numbering_guard": guard,
                 "structure_sha256": hashlib.sha256(
                     path.read_bytes()).hexdigest(),
@@ -419,6 +468,11 @@ def analyse(gene, directory, *, verify=False, pdb_dir=None):
                 y, x, substitution,
                 np.column_stack([mechanism, structural[:, CONTINUOUS_COLUMNS]]),
                 folds, positions)
+            cofactor_only = VMS.evaluate(
+                y, x, substitution,
+                np.column_stack([mechanism,
+                                 structural[:, COFACTOR_ONLY_COLUMNS]]),
+                folds, positions)
             runs[label]["with_structural_layer"] = {
                 "mean_loss": with_structure["mean_loss"],
                 "mean_abundance_blend_weight":
@@ -466,6 +520,17 @@ def analyse(gene, directory, *, verify=False, pdb_dir=None):
                     for arm in ("M3_mechanism_only", "M4_fixed_union")},
                 "threshold_free_block_columns": [
                     SA.STRUCTURAL_NAMES[i] for i in CONTINUOUS_COLUMNS],
+                # Declared sensitivity for a PROTEIN substrate: an interface
+                # distance is not a pocket distance, so the ruler must also
+                # be reported with the substrate column removed entirely.
+                "ablation_of_a_cofactor_only_block": {
+                    arm: VMS.ablation(cofactor_only, real, arm,
+                                      label="structural_cofactor_only",
+                                      family_size=PRIMARY_FAMILY_SIZE,
+                                      groups=cluster)
+                    for arm in ("M3_mechanism_only", "M4_fixed_union")},
+                "cofactor_only_block_columns": [
+                    SA.STRUCTURAL_NAMES[i] for i in COFACTOR_ONLY_COLUMNS],
                 "relative_change_in_M3_from_adding_structure": float(
                     1.0 - with_structure["mean_loss"]["M3_mechanism_only"]
                     / real["mean_loss"]["M3_mechanism_only"]),

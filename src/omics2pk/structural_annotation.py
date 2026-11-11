@@ -74,6 +74,30 @@ CATALYTIC_CENTRES = {
         "axial_atom": "SG",
         "uniprot": "P11712",
     },
+    # Pre-registered in OMICS2PK_BRAF_PREREGISTRATION_20261111.md, selected
+    # by rule rather than by hand: the best-resolution RCSB entry for
+    # UniProt P15056 carrying an ATP-analogue ligand in the BRAF chain.
+    "BRAF": {
+        "pdb": "6PP9",
+        "resolution_angstrom": 2.59,
+        "title": ("BRAF:MEK1 with AMP-PNP and Mg, inactive aC-out "
+                  "conformation"),
+        # MEK1 is chain B and carries its own AMP-PNP and Mg, so the chain
+        # restriction is load-bearing, not cosmetic.
+        "chain": "A",
+        "cofactor_ligands": ("ANP", "MG"),
+        "substrate_ligands": (),
+        "substrate_chain": "B",
+        "substrate_is_a_protein": "MEK1",
+        "metal_atom": "MG",
+        "axial_residue": None,
+        "residue_identities": {483: "LYS", 501: "GLU", 529: "THR",
+                               594: "ASP", 595: "PHE", 596: "GLY",
+                               600: "VAL"},
+        "nucleotide_contact": {"residue": 483, "atom": "NZ", "ligand": "ANP",
+                               "max_angstrom": 4.0},
+        "uniprot": "P15056",
+    },
     "NUDT15": {
         "pdb": "5LPG",
         "resolution_angstrom": 1.7,
@@ -107,15 +131,27 @@ def _check(condition, message):
         raise StructuralAnnotationError(message)
 
 
-def parse_pdb(text):
+def parse_pdb(text, chain=None):
     """Minimal fixed-column PDB reader. No new dependency, no silent coercion.
 
     Returns `(residues, ligands)`. `residues` maps a residue number to
-    `{"name": three-letter, "atoms": {atom_name: (x, y, z)}}` for the first
-    polymer chain encountered, because a variant position refers to one chain.
+    `{"name": three-letter, "atoms": {atom_name: (x, y, z)}}` for one polymer
+    chain, because a variant position refers to one chain.
     `ligands` maps a ligand code to a list of `(atom_name, (x, y, z))`.
+
+    **`chain` restricts the ligands too, and for a complex it must.** In
+    6PP9, BRAF is chain A and its substrate MEK1 is chain B — and MEK1 carries
+    its own AMP-PNP and its own magnesium. Taking ligands from the whole file
+    would silently measure every BRAF residue's distance to whichever
+    nucleotide happened to be closer, including the other kinase's. That is
+    the same failure mode as a numbering offset: plausible wrong distances
+    rather than an error. With `chain=None` the first polymer chain
+    encountered is used and every ligand is kept, which is what a
+    single-chain file needs and what the two earlier proteins were read with.
     """
-    residues, ligands, chain = {}, {}, None
+    residues, ligands = {}, {}
+    chain = chain.strip().upper() if isinstance(chain, str) else None
+    wanted = chain
     for line in text.splitlines():
         record = line[:6]
         if record not in ("ATOM  ", "HETATM"):
@@ -132,10 +168,11 @@ def parse_pdb(text):
                      float(line[46:54]))
         except ValueError:
             continue
+        this_chain = line[21].strip().upper()
         if record == "HETATM" and name not in _THREE_TO_ONE:
-            ligands.setdefault(name, []).append((atom, point))
+            if wanted is None or this_chain == wanted:
+                ligands.setdefault(name, []).append((atom, point))
             continue
-        this_chain = line[21]
         if chain is None:
             chain = this_chain
         if this_chain != chain:
@@ -149,8 +186,36 @@ def parse_pdb(text):
             continue
         entry = residues.setdefault(number, {"name": name, "atoms": {}})
         entry["atoms"][atom] = point
-    _check(residues, "no polymer residue was parsed from this file")
+    _check(residues, "no polymer residue was parsed from this file"
+                     + (f" for chain {wanted}" if wanted else ""))
     return residues, ligands
+
+
+def polymer_chain_points(text, chain):
+    """Heavy-atom coordinates of one polymer chain, for a PROTEIN substrate.
+
+    A kinase's substrate is another protein, so `to_substrate` cannot be the
+    distance to a bound small molecule. It becomes the distance to the nearest
+    heavy atom of the substrate chain — an **interface** distance, not a
+    pocket distance. The two are different quantities and are reported as
+    such; calling them both "to substrate" without saying so would be the
+    kind of quiet redefinition this project exists to avoid.
+    """
+    wanted = chain.strip().upper()
+    points = []
+    for line in text.splitlines():
+        if line[:6] != "ATOM  " or line[21].strip().upper() != wanted:
+            continue
+        if FROZEN["exclude_hydrogen"] and line[76:78].strip().upper() in ("H", "D"):
+            continue
+        try:
+            points.append((float(line[30:38]), float(line[38:46]),
+                           float(line[46:54])))
+        except ValueError:
+            continue
+        _ = None
+    _check(points, f"no polymer atom found for chain {wanted}")
+    return points
 
 
 def _distance(a, b):
@@ -165,19 +230,32 @@ def _min_distance(residue, points):
                for atom in residue["atoms"].values() for point in points)
 
 
-def residue_distances(residues, ligands, centre):
-    """Per-residue minimum heavy-atom distance to cofactor, metal and substrate."""
+def residue_distances(residues, ligands, centre, *, substrate_points=None):
+    """Per-residue minimum heavy-atom distance to cofactor, metal and substrate.
+
+    `substrate_points` supplies the substrate when it is a **protein chain**
+    rather than a ligand, as it is for a kinase. A centre that declares no
+    substrate ligand must then be given one, or the call fails: a missing
+    substrate silently becoming `inf` would turn `min(cofactor, substrate)`
+    into a cofactor-only ruler without saying so.
+    """
     cofactor = [point for code in centre["cofactor_ligands"]
                 for _, point in ligands.get(code, ())]
     substrate = [point for code in centre["substrate_ligands"]
                  for _, point in ligands.get(code, ())]
+    if substrate_points is not None:
+        _check(not substrate,
+               f"{centre['pdb']} declares substrate ligands AND a substrate "
+               "chain; only one can define the substrate")
+        substrate = list(substrate_points)
     metal = [point for code in centre["cofactor_ligands"]
              for atom, point in ligands.get(code, ())
              if atom == centre["metal_atom"]]
     _check(cofactor, f"no cofactor atoms found for "
                      f"{centre['cofactor_ligands']} in {centre['pdb']}")
     _check(substrate, f"no substrate atoms found for "
-                      f"{centre['substrate_ligands']} in {centre['pdb']}")
+                      f"{centre['substrate_ligands']} in {centre['pdb']}; a "
+                      "protein substrate needs substrate_points")
     out = {}
     for number, residue in residues.items():
         out[number] = {
@@ -209,6 +287,54 @@ def verify_catalytic_geometry(residues, ligands, centre):
              for atom, point in ligands.get(code, ())
              if atom == centre["metal_atom"]]
     _check(metal, f"no {centre['metal_atom']} atom in {centre['pdb']}")
+
+    identities = centre.get("residue_identities")
+    if identities:
+        # A kinase has no axial ligand and no short catalytic motif, so the
+        # guard is a set of residue identities at specific numbers plus one
+        # distance that depends on them. Five identities at five numbers do
+        # not survive an offset of any size.
+        checked = {}
+        for number, expected in sorted(identities.items()):
+            _check(number in residues,
+                   f"{centre['pdb']} has no residue {number}; the construct "
+                   "may be truncated or renumbered")
+            found = residues[number]["name"]
+            _check(found == expected,
+                   f"{centre['pdb']} residue {number} is {found}, not "
+                   f"{expected}. The numbering does not match the reference "
+                   "sequence, so every distance from it would be wrong")
+            checked[str(number)] = expected
+        report["residue_identities_checked"] = checked
+        contact = centre.get("nucleotide_contact")
+        _check(contact is not None,
+               "an identity guard needs one distance that depends on it")
+        number, atom_name = contact["residue"], contact["atom"]
+        atom = residues[number]["atoms"].get(atom_name)
+        _check(atom is not None,
+               f"residue {number} has no {atom_name} atom")
+        points = [point for a, point in ligands.get(contact["ligand"], ())]
+        _check(points,
+               f"no {contact['ligand']} atom in {centre['pdb']} chain "
+               f"{centre.get('chain')}")
+        bond = min(_distance(atom, point) for point in points)
+        _check(bond <= contact["max_angstrom"],
+               f"residue {number} {atom_name} is {bond:.2f} A from "
+               f"{contact['ligand']}, beyond the {contact['max_angstrom']} A "
+               "this contact allows. The numbering is almost certainly offset")
+        report["nucleotide_contact_angstrom"] = round(bond, 3)
+        report["nucleotide_contact_checked"] = (
+            f"{identities[number]}{number} {atom_name} to "
+            f"{contact['ligand']}")
+        report["why_not_the_salt_bridge"] = (
+            "the obvious guard for a kinase, the catalytic lysine to aC "
+            "glutamate salt bridge, is BROKEN in an inactive aC-out "
+            "conformation such as 6PP9 (12.69 A measured). Declaring it would "
+            "have failed on correctly numbered coordinates. A numbering guard "
+            "must catch a plausible wrong answer without crying wolf on a "
+            "right one.")
+        report["verified"] = True
+        return report
 
     axial = centre.get("axial_residue")
     if axial is not None:
@@ -423,6 +549,12 @@ def what_this_module_does_not_do():
             "with a flexible region unmodelled and, for a microsomal CYP, the "
             "membrane anchor truncated. Unresolved positions are flagged, not "
             "quietly imputed."),
+        "a_protein_substrate_is_an_interface_not_a_pocket": (
+            "for BRAF the substrate is MEK1, a protein chain, so "
+            "`to_substrate` is the distance to the nearest substrate-chain "
+            "atom. That is an interface distance and not the same quantity as "
+            "the distance to flurbiprofen in a CYP pocket. The two are not "
+            "comparable across proteins and are not claimed to be."),
         "a_bound_ligand_is_not_every_substrate": (
             "flurbiprofen in 1R9O and 6-thio-GMP in 5LPG define one pocket "
             "each. A different substrate can occupy a different volume, so "

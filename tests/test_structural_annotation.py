@@ -304,15 +304,49 @@ class TestCoverage:
 # 6. the declared centres, and what the module refuses to claim
 # --------------------------------------------------------------------------
 class TestDeclarations:
-    def test_both_genes_declare_a_centre(self, sa):
-        assert set(sa.CATALYTIC_CENTRES) == {"CYP2C9", "NUDT15"}
+    def test_every_gene_declares_a_centre(self, sa):
+        assert set(sa.CATALYTIC_CENTRES) == {"CYP2C9", "NUDT15", "BRAF"}
 
-    def test_each_centre_names_its_structure_and_ligands(self, sa):
+    def test_each_centre_names_its_structure_and_a_substrate(self, sa):
         for gene, centre in sa.CATALYTIC_CENTRES.items():
-            assert centre["pdb"]
-            assert centre["cofactor_ligands"]
-            assert centre["substrate_ligands"]
-            assert centre["uniprot"]
+            assert centre["pdb"], gene
+            assert centre["cofactor_ligands"], gene
+            assert centre["uniprot"], gene
+            # A substrate is defined by a ligand OR by a protein chain, and
+            # exactly one of the two. Neither would make `to_substrate` a
+            # silent infinity and turn the ruler cofactor-only without saying
+            # so; both would make it ambiguous which one was measured.
+            ligand = bool(centre["substrate_ligands"])
+            chain = bool(centre.get("substrate_chain"))
+            assert ligand != chain, gene
+
+    def test_braf_is_the_pre_registered_test_and_names_its_chain(self, sa):
+        centre = sa.CATALYTIC_CENTRES["BRAF"]
+        assert centre["pdb"] == "6PP9"
+        assert centre["uniprot"] == "P15056"
+        # MEK1 carries its own AMP-PNP and Mg, so the chain is load-bearing.
+        assert centre["chain"] == "A"
+        assert centre["substrate_chain"] == "B"
+        assert centre["substrate_is_a_protein"] == "MEK1"
+
+    def test_brafs_guard_is_identities_plus_a_nucleotide_contact(self, sa):
+        centre = sa.CATALYTIC_CENTRES["BRAF"]
+        assert centre["axial_residue"] is None
+        identities = centre["residue_identities"]
+        # The DFG motif and the catalytic lysine, at the numbers UniProt uses.
+        assert identities[483] == "LYS"
+        assert (identities[594], identities[595], identities[596]) == \
+            ("ASP", "PHE", "GLY")
+        assert centre["nucleotide_contact"]["residue"] == 483
+        assert centre["nucleotide_contact"]["max_angstrom"] <= 4.0
+
+    def test_the_salt_bridge_was_deliberately_not_the_guard(self, sa):
+        # The obvious kinase guard, Lys483 to Glu501, is BROKEN at 12.69 A in
+        # 6PP9's inactive aC-out conformation. Declaring it would have failed
+        # on correctly numbered coordinates.
+        source = (ROOT / "src" / "omics2pk"
+                  / "structural_annotation.py").read_text(encoding="utf-8")
+        assert "why_not_the_salt_bridge" in source
 
     def test_cyp2c9_uses_the_axial_cysteine_as_its_guard(self, sa):
         assert sa.CATALYTIC_CENTRES["CYP2C9"]["axial_residue"] == 435

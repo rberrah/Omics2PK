@@ -506,7 +506,7 @@ class TestResultsDocument:
         return RESULTS.read_text(encoding="utf-8")
 
     def test_it_is_versioned(self, text):
-        assert "**Version 2.0.0 \u2014 2026-11-11.**" in text
+        assert "**Version 3.0.0 \u2014 2026-11-11.**" in text
 
     def test_it_reports_the_enrichment_with_its_interval(self, text):
         assert "6.74\u00d7 [4.82, 9.42]" in text
@@ -518,7 +518,12 @@ class TestResultsDocument:
         assert "reaches the declared 5 % margin in **none**" in text
 
     def test_it_reports_the_grouping_that_changed_a_conclusion(self, text):
-        assert "reverses sign" in text
+        # Version 1.0.0 read the two splits as a sign reversal and 2.0.0
+        # repeated it. Under a position-clustered interval the sequence layer
+        # adds nothing measurable in EITHER direction, so that claim is
+        # withdrawn and the withdrawal has to be visible in its place.
+        assert "in either direction, under either split" in text
+        assert "2.8" in text
         assert "load-bearing" in text
 
     def test_it_reports_the_positive_control(self, text):
@@ -579,12 +584,17 @@ class TestStructuralLayerIsReported:
             assert figure in results
 
     def test_the_enrichment_gain_is_reported_with_intervals(self, results):
-        assert "55.35\u00d7 [26.95, 251.41]" in results
+        assert "55.35\u00d7 [21.09, 277.53]" in results
         assert "29.70\u00d7 [10.78, 105.08]" in results
 
-    def test_cyp2c9_is_recorded_as_moving_from_untestable_to_confirmed(
+    def test_cyp2c9_is_recorded_as_moving_from_untestable_to_supported(
             self, results):
-        assert "from *untestable* to *confirmed*" in results
+        # Not "confirmed". The structures were chosen after these
+        # proteins' discordant residues had been seen, which no internal
+        # validation undoes, so the strongest admissible word is "supported"
+        # until the pre-registered third protein has run.
+        assert "from *untestable* to *supported*" in results
+        assert "PENDING INDEPENDENT" in results
 
     def test_the_split_that_no_longer_reverses_is_reported(self, results):
         assert "+15.83 %" in results and "+9.47 %" in results
