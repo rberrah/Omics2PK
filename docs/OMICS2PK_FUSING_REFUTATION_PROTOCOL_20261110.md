@@ -1,6 +1,6 @@
 # A test that can refute Hybrid Fusing, the comparators it needs, the data that exists, and the order of work
 
-**Version 1.0.0 — 2026-11-10.** Evidence type: **protocol, nothing executed**.
+**Version 2.0.0 — 2026-11-11.** Evidence type: **protocol; Gate 1 and the context probe are now executed**.
 Companion to `OMICS2PK_METHOD_AUDIT_AND_HYBRID_FUSING_ASSESSMENT_20261110.md`.
 **No frozen protocol or result is modified. No implementation has begun.**
 
@@ -33,7 +33,7 @@ separately:
 1. an **audit** establishing that the hybrid selection rule already exists in
    this repository, has been tested on nine endpoints, and is detectably worse
    than a univariate filter in 21 of 72 cells;
-2. a **computable ceiling**, L_cvx, that bounds every member of the fusion
+2. a **computable ceiling**, L_ind, that bounds every member of the fusion
    family and can therefore refute the architecture **before** it is built;
 3. **data verdicts**: of seven candidate experiments, one is fully evaluable
    and three are `NOT_EVALUABLE`;
@@ -64,44 +64,114 @@ than against zero.**
 
 ---
 
-## 1. Gate 1 — headroom. The test that can refute the family
+## 1. Gate 1 — headroom. Corrected, because version 1.0.0 had it wrong
 
-### 1.1 Quantities
+> **Correction, 2026-11-11.** Version 1.0.0 of this document defined **one**
+> ceiling — the best **constant**-weight mixture — and proposed to stop the
+> programme when the gap to it was not detectably positive. **That rule was
+> mathematically wrong, and wrong in the direction that would have discarded
+> the hypothesis it was meant to test.** A constant weight vector cannot
+> express a gate, so it does not bound contextual fusion. It also treated an
+> interval containing zero as a refutation, which confuses non-detection with
+> absence — the error this project corrects everywhere else.
+>
+> The counterexample is two arms, each with mean absolute error 0.5, whose
+> predictions bracket the truth on opposite halves of the cohort: **every**
+> constant weight keeps the error at exactly 0.5, and a perfect gate reaches 0.
+> It is built and asserted in
+> `fusion_headroom_diagnostics.counterexample_constant_weights_cannot_see_a_gate`,
+> and the executed run confirms the hazard was not hypothetical: on five of ten
+> HLC endpoints the constant-weight ceiling is **refuted** while the
+> per-individual ceiling shows large headroom.
 
-On a cohort with frozen folds and *M* ≥ 3 arms already fitted, collect
+### 1.1 Four quantities, because they bound four different things
+
+On a cohort with frozen folds and *M* ≥ 2 arms already fitted, collect
 per-individual out-of-fold predictions ŷ_{im} and losses L_{im}:
 
 | | Definition | Bounds |
 |---|---|---|
-| **L\*** | min_m mean_i L_{im} — the best single arm, chosen **on training folds** | the thing to beat |
-| **L_sel** | mean_i min_m L_{im} — per-individual oracle | any method choosing one arm per individual |
-| **L_cvx** | min over the simplex of mean_i ℓ(Σ_m w_m ŷ_{im}, y_i) | **stacking, BMA, mixture of experts and Hybrid Fusing** |
+| **L_honest** | the arm chosen **on a training partition**, scored on the held-out one | what selection actually achieves — the reference |
+| **L_single** | min_m mean_i L_{im}, the arm chosen knowing the answers | one choice of optimism above L_honest |
+| **L_const** | min over a **constant** w ∈ Δ of mean_i ℓ(Σ_m w_m ŷ_{im}, y_i) | **stacking and uniform averaging only** |
+| **L_sel** | mean_i min_m L_{im} | per-individual **selection** |
+| **L_ind** | mean_i min over **w_i** ∈ Δ of ℓ(Σ_m w_{im} ŷ_{im}, y_i) | **every** method in the family, gates included |
 
-L_sel does **not** bound L_cvx: if one arm errs +1 and another −1, the
-per-individual oracle's absolute error is 1 and their average's is 0. Both are
-reported; **L_cvx is the governing ceiling.**
+**L_ind is the governing ceiling**, and for any loss monotone in
+|prediction − truth| it has a closed form: individual *i*'s reachable
+predictions are exactly the interval [min_m ŷ_{im}, max_m ŷ_{im}], so
 
-### 1.2 The verdict rule, fixed here
+> L_ind = mean_i dist( y_i , [min_m ŷ_{im}, max_m ŷ_{im}] ),
 
-Paired bootstrap over the resampling unit (donor or patient), 2,000 draws,
-Bonferroni over the declared family of cohorts tested.
+which is **zero whenever the arms bracket the truth**. The bracketing rate is
+reported with it.
 
-| Condition | Verdict |
+Two orderings matter and neither is the one version 1.0.0 assumed:
+
+- **L_sel does not bound averaging.** Arms erring +1 and −1 give a
+  per-individual best of 1 and an average of 0.
+- **L_const does not bound a gate.** That is the correction above.
+
+### 1.2 A ceiling can refute but cannot guide
+
+L_ind is often small because bracketing is common, so it is usually permissive.
+**A permissive ceiling licenses nothing.** It is a necessary condition only,
+and §1.4 adds the test that is informative.
+
+Every ceiling here is computed **knowing the answers** and is an upper bound on
+what any honest method could reach. **None may be quoted as a performance.**
+
+### 1.3 The verdict rule, corrected
+
+Paired bootstrap over the resampling unit, 2,000 draws, Bonferroni over the
+declared family. A **minimum interesting gain** δ is declared before the run:
+**5 %** of the reference loss, matching the non-inferiority margin H2 already
+uses, with 10 % — H1's frozen incremental criterion — as a sensitivity.
+
+| Condition on the gap `L_honest − ceiling` | Verdict |
 |---|---|
-| the interval for **L\* − L_cvx** excludes zero on the favourable side | `HEADROOM_PRESENT` — proceed to Gate 2 |
-| it contains zero | **`REFUTED_NO_HEADROOM`** on that cohort and endpoint |
-| fewer than 3 admissible arms, or no per-individual predictions recoverable | **`NOT_EVALUABLE`** |
+| the interval excludes zero on the favourable side | `HEADROOM_PRESENT` |
+| the interval's **upper** bound falls **below δ** | **`REFUTED_CEILING_BELOW_MARGIN`** — even in hindsight there is less to win than would be worth winning. **This is the only refutation.** |
+| the interval contains zero and reaches above δ | **`NO_DETECTABLE_HEADROOM_UNDERPOWERED`** — nothing detected, nothing refuted |
+| fewer than two arms, or no per-individual predictions recoverable | `NOT_EVALUABLE` |
 
-**Two cautions that are part of the rule, not commentary.**
+**An interval containing zero is not a refutation.** At these cohort sizes it
+usually means low power, and the minimum detectable gap is reported beside
+every verdict.
 
-*L_cvx is fitted on the evaluation data*, so it is an optimistic ceiling by
-construction — it is an upper bound on what any honest method could reach, which
-is exactly what a refutation test needs. It must never be quoted as a
-performance.
+### 1.4 The test that is actually informative: can a gate learn anything?
 
-*A ceiling is not a promise.* `HEADROOM_PRESENT` says a combination could in
-principle help; it says nothing about whether weights estimable from training
-folds would recover any of it. Gate 2 asks that.
+A ceiling says a gain is possible. Whether it is **reachable** is a different
+question, and it is answered without building a gate.
+
+For each individual, compute the signed advantage of the two best arms —
+exactly what a gate would have to detect. Fit a ridge on the available context
+in a training partition and measure its **out-of-sample** rank agreement with
+the realised advantage.
+
+**If that has no out-of-sample skill, a gate has nothing to condition on, and
+contextual fusion is refuted on that cohort independently of any ceiling.**
+
+Two context sets are used, because a gate may condition on anything observable
+without the outcome and testing one place only would make a refutation rest on
+where we looked:
+
+1. **clinical covariates** — age, sex, weight, BMI, dose, as each cohort has;
+2. **the arms' own predictions and their disagreement** — spread, mean, SD.
+
+The probe gets the **same three-valued treatment** as the ceilings: a declared
+minimum interesting rank association of **0.30**, a Bonferroni-adjusted
+interval over the declared probe family, and `REFUTED_CONTEXT_UNINFORMATIVE`
+only when the upper bound falls below that floor.
+
+### 1.5 Weight learning is evaluated out of sample, separately
+
+`nested_constant_stacking` fits the weights on one partition's out-of-fold
+predictions and scores them on another's. **Fitting weights on the same
+out-of-fold predictions that then measure them is leakage even when the base
+predictions are themselves honestly out-of-fold**, because the weights see
+every individual's realised error. The difference between L_const (hindsight)
+and the nested figure (recovered) is the cost of having to learn the weights.
 
 ### 1.3 Diagnostics reported with Gate 1
 
@@ -132,11 +202,26 @@ evaluated out of sample.
 | `X` mixture of experts | w(z_i) from a gating function of **context covariates**, no mechanistic prior |
 | `F` Hybrid Fusing | w(z_i; π), the gating function **with** the mechanistic prior, plus a fallback decided in training folds |
 
-**Primary contrast of the whole programme: `F` vs `K`.** Not `F` vs `U`, and not
-`F` vs the baseline. Beating uniform averaging is already known to be easy, and
-beating the baseline is not the question. If `F` cannot beat **constant-weight
-stacking**, the gating function and the mechanistic prior have contributed
-nothing and the honest report is that **stacking is the method**.
+### 2.1 Two co-primary questions, not one
+
+Version 1.0.0 made `F` vs `K` the single primary contrast. That collapsed two
+questions which can have different answers, and **the first can succeed while
+the second fails**:
+
+| # | Question | Contrast |
+|---|---|---|
+| **Q1** | does **context** help choose between predictions at all? | **`X` vs `K`** — gate without any mechanistic prior, against constant-weight stacking |
+| **Q2** | does **mechanistic knowledge** help exploit that context? | **`F` vs `X`** — the same gate with the prior, against without |
+
+Both are primary. A positive Q1 with a null Q2 is a real and publishable
+result: *context-dependent weighting beats a fixed mixture, and the network
+prior adds nothing to it.* It would leave the NetPK philosophy intact while
+retiring the mechanistic-prior-on-weights idea specifically, which is a
+different conclusion from retiring the architecture.
+
+Neither contrast is against `U`: beating uniform averaging is already known to
+be easy, and MetaPK measured that uniform averaging **loses** to the best
+single model.
 
 **Secondary contrasts, each answering one specific question:**
 
@@ -145,7 +230,7 @@ nothing and the honest report is that **stacking is the method**.
 | `K` vs `S` | does any fusion beat selection? |
 | `X` vs `K` | does context-dependence help, without mechanism? |
 | `F` vs `X` | does the **mechanistic prior** add to context-dependence? |
-| best of all vs **L_cvx** | how much of the ceiling was recovered? |
+| best of all vs **L_ind** | how much of the governing ceiling was recovered? |
 
 The last is the one MetaPK's practice requires, and reporting a gain without it
 is reporting a number without its scale.
@@ -197,10 +282,10 @@ measurement, no cross-cohort fusion, no authorisation required.
 
 | # | Experiment | Cohort | Verdict | Why, and what it limits |
 |---|---|---|---|---|
-| **E1** | **Fusing-omic, Gates 1–3** | **HLC ≈ 397 donors**, transcriptome, 9 enzyme-activity endpoints, **8 arms already fitted on frozen folds** | **`EVALUABLE`** | the **only** cohort where a gating function is estimable. Endpoint class `functional_in_vitro`: cannot promote a clinical claim. Already analysed, so **exploratory** ceiling |
+| **E1** | **Fusing-omic, Gates 1–3** | **HLC ≈ 397 donors**, transcriptome, 10 activity endpoints. **Gate 1 and the probe executed 2026-11-11 on the four `hlc_real_cyp_validation` arms**; the eight H2a arms store losses, not predictions | **`EVALUABLE`, and partly executed** | the **only** cohort where a gating function is estimable. Endpoint class `functional_in_vitro`: cannot promote a clinical claim. Already analysed, so **exploratory** ceiling |
 | **E2** | Fusing of **representations** across layers | **EATRIS-Plus 79 / 55 / 114**, 12 layers, same individuals | **`EVALUABLE`** for a **declared non-pharmacological target only** | no pharmacological endpoint exists. The 12 layers make "fuse or select" a real question; **DIABLO must be a comparator** |
-| **E3** | Gate 1 on a **clinical** endpoint | **ARIANA n = 47**: statistical `M1`/`M3`, mechanistic `M4c`/`M4`/`M5c`/`M5` and a hybrid arm, all on identical folds | **`EVALUABLE` for Gate 1 only** | n = 47 cannot estimate a gating function. Tests whether headroom exists at all on a clinical PK endpoint |
-| **E4** | Gate 1 on a three-layer cohort | **Lee / Jackson n = 15**, 4 arms | **`EVALUABLE` for Gate 1 only** | at n = 15 the refitting interval already spans [−0.33, +0.74]; expect `REFUTED_NO_HEADROOM` or `NOT_EVALUABLE` |
+| **E3** | Gate 1 on a **clinical** endpoint, **executed 2026-11-11** | **ARIANA n = 47**: statistical `M1`/`M3`, mechanistic `M4c`/`M4`/`M5c`/`M5` and a hybrid arm, all on identical folds | **`EVALUABLE` for Gate 1 only** | n = 47 cannot estimate a gating function. Tests whether headroom exists at all on a clinical PK endpoint |
+| **E4** | Gate 1 on a three-layer cohort | **Lee / Jackson n = 15**, 4 arms | **`EVALUABLE` for Gate 1 only** | at n = 15 the refitting interval already spans [−0.33, +0.74]. **Executed:** headroom present, both probes underpowered |
 
 ### 5.2 Not evaluable, with the reason
 
@@ -248,7 +333,7 @@ No step begins before the previous one reports. Each may end the programme.
 | Step | Work | Ends the programme if |
 |---|---|---|
 | **0** | *(done)* H1–H5 state, method audit, definition, novelty, this protocol | — |
-| **1** | **Gate 1 on E1, E3, E4.** One runner over existing frozen arms; no new model, no new architecture | all three return `REFUTED_NO_HEADROOM`. Then report that **selection is the answer** and stop |
+| **1** | *(done 2026-11-11)* **Gate 1 and the context probe on E1, E3, E4**, under the corrected definitions. One runner over arms that already exist; no new model | every cohort returns `REFUTED_CEILING_BELOW_MARGIN` on the **per-individual** ceiling **and** `REFUTED_CONTEXT_UNINFORMATIVE` on both probes. Then report that **selection is the answer** and stop. **It did not: see `OMICS2PK_FUSION_HEADROOM_RESULTS_20261111.md`** |
 | **2** | **Gate 1 diagnostics**: error decorrelation, best-arm shares, uniform control | the median error correlation exceeds 0.95 — the arms are one arm |
 | **3** | **Gate 2 on E1**, with `S`, `U`, `K` only. Stacking against selection | `K` does not beat `S`. Then **stacking is refuted too**, and the project's existing selection work stands as the conclusion |
 | **4** | **Gate 2 on E1**, adding `X`. Context-dependence without mechanism | `X` does not beat `K`. Then the gating idea is refuted and only the prior remains to test |
@@ -285,11 +370,18 @@ to the data gap, which is where H1 says the binding constraint is.
 
 ## 7. The one-sentence refutation criterion
 
-> **Hybrid Fusing is refuted if, on the only cohort where its weights are
-> estimable, either the convex ceiling is not detectably above the best single
-> arm, or constant-weight stacking recovers the ceiling as well as a
-> mechanism-informed gating function does — and a degree-permuted prior
-> performs as well as the real one.**
+> **Contextual fusion is refuted on a cohort when either the
+> PER-INDIVIDUAL ceiling's upper confidence bound falls below the declared
+> minimum interesting gain — so that even in hindsight there is less to win
+> than would be worth winning — or no available context predicts, out of
+> sample, which arm will win.**
+>
+> **The mechanistic prior is refuted separately**, and only when a gate
+> carrying it does no better than the same gate without it, with a
+> degree-permuted prior performing as well as the real one.
+>
+> Neither is refuted by an interval that merely contains zero, and neither is
+> refuted by the **constant-weight** ceiling, which cannot express a gate.
 
 ---
 
@@ -298,3 +390,4 @@ to the data gap, which is where H1 says the binding constraint is.
 | Version | Date | Change |
 |---|---|---|
 | 1.0.0 | 2026-11-10 | First issue. Three gates, six comparators, eight negative controls, seven data verdicts of which three are `NOT_EVALUABLE`, and a seven-step roadmap whose first implementation step is the fifth. |
+| **2.0.0** | **2026-11-11** | **Gate 1 was mathematically wrong and is replaced.** Version 1.0.0 used a single **constant**-weight ceiling, which cannot express a gate and therefore does not bound contextual fusion, and it treated an interval containing zero as a refutation. §1 now defines **five** quantities including the per-individual convex ceiling that does bound the family; the verdict rule requires the upper bound to fall below a declared minimum interesting gain before anything is refuted; §1.4 adds a context probe that can refute contextual fusion independently of any ceiling, on two context sets, with its own three-valued verdict and a Bonferroni-adjusted interval; §1.5 requires the weights to be fitted on one partition and scored on another. §2.1 splits the single primary contrast into **two co-primary questions** — does context help at all (`X` vs `K`), and does the mechanistic prior help exploit it (`F` vs `X`) — because the first can succeed while the second fails. Gate 1 and the probe are **executed** on ARIANA, Lee and HLC; results in `OMICS2PK_FUSION_HEADROOM_RESULTS_20261111.md`. |

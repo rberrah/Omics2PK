@@ -48,7 +48,7 @@ points to.
 
 ---
 
-## 1. Audit of Omics2PK — 63 modules, and one empty category
+## 1. Audit of Omics2PK — 64 modules, and a category that was empty until 2026-11-11
 
 ### 1.1 Selection, richly developed
 
@@ -70,16 +70,33 @@ FDR without a resolution floor, Bonferroni within declared families, a
 PCA for fold-safe directions at p ≫ n, and **fourteen modules whose names declare them gates, contracts or
 readiness checks**, all fail-closed: they refuse rather than approximate.
 
-### 1.3 Fusion: the category is empty
+### 1.3 Fusion: the category was empty, and now holds exactly one member
 
-Searched across `src/`: **`stacking` 0, `ensemble` 0, `model_averag` 0,
-`mixture` 0, `meta_learner` 0.** The twenty-five occurrences of "fusion" are
-`hepatic_protein_activity_fusion.py`, where the word means *joining two
-measurements on the same donors* — a data-availability question — and whose own
-docstring says "'proteins+activity' is **NOT** multi-omics".
+**As audited on 2026-11-10:** searched across `src/`, **`stacking` 0,
+`ensemble` 0, `model_averag` 0, `mixture` 0, `meta_learner` 0.** The
+twenty-five occurrences of "fusion" were `hepatic_protein_activity_fusion.py`,
+where the word means *joining two measurements on the same donors* — a
+data-availability question — and whose own docstring says "'proteins+activity'
+is **NOT** multi-omics".
 
-**Omics2PK compares arms. It has never combined them.** That is the gap a
-Fusing proposal would fill, and it is a real gap.
+**Omics2PK compared arms and had never combined them.** That was the gap a
+Fusing proposal would fill, and it was a real gap.
+
+**Updated 2026-11-11.** `src/omics2pk/fusion_headroom_diagnostics.py` now
+contains **one** member of the category, and the distinction matters:
+
+| | Status |
+|---|---|
+| `nested_constant_stacking` — **constant weights fitted on one partition and scored on another** | **this is stacking**, implemented. It exists to measure what stacking *recovers*, and it is reported as a diagnostic, but it is not merely a ceiling and should not be described as one |
+| `constant_weight_oracle` | a hindsight ceiling, not a method |
+| `individual_convex_oracle`, `individual_selection_oracle` | hindsight ceilings, not methods |
+| a **gate**, w(z_i) | **does not exist** |
+| a **mechanistic prior on weights** | **does not exist** |
+
+So the honest statement is now: *comparator `K` of the protocol's arm list is
+built and measured; arms `X` and `F` are not.* The executed figures are in
+`OMICS2PK_FUSION_HEADROOM_RESULTS_20261111.md`, where constant-weight stacking
+recovers a detectable gain on 3 of 13 cells and **degrades by 46 % on one**.
 
 ### 1.4 What the audit implies about H2
 
@@ -384,4 +401,4 @@ estimation problem than selection.
 
 | Version | Date | Change |
 |---|---|---|
-| 1.0.0 | 2026-11-10 | First issue. Audit of Omics2PK (63 modules) and MultiOmics; conceptual comparison with MetaPK by reading only; minimal definition; novelty narrowed to one element; six risks with mitigations. |
+| 1.0.0 | 2026-11-10 | First issue. Audit of Omics2PK (63 modules at the time of writing) and MultiOmics; conceptual comparison with MetaPK by reading only; minimal definition; novelty narrowed to one element; six risks with mitigations. |

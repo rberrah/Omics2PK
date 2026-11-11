@@ -94,9 +94,10 @@ jobs:
             tests/test_venetoclax_clinical_pk_contrast.py \
             tests/test_funding_preparation_dossier.py \
             tests/test_fusing_assessment_documents.py \
+            tests/test_fusion_headroom_diagnostics.py \
             | grep -c '::' || true)
           echo "collected $count pytest tests"
-          if [ "$count" -lt 1380 ]; then
-            echo "ERROR: expected at least 1380 collected tests, got $count." >&2
+          if [ "$count" -lt 1420 ]; then
+            echo "ERROR: expected at least 1420 collected tests, got $count." >&2
             exit 1
           fi

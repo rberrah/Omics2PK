@@ -1,0 +1,2820 @@
+{
+  "run": "fusion_headroom_diagnostics",
+  "generated": "2026-11-11",
+  "protocol": "OMICS2PK_FUSING_REFUTATION_PROTOCOL_20261110.md",
+  "protocol_sha256": "e1485f0f0477a4c3b88e423e499ec6ac4e0456e03f262665f79c581e0246e644",
+  "frozen": {
+    "seed": 20261111,
+    "n_bootstrap": 2000,
+    "alpha": 0.05,
+    "minimum_interesting_relative_gain": 0.05,
+    "sensitivity_relative_gain": 0.1,
+    "minimum_interesting_rank_association": 0.3,
+    "frank_wolfe_iterations": 500,
+    "context_probe_folds": 5,
+    "loss": "absolute_error"
+  },
+  "declared_family_size": 6,
+  "corrects": {
+    "what_was_wrong": "the protocol's Gate 1 used a single CONSTANT-weight ceiling and proposed to stop the programme when it showed no detectable headroom. A constant weight vector cannot express a gate, so that ceiling does not bound contextual fusion, and the rule would have discarded the hypothesis it was meant to test.",
+    "what_replaces_it": "four ceilings, of which the per-individual CONVEX one bounds the whole family; a verdict rule in which an interval containing zero is a non-detection and refutation requires the upper bound to fall below a declared minimum interesting gain; weights fitted on one partition and scored on another; and a context probe that can refute contextual fusion independently of any ceiling.",
+    "proof_that_the_correction_matters": {
+      "best_single_oracle": 0.5,
+      "constant_weight_oracle": 0.4999999999999998,
+      "individual_selection_oracle": 0.0,
+      "individual_convex_oracle": 0.0,
+      "context_sign_agreement": 1.0,
+      "what_this_proves": "A constant-weight ceiling can show exactly zero headroom on a cohort where a contextual gate is perfect. Stopping the programme on the constant-weight ceiling alone would have discarded the hypothesis it was meant to test."
+    }
+  },
+  "cohorts": {
+    "ariana": {
+      "per_repeat": {
+        "repeat_0": {
+          "n_individuals": 47,
+          "arms": [
+            "M0_clinical",
+            "M1_clinical_pgx",
+            "M2_clinical_omic",
+            "M3_clinical_pgx_omic",
+            "M1a_clinical_genotype",
+            "M1b_clinical_comedication",
+            "M3a_clinical_genotype_omic",
+            "M3b_clinical_comedication_omic"
+          ],
+          "n_arms": 8,
+          "ceilings": {
+            "best_single_oracle": {
+              "mean_loss": 35.61406921655919,
+              "arm_index": 7,
+              "per_arm_mean_loss": [
+                56.96017093999532,
+                54.06341684033924,
+                35.81883021192903,
+                37.00628998247138,
+                54.91694920493327,
+                56.500585812512625,
+                38.114502774110655,
+                35.61406921655919
+              ]
+            },
+            "best_single_honest_training_choice": {
+              "mean_loss": 38.31755818153226,
+              "arm_chosen_per_partition": [
+                "M2_clinical_omic",
+                "M2_clinical_omic",
+                "M2_clinical_omic",
+                "M3b_clinical_comedication_omic",
+                "M3_clinical_pgx_omic"
+              ]
+            },
+            "constant_weight_oracle": {
+              "mean_loss": 35.61406921655919,
+              "bounds": "constant-weight mixtures only: stacking and uniform averaging. It does NOT bound a contextual gate.",
+              "iterations": 500
+            },
+            "constant_weight_oracle_weights": {
+              "M0_clinical": 0.0,
+              "M1_clinical_pgx": 0.0,
+              "M2_clinical_omic": 0.0,
+              "M3_clinical_pgx_omic": 0.0,
+              "M1a_clinical_genotype": 0.0,
+              "M1b_clinical_comedication": 0.0,
+              "M3a_clinical_genotype_omic": 0.0,
+              "M3b_clinical_comedication_omic": 1.0
+            },
+            "individual_selection_oracle": {
+              "mean_loss": 25.26242828370738,
+              "bounds": "per-individual arm selection",
+              "best_arm_shares": {
+                "M0_clinical": 0.02127659574468085,
+                "M1_clinical_pgx": 0.0851063829787234,
+                "M2_clinical_omic": 0.2127659574468085,
+                "M3_clinical_pgx_omic": 0.19148936170212766,
+                "M1a_clinical_genotype": 0.19148936170212766,
+                "M1b_clinical_comedication": 0.02127659574468085,
+                "M3a_clinical_genotype_omic": 0.06382978723404255,
+                "M3b_clinical_comedication_omic": 0.2127659574468085
+              }
+            },
+            "individual_convex_oracle": {
+              "mean_loss": 22.063252961314006,
+              "bracketing_rate": 0.3404255319148936,
+              "bounds": "EVERY method in the family, contextual gates included. A gap of zero here refutes the family.",
+              "why_it_cannot_guide": "it is zero wherever the arms bracket the truth, so with several arms it is usually small and usually permissive. Use it to refute, never to promise."
+            }
+          },
+          "recoverable": {
+            "nested_constant_stacking": {
+              "mean_loss": 37.677128671715586,
+              "weights_refitted_per_partition": true,
+              "what_this_is": "the gain constant-weight stacking actually recovers out of sample, as opposed to the ceiling it could reach in hindsight"
+            }
+          },
+          "gaps": {
+            "reference_minus_constant_ceiling": {
+              "gap": 2.7034889649730696,
+              "interval": [
+                -0.48005485849512197,
+                7.656010489872068
+              ],
+              "excludes_zero": false,
+              "level": "99.17 %",
+              "family_size": 6,
+              "n_bootstrap": 2000,
+              "resampling_unit": "individual"
+            },
+            "reference_minus_selection_ceiling": {
+              "gap": 13.055129897824873,
+              "interval": [
+                6.898017215021525,
+                19.976505842706377
+              ],
+              "excludes_zero": true,
+              "level": "99.17 %",
+              "family_size": 6,
+              "n_bootstrap": 2000,
+              "resampling_unit": "individual"
+            },
+            "reference_minus_convex_ceiling": {
+              "gap": 16.25430522021825,
+              "interval": [
+                8.495078483440677,
+                26.087221661794814
+              ],
+              "excludes_zero": true,
+              "level": "99.17 %",
+              "family_size": 6,
+              "n_bootstrap": 2000,
+              "resampling_unit": "individual"
+            },
+            "reference_minus_nested_stacking": {
+              "gap": 0.6404295098166727,
+              "interval": [
+                -1.5876855154761758,
+                3.6150359395303657
+              ],
+              "excludes_zero": false,
+              "level": "99.17 %",
+              "family_size": 6,
+              "n_bootstrap": 2000,
+              "resampling_unit": "individual"
+            }
+          },
+          "verdicts": {
+            "stacking_family": {
+              "verdict": "NO_DETECTABLE_HEADROOM_UNDERPOWERED",
+              "how_to_read": "the interval contains zero but reaches +7.6560, above the +1.9159 that would matter. Nothing is detected and nothing is refuted; the design lacks the power to tell those apart.",
+              "minimum_interesting_gain": 1.9158779090766132,
+              "relative_margin": 0.05,
+              "minimum_detectable_gap": 4.952521524898998,
+              "an_interval_containing_zero_is_not_a_refutation": true
+            },
+            "whole_fusion_family": {
+              "verdict": "HEADROOM_PRESENT",
+              "how_to_read": "the ceiling is detectably above the reference. A method could in principle recover some of it; whether one can is a different question.",
+              "minimum_interesting_gain": 1.9158779090766132,
+              "relative_margin": 0.05,
+              "minimum_detectable_gap": 9.832916441576565,
+              "an_interval_containing_zero_is_not_a_refutation": true
+            }
+          },
+          "context_probes": {
+            "clinical_covariates": {
+              "compared_arms": [
+                7,
+                2
+              ],
+              "spearman_out_of_sample": 0.14072617946345975,
+              "spearman_interval": [
+                -0.13196403792784459,
+                0.39578515263644726
+              ],
+              "spearman_interval_bonferroni": [
+                -0.22936271392229418,
+                0.5046345975948198
+              ],
+              "family_size": 20,
+              "verdict": "NO_DETECTABLE_SIGNAL_UNDERPOWERED",
+              "minimum_interesting_rank_association": 0.3,
+              "sign_agreement": 0.5531914893617021,
+              "share_where_the_runner_up_wins": 0.48936170212765956,
+              "how_to_read": "A rank correlation near zero and a sign agreement near the share of the majority class mean the context carries no information about which arm will win, so a gate would have nothing to learn. But that is only a REFUTATION when the interval's upper bound falls below the minimum interesting association; otherwise it is a non-detection, and at these cohort sizes it usually is.",
+              "context_variables": [
+                "Age (years)",
+                "male sex",
+                "weight",
+                "BMI",
+                "Daily Dose Metoprolol"
+              ],
+              "compared_arm_names": [
+                "M3b_clinical_comedication_omic",
+                "M2_clinical_omic"
+              ]
+            },
+            "arm_predictions_and_their_disagreement": {
+              "compared_arms": [
+                7,
+                2
+              ],
+              "spearman_out_of_sample": 0.17703515263644773,
+              "spearman_interval": [
+                -0.15347190101757632,
+                0.4821374884366324
+              ],
+              "spearman_interval_bonferroni": [
+                -0.3246536771507863,
+                0.6011339327012029
+              ],
+              "family_size": 20,
+              "verdict": "NO_DETECTABLE_SIGNAL_UNDERPOWERED",
+              "minimum_interesting_rank_association": 0.3,
+              "sign_agreement": 0.574468085106383,
+              "share_where_the_runner_up_wins": 0.48936170212765956,
+              "how_to_read": "A rank correlation near zero and a sign agreement near the share of the majority class mean the context carries no information about which arm will win, so a gate would have nothing to learn. But that is only a REFUTATION when the interval's upper bound falls below the minimum interesting association; otherwise it is a non-detection, and at these cohort sizes it usually is.",
+              "context_variables": [
+                "prediction::M0_clinical",
+                "prediction::M1_clinical_pgx",
+                "prediction::M2_clinical_omic",
+                "prediction::M3_clinical_pgx_omic",
+                "prediction::M1a_clinical_genotype",
+                "prediction::M1b_clinical_comedication",
+                "prediction::M3a_clinical_genotype_omic",
+                "prediction::M3b_clinical_comedication_omic",
+                "prediction_spread",
+                "prediction_mean",
+                "prediction_sd"
+              ],
+              "compared_arm_names": [
+                "M3b_clinical_comedication_omic",
+                "M2_clinical_omic"
+              ]
+            }
+          },
+          "error_structure": {
+            "median_pairwise_error_correlation": 0.8492334874990064,
+            "max_pairwise_error_correlation": 0.9965636804205396,
+            "how_to_read": "combination gain is driven by decorrelation. A median above 0.95 means the arms are one arm and no weighting can help."
+          }
+        },
+        "repeat_1": {
+          "n_individuals": 47,
+          "arms": [
+            "M0_clinical",
+            "M1_clinical_pgx",
+            "M2_clinical_omic",
+            "M3_clinical_pgx_omic",
+            "M1a_clinical_genotype",
+            "M1b_clinical_comedication",
+            "M3a_clinical_genotype_omic",
+            "M3b_clinical_comedication_omic"
+          ],
+          "n_arms": 8,
+          "ceilings": {
+            "best_single_oracle": {
+              "mean_loss": 32.83072793114488,
+              "arm_index": 2,
+              "per_arm_mean_loss": [
+                54.30996228462708,
+                51.55605480363451,
+                32.83072793114488,
+                34.68031110597545,
+                52.07954213656168,
+                53.87648349672864,
+                34.43162686591814,
+                33.292042160880605
+              ]
+            },
+            "best_single_honest_training_choice": {
+              "mean_loss": 33.46358714562778,
+              "arm_chosen_per_partition": [
+                "M2_clinical_omic",
+                "M2_clinical_omic",
+                "M2_clinical_omic",
+                "M3b_clinical_comedication_omic",
+                "M2_clinical_omic"
+              ]
+            },
+            "constant_weight_oracle": {
+              "mean_loss": 32.82610322554981,
+              "bounds": "constant-weight mixtures only: stacking and uniform averaging. It does NOT bound a contextual gate.",
+              "iterations": 500
+            },
+            "constant_weight_oracle_weights": {
+              "M0_clinical": 0.0,
+              "M1_clinical_pgx": 0.0,
+              "M2_clinical_omic": 0.656292106483659,
+              "M3_clinical_pgx_omic": 0.0,
+              "M1a_clinical_genotype": 0.0,
+              "M1b_clinical_comedication": 0.0,
+              "M3a_clinical_genotype_omic": 0.0,
+              "M3b_clinical_comedication_omic": 0.3437078935163411
+            },
+            "individual_selection_oracle": {
+              "mean_loss": 23.077076018026744,
+              "bounds": "per-individual arm selection",
+              "best_arm_shares": {
+                "M0_clinical": 0.0,
+                "M1_clinical_pgx": 0.0425531914893617,
+                "M2_clinical_omic": 0.23404255319148937,
+                "M3_clinical_pgx_omic": 0.1702127659574468,
+                "M1a_clinical_genotype": 0.19148936170212766,
+                "M1b_clinical_comedication": 0.06382978723404255,
+                "M3a_clinical_genotype_omic": 0.1276595744680851,
+                "M3b_clinical_comedication_omic": 0.1702127659574468
+              }
+            },
+            "individual_convex_oracle": {
+              "mean_loss": 20.47898804667772,
+              "bracketing_rate": 0.2978723404255319,
+              "bounds": "EVERY method in the family, contextual gates included. A gap of zero here refutes the family.",
+              "why_it_cannot_guide": "it is zero wherever the arms bracket the truth, so with several arms it is usually small and usually permissive. Use it to refute, never to promise."
+            }
+          },
+          "recoverable": {
+            "nested_constant_stacking": {
+              "mean_loss": 33.9588372355781,
+              "weights_refitted_per_partition": true,
+              "what_this_is": "the gain constant-weight stacking actually recovers out of sample, as opposed to the ceiling it could reach in hindsight"
+            }
+          },
+          "gaps": {
+            "reference_minus_constant_ceiling": {
+              "gap": 0.6374839200779565,
+              "interval": [
+                -0.3827469106026026,
+                2.2344034074374317
+              ],
+              "excludes_zero": false,
+              "level": "99.17 %",
+              "family_size": 6,
+              "n_bootstrap": 2000,
+              "resampling_unit": "individual"
+            },
+            "reference_minus_selection_ceiling": {
+              "gap": 10.386511127601024,
+              "interval": [
+                5.323651733693463,
+                16.793836808431937
+              ],
+              "excludes_zero": true,
+              "level": "99.17 %",
+              "family_size": 6,
+              "n_bootstrap": 2000,
+              "resampling_unit": "individual"
+            },
+            "reference_minus_convex_ceiling": {
+              "gap": 12.984599098950051,
+              "interval": [
+                6.390583416614481,
+                22.393463250227367
+              ],
+              "excludes_zero": true,
+              "level": "99.17 %",
+              "family_size": 6,
+              "n_bootstrap": 2000,
+              "resampling_unit": "individual"
+            },
+            "reference_minus_nested_stacking": {
+              "gap": -0.4952500899503245,
+              "interval": [
+                -1.2173824021747706,
+                0.05804498318141186
+              ],
+              "excludes_zero": false,
+              "level": "99.17 %",
+              "family_size": 6,
+              "n_bootstrap": 2000,
+              "resampling_unit": "individual"
+            }
+          },
+          "verdicts": {
+            "stacking_family": {
+              "verdict": "NO_DETECTABLE_HEADROOM_UNDERPOWERED",
+              "how_to_read": "the interval contains zero but reaches +2.2344, above the +1.6732 that would matter. Nothing is detected and nothing is refuted; the design lacks the power to tell those apart.",
+              "minimum_interesting_gain": 1.673179357281389,
+              "relative_margin": 0.05,
+              "minimum_detectable_gap": 1.5969194873594752,
+              "an_interval_containing_zero_is_not_a_refutation": true
+            },
+            "whole_fusion_family": {
+              "verdict": "HEADROOM_PRESENT",
+              "how_to_read": "the ceiling is detectably above the reference. A method could in principle recover some of it; whether one can is a different question.",
+              "minimum_interesting_gain": 1.673179357281389,
+              "relative_margin": 0.05,
+              "minimum_detectable_gap": 9.408864151277315,
+              "an_interval_containing_zero_is_not_a_refutation": true
+            }
+          },
+          "context_probes": {
+            "clinical_covariates": {
+              "compared_arms": [
+                2,
+                7
+              ],
+              "spearman_out_of_sample": -0.07724329324699353,
+              "spearman_interval": [
+                -0.3366414199814986,
+                0.2023647086031452
+              ],
+              "spearman_interval_bonferroni": [
+                -0.46590859158186865,
+                0.3070668073543016
+              ],
+              "family_size": 20,
+              "verdict": "REFUTED_CONTEXT_UNINFORMATIVE",
+              "minimum_interesting_rank_association": 0.3,
+              "sign_agreement": 0.44680851063829785,
+              "share_where_the_runner_up_wins": 0.48936170212765956,
+              "how_to_read": "A rank correlation near zero and a sign agreement near the share of the majority class mean the context carries no information about which arm will win, so a gate would have nothing to learn. But that is only a REFUTATION when the interval's upper bound falls below the minimum interesting association; otherwise it is a non-detection, and at these cohort sizes it usually is.",
+              "context_variables": [
+                "Age (years)",
+                "male sex",
+                "weight",
+                "BMI",
+                "Daily Dose Metoprolol"
+              ],
+              "compared_arm_names": [
+                "M2_clinical_omic",
+                "M3b_clinical_comedication_omic"
+              ]
+            },
+            "arm_predictions_and_their_disagreement": {
+              "compared_arms": [
+                2,
+                7
+              ],
+              "spearman_out_of_sample": -0.3227335800185014,
+              "spearman_interval": [
+                -0.6124161655874191,
+                -0.0023068917668825476
+              ],
+              "spearman_interval_bonferroni": [
+                -0.7169980053191489,
+                0.14246328630897323
+              ],
+              "family_size": 20,
+              "verdict": "REFUTED_CONTEXT_UNINFORMATIVE",
+              "minimum_interesting_rank_association": 0.3,
+              "sign_agreement": 0.3829787234042553,
+              "share_where_the_runner_up_wins": 0.48936170212765956,
+              "how_to_read": "A rank correlation near zero and a sign agreement near the share of the majority class mean the context carries no information about which arm will win, so a gate would have nothing to learn. But that is only a REFUTATION when the interval's upper bound falls below the minimum interesting association; otherwise it is a non-detection, and at these cohort sizes it usually is.",
+              "context_variables": [
+                "prediction::M0_clinical",
+                "prediction::M1_clinical_pgx",
+                "prediction::M2_clinical_omic",
+                "prediction::M3_clinical_pgx_omic",
+                "prediction::M1a_clinical_genotype",
+                "prediction::M1b_clinical_comedication",
+                "prediction::M3a_clinical_genotype_omic",
+                "prediction::M3b_clinical_comedication_omic",
+                "prediction_spread",
+                "prediction_mean",
+                "prediction_sd"
+              ],
+              "compared_arm_names": [
+                "M2_clinical_omic",
+                "M3b_clinical_comedication_omic"
+              ]
+            }
+          },
+          "error_structure": {
+            "median_pairwise_error_correlation": 0.7975842335742587,
+            "max_pairwise_error_correlation": 0.9983003011849769,
+            "how_to_read": "combination gain is driven by decorrelation. A median above 0.95 means the arms are one arm and no weighting can help."
+          }
+        }
+      },
+      "n_repeats": 2,
+      "why_per_repeat": "each repeat is one complete out-of-fold assignment. This project's loss averages per-patient ERRORS across repeats; averaging PREDICTIONS would create a prediction no arm made, so the ceilings are computed per repeat and every repeat is reported.",
+      "n_individuals": 47,
+      "arms": [
+        "M0_clinical",
+        "M1_clinical_pgx",
+        "M2_clinical_omic",
+        "M3_clinical_pgx_omic",
+        "M1a_clinical_genotype",
+        "M1b_clinical_comedication",
+        "M3a_clinical_genotype_omic",
+        "M3b_clinical_comedication_omic"
+      ],
+      "n_arms": 8,
+      "cohort": "ARIANA n=47, observed pre-dose metoprolol concentration",
+      "loss_units": "ng/mL, absolute error",
+      "endpoint_caveat": "an observed pre-dose concentration. NOT an AUC, NOT a clearance, NOT a steady-state exposure metric.",
+      "status_ceiling": "exploratory; this cohort has been analysed repeatedly by this project",
+      "source_sha256": "7397b13e43cd546b93f83a20b2dc84b6d49e97633173d56711c39973beedfe37"
+    },
+    "lee_jackson": {
+      "n_individuals": 15,
+      "arms": [
+        "V0_mean",
+        "V1_hepatic_protein",
+        "V2_plasma_metabolite",
+        "V3_protein_plus_plasma",
+        "V1s_cyp3a_total",
+        "V3s_cyp3a_total_plus_plasma"
+      ],
+      "n_arms": 6,
+      "ceilings": {
+        "best_single_oracle": {
+          "mean_loss": 0.4034627184831879,
+          "arm_index": 3,
+          "per_arm_mean_loss": [
+            0.5045985827764057,
+            0.47368040348189827,
+            0.44659323377671545,
+            0.4034627184831879,
+            0.46438050898793365,
+            0.4193047006024482
+          ]
+        },
+        "best_single_honest_training_choice": {
+          "mean_loss": 0.42889400779665876,
+          "arm_chosen_per_partition": [
+            "V3_protein_plus_plasma",
+            "V3_protein_plus_plasma",
+            "V3_protein_plus_plasma",
+            "V3s_cyp3a_total_plus_plasma",
+            "V3_protein_plus_plasma"
+          ]
+        },
+        "constant_weight_oracle": {
+          "mean_loss": 0.39622195914791336,
+          "bounds": "constant-weight mixtures only: stacking and uniform averaging. It does NOT bound a contextual gate.",
+          "iterations": 500
+        },
+        "constant_weight_oracle_weights": {
+          "V0_mean": 0.0,
+          "V1_hepatic_protein": 0.0,
+          "V2_plasma_metabolite": 0.40675948577339227,
+          "V3_protein_plus_plasma": 0.5733331144203456,
+          "V1s_cyp3a_total": 0.0,
+          "V3s_cyp3a_total_plus_plasma": 0.019907399806262004
+        },
+        "individual_selection_oracle": {
+          "mean_loss": 0.3086382912224773,
+          "bounds": "per-individual arm selection",
+          "best_arm_shares": {
+            "V0_mean": 0.2,
+            "V1_hepatic_protein": 0.13333333333333333,
+            "V2_plasma_metabolite": 0.2,
+            "V3_protein_plus_plasma": 0.13333333333333333,
+            "V1s_cyp3a_total": 0.13333333333333333,
+            "V3s_cyp3a_total_plus_plasma": 0.2
+          }
+        },
+        "individual_convex_oracle": {
+          "mean_loss": 0.2868907082390173,
+          "bracketing_rate": 0.2,
+          "bounds": "EVERY method in the family, contextual gates included. A gap of zero here refutes the family.",
+          "why_it_cannot_guide": "it is zero wherever the arms bracket the truth, so with several arms it is usually small and usually permissive. Use it to refute, never to promise."
+        }
+      },
+      "recoverable": {
+        "nested_constant_stacking": {
+          "mean_loss": 0.4508190079366887,
+          "weights_refitted_per_partition": true,
+          "what_this_is": "the gain constant-weight stacking actually recovers out of sample, as opposed to the ceiling it could reach in hindsight"
+        }
+      },
+      "gaps": {
+        "reference_minus_constant_ceiling": {
+          "gap": 0.03267204864874542,
+          "interval": [
+            -0.055920736430818345,
+            0.1908712066289648
+          ],
+          "excludes_zero": false,
+          "level": "99.17 %",
+          "family_size": 6,
+          "n_bootstrap": 2000,
+          "resampling_unit": "individual"
+        },
+        "reference_minus_selection_ceiling": {
+          "gap": 0.12025571657418146,
+          "interval": [
+            0.052285864512564055,
+            0.2032349584507488
+          ],
+          "excludes_zero": true,
+          "level": "99.17 %",
+          "family_size": 6,
+          "n_bootstrap": 2000,
+          "resampling_unit": "individual"
+        },
+        "reference_minus_convex_ceiling": {
+          "gap": 0.14200329955764143,
+          "interval": [
+            0.055677494012262164,
+            0.2784279640921046
+          ],
+          "excludes_zero": true,
+          "level": "99.17 %",
+          "family_size": 6,
+          "n_bootstrap": 2000,
+          "resampling_unit": "individual"
+        },
+        "reference_minus_nested_stacking": {
+          "gap": -0.021925000140030033,
+          "interval": [
+            -0.08019048991832811,
+            0.02980600674068429
+          ],
+          "excludes_zero": false,
+          "level": "99.17 %",
+          "family_size": 6,
+          "n_bootstrap": 2000,
+          "resampling_unit": "individual"
+        }
+      },
+      "verdicts": {
+        "stacking_family": {
+          "verdict": "NO_DETECTABLE_HEADROOM_UNDERPOWERED",
+          "how_to_read": "the interval contains zero but reaches +0.1909, above the +0.0214 that would matter. Nothing is detected and nothing is refuted; the design lacks the power to tell those apart.",
+          "minimum_interesting_gain": 0.02144470038983294,
+          "relative_margin": 0.05,
+          "minimum_detectable_gap": 0.15819915798021938,
+          "an_interval_containing_zero_is_not_a_refutation": true
+        },
+        "whole_fusion_family": {
+          "verdict": "HEADROOM_PRESENT",
+          "how_to_read": "the ceiling is detectably above the reference. A method could in principle recover some of it; whether one can is a different question.",
+          "minimum_interesting_gain": 0.02144470038983294,
+          "relative_margin": 0.05,
+          "minimum_detectable_gap": 0.13642466453446314,
+          "an_interval_containing_zero_is_not_a_refutation": true
+        }
+      },
+      "context_probes": {
+        "clinical_covariates": {
+          "compared_arms": [
+            3,
+            5
+          ],
+          "spearman_out_of_sample": 0.225,
+          "spearman_interval": [
+            -0.33214285714285713,
+            0.6178571428571429
+          ],
+          "spearman_interval_bonferroni": [
+            -0.6553705357142857,
+            0.792892857142858
+          ],
+          "family_size": 20,
+          "verdict": "NO_DETECTABLE_SIGNAL_UNDERPOWERED",
+          "minimum_interesting_rank_association": 0.3,
+          "sign_agreement": 0.4666666666666667,
+          "share_where_the_runner_up_wins": 0.5333333333333333,
+          "how_to_read": "A rank correlation near zero and a sign agreement near the share of the majority class mean the context carries no information about which arm will win, so a gate would have nothing to learn. But that is only a REFUTATION when the interval's upper bound falls below the minimum interesting association; otherwise it is a non-detection, and at these cohort sizes it usually is.",
+          "context_variables": [
+            "age_years",
+            "is_male",
+            "bmi"
+          ],
+          "compared_arm_names": [
+            "V3_protein_plus_plasma",
+            "V3s_cyp3a_total_plus_plasma"
+          ]
+        },
+        "arm_predictions_and_their_disagreement": {
+          "compared_arms": [
+            3,
+            5
+          ],
+          "spearman_out_of_sample": -0.38571428571428573,
+          "spearman_interval": [
+            -0.9,
+            0.3038392857142842
+          ],
+          "spearman_interval_bonferroni": [
+            -0.95,
+            0.5714553571428578
+          ],
+          "family_size": 20,
+          "verdict": "NO_DETECTABLE_SIGNAL_UNDERPOWERED",
+          "minimum_interesting_rank_association": 0.3,
+          "sign_agreement": 0.26666666666666666,
+          "share_where_the_runner_up_wins": 0.5333333333333333,
+          "how_to_read": "A rank correlation near zero and a sign agreement near the share of the majority class mean the context carries no information about which arm will win, so a gate would have nothing to learn. But that is only a REFUTATION when the interval's upper bound falls below the minimum interesting association; otherwise it is a non-detection, and at these cohort sizes it usually is.",
+          "context_variables": [
+            "prediction::V0_mean",
+            "prediction::V1_hepatic_protein",
+            "prediction::V2_plasma_metabolite",
+            "prediction::V3_protein_plus_plasma",
+            "prediction::V1s_cyp3a_total",
+            "prediction::V3s_cyp3a_total_plus_plasma",
+            "prediction_spread",
+            "prediction_mean",
+            "prediction_sd"
+          ],
+          "compared_arm_names": [
+            "V3_protein_plus_plasma",
+            "V3s_cyp3a_total_plus_plasma"
+          ]
+        }
+      },
+      "error_structure": {
+        "median_pairwise_error_correlation": 0.7809232100110532,
+        "max_pairwise_error_correlation": 0.9870177309449961,
+        "how_to_read": "combination gain is driven by decorrelation. A median above 0.95 means the arms are one arm and no weighting can help."
+      },
+      "cohort": "Lee / Jackson n=15 hepatocyte donors, midazolam 1'-hydroxylation",
+      "loss_units": "log10 of pmol per million cells per minute",
+      "endpoint_caveat": "an activity rate at a single substrate concentration. NOT an intrinsic clearance and NOT a pharmacokinetic quantity.",
+      "status_ceiling": "exploratory; n = 15",
+      "per_donor_table_sha256": "bcb5c99936575fac8e19f45f143901b903621dfd1c7644c7c0aafd83bd0afbd1"
+    },
+    "hlc::CYP1A2_activity": {
+      "n_individuals": 397,
+      "arms": [
+        "age_sex",
+        "target_CYP_RNA_only",
+        "age_sex_plus_target_CYP_RNA",
+        "age_sex_plus_targeted_panel"
+      ],
+      "n_arms": 4,
+      "ceilings": {
+        "best_single_oracle": {
+          "mean_loss": 397.4027057433413,
+          "arm_index": 1,
+          "per_arm_mean_loss": [
+            477.1074964902171,
+            397.4027057433413,
+            399.3954991112835,
+            554.6136026046076
+          ]
+        },
+        "best_single_honest_training_choice": {
+          "mean_loss": 399.4287282088903,
+          "arm_chosen_per_partition": [
+            "target_CYP_RNA_only",
+            "age_sex_plus_target_CYP_RNA",
+            "target_CYP_RNA_only",
+            "target_CYP_RNA_only",
+            "target_CYP_RNA_only"
+          ]
+        },
+        "constant_weight_oracle": {
+          "mean_loss": 395.00528294880104,
+          "bounds": "constant-weight mixtures only: stacking and uniform averaging. It does NOT bound a contextual gate.",
+          "iterations": 500
+        },
+        "constant_weight_oracle_weights": {
+          "age_sex": 0.0,
+          "target_CYP_RNA_only": 0.9871206826256624,
+          "age_sex_plus_target_CYP_RNA": 0.0,
+          "age_sex_plus_targeted_panel": 0.012879317374337467
+        },
+        "individual_selection_oracle": {
+          "mean_loss": 294.51072823391365,
+          "bounds": "per-individual arm selection",
+          "best_arm_shares": {
+            "age_sex": 0.28967254408060455,
+            "target_CYP_RNA_only": 0.2040302267002519,
+            "age_sex_plus_target_CYP_RNA": 0.1889168765743073,
+            "age_sex_plus_targeted_panel": 0.31738035264483627
+          }
+        },
+        "individual_convex_oracle": {
+          "mean_loss": 275.2193487383298,
+          "bracketing_rate": 0.30982367758186397,
+          "bounds": "EVERY method in the family, contextual gates included. A gap of zero here refutes the family.",
+          "why_it_cannot_guide": "it is zero wherever the arms bracket the truth, so with several arms it is usually small and usually permissive. Use it to refute, never to promise."
+        }
+      },
+      "recoverable": {
+        "nested_constant_stacking": {
+          "mean_loss": 440.83470035931015,
+          "weights_refitted_per_partition": true,
+          "what_this_is": "the gain constant-weight stacking actually recovers out of sample, as opposed to the ceiling it could reach in hindsight"
+        }
+      },
+      "gaps": {
+        "reference_minus_constant_ceiling": {
+          "gap": 4.423445260089223,
+          "interval": [
+            0.5525038709062207,
+            11.681955491956987
+          ],
+          "excludes_zero": true,
+          "level": "99.17 %",
+          "family_size": 6,
+          "n_bootstrap": 2000,
+          "resampling_unit": "individual"
+        },
+        "reference_minus_selection_ceiling": {
+          "gap": 104.91799997497657,
+          "interval": [
+            87.2544285623455,
+            122.81163812999567
+          ],
+          "excludes_zero": true,
+          "level": "99.17 %",
+          "family_size": 6,
+          "n_bootstrap": 2000,
+          "resampling_unit": "individual"
+        },
+        "reference_minus_convex_ceiling": {
+          "gap": 124.20937947056039,
+          "interval": [
+            104.42745021415652,
+            145.2712645159389
+          ],
+          "excludes_zero": true,
+          "level": "99.17 %",
+          "family_size": 6,
+          "n_bootstrap": 2000,
+          "resampling_unit": "individual"
+        },
+        "reference_minus_nested_stacking": {
+          "gap": -41.40597215041989,
+          "interval": [
+            -227.00252958273427,
+            9.847150781261469
+          ],
+          "excludes_zero": false,
+          "level": "99.17 %",
+          "family_size": 6,
+          "n_bootstrap": 2000,
+          "resampling_unit": "individual"
+        }
+      },
+      "verdicts": {
+        "stacking_family": {
+          "verdict": "HEADROOM_PRESENT",
+          "how_to_read": "the ceiling is detectably above the reference. A method could in principle recover some of it; whether one can is a different question.",
+          "minimum_interesting_gain": 19.971436410444515,
+          "relative_margin": 0.05,
+          "minimum_detectable_gap": 7.258510231867764,
+          "an_interval_containing_zero_is_not_a_refutation": true
+        },
+        "whole_fusion_family": {
+          "verdict": "HEADROOM_PRESENT",
+          "how_to_read": "the ceiling is detectably above the reference. A method could in principle recover some of it; whether one can is a different question.",
+          "minimum_interesting_gain": 19.971436410444515,
+          "relative_margin": 0.05,
+          "minimum_detectable_gap": 21.061885045378503,
+          "an_interval_containing_zero_is_not_a_refutation": true
+        }
+      },
+      "context_probes": {
+        "clinical_covariates": {
+          "compared_arms": [
+            1,
+            2
+          ],
+          "spearman_out_of_sample": 0.06160352944019387,
+          "spearman_interval": [
+            -0.03682827637155321,
+            0.15382088961715681
+          ],
+          "spearman_interval_bonferroni": [
+            -0.08603427962459423,
+            0.21405071499010997
+          ],
+          "family_size": 20,
+          "verdict": "REFUTED_CONTEXT_UNINFORMATIVE",
+          "minimum_interesting_rank_association": 0.3,
+          "sign_agreement": 0.5264483627204031,
+          "share_where_the_runner_up_wins": 0.4760705289672544,
+          "how_to_read": "A rank correlation near zero and a sign agreement near the share of the majority class mean the context carries no information about which arm will win, so a gate would have nothing to learn. But that is only a REFUTATION when the interval's upper bound falls below the minimum interesting association; otherwise it is a non-detection, and at these cohort sizes it usually is.",
+          "context_variables": [
+            "age_years",
+            "is_male"
+          ],
+          "compared_arm_names": [
+            "target_CYP_RNA_only",
+            "age_sex_plus_target_CYP_RNA"
+          ]
+        },
+        "arm_predictions_and_their_disagreement": {
+          "compared_arms": [
+            1,
+            2
+          ],
+          "spearman_out_of_sample": 0.04765047280521376,
+          "spearman_interval": [
+            -0.06899474761027487,
+            0.16624832332795939
+          ],
+          "spearman_interval_bonferroni": [
+            -0.12379130980449918,
+            0.2508108420988233
+          ],
+          "family_size": 20,
+          "verdict": "REFUTED_CONTEXT_UNINFORMATIVE",
+          "minimum_interesting_rank_association": 0.3,
+          "sign_agreement": 0.5113350125944585,
+          "share_where_the_runner_up_wins": 0.4760705289672544,
+          "how_to_read": "A rank correlation near zero and a sign agreement near the share of the majority class mean the context carries no information about which arm will win, so a gate would have nothing to learn. But that is only a REFUTATION when the interval's upper bound falls below the minimum interesting association; otherwise it is a non-detection, and at these cohort sizes it usually is.",
+          "context_variables": [
+            "prediction::age_sex",
+            "prediction::target_CYP_RNA_only",
+            "prediction::age_sex_plus_target_CYP_RNA",
+            "prediction::age_sex_plus_targeted_panel",
+            "prediction_spread",
+            "prediction_mean",
+            "prediction_sd"
+          ],
+          "compared_arm_names": [
+            "target_CYP_RNA_only",
+            "age_sex_plus_target_CYP_RNA"
+          ]
+        }
+      },
+      "error_structure": {
+        "median_pairwise_error_correlation": 0.5288553798913412,
+        "max_pairwise_error_correlation": 0.9976044678353365,
+        "how_to_read": "combination gain is driven by decorrelation. A median above 0.95 means the arms are one arm and no weighting can help."
+      },
+      "cohort": "HLC n=397, CYP1A2_activity",
+      "loss_units": "original source activity units, absolute error",
+      "endpoint_caveat": "measured in-vitro microsomal enzyme activity. NOT a clinical pharmacokinetic quantity.",
+      "context_caveat": "the only clinical context this cohort publishes is age and sex. A null context probe here is a statement about those two variables, not about context in general."
+    },
+    "hlc::CYP2A6_activity": {
+      "n_individuals": 396,
+      "arms": [
+        "age_sex",
+        "target_CYP_RNA_only",
+        "age_sex_plus_target_CYP_RNA",
+        "age_sex_plus_targeted_panel"
+      ],
+      "n_arms": 4,
+      "ceilings": {
+        "best_single_oracle": {
+          "mean_loss": 550.1991368582499,
+          "arm_index": 1,
+          "per_arm_mean_loss": [
+            627.8850349229277,
+            550.1991368582499,
+            557.3303828074694,
+            584.4245209096453
+          ]
+        },
+        "best_single_honest_training_choice": {
+          "mean_loss": 550.1991368582497,
+          "arm_chosen_per_partition": [
+            "target_CYP_RNA_only",
+            "target_CYP_RNA_only",
+            "target_CYP_RNA_only",
+            "target_CYP_RNA_only",
+            "target_CYP_RNA_only"
+          ]
+        },
+        "constant_weight_oracle": {
+          "mean_loss": 544.2231468249438,
+          "bounds": "constant-weight mixtures only: stacking and uniform averaging. It does NOT bound a contextual gate.",
+          "iterations": 500
+        },
+        "constant_weight_oracle_weights": {
+          "age_sex": 0.0,
+          "target_CYP_RNA_only": 0.8095238095238095,
+          "age_sex_plus_target_CYP_RNA": 0.0,
+          "age_sex_plus_targeted_panel": 0.19047619047619052
+        },
+        "individual_selection_oracle": {
+          "mean_loss": 395.10026311547733,
+          "bounds": "per-individual arm selection",
+          "best_arm_shares": {
+            "age_sex": 0.30303030303030304,
+            "target_CYP_RNA_only": 0.2398989898989899,
+            "age_sex_plus_target_CYP_RNA": 0.1994949494949495,
+            "age_sex_plus_targeted_panel": 0.25757575757575757
+          }
+        },
+        "individual_convex_oracle": {
+          "mean_loss": 376.9835021143432,
+          "bracketing_rate": 0.2702020202020202,
+          "bounds": "EVERY method in the family, contextual gates included. A gap of zero here refutes the family.",
+          "why_it_cannot_guide": "it is zero wherever the arms bracket the truth, so with several arms it is usually small and usually permissive. Use it to refute, never to promise."
+        }
+      },
+      "recoverable": {
+        "nested_constant_stacking": {
+          "mean_loss": 545.5812284861861,
+          "weights_refitted_per_partition": true,
+          "what_this_is": "the gain constant-weight stacking actually recovers out of sample, as opposed to the ceiling it could reach in hindsight"
+        }
+      },
+      "gaps": {
+        "reference_minus_constant_ceiling": {
+          "gap": 5.97599003330587,
+          "interval": [
+            -1.430454229816072,
+            13.514900506285434
+          ],
+          "excludes_zero": false,
+          "level": "99.17 %",
+          "family_size": 6,
+          "n_bootstrap": 2000,
+          "resampling_unit": "individual"
+        },
+        "reference_minus_selection_ceiling": {
+          "gap": 155.09887374277244,
+          "interval": [
+            133.55052547578757,
+            177.641734138239
+          ],
+          "excludes_zero": true,
+          "level": "99.17 %",
+          "family_size": 6,
+          "n_bootstrap": 2000,
+          "resampling_unit": "individual"
+        },
+        "reference_minus_convex_ceiling": {
+          "gap": 173.21563474390655,
+          "interval": [
+            150.59280018534224,
+            196.75884414552397
+          ],
+          "excludes_zero": true,
+          "level": "99.17 %",
+          "family_size": 6,
+          "n_bootstrap": 2000,
+          "resampling_unit": "individual"
+        },
+        "reference_minus_nested_stacking": {
+          "gap": 4.6179083720636696,
+          "interval": [
+            -3.756863764581499,
+            13.000889576844349
+          ],
+          "excludes_zero": false,
+          "level": "99.17 %",
+          "family_size": 6,
+          "n_bootstrap": 2000,
+          "resampling_unit": "individual"
+        }
+      },
+      "verdicts": {
+        "stacking_family": {
+          "verdict": "REFUTED_CEILING_BELOW_MARGIN",
+          "how_to_read": "the ceiling's upper bound (+13.5149) is below the smallest interesting gain (+27.5100). Even in hindsight there is less to win than would be worth winning. This IS a refutation.",
+          "minimum_interesting_gain": 27.509956842912487,
+          "relative_margin": 0.05,
+          "minimum_detectable_gap": 7.5389104729795635,
+          "an_interval_containing_zero_is_not_a_refutation": true
+        },
+        "whole_fusion_family": {
+          "verdict": "HEADROOM_PRESENT",
+          "how_to_read": "the ceiling is detectably above the reference. A method could in principle recover some of it; whether one can is a different question.",
+          "minimum_interesting_gain": 27.509956842912487,
+          "relative_margin": 0.05,
+          "minimum_detectable_gap": 23.543209401617418,
+          "an_interval_containing_zero_is_not_a_refutation": true
+        }
+      },
+      "context_probes": {
+        "clinical_covariates": {
+          "compared_arms": [
+            1,
+            2
+          ],
+          "spearman_out_of_sample": -0.06137670426163236,
+          "spearman_interval": [
+            -0.16368685258348237,
+            0.04265940661597955
+          ],
+          "spearman_interval_bonferroni": [
+            -0.20856123264336765,
+            0.09009486859153668
+          ],
+          "family_size": 20,
+          "verdict": "REFUTED_CONTEXT_UNINFORMATIVE",
+          "minimum_interesting_rank_association": 0.3,
+          "sign_agreement": 0.4823232323232323,
+          "share_where_the_runner_up_wins": 0.4797979797979798,
+          "how_to_read": "A rank correlation near zero and a sign agreement near the share of the majority class mean the context carries no information about which arm will win, so a gate would have nothing to learn. But that is only a REFUTATION when the interval's upper bound falls below the minimum interesting association; otherwise it is a non-detection, and at these cohort sizes it usually is.",
+          "context_variables": [
+            "age_years",
+            "is_male"
+          ],
+          "compared_arm_names": [
+            "target_CYP_RNA_only",
+            "age_sex_plus_target_CYP_RNA"
+          ]
+        },
+        "arm_predictions_and_their_disagreement": {
+          "compared_arms": [
+            1,
+            2
+          ],
+          "spearman_out_of_sample": 0.049069594648780315,
+          "spearman_interval": [
+            -0.05775698347502703,
+            0.15675212250683346
+          ],
+          "spearman_interval_bonferroni": [
+            -0.11411693618904345,
+            0.20414988661605696
+          ],
+          "family_size": 20,
+          "verdict": "REFUTED_CONTEXT_UNINFORMATIVE",
+          "minimum_interesting_rank_association": 0.3,
+          "sign_agreement": 0.5429292929292929,
+          "share_where_the_runner_up_wins": 0.4797979797979798,
+          "how_to_read": "A rank correlation near zero and a sign agreement near the share of the majority class mean the context carries no information about which arm will win, so a gate would have nothing to learn. But that is only a REFUTATION when the interval's upper bound falls below the minimum interesting association; otherwise it is a non-detection, and at these cohort sizes it usually is.",
+          "context_variables": [
+            "prediction::age_sex",
+            "prediction::target_CYP_RNA_only",
+            "prediction::age_sex_plus_target_CYP_RNA",
+            "prediction::age_sex_plus_targeted_panel",
+            "prediction_spread",
+            "prediction_mean",
+            "prediction_sd"
+          ],
+          "compared_arm_names": [
+            "target_CYP_RNA_only",
+            "age_sex_plus_target_CYP_RNA"
+          ]
+        }
+      },
+      "error_structure": {
+        "median_pairwise_error_correlation": 0.9680029019995279,
+        "max_pairwise_error_correlation": 0.9938870066590526,
+        "how_to_read": "combination gain is driven by decorrelation. A median above 0.95 means the arms are one arm and no weighting can help."
+      },
+      "cohort": "HLC n=396, CYP2A6_activity",
+      "loss_units": "original source activity units, absolute error",
+      "endpoint_caveat": "measured in-vitro microsomal enzyme activity. NOT a clinical pharmacokinetic quantity.",
+      "context_caveat": "the only clinical context this cohort publishes is age and sex. A null context probe here is a statement about those two variables, not about context in general."
+    },
+    "hlc::CYP2B6_activity": {
+      "n_individuals": 397,
+      "arms": [
+        "age_sex",
+        "target_CYP_RNA_only",
+        "age_sex_plus_target_CYP_RNA",
+        "age_sex_plus_targeted_panel"
+      ],
+      "n_arms": 4,
+      "ceilings": {
+        "best_single_oracle": {
+          "mean_loss": 206.23041146339955,
+          "arm_index": 1,
+          "per_arm_mean_loss": [
+            234.05669600910855,
+            206.23041146339955,
+            206.68150748265734,
+            231.9867224376084
+          ]
+        },
+        "best_single_honest_training_choice": {
+          "mean_loss": 207.27814743886032,
+          "arm_chosen_per_partition": [
+            "target_CYP_RNA_only",
+            "target_CYP_RNA_only",
+            "target_CYP_RNA_only",
+            "age_sex_plus_target_CYP_RNA",
+            "target_CYP_RNA_only"
+          ]
+        },
+        "constant_weight_oracle": {
+          "mean_loss": 206.22549597447278,
+          "bounds": "constant-weight mixtures only: stacking and uniform averaging. It does NOT bound a contextual gate.",
+          "iterations": 500
+        },
+        "constant_weight_oracle_weights": {
+          "age_sex": 0.00944611421210819,
+          "target_CYP_RNA_only": 0.942212007172985,
+          "age_sex_plus_target_CYP_RNA": 0.048341878614906665,
+          "age_sex_plus_targeted_panel": 0.0
+        },
+        "individual_selection_oracle": {
+          "mean_loss": 161.284981446874,
+          "bounds": "per-individual arm selection",
+          "best_arm_shares": {
+            "age_sex": 0.2871536523929471,
+            "target_CYP_RNA_only": 0.22670025188916876,
+            "age_sex_plus_target_CYP_RNA": 0.1889168765743073,
+            "age_sex_plus_targeted_panel": 0.2972292191435768
+          }
+        },
+        "individual_convex_oracle": {
+          "mean_loss": 154.40519232086038,
+          "bracketing_rate": 0.3224181360201511,
+          "bounds": "EVERY method in the family, contextual gates included. A gap of zero here refutes the family.",
+          "why_it_cannot_guide": "it is zero wherever the arms bracket the truth, so with several arms it is usually small and usually permissive. Use it to refute, never to promise."
+        }
+      },
+      "recoverable": {
+        "nested_constant_stacking": {
+          "mean_loss": 214.5209271220621,
+          "weights_refitted_per_partition": true,
+          "what_this_is": "the gain constant-weight stacking actually recovers out of sample, as opposed to the ceiling it could reach in hindsight"
+        }
+      },
+      "gaps": {
+        "reference_minus_constant_ceiling": {
+          "gap": 1.0526514643875273,
+          "interval": [
+            -0.025295858491244244,
+            2.377511931526408
+          ],
+          "excludes_zero": false,
+          "level": "99.17 %",
+          "family_size": 6,
+          "n_bootstrap": 2000,
+          "resampling_unit": "individual"
+        },
+        "reference_minus_selection_ceiling": {
+          "gap": 45.9931659919863,
+          "interval": [
+            37.80017908638128,
+            55.4192473150785
+          ],
+          "excludes_zero": true,
+          "level": "99.17 %",
+          "family_size": 6,
+          "n_bootstrap": 2000,
+          "resampling_unit": "individual"
+        },
+        "reference_minus_convex_ceiling": {
+          "gap": 52.872955117999936,
+          "interval": [
+            44.54097456068603,
+            62.52160350957186
+          ],
+          "excludes_zero": true,
+          "level": "99.17 %",
+          "family_size": 6,
+          "n_bootstrap": 2000,
+          "resampling_unit": "individual"
+        },
+        "reference_minus_nested_stacking": {
+          "gap": -7.242779683201805,
+          "interval": [
+            -36.59441533950527,
+            2.1013485019346687
+          ],
+          "excludes_zero": false,
+          "level": "99.17 %",
+          "family_size": 6,
+          "n_bootstrap": 2000,
+          "resampling_unit": "individual"
+        }
+      },
+      "verdicts": {
+        "stacking_family": {
+          "verdict": "REFUTED_CEILING_BELOW_MARGIN",
+          "how_to_read": "the ceiling's upper bound (+2.3775) is below the smallest interesting gain (+10.3639). Even in hindsight there is less to win than would be worth winning. This IS a refutation.",
+          "minimum_interesting_gain": 10.363907371943016,
+          "relative_margin": 0.05,
+          "minimum_detectable_gap": 1.3248604671388808,
+          "an_interval_containing_zero_is_not_a_refutation": true
+        },
+        "whole_fusion_family": {
+          "verdict": "HEADROOM_PRESENT",
+          "how_to_read": "the ceiling is detectably above the reference. A method could in principle recover some of it; whether one can is a different question.",
+          "minimum_interesting_gain": 10.363907371943016,
+          "relative_margin": 0.05,
+          "minimum_detectable_gap": 9.648648391571925,
+          "an_interval_containing_zero_is_not_a_refutation": true
+        }
+      },
+      "context_probes": {
+        "clinical_covariates": {
+          "compared_arms": [
+            1,
+            2
+          ],
+          "spearman_out_of_sample": 0.02788098955965999,
+          "spearman_interval": [
+            -0.08040862659991047,
+            0.13927572370669467
+          ],
+          "spearman_interval_bonferroni": [
+            -0.13959412454225942,
+            0.1877851658586805
+          ],
+          "family_size": 20,
+          "verdict": "REFUTED_CONTEXT_UNINFORMATIVE",
+          "minimum_interesting_rank_association": 0.3,
+          "sign_agreement": 0.5138539042821159,
+          "share_where_the_runner_up_wins": 0.4836272040302267,
+          "how_to_read": "A rank correlation near zero and a sign agreement near the share of the majority class mean the context carries no information about which arm will win, so a gate would have nothing to learn. But that is only a REFUTATION when the interval's upper bound falls below the minimum interesting association; otherwise it is a non-detection, and at these cohort sizes it usually is.",
+          "context_variables": [
+            "age_years",
+            "is_male"
+          ],
+          "compared_arm_names": [
+            "target_CYP_RNA_only",
+            "age_sex_plus_target_CYP_RNA"
+          ]
+        },
+        "arm_predictions_and_their_disagreement": {
+          "compared_arms": [
+            1,
+            2
+          ],
+          "spearman_out_of_sample": 0.014696603389437839,
+          "spearman_interval": [
+            -0.10547227972547264,
+            0.12870464930560746
+          ],
+          "spearman_interval_bonferroni": [
+            -0.1565588042015282,
+            0.20362050669153756
+          ],
+          "family_size": 20,
+          "verdict": "REFUTED_CONTEXT_UNINFORMATIVE",
+          "minimum_interesting_rank_association": 0.3,
+          "sign_agreement": 0.49370277078085645,
+          "share_where_the_runner_up_wins": 0.4836272040302267,
+          "how_to_read": "A rank correlation near zero and a sign agreement near the share of the majority class mean the context carries no information about which arm will win, so a gate would have nothing to learn. But that is only a REFUTATION when the interval's upper bound falls below the minimum interesting association; otherwise it is a non-detection, and at these cohort sizes it usually is.",
+          "context_variables": [
+            "prediction::age_sex",
+            "prediction::target_CYP_RNA_only",
+            "prediction::age_sex_plus_target_CYP_RNA",
+            "prediction::age_sex_plus_targeted_panel",
+            "prediction_spread",
+            "prediction_mean",
+            "prediction_sd"
+          ],
+          "compared_arm_names": [
+            "target_CYP_RNA_only",
+            "age_sex_plus_target_CYP_RNA"
+          ]
+        }
+      },
+      "error_structure": {
+        "median_pairwise_error_correlation": 0.8132026667497168,
+        "max_pairwise_error_correlation": 0.9987005678367694,
+        "how_to_read": "combination gain is driven by decorrelation. A median above 0.95 means the arms are one arm and no weighting can help."
+      },
+      "cohort": "HLC n=397, CYP2B6_activity",
+      "loss_units": "original source activity units, absolute error",
+      "endpoint_caveat": "measured in-vitro microsomal enzyme activity. NOT a clinical pharmacokinetic quantity.",
+      "context_caveat": "the only clinical context this cohort publishes is age and sex. A null context probe here is a statement about those two variables, not about context in general."
+    },
+    "hlc::CYP2C8_activity": {
+      "n_individuals": 387,
+      "arms": [
+        "age_sex",
+        "target_CYP_RNA_only",
+        "age_sex_plus_target_CYP_RNA",
+        "age_sex_plus_targeted_panel"
+      ],
+      "n_arms": 4,
+      "ceilings": {
+        "best_single_oracle": {
+          "mean_loss": 49.796946008258324,
+          "arm_index": 2,
+          "per_arm_mean_loss": [
+            58.848464772980655,
+            49.920413538005356,
+            49.796946008258324,
+            51.935841908317194
+          ]
+        },
+        "best_single_honest_training_choice": {
+          "mean_loss": 52.24830320770659,
+          "arm_chosen_per_partition": [
+            "target_CYP_RNA_only",
+            "age_sex_plus_target_CYP_RNA",
+            "age_sex_plus_target_CYP_RNA",
+            "age_sex_plus_targeted_panel",
+            "age_sex_plus_target_CYP_RNA"
+          ]
+        },
+        "constant_weight_oracle": {
+          "mean_loss": 49.53746953004049,
+          "bounds": "constant-weight mixtures only: stacking and uniform averaging. It does NOT bound a contextual gate.",
+          "iterations": 500
+        },
+        "constant_weight_oracle_weights": {
+          "age_sex": 0.0,
+          "target_CYP_RNA_only": 0.10579658605974396,
+          "age_sex_plus_target_CYP_RNA": 0.6469298245614035,
+          "age_sex_plus_targeted_panel": 0.24727358937885258
+        },
+        "individual_selection_oracle": {
+          "mean_loss": 36.81057774991644,
+          "bounds": "per-individual arm selection",
+          "best_arm_shares": {
+            "age_sex": 0.268733850129199,
+            "target_CYP_RNA_only": 0.19638242894056848,
+            "age_sex_plus_target_CYP_RNA": 0.18087855297157623,
+            "age_sex_plus_targeted_panel": 0.35400516795865633
+          }
+        },
+        "individual_convex_oracle": {
+          "mean_loss": 35.21000881444534,
+          "bracketing_rate": 0.28940568475452194,
+          "bounds": "EVERY method in the family, contextual gates included. A gap of zero here refutes the family.",
+          "why_it_cannot_guide": "it is zero wherever the arms bracket the truth, so with several arms it is usually small and usually permissive. Use it to refute, never to promise."
+        }
+      },
+      "recoverable": {
+        "nested_constant_stacking": {
+          "mean_loss": 51.084110636131165,
+          "weights_refitted_per_partition": true,
+          "what_this_is": "the gain constant-weight stacking actually recovers out of sample, as opposed to the ceiling it could reach in hindsight"
+        }
+      },
+      "gaps": {
+        "reference_minus_constant_ceiling": {
+          "gap": 2.710833677666092,
+          "interval": [
+            -0.37023494547680114,
+            9.859783358959564
+          ],
+          "excludes_zero": false,
+          "level": "99.17 %",
+          "family_size": 6,
+          "n_bootstrap": 2000,
+          "resampling_unit": "individual"
+        },
+        "reference_minus_selection_ceiling": {
+          "gap": 15.437725457790142,
+          "interval": [
+            11.197408839680035,
+            24.477083051075628
+          ],
+          "excludes_zero": true,
+          "level": "99.17 %",
+          "family_size": 6,
+          "n_bootstrap": 2000,
+          "resampling_unit": "individual"
+        },
+        "reference_minus_convex_ceiling": {
+          "gap": 17.03829439326125,
+          "interval": [
+            12.81010827290289,
+            26.168438367663605
+          ],
+          "excludes_zero": true,
+          "level": "99.17 %",
+          "family_size": 6,
+          "n_bootstrap": 2000,
+          "resampling_unit": "individual"
+        },
+        "reference_minus_nested_stacking": {
+          "gap": 1.1641925715754229,
+          "interval": [
+            -1.0126411307891285,
+            5.102537989814927
+          ],
+          "excludes_zero": false,
+          "level": "99.17 %",
+          "family_size": 6,
+          "n_bootstrap": 2000,
+          "resampling_unit": "individual"
+        }
+      },
+      "verdicts": {
+        "stacking_family": {
+          "verdict": "NO_DETECTABLE_HEADROOM_UNDERPOWERED",
+          "how_to_read": "the interval contains zero but reaches +9.8598, above the +2.6124 that would matter. Nothing is detected and nothing is refuted; the design lacks the power to tell those apart.",
+          "minimum_interesting_gain": 2.61241516038533,
+          "relative_margin": 0.05,
+          "minimum_detectable_gap": 7.148949681293472,
+          "an_interval_containing_zero_is_not_a_refutation": true
+        },
+        "whole_fusion_family": {
+          "verdict": "HEADROOM_PRESENT",
+          "how_to_read": "the ceiling is detectably above the reference. A method could in principle recover some of it; whether one can is a different question.",
+          "minimum_interesting_gain": 2.61241516038533,
+          "relative_margin": 0.05,
+          "minimum_detectable_gap": 9.130143974402355,
+          "an_interval_containing_zero_is_not_a_refutation": true
+        }
+      },
+      "context_probes": {
+        "clinical_covariates": {
+          "compared_arms": [
+            2,
+            1
+          ],
+          "spearman_out_of_sample": 0.09350979644382278,
+          "spearman_interval": [
+            -0.01979515914847522,
+            0.20040181009677382
+          ],
+          "spearman_interval_bonferroni": [
+            -0.07495797971146277,
+            0.2476137299074249
+          ],
+          "family_size": 20,
+          "verdict": "REFUTED_CONTEXT_UNINFORMATIVE",
+          "minimum_interesting_rank_association": 0.3,
+          "sign_agreement": 0.5581395348837209,
+          "share_where_the_runner_up_wins": 0.5142118863049095,
+          "how_to_read": "A rank correlation near zero and a sign agreement near the share of the majority class mean the context carries no information about which arm will win, so a gate would have nothing to learn. But that is only a REFUTATION when the interval's upper bound falls below the minimum interesting association; otherwise it is a non-detection, and at these cohort sizes it usually is.",
+          "context_variables": [
+            "age_years",
+            "is_male"
+          ],
+          "compared_arm_names": [
+            "age_sex_plus_target_CYP_RNA",
+            "target_CYP_RNA_only"
+          ]
+        },
+        "arm_predictions_and_their_disagreement": {
+          "compared_arms": [
+            2,
+            1
+          ],
+          "spearman_out_of_sample": -0.022524346700157225,
+          "spearman_interval": [
+            -0.15152282041184942,
+            0.09780978041903751
+          ],
+          "spearman_interval_bonferroni": [
+            -0.21471505333934574,
+            0.14789348352324982
+          ],
+          "family_size": 20,
+          "verdict": "REFUTED_CONTEXT_UNINFORMATIVE",
+          "minimum_interesting_rank_association": 0.3,
+          "sign_agreement": 0.48578811369509045,
+          "share_where_the_runner_up_wins": 0.5142118863049095,
+          "how_to_read": "A rank correlation near zero and a sign agreement near the share of the majority class mean the context carries no information about which arm will win, so a gate would have nothing to learn. But that is only a REFUTATION when the interval's upper bound falls below the minimum interesting association; otherwise it is a non-detection, and at these cohort sizes it usually is.",
+          "context_variables": [
+            "prediction::age_sex",
+            "prediction::target_CYP_RNA_only",
+            "prediction::age_sex_plus_target_CYP_RNA",
+            "prediction::age_sex_plus_targeted_panel",
+            "prediction_spread",
+            "prediction_mean",
+            "prediction_sd"
+          ],
+          "compared_arm_names": [
+            "age_sex_plus_target_CYP_RNA",
+            "target_CYP_RNA_only"
+          ]
+        }
+      },
+      "error_structure": {
+        "median_pairwise_error_correlation": 0.8631224824298641,
+        "max_pairwise_error_correlation": 0.9971076339063758,
+        "how_to_read": "combination gain is driven by decorrelation. A median above 0.95 means the arms are one arm and no weighting can help."
+      },
+      "cohort": "HLC n=387, CYP2C8_activity",
+      "loss_units": "original source activity units, absolute error",
+      "endpoint_caveat": "measured in-vitro microsomal enzyme activity. NOT a clinical pharmacokinetic quantity.",
+      "context_caveat": "the only clinical context this cohort publishes is age and sex. A null context probe here is a statement about those two variables, not about context in general."
+    },
+    "hlc::CYP2C9_activity": {
+      "n_individuals": 397,
+      "arms": [
+        "age_sex",
+        "target_CYP_RNA_only",
+        "age_sex_plus_target_CYP_RNA",
+        "age_sex_plus_targeted_panel"
+      ],
+      "n_arms": 4,
+      "ceilings": {
+        "best_single_oracle": {
+          "mean_loss": 244.35277250410084,
+          "arm_index": 2,
+          "per_arm_mean_loss": [
+            272.4564388678778,
+            248.69156015968477,
+            244.35277250410084,
+            250.04694826869473
+          ]
+        },
+        "best_single_honest_training_choice": {
+          "mean_loss": 252.1625359400878,
+          "arm_chosen_per_partition": [
+            "age_sex_plus_target_CYP_RNA",
+            "age_sex_plus_target_CYP_RNA",
+            "age_sex_plus_targeted_panel",
+            "age_sex_plus_target_CYP_RNA",
+            "age_sex_plus_target_CYP_RNA"
+          ]
+        },
+        "constant_weight_oracle": {
+          "mean_loss": 242.1746922279852,
+          "bounds": "constant-weight mixtures only: stacking and uniform averaging. It does NOT bound a contextual gate.",
+          "iterations": 500
+        },
+        "constant_weight_oracle_weights": {
+          "age_sex": 0.0,
+          "target_CYP_RNA_only": 0.0,
+          "age_sex_plus_target_CYP_RNA": 0.6160078759134718,
+          "age_sex_plus_targeted_panel": 0.38399212408652805
+        },
+        "individual_selection_oracle": {
+          "mean_loss": 175.3331088753999,
+          "bounds": "per-individual arm selection",
+          "best_arm_shares": {
+            "age_sex": 0.26700251889168763,
+            "target_CYP_RNA_only": 0.16876574307304787,
+            "age_sex_plus_target_CYP_RNA": 0.20151133501259447,
+            "age_sex_plus_targeted_panel": 0.36272040302267
+          }
+        },
+        "individual_convex_oracle": {
+          "mean_loss": 168.16513323805268,
+          "bracketing_rate": 0.27204030226700254,
+          "bounds": "EVERY method in the family, contextual gates included. A gap of zero here refutes the family.",
+          "why_it_cannot_guide": "it is zero wherever the arms bracket the truth, so with several arms it is usually small and usually permissive. Use it to refute, never to promise."
+        }
+      },
+      "recoverable": {
+        "nested_constant_stacking": {
+          "mean_loss": 244.6678399344458,
+          "weights_refitted_per_partition": true,
+          "what_this_is": "the gain constant-weight stacking actually recovers out of sample, as opposed to the ceiling it could reach in hindsight"
+        }
+      },
+      "gaps": {
+        "reference_minus_constant_ceiling": {
+          "gap": 9.987843712102599,
+          "interval": [
+            0.1961168881953032,
+            26.786356951876915
+          ],
+          "excludes_zero": true,
+          "level": "99.17 %",
+          "family_size": 6,
+          "n_bootstrap": 2000,
+          "resampling_unit": "individual"
+        },
+        "reference_minus_selection_ceiling": {
+          "gap": 76.82942706468789,
+          "interval": [
+            61.14095061055654,
+            104.18805871035951
+          ],
+          "excludes_zero": true,
+          "level": "99.17 %",
+          "family_size": 6,
+          "n_bootstrap": 2000,
+          "resampling_unit": "individual"
+        },
+        "reference_minus_convex_ceiling": {
+          "gap": 83.99740270203513,
+          "interval": [
+            68.25993203785279,
+            111.09488822106313
+          ],
+          "excludes_zero": true,
+          "level": "99.17 %",
+          "family_size": 6,
+          "n_bootstrap": 2000,
+          "resampling_unit": "individual"
+        },
+        "reference_minus_nested_stacking": {
+          "gap": 7.494696005641997,
+          "interval": [
+            -1.7926476482379536,
+            21.32939835816001
+          ],
+          "excludes_zero": false,
+          "level": "99.17 %",
+          "family_size": 6,
+          "n_bootstrap": 2000,
+          "resampling_unit": "individual"
+        }
+      },
+      "verdicts": {
+        "stacking_family": {
+          "verdict": "HEADROOM_PRESENT",
+          "how_to_read": "the ceiling is detectably above the reference. A method could in principle recover some of it; whether one can is a different question.",
+          "minimum_interesting_gain": 12.60812679700439,
+          "relative_margin": 0.05,
+          "minimum_detectable_gap": 16.798513239774316,
+          "an_interval_containing_zero_is_not_a_refutation": true
+        },
+        "whole_fusion_family": {
+          "verdict": "HEADROOM_PRESENT",
+          "how_to_read": "the ceiling is detectably above the reference. A method could in principle recover some of it; whether one can is a different question.",
+          "minimum_interesting_gain": 12.60812679700439,
+          "relative_margin": 0.05,
+          "minimum_detectable_gap": 27.097485519027998,
+          "an_interval_containing_zero_is_not_a_refutation": true
+        }
+      },
+      "context_probes": {
+        "clinical_covariates": {
+          "compared_arms": [
+            2,
+            1
+          ],
+          "spearman_out_of_sample": 0.18272148468470129,
+          "spearman_interval": [
+            0.07002999790188252,
+            0.30182664716606467
+          ],
+          "spearman_interval_bonferroni": [
+            -0.014628112750992576,
+            0.3526910938652502
+          ],
+          "family_size": 20,
+          "verdict": "CONTEXT_CARRIES_SIGNAL_UNADJUSTED_ONLY",
+          "minimum_interesting_rank_association": 0.3,
+          "sign_agreement": 0.5894206549118388,
+          "share_where_the_runner_up_wins": 0.4433249370277078,
+          "how_to_read": "A rank correlation near zero and a sign agreement near the share of the majority class mean the context carries no information about which arm will win, so a gate would have nothing to learn. But that is only a REFUTATION when the interval's upper bound falls below the minimum interesting association; otherwise it is a non-detection, and at these cohort sizes it usually is.",
+          "context_variables": [
+            "age_years",
+            "is_male"
+          ],
+          "compared_arm_names": [
+            "age_sex_plus_target_CYP_RNA",
+            "target_CYP_RNA_only"
+          ]
+        },
+        "arm_predictions_and_their_disagreement": {
+          "compared_arms": [
+            2,
+            1
+          ],
+          "spearman_out_of_sample": 0.17350261727690433,
+          "spearman_interval": [
+            0.06762373139646786,
+            0.2726794993208925
+          ],
+          "spearman_interval_bonferroni": [
+            0.009047844702099921,
+            0.3408760652165492
+          ],
+          "family_size": 20,
+          "verdict": "CONTEXT_CARRIES_SIGNAL",
+          "minimum_interesting_rank_association": 0.3,
+          "sign_agreement": 0.5667506297229219,
+          "share_where_the_runner_up_wins": 0.4433249370277078,
+          "how_to_read": "A rank correlation near zero and a sign agreement near the share of the majority class mean the context carries no information about which arm will win, so a gate would have nothing to learn. But that is only a REFUTATION when the interval's upper bound falls below the minimum interesting association; otherwise it is a non-detection, and at these cohort sizes it usually is.",
+          "context_variables": [
+            "prediction::age_sex",
+            "prediction::target_CYP_RNA_only",
+            "prediction::age_sex_plus_target_CYP_RNA",
+            "prediction::age_sex_plus_targeted_panel",
+            "prediction_spread",
+            "prediction_mean",
+            "prediction_sd"
+          ],
+          "compared_arm_names": [
+            "age_sex_plus_target_CYP_RNA",
+            "target_CYP_RNA_only"
+          ]
+        }
+      },
+      "error_structure": {
+        "median_pairwise_error_correlation": 0.827775178537079,
+        "max_pairwise_error_correlation": 0.9830928055194968,
+        "how_to_read": "combination gain is driven by decorrelation. A median above 0.95 means the arms are one arm and no weighting can help."
+      },
+      "cohort": "HLC n=397, CYP2C9_activity",
+      "loss_units": "original source activity units, absolute error",
+      "endpoint_caveat": "measured in-vitro microsomal enzyme activity. NOT a clinical pharmacokinetic quantity.",
+      "context_caveat": "the only clinical context this cohort publishes is age and sex. A null context probe here is a statement about those two variables, not about context in general."
+    },
+    "hlc::CYP2C19_activity": {
+      "n_individuals": 397,
+      "arms": [
+        "age_sex",
+        "target_CYP_RNA_only",
+        "age_sex_plus_target_CYP_RNA",
+        "age_sex_plus_targeted_panel"
+      ],
+      "n_arms": 4,
+      "ceilings": {
+        "best_single_oracle": {
+          "mean_loss": 41.93742843000272,
+          "arm_index": 3,
+          "per_arm_mean_loss": [
+            46.34237548276462,
+            43.614420360733845,
+            43.837660542391895,
+            41.93742843000272
+          ]
+        },
+        "best_single_honest_training_choice": {
+          "mean_loss": 41.93742843000273,
+          "arm_chosen_per_partition": [
+            "age_sex_plus_targeted_panel",
+            "age_sex_plus_targeted_panel",
+            "age_sex_plus_targeted_panel",
+            "age_sex_plus_targeted_panel",
+            "age_sex_plus_targeted_panel"
+          ]
+        },
+        "constant_weight_oracle": {
+          "mean_loss": 41.74795342727613,
+          "bounds": "constant-weight mixtures only: stacking and uniform averaging. It does NOT bound a contextual gate.",
+          "iterations": 500
+        },
+        "constant_weight_oracle_weights": {
+          "age_sex": 0.0,
+          "target_CYP_RNA_only": 0.17046420602597775,
+          "age_sex_plus_target_CYP_RNA": 0.0,
+          "age_sex_plus_targeted_panel": 0.8295357939740222
+        },
+        "individual_selection_oracle": {
+          "mean_loss": 33.99443069705699,
+          "bounds": "per-individual arm selection",
+          "best_arm_shares": {
+            "age_sex": 0.2367758186397985,
+            "target_CYP_RNA_only": 0.18639798488664988,
+            "age_sex_plus_target_CYP_RNA": 0.15869017632241814,
+            "age_sex_plus_targeted_panel": 0.4181360201511335
+          }
+        },
+        "individual_convex_oracle": {
+          "mean_loss": 33.030498202352426,
+          "bracketing_rate": 0.23929471032745592,
+          "bounds": "EVERY method in the family, contextual gates included. A gap of zero here refutes the family.",
+          "why_it_cannot_guide": "it is zero wherever the arms bracket the truth, so with several arms it is usually small and usually permissive. Use it to refute, never to promise."
+        }
+      },
+      "recoverable": {
+        "nested_constant_stacking": {
+          "mean_loss": 42.009591550984176,
+          "weights_refitted_per_partition": true,
+          "what_this_is": "the gain constant-weight stacking actually recovers out of sample, as opposed to the ceiling it could reach in hindsight"
+        }
+      },
+      "gaps": {
+        "reference_minus_constant_ceiling": {
+          "gap": 0.18947500272660292,
+          "interval": [
+            -0.3318172030986499,
+            0.8120386615744204
+          ],
+          "excludes_zero": false,
+          "level": "99.17 %",
+          "family_size": 6,
+          "n_bootstrap": 2000,
+          "resampling_unit": "individual"
+        },
+        "reference_minus_selection_ceiling": {
+          "gap": 7.942997732945739,
+          "interval": [
+            6.086486810606658,
+            10.058571035721915
+          ],
+          "excludes_zero": true,
+          "level": "99.17 %",
+          "family_size": 6,
+          "n_bootstrap": 2000,
+          "resampling_unit": "individual"
+        },
+        "reference_minus_convex_ceiling": {
+          "gap": 8.90693022765031,
+          "interval": [
+            6.758488633974842,
+            11.50402298906869
+          ],
+          "excludes_zero": true,
+          "level": "99.17 %",
+          "family_size": 6,
+          "n_bootstrap": 2000,
+          "resampling_unit": "individual"
+        },
+        "reference_minus_nested_stacking": {
+          "gap": -0.07216312098144585,
+          "interval": [
+            -0.6937830535785406,
+            0.5125473573872802
+          ],
+          "excludes_zero": false,
+          "level": "99.17 %",
+          "family_size": 6,
+          "n_bootstrap": 2000,
+          "resampling_unit": "individual"
+        }
+      },
+      "verdicts": {
+        "stacking_family": {
+          "verdict": "REFUTED_CEILING_BELOW_MARGIN",
+          "how_to_read": "the ceiling's upper bound (+0.8120) is below the smallest interesting gain (+2.0969). Even in hindsight there is less to win than would be worth winning. This IS a refutation.",
+          "minimum_interesting_gain": 2.0968714215001367,
+          "relative_margin": 0.05,
+          "minimum_detectable_gap": 0.6225636588478175,
+          "an_interval_containing_zero_is_not_a_refutation": true
+        },
+        "whole_fusion_family": {
+          "verdict": "HEADROOM_PRESENT",
+          "how_to_read": "the ceiling is detectably above the reference. A method could in principle recover some of it; whether one can is a different question.",
+          "minimum_interesting_gain": 2.0968714215001367,
+          "relative_margin": 0.05,
+          "minimum_detectable_gap": 2.597092761418379,
+          "an_interval_containing_zero_is_not_a_refutation": true
+        }
+      },
+      "context_probes": {
+        "clinical_covariates": {
+          "compared_arms": [
+            3,
+            1
+          ],
+          "spearman_out_of_sample": -0.09076659536135759,
+          "spearman_interval": [
+            -0.1850932108830543,
+            0.00863281371363327
+          ],
+          "spearman_interval_bonferroni": [
+            -0.22840177530657638,
+            0.05874094419697922
+          ],
+          "family_size": 20,
+          "verdict": "REFUTED_CONTEXT_UNINFORMATIVE",
+          "minimum_interesting_rank_association": 0.3,
+          "sign_agreement": 0.5390428211586902,
+          "share_where_the_runner_up_wins": 0.4433249370277078,
+          "how_to_read": "A rank correlation near zero and a sign agreement near the share of the majority class mean the context carries no information about which arm will win, so a gate would have nothing to learn. But that is only a REFUTATION when the interval's upper bound falls below the minimum interesting association; otherwise it is a non-detection, and at these cohort sizes it usually is.",
+          "context_variables": [
+            "age_years",
+            "is_male"
+          ],
+          "compared_arm_names": [
+            "age_sex_plus_targeted_panel",
+            "target_CYP_RNA_only"
+          ]
+        },
+        "arm_predictions_and_their_disagreement": {
+          "compared_arms": [
+            3,
+            1
+          ],
+          "spearman_out_of_sample": -0.11848054101512831,
+          "spearman_interval": [
+            -0.22273830989924048,
+            -0.003118058616109394
+          ],
+          "spearman_interval_bonferroni": [
+            -0.28865211006563235,
+            0.047323496825398846
+          ],
+          "family_size": 20,
+          "verdict": "REFUTED_CONTEXT_UNINFORMATIVE",
+          "minimum_interesting_rank_association": 0.3,
+          "sign_agreement": 0.5012594458438288,
+          "share_where_the_runner_up_wins": 0.4433249370277078,
+          "how_to_read": "A rank correlation near zero and a sign agreement near the share of the majority class mean the context carries no information about which arm will win, so a gate would have nothing to learn. But that is only a REFUTATION when the interval's upper bound falls below the minimum interesting association; otherwise it is a non-detection, and at these cohort sizes it usually is.",
+          "context_variables": [
+            "prediction::age_sex",
+            "prediction::target_CYP_RNA_only",
+            "prediction::age_sex_plus_target_CYP_RNA",
+            "prediction::age_sex_plus_targeted_panel",
+            "prediction_spread",
+            "prediction_mean",
+            "prediction_sd"
+          ],
+          "compared_arm_names": [
+            "age_sex_plus_targeted_panel",
+            "target_CYP_RNA_only"
+          ]
+        }
+      },
+      "error_structure": {
+        "median_pairwise_error_correlation": 0.9800177063526387,
+        "max_pairwise_error_correlation": 0.9986217739941234,
+        "how_to_read": "combination gain is driven by decorrelation. A median above 0.95 means the arms are one arm and no weighting can help."
+      },
+      "cohort": "HLC n=397, CYP2C19_activity",
+      "loss_units": "original source activity units, absolute error",
+      "endpoint_caveat": "measured in-vitro microsomal enzyme activity. NOT a clinical pharmacokinetic quantity.",
+      "context_caveat": "the only clinical context this cohort publishes is age and sex. A null context probe here is a statement about those two variables, not about context in general."
+    },
+    "hlc::CYP2D6_activity": {
+      "n_individuals": 396,
+      "arms": [
+        "age_sex",
+        "target_CYP_RNA_only",
+        "age_sex_plus_target_CYP_RNA",
+        "age_sex_plus_targeted_panel"
+      ],
+      "n_arms": 4,
+      "ceilings": {
+        "best_single_oracle": {
+          "mean_loss": 98.37998020680418,
+          "arm_index": 2,
+          "per_arm_mean_loss": [
+            115.65516490559676,
+            98.52688324103448,
+            98.37998020680418,
+            103.04935331784891
+          ]
+        },
+        "best_single_honest_training_choice": {
+          "mean_loss": 99.33120724615763,
+          "arm_chosen_per_partition": [
+            "age_sex_plus_target_CYP_RNA",
+            "age_sex_plus_target_CYP_RNA",
+            "age_sex_plus_target_CYP_RNA",
+            "target_CYP_RNA_only",
+            "target_CYP_RNA_only"
+          ]
+        },
+        "constant_weight_oracle": {
+          "mean_loss": 97.93125437767739,
+          "bounds": "constant-weight mixtures only: stacking and uniform averaging. It does NOT bound a contextual gate.",
+          "iterations": 500
+        },
+        "constant_weight_oracle_weights": {
+          "age_sex": 0.0,
+          "target_CYP_RNA_only": 0.34248927038626614,
+          "age_sex_plus_target_CYP_RNA": 0.5047210300429185,
+          "age_sex_plus_targeted_panel": 0.15278969957081545
+        },
+        "individual_selection_oracle": {
+          "mean_loss": 69.37988172888183,
+          "bounds": "per-individual arm selection",
+          "best_arm_shares": {
+            "age_sex": 0.29797979797979796,
+            "target_CYP_RNA_only": 0.19696969696969696,
+            "age_sex_plus_target_CYP_RNA": 0.17676767676767677,
+            "age_sex_plus_targeted_panel": 0.3282828282828283
+          }
+        },
+        "individual_convex_oracle": {
+          "mean_loss": 64.58407168444329,
+          "bracketing_rate": 0.24494949494949494,
+          "bounds": "EVERY method in the family, contextual gates included. A gap of zero here refutes the family.",
+          "why_it_cannot_guide": "it is zero wherever the arms bracket the truth, so with several arms it is usually small and usually permissive. Use it to refute, never to promise."
+        }
+      },
+      "recoverable": {
+        "nested_constant_stacking": {
+          "mean_loss": 98.69419219608419,
+          "weights_refitted_per_partition": true,
+          "what_this_is": "the gain constant-weight stacking actually recovers out of sample, as opposed to the ceiling it could reach in hindsight"
+        }
+      },
+      "gaps": {
+        "reference_minus_constant_ceiling": {
+          "gap": 1.399952868480249,
+          "interval": [
+            -0.39396755663811944,
+            3.220936313147242
+          ],
+          "excludes_zero": false,
+          "level": "99.17 %",
+          "family_size": 6,
+          "n_bootstrap": 2000,
+          "resampling_unit": "individual"
+        },
+        "reference_minus_selection_ceiling": {
+          "gap": 29.951325517275812,
+          "interval": [
+            25.07956698518248,
+            35.4183721911714
+          ],
+          "excludes_zero": true,
+          "level": "99.17 %",
+          "family_size": 6,
+          "n_bootstrap": 2000,
+          "resampling_unit": "individual"
+        },
+        "reference_minus_convex_ceiling": {
+          "gap": 34.747135561714344,
+          "interval": [
+            29.5178910779979,
+            40.85783164834759
+          ],
+          "excludes_zero": true,
+          "level": "99.17 %",
+          "family_size": 6,
+          "n_bootstrap": 2000,
+          "resampling_unit": "individual"
+        },
+        "reference_minus_nested_stacking": {
+          "gap": 0.6370150500734556,
+          "interval": [
+            -1.6419986345240585,
+            2.866820463236526
+          ],
+          "excludes_zero": false,
+          "level": "99.17 %",
+          "family_size": 6,
+          "n_bootstrap": 2000,
+          "resampling_unit": "individual"
+        }
+      },
+      "verdicts": {
+        "stacking_family": {
+          "verdict": "REFUTED_CEILING_BELOW_MARGIN",
+          "how_to_read": "the ceiling's upper bound (+3.2209) is below the smallest interesting gain (+4.9666). Even in hindsight there is less to win than would be worth winning. This IS a refutation.",
+          "minimum_interesting_gain": 4.966560362307882,
+          "relative_margin": 0.05,
+          "minimum_detectable_gap": 1.820983444666993,
+          "an_interval_containing_zero_is_not_a_refutation": true
+        },
+        "whole_fusion_family": {
+          "verdict": "HEADROOM_PRESENT",
+          "how_to_read": "the ceiling is detectably above the reference. A method could in principle recover some of it; whether one can is a different question.",
+          "minimum_interesting_gain": 4.966560362307882,
+          "relative_margin": 0.05,
+          "minimum_detectable_gap": 6.110696086633247,
+          "an_interval_containing_zero_is_not_a_refutation": true
+        }
+      },
+      "context_probes": {
+        "clinical_covariates": {
+          "compared_arms": [
+            2,
+            1
+          ],
+          "spearman_out_of_sample": 0.19051826172318473,
+          "spearman_interval": [
+            0.0750619432858058,
+            0.3042617724610837
+          ],
+          "spearman_interval_bonferroni": [
+            0.011469826682473754,
+            0.3597328184919694
+          ],
+          "family_size": 20,
+          "verdict": "CONTEXT_CARRIES_SIGNAL",
+          "minimum_interesting_rank_association": 0.3,
+          "sign_agreement": 0.5631313131313131,
+          "share_where_the_runner_up_wins": 0.5025252525252525,
+          "how_to_read": "A rank correlation near zero and a sign agreement near the share of the majority class mean the context carries no information about which arm will win, so a gate would have nothing to learn. But that is only a REFUTATION when the interval's upper bound falls below the minimum interesting association; otherwise it is a non-detection, and at these cohort sizes it usually is.",
+          "context_variables": [
+            "age_years",
+            "is_male"
+          ],
+          "compared_arm_names": [
+            "age_sex_plus_target_CYP_RNA",
+            "target_CYP_RNA_only"
+          ]
+        },
+        "arm_predictions_and_their_disagreement": {
+          "compared_arms": [
+            2,
+            1
+          ],
+          "spearman_out_of_sample": 0.17127072143492766,
+          "spearman_interval": [
+            0.04567248224360108,
+            0.28976156521050184
+          ],
+          "spearman_interval_bonferroni": [
+            -0.02255392041770896,
+            0.34993690403380195
+          ],
+          "family_size": 20,
+          "verdict": "CONTEXT_CARRIES_SIGNAL_UNADJUSTED_ONLY",
+          "minimum_interesting_rank_association": 0.3,
+          "sign_agreement": 0.553030303030303,
+          "share_where_the_runner_up_wins": 0.5025252525252525,
+          "how_to_read": "A rank correlation near zero and a sign agreement near the share of the majority class mean the context carries no information about which arm will win, so a gate would have nothing to learn. But that is only a REFUTATION when the interval's upper bound falls below the minimum interesting association; otherwise it is a non-detection, and at these cohort sizes it usually is.",
+          "context_variables": [
+            "prediction::age_sex",
+            "prediction::target_CYP_RNA_only",
+            "prediction::age_sex_plus_target_CYP_RNA",
+            "prediction::age_sex_plus_targeted_panel",
+            "prediction_spread",
+            "prediction_mean",
+            "prediction_sd"
+          ],
+          "compared_arm_names": [
+            "age_sex_plus_target_CYP_RNA",
+            "target_CYP_RNA_only"
+          ]
+        }
+      },
+      "error_structure": {
+        "median_pairwise_error_correlation": 0.8228712415411283,
+        "max_pairwise_error_correlation": 0.9832688705846296,
+        "how_to_read": "combination gain is driven by decorrelation. A median above 0.95 means the arms are one arm and no weighting can help."
+      },
+      "cohort": "HLC n=396, CYP2D6_activity",
+      "loss_units": "original source activity units, absolute error",
+      "endpoint_caveat": "measured in-vitro microsomal enzyme activity. NOT a clinical pharmacokinetic quantity.",
+      "context_caveat": "the only clinical context this cohort publishes is age and sex. A null context probe here is a statement about those two variables, not about context in general."
+    },
+    "hlc::CYP2E1_activity": {
+      "n_individuals": 397,
+      "arms": [
+        "age_sex",
+        "target_CYP_RNA_only",
+        "age_sex_plus_target_CYP_RNA",
+        "age_sex_plus_targeted_panel"
+      ],
+      "n_arms": 4,
+      "ceilings": {
+        "best_single_oracle": {
+          "mean_loss": 1224.675601420393,
+          "arm_index": 1,
+          "per_arm_mean_loss": [
+            1281.911242717951,
+            1224.675601420393,
+            1234.0688997780376,
+            2899.6915117722447
+          ]
+        },
+        "best_single_honest_training_choice": {
+          "mean_loss": 1224.6756014203927,
+          "arm_chosen_per_partition": [
+            "target_CYP_RNA_only",
+            "target_CYP_RNA_only",
+            "target_CYP_RNA_only",
+            "target_CYP_RNA_only",
+            "target_CYP_RNA_only"
+          ]
+        },
+        "constant_weight_oracle": {
+          "mean_loss": 1224.6756014203927,
+          "bounds": "constant-weight mixtures only: stacking and uniform averaging. It does NOT bound a contextual gate.",
+          "iterations": 500
+        },
+        "constant_weight_oracle_weights": {
+          "age_sex": 0.0,
+          "target_CYP_RNA_only": 1.0,
+          "age_sex_plus_target_CYP_RNA": 0.0,
+          "age_sex_plus_targeted_panel": 0.0
+        },
+        "individual_selection_oracle": {
+          "mean_loss": 952.0076502150056,
+          "bounds": "per-individual arm selection",
+          "best_arm_shares": {
+            "age_sex": 0.27455919395465994,
+            "target_CYP_RNA_only": 0.21158690176322417,
+            "age_sex_plus_target_CYP_RNA": 0.1486146095717884,
+            "age_sex_plus_targeted_panel": 0.36523929471032746
+          }
+        },
+        "individual_convex_oracle": {
+          "mean_loss": 921.7577669303757,
+          "bracketing_rate": 0.23173803526448364,
+          "bounds": "EVERY method in the family, contextual gates included. A gap of zero here refutes the family.",
+          "why_it_cannot_guide": "it is zero wherever the arms bracket the truth, so with several arms it is usually small and usually permissive. Use it to refute, never to promise."
+        }
+      },
+      "recoverable": {
+        "nested_constant_stacking": {
+          "mean_loss": 1792.372810452123,
+          "weights_refitted_per_partition": true,
+          "what_this_is": "the gain constant-weight stacking actually recovers out of sample, as opposed to the ceiling it could reach in hindsight"
+        }
+      },
+      "gaps": {
+        "reference_minus_constant_ceiling": {
+          "gap": 0.0,
+          "interval": [
+            0.0,
+            0.0
+          ],
+          "excludes_zero": false,
+          "level": "99.17 %",
+          "family_size": 6,
+          "n_bootstrap": 2000,
+          "resampling_unit": "individual"
+        },
+        "reference_minus_selection_ceiling": {
+          "gap": 272.667951205387,
+          "interval": [
+            230.75354491393716,
+            315.27919308528084
+          ],
+          "excludes_zero": true,
+          "level": "99.17 %",
+          "family_size": 6,
+          "n_bootstrap": 2000,
+          "resampling_unit": "individual"
+        },
+        "reference_minus_convex_ceiling": {
+          "gap": 302.91783449001684,
+          "interval": [
+            259.8833040376081,
+            347.6722160958257
+          ],
+          "excludes_zero": true,
+          "level": "99.17 %",
+          "family_size": 6,
+          "n_bootstrap": 2000,
+          "resampling_unit": "individual"
+        },
+        "reference_minus_nested_stacking": {
+          "gap": -567.6972090317305,
+          "interval": [
+            -2839.9985012574793,
+            10.457038102733293
+          ],
+          "excludes_zero": false,
+          "level": "99.17 %",
+          "family_size": 6,
+          "n_bootstrap": 2000,
+          "resampling_unit": "individual"
+        }
+      },
+      "verdicts": {
+        "stacking_family": {
+          "verdict": "REFUTED_CEILING_BELOW_MARGIN",
+          "how_to_read": "the ceiling's upper bound (+0.0000) is below the smallest interesting gain (+61.2338). Even in hindsight there is less to win than would be worth winning. This IS a refutation.",
+          "minimum_interesting_gain": 61.23378007101964,
+          "relative_margin": 0.05,
+          "minimum_detectable_gap": NaN,
+          "an_interval_containing_zero_is_not_a_refutation": true
+        },
+        "whole_fusion_family": {
+          "verdict": "HEADROOM_PRESENT",
+          "how_to_read": "the ceiling is detectably above the reference. A method could in principle recover some of it; whether one can is a different question.",
+          "minimum_interesting_gain": 61.23378007101964,
+          "relative_margin": 0.05,
+          "minimum_detectable_gap": 44.754381605808874,
+          "an_interval_containing_zero_is_not_a_refutation": true
+        }
+      },
+      "context_probes": {
+        "clinical_covariates": {
+          "compared_arms": [
+            1,
+            2
+          ],
+          "spearman_out_of_sample": 0.10153066684464226,
+          "spearman_interval": [
+            -0.0033046021650884752,
+            0.21677467944255283
+          ],
+          "spearman_interval_bonferroni": [
+            -0.04905907605541639,
+            0.26075265433917166
+          ],
+          "family_size": 20,
+          "verdict": "REFUTED_CONTEXT_UNINFORMATIVE",
+          "minimum_interesting_rank_association": 0.3,
+          "sign_agreement": 0.5465994962216625,
+          "share_where_the_runner_up_wins": 0.45843828715365237,
+          "how_to_read": "A rank correlation near zero and a sign agreement near the share of the majority class mean the context carries no information about which arm will win, so a gate would have nothing to learn. But that is only a REFUTATION when the interval's upper bound falls below the minimum interesting association; otherwise it is a non-detection, and at these cohort sizes it usually is.",
+          "context_variables": [
+            "age_years",
+            "is_male"
+          ],
+          "compared_arm_names": [
+            "target_CYP_RNA_only",
+            "age_sex_plus_target_CYP_RNA"
+          ]
+        },
+        "arm_predictions_and_their_disagreement": {
+          "compared_arms": [
+            1,
+            2
+          ],
+          "spearman_out_of_sample": 0.04925723956013945,
+          "spearman_interval": [
+            -0.06306889381646037,
+            0.16076438792696401
+          ],
+          "spearman_interval_bonferroni": [
+            -0.12043192668364339,
+            0.22570821869441862
+          ],
+          "family_size": 20,
+          "verdict": "REFUTED_CONTEXT_UNINFORMATIVE",
+          "minimum_interesting_rank_association": 0.3,
+          "sign_agreement": 0.5037783375314862,
+          "share_where_the_runner_up_wins": 0.45843828715365237,
+          "how_to_read": "A rank correlation near zero and a sign agreement near the share of the majority class mean the context carries no information about which arm will win, so a gate would have nothing to learn. But that is only a REFUTATION when the interval's upper bound falls below the minimum interesting association; otherwise it is a non-detection, and at these cohort sizes it usually is.",
+          "context_variables": [
+            "prediction::age_sex",
+            "prediction::target_CYP_RNA_only",
+            "prediction::age_sex_plus_target_CYP_RNA",
+            "prediction::age_sex_plus_targeted_panel",
+            "prediction_spread",
+            "prediction_mean",
+            "prediction_sd"
+          ],
+          "compared_arm_names": [
+            "target_CYP_RNA_only",
+            "age_sex_plus_target_CYP_RNA"
+          ]
+        }
+      },
+      "error_structure": {
+        "median_pairwise_error_correlation": 0.5408349399931075,
+        "max_pairwise_error_correlation": 0.9995925428606636,
+        "how_to_read": "combination gain is driven by decorrelation. A median above 0.95 means the arms are one arm and no weighting can help."
+      },
+      "cohort": "HLC n=397, CYP2E1_activity",
+      "loss_units": "original source activity units, absolute error",
+      "endpoint_caveat": "measured in-vitro microsomal enzyme activity. NOT a clinical pharmacokinetic quantity.",
+      "context_caveat": "the only clinical context this cohort publishes is age and sex. A null context probe here is a statement about those two variables, not about context in general."
+    },
+    "hlc::CYP3A4M_activity": {
+      "n_individuals": 396,
+      "arms": [
+        "age_sex",
+        "target_CYP_RNA_only",
+        "age_sex_plus_target_CYP_RNA",
+        "age_sex_plus_targeted_panel"
+      ],
+      "n_arms": 4,
+      "ceilings": {
+        "best_single_oracle": {
+          "mean_loss": 710.4902661299545,
+          "arm_index": 1,
+          "per_arm_mean_loss": [
+            851.1092983989156,
+            710.4902661299545,
+            719.2469670427706,
+            733.4867530598858
+          ]
+        },
+        "best_single_honest_training_choice": {
+          "mean_loss": 741.8505771581979,
+          "arm_chosen_per_partition": [
+            "target_CYP_RNA_only",
+            "target_CYP_RNA_only",
+            "age_sex_plus_targeted_panel",
+            "target_CYP_RNA_only",
+            "target_CYP_RNA_only"
+          ]
+        },
+        "constant_weight_oracle": {
+          "mean_loss": 689.7527882912947,
+          "bounds": "constant-weight mixtures only: stacking and uniform averaging. It does NOT bound a contextual gate.",
+          "iterations": 500
+        },
+        "constant_weight_oracle_weights": {
+          "age_sex": 0.0,
+          "target_CYP_RNA_only": 0.5922360041200622,
+          "age_sex_plus_target_CYP_RNA": 0.0,
+          "age_sex_plus_targeted_panel": 0.4077639958799379
+        },
+        "individual_selection_oracle": {
+          "mean_loss": 501.5415458510572,
+          "bounds": "per-individual arm selection",
+          "best_arm_shares": {
+            "age_sex": 0.2727272727272727,
+            "target_CYP_RNA_only": 0.20707070707070707,
+            "age_sex_plus_target_CYP_RNA": 0.16161616161616163,
+            "age_sex_plus_targeted_panel": 0.35858585858585856
+          }
+        },
+        "individual_convex_oracle": {
+          "mean_loss": 457.90989622565036,
+          "bracketing_rate": 0.3282828282828283,
+          "bounds": "EVERY method in the family, contextual gates included. A gap of zero here refutes the family.",
+          "why_it_cannot_guide": "it is zero wherever the arms bracket the truth, so with several arms it is usually small and usually permissive. Use it to refute, never to promise."
+        }
+      },
+      "recoverable": {
+        "nested_constant_stacking": {
+          "mean_loss": 695.0751433337658,
+          "weights_refitted_per_partition": true,
+          "what_this_is": "the gain constant-weight stacking actually recovers out of sample, as opposed to the ceiling it could reach in hindsight"
+        }
+      },
+      "gaps": {
+        "reference_minus_constant_ceiling": {
+          "gap": 52.09778886690312,
+          "interval": [
+            3.9917527575283644,
+            121.3253933647967
+          ],
+          "excludes_zero": true,
+          "level": "99.17 %",
+          "family_size": 6,
+          "n_bootstrap": 2000,
+          "resampling_unit": "individual"
+        },
+        "reference_minus_selection_ceiling": {
+          "gap": 240.30903130714054,
+          "interval": [
+            177.85407821830518,
+            359.7367283627434
+          ],
+          "excludes_zero": true,
+          "level": "99.17 %",
+          "family_size": 6,
+          "n_bootstrap": 2000,
+          "resampling_unit": "individual"
+        },
+        "reference_minus_convex_ceiling": {
+          "gap": 283.9406809325474,
+          "interval": [
+            215.70255831614216,
+            409.2696626804255
+          ],
+          "excludes_zero": true,
+          "level": "99.17 %",
+          "family_size": 6,
+          "n_bootstrap": 2000,
+          "resampling_unit": "individual"
+        },
+        "reference_minus_nested_stacking": {
+          "gap": 46.77543382443207,
+          "interval": [
+            3.196077967558675,
+            109.61575672271032
+          ],
+          "excludes_zero": true,
+          "level": "99.17 %",
+          "family_size": 6,
+          "n_bootstrap": 2000,
+          "resampling_unit": "individual"
+        }
+      },
+      "verdicts": {
+        "stacking_family": {
+          "verdict": "HEADROOM_PRESENT",
+          "how_to_read": "the ceiling is detectably above the reference. A method could in principle recover some of it; whether one can is a different question.",
+          "minimum_interesting_gain": 37.0925288579099,
+          "relative_margin": 0.05,
+          "minimum_detectable_gap": 69.22760449789357,
+          "an_interval_containing_zero_is_not_a_refutation": true
+        },
+        "whole_fusion_family": {
+          "verdict": "HEADROOM_PRESENT",
+          "how_to_read": "the ceiling is detectably above the reference. A method could in principle recover some of it; whether one can is a different question.",
+          "minimum_interesting_gain": 37.0925288579099,
+          "relative_margin": 0.05,
+          "minimum_detectable_gap": 125.32898174787806,
+          "an_interval_containing_zero_is_not_a_refutation": true
+        }
+      },
+      "context_probes": {
+        "clinical_covariates": {
+          "compared_arms": [
+            1,
+            2
+          ],
+          "spearman_out_of_sample": 0.03665562296433068,
+          "spearman_interval": [
+            -0.07672986601660517,
+            0.1466932372540892
+          ],
+          "spearman_interval_bonferroni": [
+            -0.12859844161089257,
+            0.19996185478159462
+          ],
+          "family_size": 20,
+          "verdict": "REFUTED_CONTEXT_UNINFORMATIVE",
+          "minimum_interesting_rank_association": 0.3,
+          "sign_agreement": 0.4898989898989899,
+          "share_where_the_runner_up_wins": 0.47474747474747475,
+          "how_to_read": "A rank correlation near zero and a sign agreement near the share of the majority class mean the context carries no information about which arm will win, so a gate would have nothing to learn. But that is only a REFUTATION when the interval's upper bound falls below the minimum interesting association; otherwise it is a non-detection, and at these cohort sizes it usually is.",
+          "context_variables": [
+            "age_years",
+            "is_male"
+          ],
+          "compared_arm_names": [
+            "target_CYP_RNA_only",
+            "age_sex_plus_target_CYP_RNA"
+          ]
+        },
+        "arm_predictions_and_their_disagreement": {
+          "compared_arms": [
+            1,
+            2
+          ],
+          "spearman_out_of_sample": 0.07600540687298969,
+          "spearman_interval": [
+            -0.038800676148984664,
+            0.18962561559220031
+          ],
+          "spearman_interval_bonferroni": [
+            -0.09289924312473972,
+            0.2517730980531976
+          ],
+          "family_size": 20,
+          "verdict": "REFUTED_CONTEXT_UNINFORMATIVE",
+          "minimum_interesting_rank_association": 0.3,
+          "sign_agreement": 0.5075757575757576,
+          "share_where_the_runner_up_wins": 0.47474747474747475,
+          "how_to_read": "A rank correlation near zero and a sign agreement near the share of the majority class mean the context carries no information about which arm will win, so a gate would have nothing to learn. But that is only a REFUTATION when the interval's upper bound falls below the minimum interesting association; otherwise it is a non-detection, and at these cohort sizes it usually is.",
+          "context_variables": [
+            "prediction::age_sex",
+            "prediction::target_CYP_RNA_only",
+            "prediction::age_sex_plus_target_CYP_RNA",
+            "prediction::age_sex_plus_targeted_panel",
+            "prediction_spread",
+            "prediction_mean",
+            "prediction_sd"
+          ],
+          "compared_arm_names": [
+            "target_CYP_RNA_only",
+            "age_sex_plus_target_CYP_RNA"
+          ]
+        }
+      },
+      "error_structure": {
+        "median_pairwise_error_correlation": 0.8285971255411541,
+        "max_pairwise_error_correlation": 0.9946829125733163,
+        "how_to_read": "combination gain is driven by decorrelation. A median above 0.95 means the arms are one arm and no weighting can help."
+      },
+      "cohort": "HLC n=396, CYP3A4M_activity",
+      "loss_units": "original source activity units, absolute error",
+      "endpoint_caveat": "measured in-vitro microsomal enzyme activity. NOT a clinical pharmacokinetic quantity.",
+      "context_caveat": "the only clinical context this cohort publishes is age and sex. A null context probe here is a statement about those two variables, not about context in general."
+    },
+    "hlc::CYP3A4T_activity": {
+      "n_individuals": 396,
+      "arms": [
+        "age_sex",
+        "target_CYP_RNA_only",
+        "age_sex_plus_target_CYP_RNA",
+        "age_sex_plus_targeted_panel"
+      ],
+      "n_arms": 4,
+      "ceilings": {
+        "best_single_oracle": {
+          "mean_loss": 3144.1945935028075,
+          "arm_index": 2,
+          "per_arm_mean_loss": [
+            3571.4166750249524,
+            3150.5760204186226,
+            3144.1945935028075,
+            3206.573035020953
+          ]
+        },
+        "best_single_honest_training_choice": {
+          "mean_loss": 3234.6034045733372,
+          "arm_chosen_per_partition": [
+            "age_sex_plus_target_CYP_RNA",
+            "age_sex_plus_target_CYP_RNA",
+            "age_sex_plus_targeted_panel",
+            "age_sex_plus_target_CYP_RNA",
+            "age_sex_plus_target_CYP_RNA"
+          ]
+        },
+        "constant_weight_oracle": {
+          "mean_loss": 3052.09593405749,
+          "bounds": "constant-weight mixtures only: stacking and uniform averaging. It does NOT bound a contextual gate.",
+          "iterations": 500
+        },
+        "constant_weight_oracle_weights": {
+          "age_sex": 0.0,
+          "target_CYP_RNA_only": 0.23376763082739246,
+          "age_sex_plus_target_CYP_RNA": 0.35638304262608717,
+          "age_sex_plus_targeted_panel": 0.4098493265465203
+        },
+        "individual_selection_oracle": {
+          "mean_loss": 2322.8109615827416,
+          "bounds": "per-individual arm selection",
+          "best_arm_shares": {
+            "age_sex": 0.29797979797979796,
+            "target_CYP_RNA_only": 0.19444444444444445,
+            "age_sex_plus_target_CYP_RNA": 0.17424242424242425,
+            "age_sex_plus_targeted_panel": 0.3333333333333333
+          }
+        },
+        "individual_convex_oracle": {
+          "mean_loss": 2188.3227435409076,
+          "bracketing_rate": 0.25757575757575757,
+          "bounds": "EVERY method in the family, contextual gates included. A gap of zero here refutes the family.",
+          "why_it_cannot_guide": "it is zero wherever the arms bracket the truth, so with several arms it is usually small and usually permissive. Use it to refute, never to promise."
+        }
+      },
+      "recoverable": {
+        "nested_constant_stacking": {
+          "mean_loss": 3067.0970315352474,
+          "weights_refitted_per_partition": true,
+          "what_this_is": "the gain constant-weight stacking actually recovers out of sample, as opposed to the ceiling it could reach in hindsight"
+        }
+      },
+      "gaps": {
+        "reference_minus_constant_ceiling": {
+          "gap": 182.50747051584753,
+          "interval": [
+            38.45871753379602,
+            385.9877017973431
+          ],
+          "excludes_zero": true,
+          "level": "99.17 %",
+          "family_size": 6,
+          "n_bootstrap": 2000,
+          "resampling_unit": "individual"
+        },
+        "reference_minus_selection_ceiling": {
+          "gap": 911.7924429905955,
+          "interval": [
+            698.0752138437143,
+            1289.0972042570058
+          ],
+          "excludes_zero": true,
+          "level": "99.17 %",
+          "family_size": 6,
+          "n_bootstrap": 2000,
+          "resampling_unit": "individual"
+        },
+        "reference_minus_convex_ceiling": {
+          "gap": 1046.2806610324296,
+          "interval": [
+            826.8315708557267,
+            1421.6905237227506
+          ],
+          "excludes_zero": true,
+          "level": "99.17 %",
+          "family_size": 6,
+          "n_bootstrap": 2000,
+          "resampling_unit": "individual"
+        },
+        "reference_minus_nested_stacking": {
+          "gap": 167.50637303808983,
+          "interval": [
+            29.58253275381899,
+            365.94234906573644
+          ],
+          "excludes_zero": true,
+          "level": "99.17 %",
+          "family_size": 6,
+          "n_bootstrap": 2000,
+          "resampling_unit": "individual"
+        }
+      },
+      "verdicts": {
+        "stacking_family": {
+          "verdict": "HEADROOM_PRESENT",
+          "how_to_read": "the ceiling is detectably above the reference. A method could in principle recover some of it; whether one can is a different question.",
+          "minimum_interesting_gain": 161.73017022866688,
+          "relative_margin": 0.05,
+          "minimum_detectable_gap": 203.48023128149558,
+          "an_interval_containing_zero_is_not_a_refutation": true
+        },
+        "whole_fusion_family": {
+          "verdict": "HEADROOM_PRESENT",
+          "how_to_read": "the ceiling is detectably above the reference. A method could in principle recover some of it; whether one can is a different question.",
+          "minimum_interesting_gain": 161.73017022866688,
+          "relative_margin": 0.05,
+          "minimum_detectable_gap": 375.409862690321,
+          "an_interval_containing_zero_is_not_a_refutation": true
+        }
+      },
+      "context_probes": {
+        "clinical_covariates": {
+          "compared_arms": [
+            2,
+            1
+          ],
+          "spearman_out_of_sample": 0.23796154318106938,
+          "spearman_interval": [
+            0.13256321625849413,
+            0.3346414371692565
+          ],
+          "spearman_interval_bonferroni": [
+            0.08693260491275669,
+            0.36551028257578183
+          ],
+          "family_size": 20,
+          "verdict": "CONTEXT_CARRIES_SIGNAL",
+          "minimum_interesting_rank_association": 0.3,
+          "sign_agreement": 0.6085858585858586,
+          "share_where_the_runner_up_wins": 0.4797979797979798,
+          "how_to_read": "A rank correlation near zero and a sign agreement near the share of the majority class mean the context carries no information about which arm will win, so a gate would have nothing to learn. But that is only a REFUTATION when the interval's upper bound falls below the minimum interesting association; otherwise it is a non-detection, and at these cohort sizes it usually is.",
+          "context_variables": [
+            "age_years",
+            "is_male"
+          ],
+          "compared_arm_names": [
+            "age_sex_plus_target_CYP_RNA",
+            "target_CYP_RNA_only"
+          ]
+        },
+        "arm_predictions_and_their_disagreement": {
+          "compared_arms": [
+            2,
+            1
+          ],
+          "spearman_out_of_sample": 0.31832761824152955,
+          "spearman_interval": [
+            0.19970523073415014,
+            0.4295094779700844
+          ],
+          "spearman_interval_bonferroni": [
+            0.14432760374848186,
+            0.47552986775577105
+          ],
+          "family_size": 20,
+          "verdict": "CONTEXT_CARRIES_SIGNAL",
+          "minimum_interesting_rank_association": 0.3,
+          "sign_agreement": 0.6237373737373737,
+          "share_where_the_runner_up_wins": 0.4797979797979798,
+          "how_to_read": "A rank correlation near zero and a sign agreement near the share of the majority class mean the context carries no information about which arm will win, so a gate would have nothing to learn. But that is only a REFUTATION when the interval's upper bound falls below the minimum interesting association; otherwise it is a non-detection, and at these cohort sizes it usually is.",
+          "context_variables": [
+            "prediction::age_sex",
+            "prediction::target_CYP_RNA_only",
+            "prediction::age_sex_plus_target_CYP_RNA",
+            "prediction::age_sex_plus_targeted_panel",
+            "prediction_spread",
+            "prediction_mean",
+            "prediction_sd"
+          ],
+          "compared_arm_names": [
+            "age_sex_plus_target_CYP_RNA",
+            "target_CYP_RNA_only"
+          ]
+        }
+      },
+      "error_structure": {
+        "median_pairwise_error_correlation": 0.8909666944460938,
+        "max_pairwise_error_correlation": 0.9976491728197208,
+        "how_to_read": "combination gain is driven by decorrelation. A median above 0.95 means the arms are one arm and no weighting can help."
+      },
+      "cohort": "HLC n=396, CYP3A4T_activity",
+      "loss_units": "original source activity units, absolute error",
+      "endpoint_caveat": "measured in-vitro microsomal enzyme activity. NOT a clinical pharmacokinetic quantity.",
+      "context_caveat": "the only clinical context this cohort publishes is age and sex. A null context probe here is a statement about those two variables, not about context in general."
+    }
+  },
+  "not_evaluated": {
+    "hlc_h2a_arms": "The eight H2a arms are stored as LOSSES, not per-donor predictions, so their convex ceiling cannot be recomputed from the frozen artefacts. The four arms used here come from hlc_real_cyp_validation with its own designs, folds, model and seed unchanged. Extending the diagnostic to the H2a arms means re-running them to retain predictions, which is a separate job and still not a Fusing implementation."
+  },
+  "what_this_run_does_not_do": {
+    "implements_no_fusion_method": true,
+    "fits_no_gate": true,
+    "ceilings_are_not_performances": "every ceiling here is computed knowing the answers and is an upper bound on what any honest method could reach. None may be quoted as a result.",
+    "a_permissive_ceiling_licenses_nothing": "the per-individual convex ceiling is zero wherever the arms bracket the truth. It can refute; it cannot promise.",
+    "non_detection_is_not_refutation": "an interval containing zero yields NO_DETECTABLE_HEADROOM_UNDERPOWERED, never a refutation."
+  },
+  "no_individual_level_data_in_this_artefact": true
+}

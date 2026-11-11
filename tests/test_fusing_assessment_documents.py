@@ -85,8 +85,9 @@ class TestNoFrozenChange:
 class TestAuditIsTrue:
     def test_the_module_count_is_right(self, audit):
         count = len([p for p in SRC.glob("*.py") if p.name != "__init__.py"])
-        assert f"{count} modules" in audit, (
-            f"the repository has {count} modules and the audit says otherwise")
+        assert f"## 1. Audit of Omics2PK — {count} modules" in audit, (
+            f"the repository has {count} modules and the audit's heading "
+            "says otherwise")
 
     def test_the_hybrid_module_exists_and_residualises_on_the_baseline(self):
         source = (SRC / "hybrid_mechanistic_selection.py").read_text(
@@ -101,17 +102,32 @@ class TestAuditIsTrue:
         assert "abstained" in source
         assert "allowed answer" in source
 
-    def test_the_fusion_category_is_still_empty(self, audit):
-        # The audit's central claim. If any of these appears in src, the audit
-        # is out of date and the novelty assessment must be redone.
+    def test_the_fusion_category_holds_only_what_the_audit_admits(self, audit):
+        # The category was empty on 2026-11-10 and now holds constant-weight
+        # stacking, inside the diagnostic module. The audit must say so: a
+        # function that fits weights and scores them out of sample IS
+        # stacking, whatever file it lives in.
         joined = "\n".join(
             p.read_text(encoding="utf-8", errors="replace")
-            for p in SRC.glob("*.py"))
-        for term in ("stacking", "ensemble", "model_averag", "meta_learner"):
-            assert term not in joined.lower(), (
-                f"'{term}' now appears in src/; the audit claims the fusion "
-                "category is empty and must be revised")
-        assert "the category is empty" in audit
+            for p in SRC.glob("*.py")).lower()
+        for term in ("ensemble", "model_averag", "meta_learner",
+                     "mixture_of_experts"):
+            assert term not in joined, (
+                f"'{term}' now appears in src/; the audit's inventory is out "
+                "of date and the novelty assessment must be revised")
+        assert "this is stacking" in audit, (
+            "nested_constant_stacking fits constant weights and scores them "
+            "out of sample; the audit must not describe it as a ceiling")
+        assert "a **gate**, w(z_i) | **does not exist**" in audit
+        assert "a **mechanistic prior on weights** | **does not exist**" in audit
+
+    def test_only_the_diagnostic_module_mentions_stacking(self):
+        offenders = [p.name for p in SRC.glob("*.py")
+                     if "stacking" in p.read_text(encoding="utf-8",
+                                                  errors="replace").lower()
+                     and p.name != "fusion_headroom_diagnostics.py"]
+        assert not offenders, (
+            f"stacking has spread beyond the diagnostic module: {offenders}")
 
     def test_the_audit_names_the_degree_strata_safeguard(self, audit):
         source = (SRC / "mechanistic_graph_selection.py").read_text(
@@ -214,26 +230,38 @@ class TestNoveltyHonesty:
 # 6. the protocol can actually refute
 # --------------------------------------------------------------------------
 class TestRefutability:
-    def test_it_states_a_single_refutation_criterion(self, protocol):
+    def test_it_states_a_refutation_criterion(self, protocol):
         assert "## 7. The one-sentence refutation criterion" in protocol
         flat = re.sub(r"[\s*_`>|]+", " ", protocol)
-        assert "Hybrid Fusing is refuted if" in flat
+        assert "Contextual fusion is refuted on a cohort when" in flat
+        assert "The mechanistic prior is refuted separately" in flat
 
-    def test_the_primary_contrast_is_against_stacking_not_against_uniform(
+    def test_the_criterion_rules_out_the_two_corrected_errors(self, protocol):
+        flat = re.sub(r"[\s*_`>|]+", " ", protocol)
+        assert "Neither is refuted by an interval that merely contains zero"             in flat
+        assert "neither is refuted by the constant-weight ceiling, which "             "cannot express a gate" in flat
+
+    def test_there_are_two_co_primary_questions_not_one(self, protocol):
+        flat = re.sub(r"[\s*_`>|]+", " ", protocol)
+        assert "Two co-primary questions, not one" in flat
+        assert "X vs K" in flat and "F vs X" in flat
+        assert "the first can succeed while the second fails" in flat
+
+    def test_neither_primary_is_against_uniform_averaging(self, protocol):
+        flat = re.sub(r"[\s*_`>|]+", " ", protocol)
+        assert "Neither contrast is against U" in flat
+
+    def test_it_distinguishes_the_ceilings_and_names_the_governing_one(
             self, protocol):
         flat = re.sub(r"[\s*_`>|]+", " ", protocol)
-        assert "Primary contrast of the whole programme: F vs K" in flat
-        assert "Not F vs U" in flat
-
-    def test_it_distinguishes_the_two_ceilings(self, protocol):
-        flat = re.sub(r"[\s*_`>|]+", " ", protocol)
-        assert "does not bound" in flat
-        assert "L cvx is the governing ceiling" in flat or \
-            "L_cvx is the governing ceiling" in flat
+        assert "L ind is the governing ceiling" in flat
+        assert "L sel does not bound averaging" in flat
+        assert "L const does not bound a gate" in flat
 
     def test_it_forbids_quoting_the_ceiling_as_a_performance(self, protocol):
         flat = re.sub(r"[\s*_`>|]+", " ", protocol)
-        assert "never be quoted as a performance" in flat
+        assert "None may be quoted as a performance" in flat
+        assert "A permissive ceiling licenses nothing" in flat
 
     def test_it_closes_the_unfalsifiability_loophole(self, protocol):
         flat = re.sub(r"[\s*_`>|]+", " ", protocol)
@@ -246,9 +274,18 @@ class TestRefutability:
         assert "how well studied a gene is" in flat
 
     def test_every_gate_has_a_verdict_including_not_evaluable(self, protocol):
-        for verdict in ("REFUTED_NO_HEADROOM", "HEADROOM_PRESENT",
-                        "NOT_EVALUABLE"):
+        for verdict in ("REFUTED_CEILING_BELOW_MARGIN", "HEADROOM_PRESENT",
+                        "NO_DETECTABLE_HEADROOM_UNDERPOWERED",
+                        "REFUTED_CONTEXT_UNINFORMATIVE", "NOT_EVALUABLE"):
             assert verdict in protocol
+
+    def test_the_superseded_verdict_name_is_gone(self, protocol):
+        assert "REFUTED_NO_HEADROOM" not in protocol, (
+            "the v1.0.0 verdict name implied that a null interval refutes")
+
+    def test_weight_learning_is_required_to_be_out_of_sample(self, protocol):
+        flat = re.sub(r"[\s*_`>|]+", " ", protocol)
+        assert "leakage even when the base predictions are themselves "             "honestly out-of-fold" in flat
 
     def test_eight_negative_controls_are_declared(self, protocol):
         section = protocol.split("## 3. Gate 3")[1].split("## 4.")[0]
