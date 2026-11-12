@@ -32,3 +32,15 @@ incoming/
 *.vcf
 *.bam
 *.bai
+
+# Rendered report output. The Rmd and its JSON inputs are committed; the
+# rendered HTML is 1.4 MB and fully regenerable, so it is not.
+reports/*.html
+reports/*.knit.md
+reports/*.utf8.md
+reports/*_files/
+reports/*_cache/
+reports/data/h2a_part_*.json
+reports/data/h2a_net_part_*.json
+reports/data/h2a_pool*_part_*.json
+reports/data/h2d_part_*.json

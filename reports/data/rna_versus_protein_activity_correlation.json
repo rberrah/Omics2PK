@@ -1,0 +1,236 @@
+{
+  "built_on": "2026-11-09",
+  "hlc_method": {
+    "interval": "2000-draw donor bootstrap, seed 20261109",
+    "no_model": "no regression, no selection, no tuning, no cross-validation: a descriptive whole-cohort correlation, which is what the published number is",
+    "probe_rule": "one probe per enzyme, the admissible probe with the highest mean; pool A_qualified_human",
+    "statistic": "Spearman rho, average ranks for ties"
+  },
+  "label": "DESCRIPTIVE_CROSS_COHORT_COMPARISON",
+  "per_endpoint": {
+    "CYP1A2_activity": {
+      "enzyme": "CYP1A2",
+      "published_protein": {
+        "hhep_n": 20,
+        "hhep_p": "<0.0001",
+        "hhep_r": 0.788,
+        "hlm_n": 16,
+        "hlm_p": "0.0046",
+        "hlm_r": 0.6814,
+        "probe": "phenacetin"
+      },
+      "reason": "no admissible probe for this enzyme; every probe is graded conflicting by the frozen identity rule",
+      "status": "NOT_EVALUABLE"
+    },
+    "CYP2A6_activity": {
+      "enzyme": "CYP2A6",
+      "gap_protein_minus_transcript_hlm": 0.4386138572735634,
+      "hlc_ci_high": 0.5859884458212185,
+      "hlc_ci_low": 0.42954787125142047,
+      "hlc_n_donors": 397,
+      "hlc_probe_used": "10025906751",
+      "hlc_probes_admissible": 2,
+      "hlc_transcript_activity_spearman": 0.5084861427264367,
+      "published_hlm_r_above_hlc_interval": true,
+      "published_protein": {
+        "hhep_n": 20,
+        "hhep_p": "<0.0001",
+        "hhep_r": 0.7985,
+        "hlm_n": 16,
+        "hlm_p": "<0.0001",
+        "hlm_r": 0.9471,
+        "probe": "coumarin"
+      },
+      "status": "MEASURED"
+    },
+    "CYP2B6_activity": {
+      "enzyme": "CYP2B6",
+      "gap_protein_minus_transcript_hlm": 0.4399058170319302,
+      "hlc_ci_high": 0.6114372860602663,
+      "hlc_ci_low": 0.45994124499352257,
+      "hlc_n_donors": 398,
+      "hlc_probe_used": "10033668783",
+      "hlc_probes_admissible": 2,
+      "hlc_transcript_activity_spearman": 0.5394941829680698,
+      "published_hlm_r_above_hlc_interval": true,
+      "published_protein": {
+        "hhep_n": 20,
+        "hhep_p": "0.0002",
+        "hhep_r": 0.7424,
+        "hlm_n": 16,
+        "hlm_p": "<0.0001",
+        "hlm_r": 0.9794,
+        "probe": "bupropion"
+      },
+      "status": "MEASURED"
+    },
+    "CYP2C19_activity": {
+      "enzyme": "CYP2C19",
+      "gap_protein_minus_transcript_hlm": 0.5110423867166807,
+      "hlc_ci_high": 0.5180503998910241,
+      "hlc_ci_low": 0.35509251740955317,
+      "hlc_n_donors": 398,
+      "hlc_probe_used": "10033669006",
+      "hlc_probes_admissible": 2,
+      "hlc_transcript_activity_spearman": 0.43895761328331934,
+      "published_hlm_r_above_hlc_interval": true,
+      "published_protein": {
+        "hhep_n": 20,
+        "hhep_p": "0.0006",
+        "hhep_r": 0.7003,
+        "hlm_n": 16,
+        "hlm_p": "<0.0001",
+        "hlm_r": 0.95,
+        "probe": "mephenytoin"
+      },
+      "status": "MEASURED"
+    },
+    "CYP2C8_activity": {
+      "enzyme": "CYP2C8",
+      "gap_protein_minus_transcript_hlm": 0.3753271393520463,
+      "hlc_ci_high": 0.612608999516034,
+      "hlc_ci_low": 0.4623206688045787,
+      "hlc_n_donors": 387,
+      "hlc_probe_used": "10023822987",
+      "hlc_probes_admissible": 2,
+      "hlc_transcript_activity_spearman": 0.5422728606479537,
+      "published_hlm_r_above_hlc_interval": true,
+      "published_protein": {
+        "hhep_n": 20,
+        "hhep_p": "0.0001",
+        "hhep_r": 0.7574,
+        "hlm_n": 16,
+        "hlm_p": "<0.0001",
+        "hlm_r": 0.9176,
+        "probe": "amodiaquine"
+      },
+      "status": "MEASURED"
+    },
+    "CYP2C9_activity": {
+      "enzyme": "CYP2C9",
+      "gap_protein_minus_transcript_hlm": 0.2190018373257932,
+      "hlc_ci_high": 0.5127398864134176,
+      "hlc_ci_low": 0.3384231000543401,
+      "hlc_n_donors": 398,
+      "hlc_probe_used": "10033668581",
+      "hlc_probes_admissible": 2,
+      "hlc_transcript_activity_spearman": 0.4309981626742068,
+      "published_hlm_r_above_hlc_interval": true,
+      "published_protein": {
+        "hhep_n": 20,
+        "hhep_p": "0.098",
+        "hhep_r": 0.3805,
+        "hlm_n": 16,
+        "hlm_p": "0.0078",
+        "hlm_r": 0.65,
+        "probe": "diclofenac"
+      },
+      "status": "MEASURED"
+    },
+    "CYP2D6_activity": {
+      "enzyme": "CYP2D6",
+      "gap_protein_minus_transcript_hlm": 0.2810682141419454,
+      "hlc_ci_high": 0.6209893225659553,
+      "hlc_ci_low": 0.4670462430168664,
+      "hlc_n_donors": 397,
+      "hlc_probe_used": "10033668469",
+      "hlc_probes_admissible": 2,
+      "hlc_transcript_activity_spearman": 0.5480317858580546,
+      "published_hlm_r_above_hlc_interval": true,
+      "published_protein": {
+        "hhep_n": 20,
+        "hhep_p": "<0.0001",
+        "hhep_r": 0.8015,
+        "hlm_n": 16,
+        "hlm_p": "0.0002",
+        "hlm_r": 0.8291,
+        "probe": "dextromethorphan"
+      },
+      "status": "MEASURED"
+    },
+    "CYP2E1_activity": {
+      "enzyme": "CYP2E1",
+      "gap_protein_minus_transcript_hlm": 0.6313716755452572,
+      "hlc_ci_high": 0.40731146716061517,
+      "hlc_ci_low": 0.21626266765545427,
+      "hlc_n_donors": 398,
+      "hlc_probe_used": "10033668556",
+      "hlc_probes_admissible": 2,
+      "hlc_transcript_activity_spearman": 0.3127283244547428,
+      "published_hlm_r_above_hlc_interval": true,
+      "published_protein": {
+        "hhep_n": 20,
+        "hhep_p": "0.2124",
+        "hhep_r": 0.2915,
+        "hlm_n": 16,
+        "hlm_p": "<0.0001",
+        "hlm_r": 0.9441,
+        "probe": "chlorzoxazone"
+      },
+      "status": "MEASURED"
+    },
+    "CYP3A4M_activity": {
+      "enzyme": "CYP3A4",
+      "gap_protein_minus_transcript_hlm": 0.23038918061874902,
+      "hlc_ci_high": 0.6524408238809967,
+      "hlc_ci_low": 0.5139111036388687,
+      "hlc_n_donors": 397,
+      "hlc_probe_used": "10025909722",
+      "hlc_probes_admissible": 3,
+      "hlc_transcript_activity_spearman": 0.586410819381251,
+      "published_hlm_r_above_hlc_interval": true,
+      "published_protein": {
+        "hhep_n": 20,
+        "hhep_p": "0.015",
+        "hhep_r": 0.5353,
+        "hlm_n": 16,
+        "hlm_p": "0.0002",
+        "hlm_r": 0.8168,
+        "probe": "midazolam"
+      },
+      "status": "MEASURED"
+    },
+    "CYP3A4T_activity": {
+      "enzyme": "CYP3A4",
+      "gap_protein_minus_transcript_hlm": 0.4578230273140367,
+      "hlc_ci_high": 0.5743233447273384,
+      "hlc_ci_low": 0.4168880401463826,
+      "hlc_n_donors": 397,
+      "hlc_probe_used": "10025909722",
+      "hlc_probes_admissible": 3,
+      "hlc_transcript_activity_spearman": 0.4980769726859633,
+      "published_hlm_r_above_hlc_interval": true,
+      "published_protein": {
+        "hhep_n": 20,
+        "hhep_p": "<0.0001",
+        "hhep_r": 0.7684,
+        "hlm_n": 16,
+        "hlm_p": "<0.0001",
+        "hlm_r": 0.9559,
+        "probe": "testosterone"
+      },
+      "status": "MEASURED"
+    }
+  },
+  "published_source": "Grangeon A, et al. Protein Levels of 16 Cytochrome P450s and 2 Carboxyl Esterases Using Absolute Quantitative Proteomics. Pharmaceuticals 2025, 18(12), 1789. PMID 41471278. CC BY 4.0. Table 3A/3B.",
+  "published_source_caveats": [
+    "n = 16 (microsomes) and n = 20 (hepatocytes), so each published r carries a wide interval that the article does not report.",
+    "Activity values were provided by the commercial supplier, not measured by the authors.",
+    "No per-donor numeric value for protein or activity is published, so the published correlations cannot be recomputed or re-analysed."
+  ],
+  "report": "mRNA versus published protein as an explanation of CYP activity",
+  "summary": {
+    "endpoints_measured": 9,
+    "endpoints_not_evaluable": 1,
+    "endpoints_where_published_protein_r_exceeds_the_hlc_interval": 9,
+    "hlc_transcript_rho_max": 0.586410819381251,
+    "hlc_transcript_rho_median": 0.5084861427264367,
+    "hlc_transcript_rho_min": 0.3127283244547428,
+    "how_to_read": "The last count is the strict comparison: on how many enzymes the published protein correlation lies entirely above the bootstrap interval of this cohort's transcript correlation. It is still a cross-cohort statement.",
+    "published_protein_rho_max": 0.9794,
+    "published_protein_rho_median": 0.9441,
+    "published_protein_rho_min": 0.65
+  },
+  "what_this_is": "Two whole-cohort Spearman correlations placed side by side: transcript-to-activity measured here in the Human Liver Cohort, and protein-to-activity as published by Grangeon 2025 in genotyped human liver microsomes.",
+  "what_this_is_not": "NOT a within-subject comparison. The donors are different people in different cohorts, and no individual from one is joined to the other. It licenses no causal claim, no per-patient claim and no pharmacokinetic claim. The endpoint class on both sides is functional_in_vitro."
+}

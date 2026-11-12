@@ -1,0 +1,29 @@
+{
+  "activity_column_correlation": {
+    "fraction_above_0_7": 0.18452380952380953,
+    "fraction_above_0_9": 0.09013605442176871,
+    "max_absolute_offdiagonal": 1.0000000000000002,
+    "median_absolute_offdiagonal": 0.4241398286331727
+  },
+  "built_on": "2026-11-09",
+  "changes_no_result": "No arm, loss, threshold or contrast is affected. This script produces no performance number. It exists to decide whether the run's coefficient-sign agreement can be read as a biological statement.",
+  "design": {
+    "components_for_95_percent_variance": 19,
+    "condition_number": 1.6617575106472673e+33,
+    "effective_rank_shannon": 7.16,
+    "variance_in_first_component": 0.5030018269897767
+  },
+  "endpoint": "CYP3A4M_activity",
+  "fold": 0,
+  "how_to_read": "A high condition number with an effective rank far below the column count means the individual coefficients are not identified: ridge distributes weight among near-duplicate columns and the sign of any one of them is arbitrary. In that case the run's coefficient-sign agreement is a statement about the design, not about the resource's biology, and must not be reported as evidence that the signs are wrong.",
+  "label": "POST_HOC_DIAGNOSTIC",
+  "n_activity_columns": 49,
+  "n_training_donors": 372,
+  "regulon_overlap_jaccard": {
+    "fraction_above_0_5": 0.08928571428571429,
+    "max": 1.0,
+    "median": 0.04723717210663953,
+    "pairs": 1176
+  },
+  "report": "post-hoc: identifiability of ridge coefficients on F-series activity columns"
+}

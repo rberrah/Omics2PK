@@ -1,0 +1,802 @@
+{
+  "arms": {
+    "M0_clinical": [
+      "Age (years)",
+      "male sex",
+      "weight",
+      "BMI",
+      "Daily Dose Metoprolol"
+    ],
+    "M1_clinical_pgx": [
+      "Age (years)",
+      "male sex",
+      "weight",
+      "BMI",
+      "Daily Dose Metoprolol",
+      "AS",
+      "CYP2D6 inhibitor intake"
+    ],
+    "M1a_clinical_genotype": [
+      "Age (years)",
+      "male sex",
+      "weight",
+      "BMI",
+      "Daily Dose Metoprolol",
+      "AS"
+    ],
+    "M1b_clinical_comedication": [
+      "Age (years)",
+      "male sex",
+      "weight",
+      "BMI",
+      "Daily Dose Metoprolol",
+      "CYP2D6 inhibitor intake"
+    ],
+    "M2_clinical_omic": [
+      "Age (years)",
+      "male sex",
+      "weight",
+      "BMI",
+      "Daily Dose Metoprolol",
+      "lnMR OH-solanidine/solanidine",
+      "lnMR SSDA/solanidine"
+    ],
+    "M3_clinical_pgx_omic": [
+      "Age (years)",
+      "male sex",
+      "weight",
+      "BMI",
+      "Daily Dose Metoprolol",
+      "AS",
+      "CYP2D6 inhibitor intake",
+      "lnMR OH-solanidine/solanidine",
+      "lnMR SSDA/solanidine"
+    ],
+    "M3a_clinical_genotype_omic": [
+      "Age (years)",
+      "male sex",
+      "weight",
+      "BMI",
+      "Daily Dose Metoprolol",
+      "AS",
+      "lnMR OH-solanidine/solanidine",
+      "lnMR SSDA/solanidine"
+    ],
+    "M3b_clinical_comedication_omic": [
+      "Age (years)",
+      "male sex",
+      "weight",
+      "BMI",
+      "Daily Dose Metoprolol",
+      "CYP2D6 inhibitor intake",
+      "lnMR OH-solanidine/solanidine",
+      "lnMR SSDA/solanidine"
+    ]
+  },
+  "cohort": "ariana_metoprolol_47",
+  "map_be": "excluded by construction; one observation per patient",
+  "multiplicity": "One primary contrast, reported unadjusted. All other contrasts are secondary within the H1 family and require Holm adjustment before any claim. Fold repetition is not additional independent subjects.",
+  "objective": "H1",
+  "prespecification": {
+    "comparators": "Ridge, Elastic Net and XGBoost as the protocol names, with complexity capped for n=47. No substitution in force.",
+    "frozen_in_v1_0_0": "arm definitions, the primary contrast and its loss, the loss hierarchy and reversal rule, the CV scheme, influence reporting, the prohibited predictor, the MAP-BE exclusion.",
+    "operationalised_at_analysis_time": "log-target fitting with back-transformation, the penalty grids, feature encodings, bootstrap count."
+  },
+  "primary_contrast": {
+    "definition": "ridge M3_clinical_pgx_omic versus M1_clinical_pgx, mae",
+    "exploratory_success_criterion": {
+      "relative_improvement": 0.32127476143706873,
+      "threshold": "at least 10% relative MAE improvement with a descriptive interval excluding zero",
+      "threshold_met": true
+    },
+    "influence": {
+      "mean_gain_by_endpoint_quartile": {
+        "Q1": 19.51705636366194,
+        "Q2": 4.483893641130953,
+        "Q3": 11.279470695714968,
+        "Q4": 31.545108607493287
+      },
+      "n_improved": 34,
+      "n_worsened": 13,
+      "net_gain": 797.4224580548827,
+      "reading": "A net gain concentrated in a handful of patients, or present in only one endpoint quartile, is reported as such and caps the status at PARTIALLY_SUPPORTED per protocol section 2.1.",
+      "share_of_net_gain_from_five_most_improved": 0.7365699379987312
+    },
+    "primary_loss": {
+      "best_case_relative_in_interval": -0.6393445656782739,
+      "descriptive_95_interval": [
+        -33.76361761269259,
+        -4.686414551000612
+      ],
+      "direction": "improvement",
+      "excludes_a_prespecified_size_benefit": false,
+      "how_to_read": "interval_excludes_zero false means no effect was DETECTED, never that there is none. excludes_a_prespecified_size_benefit true means a benefit of at least 10% is incompatible with the interval; false means the design cannot rule one out, which is INCONCLUSIVE rather than NOT_SUPPORTED.",
+      "interval_excludes_zero": true,
+      "mean_difference": -16.966435277763463,
+      "n_bootstrap": 2000,
+      "n_independent_patients": 47,
+      "relative_change_vs_baseline": -0.32127476143706873
+    },
+    "reversal_rule": {
+      "log_mae_reversed": false,
+      "primary_improved": true,
+      "rule": "If the primary loss improves while BOTH robustness co-criteria reverse, the status caps at PARTIALLY_SUPPORTED and the influence analysis becomes mandatory.",
+      "status_capped_at_partially_supported": false,
+      "trimmed_mae_reversed": false
+    },
+    "robustness_co_criteria": {
+      "log_mae": {
+        "best_case_relative_in_interval": -0.5396947201314201,
+        "descriptive_95_interval": [
+          -0.41520611901842175,
+          -0.15334325380892164
+        ],
+        "direction": "improvement",
+        "excludes_a_prespecified_size_benefit": false,
+        "how_to_read": "interval_excludes_zero false means no effect was DETECTED, never that there is none. excludes_a_prespecified_size_benefit true means a benefit of at least 10% is incompatible with the interval; false means the design cannot rule one out, which is INCONCLUSIVE rather than NOT_SUPPORTED.",
+        "interval_excludes_zero": true,
+        "mean_difference": -0.2857901043639873,
+        "n_bootstrap": 2000,
+        "n_independent_patients": 47,
+        "relative_change_vs_baseline": -0.3714767276447778
+      },
+      "trimmed_mae_10pct": {
+        "baseline_trimmed_mae": 33.33927914496041,
+        "mean_difference": -8.861098449699703,
+        "new_trimmed_mae": 24.478180695260704
+      }
+    },
+    "why_ridge": "Ridge estimates its coefficients from the cohort and cannot borrow strength from literature-fixed constants, so it is the harder test."
+  },
+  "prohibited_predictor_absent": "lnMR OH-metoprolol/metoprolol",
+  "results": {
+    "elastic_net": {
+      "M0_clinical": {
+        "bias": -29.51991658180691,
+        "log_mae": 0.8297330260218384,
+        "mae": 56.7073012422885,
+        "n_patients": 47,
+        "p20_fraction_within_20pct": 0.0851063829787234,
+        "rmse": 96.49333275261655,
+        "trimmed_mae_10pct": 37.27715690624326
+      },
+      "M1_clinical_pgx": {
+        "bias": -28.77441285073308,
+        "log_mae": 0.794236579817671,
+        "mae": 54.23213690499921,
+        "n_patients": 47,
+        "p20_fraction_within_20pct": 0.14893617021276595,
+        "rmse": 96.59077018189174,
+        "trimmed_mae_10pct": 33.952677618993185
+      },
+      "M1a_clinical_genotype": {
+        "bias": -25.441608531517694,
+        "log_mae": 0.7799280977222157,
+        "mae": 53.62165013805026,
+        "n_patients": 47,
+        "p20_fraction_within_20pct": 0.1702127659574468,
+        "rmse": 92.3293397356926,
+        "trimmed_mae_10pct": 34.19151229415485
+      },
+      "M1b_clinical_comedication": {
+        "bias": -30.61110890202097,
+        "log_mae": 0.8319045186772255,
+        "mae": 56.524122645713575,
+        "n_patients": 47,
+        "p20_fraction_within_20pct": 0.06382978723404255,
+        "rmse": 97.34558001172992,
+        "trimmed_mae_10pct": 36.91242846163777
+      },
+      "M2_clinical_omic": {
+        "bias": -13.203976254335318,
+        "log_mae": 0.4651920486515347,
+        "mae": 35.12239120528004,
+        "n_patients": 47,
+        "p20_fraction_within_20pct": 0.2553191489361702,
+        "rmse": 54.93701247597787,
+        "trimmed_mae_10pct": 23.133910329657688
+      },
+      "M3_clinical_pgx_omic": {
+        "bias": -13.67796904208222,
+        "log_mae": 0.47567697528782604,
+        "mae": 35.045187964237236,
+        "n_patients": 47,
+        "p20_fraction_within_20pct": 0.2765957446808511,
+        "rmse": 53.29498679617434,
+        "trimmed_mae_10pct": 23.949996097627004
+      },
+      "M3a_clinical_genotype_omic": {
+        "bias": -13.213945207557108,
+        "log_mae": 0.4871874211843434,
+        "mae": 36.252303050644336,
+        "n_patients": 47,
+        "p20_fraction_within_20pct": 0.2553191489361702,
+        "rmse": 55.17734519741557,
+        "trimmed_mae_10pct": 24.642838595889526
+      },
+      "M3b_clinical_comedication_omic": {
+        "bias": -13.44150505086549,
+        "log_mae": 0.4624414077910065,
+        "mae": 34.47025198742721,
+        "n_patients": 47,
+        "p20_fraction_within_20pct": 0.2978723404255319,
+        "rmse": 54.23120199318111,
+        "trimmed_mae_10pct": 22.733806766392945
+      }
+    },
+    "ridge": {
+      "M0_clinical": {
+        "bias": -28.542834049384147,
+        "log_mae": 0.8084859954184759,
+        "mae": 55.63506661231119,
+        "n_patients": 47,
+        "p20_fraction_within_20pct": 0.1276595744680851,
+        "rmse": 95.21213886274906,
+        "trimmed_mae_10pct": 36.58188518016546
+      },
+      "M1_clinical_pgx": {
+        "bias": -27.069427921527225,
+        "log_mae": 0.7693351510226294,
+        "mae": 52.80973582198689,
+        "n_patients": 47,
+        "p20_fraction_within_20pct": 0.1702127659574468,
+        "rmse": 93.89993484592331,
+        "trimmed_mae_10pct": 33.33927914496041
+      },
+      "M1a_clinical_genotype": {
+        "bias": -25.907381807918892,
+        "log_mae": 0.7753499507356882,
+        "mae": 53.49824567074746,
+        "n_patients": 47,
+        "p20_fraction_within_20pct": 0.14893617021276595,
+        "rmse": 93.10533251200395,
+        "trimmed_mae_10pct": 33.86539323203849
+      },
+      "M1b_clinical_comedication": {
+        "bias": -28.880043107623642,
+        "log_mae": 0.8078155773461672,
+        "mae": 55.18853465462064,
+        "n_patients": 47,
+        "p20_fraction_within_20pct": 0.0851063829787234,
+        "rmse": 94.87468346656514,
+        "trimmed_mae_10pct": 36.518010881166255
+      },
+      "M2_clinical_omic": {
+        "bias": -13.257077778532741,
+        "log_mae": 0.45407688669088636,
+        "mae": 34.32477907153695,
+        "n_patients": 47,
+        "p20_fraction_within_20pct": 0.2978723404255319,
+        "rmse": 54.813100500562356,
+        "trimmed_mae_10pct": 22.12551790351559
+      },
+      "M3_clinical_pgx_omic": {
+        "bias": -14.457879755508618,
+        "log_mae": 0.4835450466586423,
+        "mae": 35.84330054422342,
+        "n_patients": 47,
+        "p20_fraction_within_20pct": 0.2978723404255319,
+        "rmse": 54.62649954001375,
+        "trimmed_mae_10pct": 24.478180695260704
+      },
+      "M3a_clinical_genotype_omic": {
+        "bias": -14.347482599742701,
+        "log_mae": 0.48806286968135043,
+        "mae": 36.2730648200144,
+        "n_patients": 47,
+        "p20_fraction_within_20pct": 0.2765957446808511,
+        "rmse": 55.02456089861723,
+        "trimmed_mae_10pct": 24.745841717065716
+      },
+      "M3b_clinical_comedication_omic": {
+        "bias": -12.912268127998646,
+        "log_mae": 0.46432182029160024,
+        "mae": 34.45305568871989,
+        "n_patients": 47,
+        "p20_fraction_within_20pct": 0.2765957446808511,
+        "rmse": 54.28374113732085,
+        "trimmed_mae_10pct": 22.73769239705179
+      }
+    },
+    "xgboost": {
+      "M0_clinical": {
+        "bias": -28.489747932431474,
+        "log_mae": 0.8392349403697987,
+        "mae": 57.48305832474963,
+        "n_patients": 47,
+        "p20_fraction_within_20pct": 0.10638297872340426,
+        "rmse": 98.69054300974929,
+        "trimmed_mae_10pct": 37.47031895550328
+      },
+      "M1_clinical_pgx": {
+        "bias": -27.282720974092516,
+        "log_mae": 0.8499972213488739,
+        "mae": 58.25264443499389,
+        "n_patients": 47,
+        "p20_fraction_within_20pct": 0.10638297872340426,
+        "rmse": 98.78432162029023,
+        "trimmed_mae_10pct": 38.438833739666194
+      },
+      "M1a_clinical_genotype": {
+        "bias": -25.970917839337346,
+        "log_mae": 0.858657857116797,
+        "mae": 59.407554210325095,
+        "n_patients": 47,
+        "p20_fraction_within_20pct": 0.10638297872340426,
+        "rmse": 99.66145444431211,
+        "trimmed_mae_10pct": 39.420791196783064
+      },
+      "M1b_clinical_comedication": {
+        "bias": -29.38864246146992,
+        "log_mae": 0.8422217385969141,
+        "mae": 57.0658419837529,
+        "n_patients": 47,
+        "p20_fraction_within_20pct": 0.10638297872340426,
+        "rmse": 98.06400785726304,
+        "trimmed_mae_10pct": 37.61178147809979
+      },
+      "M2_clinical_omic": {
+        "bias": -14.934298517003358,
+        "log_mae": 0.49950621195667577,
+        "mae": 37.53033267977852,
+        "n_patients": 47,
+        "p20_fraction_within_20pct": 0.2978723404255319,
+        "rmse": 69.7322151205807,
+        "trimmed_mae_10pct": 21.7964168459332
+      },
+      "M3_clinical_pgx_omic": {
+        "bias": -15.55571543612791,
+        "log_mae": 0.5102229864973513,
+        "mae": 38.59763821851935,
+        "n_patients": 47,
+        "p20_fraction_within_20pct": 0.3829787234042553,
+        "rmse": 72.749034207068,
+        "trimmed_mae_10pct": 22.42525584229828
+      },
+      "M3a_clinical_genotype_omic": {
+        "bias": -15.507977922709422,
+        "log_mae": 0.5118134872945124,
+        "mae": 38.3747290254962,
+        "n_patients": 47,
+        "p20_fraction_within_20pct": 0.3829787234042553,
+        "rmse": 71.24266016232215,
+        "trimmed_mae_10pct": 22.3955490984957
+      },
+      "M3b_clinical_comedication_omic": {
+        "bias": -14.934298517003358,
+        "log_mae": 0.49950621195667577,
+        "mae": 37.53033267977852,
+        "n_patients": 47,
+        "p20_fraction_within_20pct": 0.2978723404255319,
+        "rmse": 69.7322151205807,
+        "trimmed_mae_10pct": 21.7964168459332
+      }
+    }
+  },
+  "secondary_contrasts": {
+    "elastic_net": {
+      "M1_clinical_pgx_vs_M0_clinical": {
+        "best_case_relative_in_interval": -0.1062308566072497,
+        "descriptive_95_interval": [
+          -6.0240651868536625,
+          0.9231930927175492
+        ],
+        "direction": "improvement",
+        "excludes_a_prespecified_size_benefit": false,
+        "how_to_read": "interval_excludes_zero false means no effect was DETECTED, never that there is none. excludes_a_prespecified_size_benefit true means a benefit of at least 10% is incompatible with the interval; false means the design cannot rule one out, which is INCONCLUSIVE rather than NOT_SUPPORTED.",
+        "interval_excludes_zero": false,
+        "mean_difference": -2.475164337289314,
+        "n_bootstrap": 2000,
+        "n_independent_patients": 47,
+        "relative_change_vs_baseline": -0.04364807146638646
+      },
+      "M1a_clinical_genotype_vs_M0_clinical": {
+        "best_case_relative_in_interval": -0.12559788846647518,
+        "descriptive_95_interval": [
+          -7.122317296663761,
+          0.9652088787837481
+        ],
+        "direction": "improvement",
+        "excludes_a_prespecified_size_benefit": false,
+        "how_to_read": "interval_excludes_zero false means no effect was DETECTED, never that there is none. excludes_a_prespecified_size_benefit true means a benefit of at least 10% is incompatible with the interval; false means the design cannot rule one out, which is INCONCLUSIVE rather than NOT_SUPPORTED.",
+        "interval_excludes_zero": false,
+        "mean_difference": -3.0856511042382553,
+        "n_bootstrap": 2000,
+        "n_independent_patients": 47,
+        "relative_change_vs_baseline": -0.054413647566376934
+      },
+      "M1b_clinical_comedication_vs_M0_clinical": {
+        "best_case_relative_in_interval": -0.0278071507682069,
+        "descriptive_95_interval": [
+          -1.576868475302443,
+          1.2239943483381626
+        ],
+        "direction": "improvement",
+        "excludes_a_prespecified_size_benefit": true,
+        "how_to_read": "interval_excludes_zero false means no effect was DETECTED, never that there is none. excludes_a_prespecified_size_benefit true means a benefit of at least 10% is incompatible with the interval; false means the design cannot rule one out, which is INCONCLUSIVE rather than NOT_SUPPORTED.",
+        "interval_excludes_zero": false,
+        "mean_difference": -0.1831785965749482,
+        "n_bootstrap": 2000,
+        "n_independent_patients": 47,
+        "relative_change_vs_baseline": -0.0032302471209535518
+      },
+      "M2_clinical_omic_vs_M0_clinical": {
+        "best_case_relative_in_interval": -0.6681555479015545,
+        "descriptive_95_interval": [
+          -37.889297931559774,
+          -9.313614049167898
+        ],
+        "direction": "improvement",
+        "excludes_a_prespecified_size_benefit": false,
+        "how_to_read": "interval_excludes_zero false means no effect was DETECTED, never that there is none. excludes_a_prespecified_size_benefit true means a benefit of at least 10% is incompatible with the interval; false means the design cannot rule one out, which is INCONCLUSIVE rather than NOT_SUPPORTED.",
+        "interval_excludes_zero": true,
+        "mean_difference": -21.584910037008484,
+        "n_bootstrap": 2000,
+        "n_independent_patients": 47,
+        "relative_change_vs_baseline": -0.38063722949509554
+      },
+      "M3_clinical_pgx_omic_vs_M1_clinical_pgx": {
+        "best_case_relative_in_interval": -0.7016714090392107,
+        "descriptive_95_interval": [
+          -38.05313991733817,
+          -6.161599595648316
+        ],
+        "direction": "improvement",
+        "excludes_a_prespecified_size_benefit": false,
+        "how_to_read": "interval_excludes_zero false means no effect was DETECTED, never that there is none. excludes_a_prespecified_size_benefit true means a benefit of at least 10% is incompatible with the interval; false means the design cannot rule one out, which is INCONCLUSIVE rather than NOT_SUPPORTED.",
+        "interval_excludes_zero": true,
+        "mean_difference": -19.186948940761976,
+        "n_bootstrap": 2000,
+        "n_independent_patients": 47,
+        "relative_change_vs_baseline": -0.3537929728709121
+      },
+      "M3_clinical_pgx_omic_vs_M2_clinical_omic": {
+        "best_case_relative_in_interval": -0.09092380694507074,
+        "descriptive_95_interval": [
+          -3.193461517398133,
+          2.8034192207682063
+        ],
+        "direction": "improvement",
+        "excludes_a_prespecified_size_benefit": true,
+        "how_to_read": "interval_excludes_zero false means no effect was DETECTED, never that there is none. excludes_a_prespecified_size_benefit true means a benefit of at least 10% is incompatible with the interval; false means the design cannot rule one out, which is INCONCLUSIVE rather than NOT_SUPPORTED.",
+        "interval_excludes_zero": false,
+        "mean_difference": -0.0772032410428128,
+        "n_bootstrap": 2000,
+        "n_independent_patients": 47,
+        "relative_change_vs_baseline": -0.002198120298574849
+      },
+      "M3_clinical_pgx_omic_vs_M3a_clinical_genotype_omic": {
+        "best_case_relative_in_interval": -0.08429278204480672,
+        "descriptive_95_interval": [
+          -3.055807479670245,
+          0.4903198380719311
+        ],
+        "direction": "improvement",
+        "excludes_a_prespecified_size_benefit": true,
+        "how_to_read": "interval_excludes_zero false means no effect was DETECTED, never that there is none. excludes_a_prespecified_size_benefit true means a benefit of at least 10% is incompatible with the interval; false means the design cannot rule one out, which is INCONCLUSIVE rather than NOT_SUPPORTED.",
+        "interval_excludes_zero": false,
+        "mean_difference": -1.2071150864071145,
+        "n_bootstrap": 2000,
+        "n_independent_patients": 47,
+        "relative_change_vs_baseline": -0.03329761104338058
+      },
+      "M3a_clinical_genotype_omic_vs_M2_clinical_omic": {
+        "best_case_relative_in_interval": -0.03228364471749946,
+        "descriptive_95_interval": [
+          -1.1338787993002886,
+          3.254217975262394
+        ],
+        "direction": "degradation",
+        "excludes_a_prespecified_size_benefit": true,
+        "how_to_read": "interval_excludes_zero false means no effect was DETECTED, never that there is none. excludes_a_prespecified_size_benefit true means a benefit of at least 10% is incompatible with the interval; false means the design cannot rule one out, which is INCONCLUSIVE rather than NOT_SUPPORTED.",
+        "interval_excludes_zero": false,
+        "mean_difference": 1.1299118453643018,
+        "n_bootstrap": 2000,
+        "n_independent_patients": 47,
+        "relative_change_vs_baseline": 0.032170698138412605
+      },
+      "M3b_clinical_comedication_omic_vs_M2_clinical_omic": {
+        "best_case_relative_in_interval": -0.07440031111896889,
+        "descriptive_95_interval": [
+          -2.6131168329149714,
+          1.424195954940659
+        ],
+        "direction": "improvement",
+        "excludes_a_prespecified_size_benefit": true,
+        "how_to_read": "interval_excludes_zero false means no effect was DETECTED, never that there is none. excludes_a_prespecified_size_benefit true means a benefit of at least 10% is incompatible with the interval; false means the design cannot rule one out, which is INCONCLUSIVE rather than NOT_SUPPORTED.",
+        "interval_excludes_zero": false,
+        "mean_difference": -0.6521392178528334,
+        "n_bootstrap": 2000,
+        "n_independent_patients": 47,
+        "relative_change_vs_baseline": -0.01856762012703724
+      }
+    },
+    "ridge": {
+      "M1_clinical_pgx_vs_M0_clinical": {
+        "best_case_relative_in_interval": -0.11617090834248821,
+        "descriptive_95_interval": [
+          -6.46317622404703,
+          0.7515088211605394
+        ],
+        "direction": "improvement",
+        "excludes_a_prespecified_size_benefit": false,
+        "how_to_read": "interval_excludes_zero false means no effect was DETECTED, never that there is none. excludes_a_prespecified_size_benefit true means a benefit of at least 10% is incompatible with the interval; false means the design cannot rule one out, which is INCONCLUSIVE rather than NOT_SUPPORTED.",
+        "interval_excludes_zero": false,
+        "mean_difference": -2.8253307903243208,
+        "n_bootstrap": 2000,
+        "n_independent_patients": 47,
+        "relative_change_vs_baseline": -0.05078327325484173
+      },
+      "M1a_clinical_genotype_vs_M0_clinical": {
+        "best_case_relative_in_interval": -0.1018826721819516,
+        "descriptive_95_interval": [
+          -5.6682492534831415,
+          1.5084000497199659
+        ],
+        "direction": "improvement",
+        "excludes_a_prespecified_size_benefit": false,
+        "how_to_read": "interval_excludes_zero false means no effect was DETECTED, never that there is none. excludes_a_prespecified_size_benefit true means a benefit of at least 10% is incompatible with the interval; false means the design cannot rule one out, which is INCONCLUSIVE rather than NOT_SUPPORTED.",
+        "interval_excludes_zero": false,
+        "mean_difference": -2.136820941563726,
+        "n_bootstrap": 2000,
+        "n_independent_patients": 47,
+        "relative_change_vs_baseline": -0.03840780773130017
+      },
+      "M1b_clinical_comedication_vs_M0_clinical": {
+        "best_case_relative_in_interval": -0.03363445569921503,
+        "descriptive_95_interval": [
+          -1.8712551832946578,
+          0.9787371182805036
+        ],
+        "direction": "improvement",
+        "excludes_a_prespecified_size_benefit": true,
+        "how_to_read": "interval_excludes_zero false means no effect was DETECTED, never that there is none. excludes_a_prespecified_size_benefit true means a benefit of at least 10% is incompatible with the interval; false means the design cannot rule one out, which is INCONCLUSIVE rather than NOT_SUPPORTED.",
+        "interval_excludes_zero": false,
+        "mean_difference": -0.44653195769055515,
+        "n_bootstrap": 2000,
+        "n_independent_patients": 47,
+        "relative_change_vs_baseline": -0.008026088308695301
+      },
+      "M2_clinical_omic_vs_M0_clinical": {
+        "best_case_relative_in_interval": -0.66317980521355,
+        "descriptive_95_interval": [
+          -36.896052638995414,
+          -9.200344540126693
+        ],
+        "direction": "improvement",
+        "excludes_a_prespecified_size_benefit": false,
+        "how_to_read": "interval_excludes_zero false means no effect was DETECTED, never that there is none. excludes_a_prespecified_size_benefit true means a benefit of at least 10% is incompatible with the interval; false means the design cannot rule one out, which is INCONCLUSIVE rather than NOT_SUPPORTED.",
+        "interval_excludes_zero": true,
+        "mean_difference": -21.31028754077425,
+        "n_bootstrap": 2000,
+        "n_independent_patients": 47,
+        "relative_change_vs_baseline": -0.3830369735920943
+      },
+      "M3_clinical_pgx_omic_vs_M1_clinical_pgx": {
+        "best_case_relative_in_interval": -0.6393445656782739,
+        "descriptive_95_interval": [
+          -33.76361761269259,
+          -4.686414551000612
+        ],
+        "direction": "improvement",
+        "excludes_a_prespecified_size_benefit": false,
+        "how_to_read": "interval_excludes_zero false means no effect was DETECTED, never that there is none. excludes_a_prespecified_size_benefit true means a benefit of at least 10% is incompatible with the interval; false means the design cannot rule one out, which is INCONCLUSIVE rather than NOT_SUPPORTED.",
+        "interval_excludes_zero": true,
+        "mean_difference": -16.966435277763463,
+        "n_bootstrap": 2000,
+        "n_independent_patients": 47,
+        "relative_change_vs_baseline": -0.32127476143706873
+      },
+      "M3_clinical_pgx_omic_vs_M2_clinical_omic": {
+        "best_case_relative_in_interval": -0.06223276927626676,
+        "descriptive_95_interval": [
+          -2.136126056417789,
+          5.038911381870347
+        ],
+        "direction": "degradation",
+        "excludes_a_prespecified_size_benefit": true,
+        "how_to_read": "interval_excludes_zero false means no effect was DETECTED, never that there is none. excludes_a_prespecified_size_benefit true means a benefit of at least 10% is incompatible with the interval; false means the design cannot rule one out, which is INCONCLUSIVE rather than NOT_SUPPORTED.",
+        "interval_excludes_zero": false,
+        "mean_difference": 1.5185214726864635,
+        "n_bootstrap": 2000,
+        "n_independent_patients": 47,
+        "relative_change_vs_baseline": 0.044239803248891506
+      },
+      "M3_clinical_pgx_omic_vs_M3a_clinical_genotype_omic": {
+        "best_case_relative_in_interval": -0.062204141028227695,
+        "descriptive_95_interval": [
+          -2.2563348395902203,
+          1.4489396206994942
+        ],
+        "direction": "improvement",
+        "excludes_a_prespecified_size_benefit": true,
+        "how_to_read": "interval_excludes_zero false means no effect was DETECTED, never that there is none. excludes_a_prespecified_size_benefit true means a benefit of at least 10% is incompatible with the interval; false means the design cannot rule one out, which is INCONCLUSIVE rather than NOT_SUPPORTED.",
+        "interval_excludes_zero": false,
+        "mean_difference": -0.42976427579098175,
+        "n_bootstrap": 2000,
+        "n_independent_patients": 47,
+        "relative_change_vs_baseline": -0.011848027673521831
+      },
+      "M3a_clinical_genotype_omic_vs_M2_clinical_omic": {
+        "best_case_relative_in_interval": -0.031094516426285614,
+        "descriptive_95_interval": [
+          -1.0673124066685304,
+          4.960352204663035
+        ],
+        "direction": "degradation",
+        "excludes_a_prespecified_size_benefit": true,
+        "how_to_read": "interval_excludes_zero false means no effect was DETECTED, never that there is none. excludes_a_prespecified_size_benefit true means a benefit of at least 10% is incompatible with the interval; false means the design cannot rule one out, which is INCONCLUSIVE rather than NOT_SUPPORTED.",
+        "interval_excludes_zero": false,
+        "mean_difference": 1.9482857484774458,
+        "n_bootstrap": 2000,
+        "n_independent_patients": 47,
+        "relative_change_vs_baseline": 0.05676032886961879
+      },
+      "M3b_clinical_comedication_omic_vs_M2_clinical_omic": {
+        "best_case_relative_in_interval": -0.04206360035398374,
+        "descriptive_95_interval": [
+          -1.4438237891039154,
+          1.8473823504459732
+        ],
+        "direction": "degradation",
+        "excludes_a_prespecified_size_benefit": true,
+        "how_to_read": "interval_excludes_zero false means no effect was DETECTED, never that there is none. excludes_a_prespecified_size_benefit true means a benefit of at least 10% is incompatible with the interval; false means the design cannot rule one out, which is INCONCLUSIVE rather than NOT_SUPPORTED.",
+        "interval_excludes_zero": false,
+        "mean_difference": 0.12827661718294586,
+        "n_bootstrap": 2000,
+        "n_independent_patients": 47,
+        "relative_change_vs_baseline": 0.003737143272374806
+      }
+    },
+    "xgboost": {
+      "M1_clinical_pgx_vs_M0_clinical": {
+        "best_case_relative_in_interval": -0.02136228260167218,
+        "descriptive_95_interval": [
+          -1.2279693367417062,
+          3.1471978628736927
+        ],
+        "direction": "degradation",
+        "excludes_a_prespecified_size_benefit": true,
+        "how_to_read": "interval_excludes_zero false means no effect was DETECTED, never that there is none. excludes_a_prespecified_size_benefit true means a benefit of at least 10% is incompatible with the interval; false means the design cannot rule one out, which is INCONCLUSIVE rather than NOT_SUPPORTED.",
+        "interval_excludes_zero": false,
+        "mean_difference": 0.7695861102442693,
+        "n_bootstrap": 2000,
+        "n_independent_patients": 47,
+        "relative_change_vs_baseline": 0.013388050891386201
+      },
+      "M1a_clinical_genotype_vs_M0_clinical": {
+        "best_case_relative_in_interval": -0.018129449841175052,
+        "descriptive_95_interval": [
+          -1.0421362226158883,
+          6.008004126355051
+        ],
+        "direction": "degradation",
+        "excludes_a_prespecified_size_benefit": true,
+        "how_to_read": "interval_excludes_zero false means no effect was DETECTED, never that there is none. excludes_a_prespecified_size_benefit true means a benefit of at least 10% is incompatible with the interval; false means the design cannot rule one out, which is INCONCLUSIVE rather than NOT_SUPPORTED.",
+        "interval_excludes_zero": false,
+        "mean_difference": 1.9244958855754817,
+        "n_bootstrap": 2000,
+        "n_independent_patients": 47,
+        "relative_change_vs_baseline": 0.03347935794757253
+      },
+      "M1b_clinical_comedication_vs_M0_clinical": {
+        "best_case_relative_in_interval": -0.031266362798067805,
+        "descriptive_95_interval": [
+          -1.7972861563241138,
+          0.520534434567692
+        ],
+        "direction": "improvement",
+        "excludes_a_prespecified_size_benefit": true,
+        "how_to_read": "interval_excludes_zero false means no effect was DETECTED, never that there is none. excludes_a_prespecified_size_benefit true means a benefit of at least 10% is incompatible with the interval; false means the design cannot rule one out, which is INCONCLUSIVE rather than NOT_SUPPORTED.",
+        "interval_excludes_zero": false,
+        "mean_difference": -0.4172163409967295,
+        "n_bootstrap": 2000,
+        "n_independent_patients": 47,
+        "relative_change_vs_baseline": -0.007258074868592975
+      },
+      "M2_clinical_omic_vs_M0_clinical": {
+        "best_case_relative_in_interval": -0.5276196483589612,
+        "descriptive_95_interval": [
+          -30.32919101990206,
+          -10.571691247236991
+        ],
+        "direction": "improvement",
+        "excludes_a_prespecified_size_benefit": false,
+        "how_to_read": "interval_excludes_zero false means no effect was DETECTED, never that there is none. excludes_a_prespecified_size_benefit true means a benefit of at least 10% is incompatible with the interval; false means the design cannot rule one out, which is INCONCLUSIVE rather than NOT_SUPPORTED.",
+        "interval_excludes_zero": true,
+        "mean_difference": -19.952725644971103,
+        "n_bootstrap": 2000,
+        "n_independent_patients": 47,
+        "relative_change_vs_baseline": -0.34710619487655814
+      },
+      "M3_clinical_pgx_omic_vs_M1_clinical_pgx": {
+        "best_case_relative_in_interval": -0.4966370658242719,
+        "descriptive_95_interval": [
+          -28.930422408699968,
+          -10.461145429208656
+        ],
+        "direction": "improvement",
+        "excludes_a_prespecified_size_benefit": false,
+        "how_to_read": "interval_excludes_zero false means no effect was DETECTED, never that there is none. excludes_a_prespecified_size_benefit true means a benefit of at least 10% is incompatible with the interval; false means the design cannot rule one out, which is INCONCLUSIVE rather than NOT_SUPPORTED.",
+        "interval_excludes_zero": true,
+        "mean_difference": -19.655006216474533,
+        "n_bootstrap": 2000,
+        "n_independent_patients": 47,
+        "relative_change_vs_baseline": -0.3374096816910728
+      },
+      "M3_clinical_pgx_omic_vs_M2_clinical_omic": {
+        "best_case_relative_in_interval": -0.00804790920412476,
+        "descriptive_95_interval": [
+          -0.3020407098074538,
+          2.723288893544258
+        ],
+        "direction": "degradation",
+        "excludes_a_prespecified_size_benefit": true,
+        "how_to_read": "interval_excludes_zero false means no effect was DETECTED, never that there is none. excludes_a_prespecified_size_benefit true means a benefit of at least 10% is incompatible with the interval; false means the design cannot rule one out, which is INCONCLUSIVE rather than NOT_SUPPORTED.",
+        "interval_excludes_zero": false,
+        "mean_difference": 1.0673055387408377,
+        "n_bootstrap": 2000,
+        "n_independent_patients": 47,
+        "relative_change_vs_baseline": 0.02843847795987979
+      },
+      "M3_clinical_pgx_omic_vs_M3a_clinical_genotype_omic": {
+        "best_case_relative_in_interval": -0.013219222620588824,
+        "descriptive_95_interval": [
+          -0.5072840859928059,
+          1.0777496688280064
+        ],
+        "direction": "degradation",
+        "excludes_a_prespecified_size_benefit": true,
+        "how_to_read": "interval_excludes_zero false means no effect was DETECTED, never that there is none. excludes_a_prespecified_size_benefit true means a benefit of at least 10% is incompatible with the interval; false means the design cannot rule one out, which is INCONCLUSIVE rather than NOT_SUPPORTED.",
+        "interval_excludes_zero": false,
+        "mean_difference": 0.222909193023157,
+        "n_bootstrap": 2000,
+        "n_independent_patients": 47,
+        "relative_change_vs_baseline": 0.005808749629868552
+      },
+      "M3a_clinical_genotype_omic_vs_M2_clinical_omic": {
+        "best_case_relative_in_interval": -0.00659609606848147,
+        "descriptive_95_interval": [
+          -0.2475536798378887,
+          1.9691939304301134
+        ],
+        "direction": "degradation",
+        "excludes_a_prespecified_size_benefit": true,
+        "how_to_read": "interval_excludes_zero false means no effect was DETECTED, never that there is none. excludes_a_prespecified_size_benefit true means a benefit of at least 10% is incompatible with the interval; false means the design cannot rule one out, which is INCONCLUSIVE rather than NOT_SUPPORTED.",
+        "interval_excludes_zero": false,
+        "mean_difference": 0.8443963457176807,
+        "n_bootstrap": 2000,
+        "n_independent_patients": 47,
+        "relative_change_vs_baseline": 0.022499037056834953
+      },
+      "M3b_clinical_comedication_omic_vs_M2_clinical_omic": {
+        "best_case_relative_in_interval": 0.0,
+        "descriptive_95_interval": [
+          0.0,
+          0.0
+        ],
+        "direction": "degradation",
+        "excludes_a_prespecified_size_benefit": true,
+        "how_to_read": "interval_excludes_zero false means no effect was DETECTED, never that there is none. excludes_a_prespecified_size_benefit true means a benefit of at least 10% is incompatible with the interval; false means the design cannot rule one out, which is INCONCLUSIVE rather than NOT_SUPPORTED.",
+        "interval_excludes_zero": false,
+        "mean_difference": 0.0,
+        "n_bootstrap": 2000,
+        "n_independent_patients": 47,
+        "relative_change_vs_baseline": 0.0
+      }
+    }
+  },
+  "source_sha256": "7397b13e43cd546b93f83a20b2dc84b6d49e97633173d56711c39973beedfe37",
+  "status_ceiling": "exploratory. This cohort has been analysed repeatedly by this project, so no ARIANA result may be reported as confirmatory.",
+  "target": "c(Metoprolol)[ng/ml]",
+  "target_is": "observed pre-dose metoprolol concentration. NOT an AUC, NOT a clearance, NOT a steady-state exposure metric.",
+  "validation": {
+    "folds_identical_across_arms_and_models": true,
+    "hyperparameters": "selected by inner CV inside the training fold only",
+    "inner_folds": 3,
+    "outer_folds": 5,
+    "outer_repeats": 2,
+    "preprocessing": "StandardScaler fitted inside the training fold only",
+    "seed": 20261107
+  }
+}

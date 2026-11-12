@@ -1,0 +1,90 @@
+name: public-data-evidence-registry
+
+# Governance gate for the five-objective validation protocol.
+# Enforces that every registry entry carries a verification trail and that no
+# dataset claims an objective its endpoint class cannot support. Runs offline:
+# no study data are downloaded and none are present in the repository.
+
+on:
+  push:
+    paths:
+      - "registry/PUBLIC_DATA_EVIDENCE_REGISTRY.json"
+      - "src/omics2pk/public_data_evidence_registry.py"
+      - "scripts/reconcile_ariana_published_correlations.py"
+      - "tests/test_public_data_evidence_registry.py"
+      - "tests/test_ariana_published_reconciliation.py"
+      - "docs/OMICS2PK_FIVE_OBJECTIVES_VALIDATION_PROTOCOL.md"
+      - "scripts/qualify_muller2026_potato_meal_source.py"
+      - "tests/test_muller2026_potato_meal_qualification.py"
+      - "docs/OMICS2PK_PHASE1_ERRATUM_20261107.md"
+      - "scripts/qualify_public_knowledge_graph_sources.py"
+      - "tests/test_knowledge_graph_source_qualification.py"
+      - "docs/KNOWLEDGE_GRAPH_SOURCE_QUALIFICATION.json"
+      - "src/omics2pk/mechanistic_graph_selection.py"
+      - "src/omics2pk/hybrid_mechanistic_selection.py"
+      - "src/omics2pk/probe_identity_qualification.py"
+      - "tests/test_probe_identity_qualification.py"
+      - "registry/QUALIFIED_PROBE_POOLS.json"
+      - "docs/OMICS2PK_H2A_ERRATUM_20261109.md"
+      - "tests/test_hybrid_mechanistic_selection.py"
+      - "tests/test_h2d_hybrid_runner.py"
+      - "docs/OMICS2PK_H2D_HYBRID_SELECTION_PRESPECIFICATION_20261108.md"
+      - "docs/OMICS2PK_H2D_ERRATUM_20261108.md"
+      - "tests/test_mechanistic_graph_selection.py"
+      - ".github/workflows/public-data-evidence-registry.yml"
+  pull_request:
+    paths:
+      - "registry/PUBLIC_DATA_EVIDENCE_REGISTRY.json"
+      - "src/omics2pk/public_data_evidence_registry.py"
+      - "scripts/reconcile_ariana_published_correlations.py"
+      - "tests/test_public_data_evidence_registry.py"
+      - "tests/test_ariana_published_reconciliation.py"
+      - "docs/OMICS2PK_FIVE_OBJECTIVES_VALIDATION_PROTOCOL.md"
+      - "scripts/qualify_muller2026_potato_meal_source.py"
+      - "tests/test_muller2026_potato_meal_qualification.py"
+      - "docs/OMICS2PK_PHASE1_ERRATUM_20261107.md"
+      - "scripts/qualify_public_knowledge_graph_sources.py"
+      - "tests/test_knowledge_graph_source_qualification.py"
+      - "docs/KNOWLEDGE_GRAPH_SOURCE_QUALIFICATION.json"
+      - "src/omics2pk/mechanistic_graph_selection.py"
+      - "src/omics2pk/hybrid_mechanistic_selection.py"
+      - "src/omics2pk/probe_identity_qualification.py"
+      - "tests/test_probe_identity_qualification.py"
+      - "registry/QUALIFIED_PROBE_POOLS.json"
+      - "docs/OMICS2PK_H2A_ERRATUM_20261109.md"
+      - "tests/test_hybrid_mechanistic_selection.py"
+      - "tests/test_h2d_hybrid_runner.py"
+      - "docs/OMICS2PK_H2D_HYBRID_SELECTION_PRESPECIFICATION_20261108.md"
+      - "docs/OMICS2PK_H2D_ERRATUM_20261108.md"
+      - "tests/test_mechanistic_graph_selection.py"
+      - ".github/workflows/public-data-evidence-registry.yml"
+  workflow_dispatch:
+
+jobs:
+  registry:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python -m pip install -e .
+      - run: python -m pip install pytest numpy pandas scipy
+      - name: Validate the registry against its own rules
+        run: python -m omics2pk.public_data_evidence_registry
+      - name: Registry and source-qualification contract tests
+        run: >-
+          python -m pytest -q
+          tests/test_public_data_evidence_registry.py
+          tests/test_ariana_published_reconciliation.py
+          tests/test_muller2026_potato_meal_qualification.py
+      - name: Refuse committed participant-level source files
+        run: |
+          set -euo pipefail
+          # The registry records provenance only; source workbooks and archives
+          # must never be committed, even when the source is openly licensed.
+          if git ls-files | grep -Ei '\.(xlsx|xls|zip|rds|RData|vcf|bam|fastq(\.gz)?)$'; then
+            echo "ERROR: a source data file is tracked in git." >&2
+            exit 1
+          fi
+          echo "OK: no participant-level source files are tracked."

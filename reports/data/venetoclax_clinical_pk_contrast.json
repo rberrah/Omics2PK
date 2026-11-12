@@ -1,0 +1,257 @@
+{
+  "run": "axis_c2_venetoclax_clinical_pk_contrast",
+  "generated": "2026-11-10",
+  "protocol": "OMICS2PK_AXIS_C2_VENETOCLAX_CLINICAL_PK_PRESPECIFICATION_20261110.md",
+  "protocol_sha256": "116ecdfbb51b61eb3e87c57a72da03ba2ac8673ee6d7bf172e1626fdda74c26c",
+  "source": {
+    "citation": "Lee J, et al. Clin Transl Sci 2024;17:e70106.",
+    "pmcid": "PMC11645475",
+    "licence": "cc by-nc",
+    "channel_that_worked": "main text via Europe PMC fullTextXML; supplement Table S3 via BioStudies S-EPMC11645475 redirecting to ftp.ebi.ac.uk. The Europe PMC supplementaryFiles endpoint returns only images for this article, which is how an earlier note wrongly concluded the per-patient biomarker was figure-only."
+  },
+  "frozen": {
+    "seed": 20261110,
+    "validation": "leave_one_patient_out",
+    "ridge_alphas": [
+      0.001,
+      0.01,
+      0.1,
+      1.0,
+      10.0,
+      100.0
+    ],
+    "permutation_replicates": 200,
+    "n_bootstrap": 2000,
+    "n_out_of_bag_bootstrap": 2000,
+    "primary_analysis": "visit_1_only",
+    "sensitivity_analysis": "both_visits_patient_held_together",
+    "endpoint": "log10_dose_normalised_plasma_concentration",
+    "primary_arm": "C1_plasma_metabolite",
+    "primary_comparator": "C0_mean",
+    "declared_family_size": 2,
+    "status_ceiling": "exploratory_clinical_pk"
+  },
+  "arms": {
+    "C0_mean": [],
+    "C1_plasma_metabolite": [
+      "plasma_4b_hc_cholesterol_ratio"
+    ]
+  },
+  "n_patients_primary": 12,
+  "n_observations_all_visits": 22,
+  "observations_excluded_by_the_declared_rule": [
+    {
+      "visit": 2,
+      "reason": "dose='Completed treatment' concentration='ND'"
+    },
+    {
+      "visit": 2,
+      "reason": "dose='Completed treatment' concentration='ND'"
+    }
+  ],
+  "published_anchors_verified": {
+    "fold_variation_recomputed": 28.76,
+    "fold_variation_published": 28.8,
+    "implied_proportionality_constant": 8.641,
+    "minimum_recomputed": 1.02,
+    "maximum_recomputed": 29.29,
+    "median_used_to_recover_the_constant": 4.0,
+    "highest_two_recomputed": [
+      [
+        "3",
+        2
+      ],
+      [
+        "7",
+        2
+      ]
+    ],
+    "what_this_proves": "that the dose and concentration columns were read correctly. It does NOT validate the article's clearance method, which is in a Supporting Information file this project does not hold -- the constant is recovered from the published median rather than derived."
+  },
+  "primary_visit_1_only": {
+    "arm_score": {
+      "n_donors": 12,
+      "mae_log10": 0.4050731252535304,
+      "geometric_fold_error": 2.541400583233557,
+      "mae_ml_per_min_per_kg": 2.547899372740142,
+      "how_to_read": "mae_log10 is the primary loss. geometric_fold_error is the same quantity read as 'off by a factor of x on average'. mae_ml_per_min_per_kg is the back-transformed error in the endpoint's own units. The last two carry no separate test.",
+      "arm": "C1_plasma_metabolite",
+      "predictors": [
+        "plasma_4b_hc_cholesterol_ratio"
+      ],
+      "native_units": "nM of venetoclax per mg of daily dose",
+      "n_patients": 12,
+      "n_observations": 12
+    },
+    "comparator_score": {
+      "n_donors": 12,
+      "mae_log10": 0.4164574255797819,
+      "geometric_fold_error": 2.6088999568182545,
+      "mae_ml_per_min_per_kg": 2.5904133342434026,
+      "how_to_read": "mae_log10 is the primary loss. geometric_fold_error is the same quantity read as 'off by a factor of x on average'. mae_ml_per_min_per_kg is the back-transformed error in the endpoint's own units. The last two carry no separate test.",
+      "arm": "C0_mean",
+      "predictors": [],
+      "native_units": "nM of venetoclax per mg of daily dose",
+      "n_patients": 12,
+      "n_observations": 12
+    },
+    "stored_error_bootstrap": {
+      "n_independent_donors": 12,
+      "mean_difference_log10": -0.011384300326251406,
+      "relative_change_vs_baseline": -0.0273360483617322,
+      "level": "97.50 %",
+      "family_size": 2,
+      "interval": [
+        -0.04709230705558279,
+        0.028360455476051857
+      ],
+      "interval_excludes_zero": false,
+      "direction": "improvement",
+      "n_bootstrap": 2000,
+      "resampling_unit": "observation, which OVERSTATES independence when a patient contributes two visits; the patient-level refitting interval is the one that governs",
+      "exploratory": true,
+      "refits_the_model_inside_each_draw": false,
+      "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one.",
+      "how_to_read": "An interval containing zero means no difference was DETECTED. It is never a demonstration that there is none, and at n=15 the design's power is low by construction. The estimate and its uncertainty are the deliverable, not a significance verdict."
+    },
+    "refitting_patient_level_bootstrap": {
+      "mean_difference_log10": 0.0005957407946664484,
+      "interval": [
+        -0.11068799136686464,
+        0.1897105158270909
+      ],
+      "interval_excludes_zero": false,
+      "level": "97.50 %",
+      "family_size": 2,
+      "n_draws_used": 1993,
+      "n_draws_skipped_too_small": 7,
+      "refits_the_model_inside_each_draw": true,
+      "resampling_unit": "patient",
+      "why_the_patient_and_not_the_observation": "two visits of one patient are not two individuals. Resampling observations would treat them as such and narrow the interval without adding information.",
+      "exploratory": true
+    },
+    "permutation_control": {
+      "observed": -0.011384300326251406,
+      "n_replicates": 200,
+      "null_median": 0.009123631517456295,
+      "n_null_at_least_as_good_as_observed": 29,
+      "rank_p_value": 0.14925373134328357,
+      "better_than_every_replicate": false,
+      "how_to_read": "The null permutes the donor labels of the proteome block only, keeping the target CYP arm and the endpoint paired, and refits everything. It will not be centred on zero: the wider arm shrinks harder under an inner-CV penalty and so scores better with no information. An improvement inside the null is an artefact.",
+      "null_deciles": {
+        "p0": -0.15988514082687286,
+        "p10": -0.03039513880028428,
+        "p20": 0.0025039176685996583,
+        "p30": 0.0044648556340222,
+        "p40": 0.005997986644559133,
+        "p50": 0.009123631517456295,
+        "p60": 0.014917219426048406,
+        "p70": 0.02133990872385067,
+        "p80": 0.02687577992600113,
+        "p90": 0.037823425175731264,
+        "p100": 0.08440499407041548
+      }
+    },
+    "verdict": "NOT_SUPPORTED",
+    "verdict_rule": "SUPPORTED requires the refitting patient-level interval to exclude zero, its estimate to be an improvement, and the permutation rank p-value to be at most 0.05."
+  },
+  "sensitivity_both_visits": {
+    "arm_score": {
+      "n_donors": 22,
+      "mae_log10": 0.38049594768319034,
+      "geometric_fold_error": 2.401573859165512,
+      "mae_ml_per_min_per_kg": 2.182445264592421,
+      "how_to_read": "mae_log10 is the primary loss. geometric_fold_error is the same quantity read as 'off by a factor of x on average'. mae_ml_per_min_per_kg is the back-transformed error in the endpoint's own units. The last two carry no separate test.",
+      "arm": "C1_plasma_metabolite",
+      "predictors": [
+        "plasma_4b_hc_cholesterol_ratio"
+      ],
+      "native_units": "nM of venetoclax per mg of daily dose",
+      "n_patients": 12,
+      "n_observations": 22
+    },
+    "comparator_score": {
+      "n_donors": 22,
+      "mae_log10": 0.3673000340966897,
+      "geometric_fold_error": 2.3297001846150422,
+      "mae_ml_per_min_per_kg": 2.0826872148680837,
+      "how_to_read": "mae_log10 is the primary loss. geometric_fold_error is the same quantity read as 'off by a factor of x on average'. mae_ml_per_min_per_kg is the back-transformed error in the endpoint's own units. The last two carry no separate test.",
+      "arm": "C0_mean",
+      "predictors": [],
+      "native_units": "nM of venetoclax per mg of daily dose",
+      "n_patients": 12,
+      "n_observations": 22
+    },
+    "stored_error_bootstrap": {
+      "n_independent_donors": 22,
+      "mean_difference_log10": 0.013195913586500675,
+      "relative_change_vs_baseline": 0.03592679651923725,
+      "level": "97.50 %",
+      "family_size": 2,
+      "interval": [
+        -0.006761614791402816,
+        0.04546936575202578
+      ],
+      "interval_excludes_zero": false,
+      "direction": "degradation",
+      "n_bootstrap": 2000,
+      "resampling_unit": "observation, which OVERSTATES independence when a patient contributes two visits; the patient-level refitting interval is the one that governs",
+      "exploratory": true,
+      "refits_the_model_inside_each_draw": false,
+      "what_this_interval_does_not_price": "The draws resample the STORED out-of-fold per-donor errors; the components, the standardisation constants and the ridge penalty are not re-estimated inside each draw. The interval therefore carries the variability of the donors used for SCORING and not the variability of learning on 14 donors, so it is NARROWER than a fully nested bootstrap would be. It is a descriptive interval. A wider interval cannot turn a non-detection into a detection, so this understates the uncertainty of a POSITIVE finding more than that of a negative one.",
+      "how_to_read": "An interval containing zero means no difference was DETECTED. It is never a demonstration that there is none, and at n=15 the design's power is low by construction. The estimate and its uncertainty are the deliverable, not a significance verdict."
+    },
+    "refitting_patient_level_bootstrap": {
+      "mean_difference_log10": 0.010663625303469147,
+      "interval": [
+        -0.038309450484226126,
+        0.13210326871971775
+      ],
+      "interval_excludes_zero": false,
+      "level": "97.50 %",
+      "family_size": 2,
+      "n_draws_used": 1993,
+      "n_draws_skipped_too_small": 7,
+      "refits_the_model_inside_each_draw": true,
+      "resampling_unit": "patient",
+      "why_the_patient_and_not_the_observation": "two visits of one patient are not two individuals. Resampling observations would treat them as such and narrow the interval without adding information.",
+      "exploratory": true
+    },
+    "permutation_control": {
+      "observed": 0.013195913586500675,
+      "n_replicates": 200,
+      "null_median": 0.004890980073087687,
+      "n_null_at_least_as_good_as_observed": 162,
+      "rank_p_value": 0.8109452736318408,
+      "better_than_every_replicate": false,
+      "how_to_read": "The null permutes the donor labels of the proteome block only, keeping the target CYP arm and the endpoint paired, and refits everything. It will not be centred on zero: the wider arm shrinks harder under an inner-CV penalty and so scores better with no information. An improvement inside the null is an artefact.",
+      "null_deciles": {
+        "p0": -0.07511145279779263,
+        "p10": -0.0018558585708875438,
+        "p20": 0.0021002550621365946,
+        "p30": 0.0032089949467176814,
+        "p40": 0.004267657088710752,
+        "p50": 0.004890980073087687,
+        "p60": 0.006882339343245156,
+        "p70": 0.009622065589226842,
+        "p80": 0.012839797997068374,
+        "p90": 0.020488481959711532,
+        "p100": 0.039712048034473084
+      }
+    },
+    "verdict": "NOT_SUPPORTED",
+    "verdict_rule": "SUPPORTED requires the refitting patient-level interval to exclude zero, its estimate to be an improvement, and the permutation rank p-value to be at most 0.05."
+  },
+  "what_this_cannot_claim": {
+    "the_baseline_is_not_clinical": "no per-patient covariate is published -- age, weight and creatinine clearance appear by sex group only -- so the comparator is the mean. A gain here would be a gain over no information, not over clinical knowledge plus pharmacogenetics, which is what the funding question asks.",
+    "not_an_auc_or_a_clearance": "the endpoint is one timed concentration divided by the daily dose. It is the reciprocal of the article's 'estimated venetoclax CL' and is not an independent endpoint.",
+    "twelve_patients": "a cohort of twelve, two visits each, with two not-detected concentrations. Nothing here can establish an effect size.",
+    "not_a_pharmacogenetic_comparison": "no genotype is published for these patients, so the contrast that matters most to the funding case -- an omic layer against pharmacogenetics -- cannot be formed.",
+    "one_drug_one_population": "venetoclax in elderly patients with chronic lymphocytic leukaemia, median age 71.8, on a dose that three patients had reduced for toxicity.",
+    "the_in_vitro_donors_are_different_people": "the same article reports fifteen hepatocyte donors and twenty microsome lots. Those are not these patients, and no analysis may join them."
+  },
+  "status_ceiling": "exploratory_clinical_pk",
+  "per_patient_table_is_outside_this_repository": "C:\\Users\\abdel\\AppData\\Local\\Temp\\claude\\2e1c79373f2a6ea7\\06c7249d-6ba9-4dbc-8b96-f0bce655f135\\scratchpad\\vene_out\\venetoclax_clinical_pk_per_patient.csv",
+  "per_patient_table_sha256": "74c52ca51c7aee8724b3fe659f63102b8706a8e0beebc44b8240a16396aac197",
+  "no_patient_identifiers_values_or_predictions_exported": true
+}

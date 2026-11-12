@@ -1,0 +1,1083 @@
+{
+  "report": "What each selector falls back on when the target signal is dead",
+  "run_on": "2026-11-09",
+  "protocol_version": "1.4.7",
+  "universe": "unrestricted",
+  "candidate_genes": 31862,
+  "why": "The destroyed-signal number cannot be read without the name of the replacement: a non-human duplicate, an admissible paralogue of the same transcript and a genuinely different gene all produce a lower error for an arm that reads the endpoint, and this cohort contains all three.",
+  "what_this_does_not_establish": "A named replacement is not a demonstrated mechanism, and a high rank correlation is not a causal relation. Cross-hybridisation is never checked here, because no source distributes the oligonucleotide sequence; a paralogue is called a plausible duplicate, never a confirmed one.",
+  "endpoints": {
+    "CYP1A2_activity": {
+      "endpoint": "CYP1A2_activity",
+      "target_gene": "CYP1A2",
+      "pool": "unrestricted",
+      "folds": 10,
+      "per_fold": [
+        {
+          "fold": 1,
+          "symbol": "LAMB3",
+          "feature_id": "10023818390",
+          "abs_spearman": 0.4922,
+          "identity_stratum": "admissible_pool_a",
+          "is_the_target_gene": false
+        },
+        {
+          "fold": 2,
+          "symbol": "PON3",
+          "feature_id": "10025906484",
+          "abs_spearman": 0.4901,
+          "identity_stratum": "admissible_pool_a",
+          "is_the_target_gene": false
+        },
+        {
+          "fold": 3,
+          "symbol": "LAMB3",
+          "feature_id": "10023818390",
+          "abs_spearman": 0.4719,
+          "identity_stratum": "admissible_pool_a",
+          "is_the_target_gene": false
+        },
+        {
+          "fold": 4,
+          "symbol": "F5",
+          "feature_id": "10025916730",
+          "abs_spearman": 0.4854,
+          "identity_stratum": "admissible_pool_a",
+          "is_the_target_gene": false
+        },
+        {
+          "fold": 5,
+          "symbol": "PON3",
+          "feature_id": "10025906484",
+          "abs_spearman": 0.5013,
+          "identity_stratum": "admissible_pool_a",
+          "is_the_target_gene": false
+        },
+        {
+          "fold": 6,
+          "symbol": "SLC27A5",
+          "feature_id": "10025905922",
+          "abs_spearman": 0.4686,
+          "identity_stratum": "admissible_pool_a",
+          "is_the_target_gene": false
+        },
+        {
+          "fold": 7,
+          "symbol": "LAMB3",
+          "feature_id": "10023818390",
+          "abs_spearman": 0.4987,
+          "identity_stratum": "admissible_pool_a",
+          "is_the_target_gene": false
+        },
+        {
+          "fold": 8,
+          "symbol": "APOM",
+          "feature_id": "10023815335",
+          "abs_spearman": 0.515,
+          "identity_stratum": "admissible_pool_a",
+          "is_the_target_gene": false
+        },
+        {
+          "fold": 9,
+          "symbol": "LAMB3",
+          "feature_id": "10023818390",
+          "abs_spearman": 0.4524,
+          "identity_stratum": "admissible_pool_a",
+          "is_the_target_gene": false
+        },
+        {
+          "fold": 10,
+          "symbol": "PON3",
+          "feature_id": "10025906484",
+          "abs_spearman": 0.4963,
+          "identity_stratum": "admissible_pool_a",
+          "is_the_target_gene": false
+        }
+      ],
+      "by_replacement": [
+        {
+          "symbol": "LAMB3",
+          "feature_id": "10023818390",
+          "identity_stratum": "admissible_pool_a",
+          "folds": 4
+        },
+        {
+          "symbol": "PON3",
+          "feature_id": "10025906484",
+          "identity_stratum": "admissible_pool_a",
+          "folds": 3
+        },
+        {
+          "symbol": "F5",
+          "feature_id": "10025916730",
+          "identity_stratum": "admissible_pool_a",
+          "folds": 1
+        },
+        {
+          "symbol": "SLC27A5",
+          "feature_id": "10025905922",
+          "identity_stratum": "admissible_pool_a",
+          "folds": 1
+        },
+        {
+          "symbol": "APOM",
+          "feature_id": "10023815335",
+          "identity_stratum": "admissible_pool_a",
+          "folds": 1
+        }
+      ],
+      "picked_the_dead_gene_in_n_folds": 0
+    },
+    "CYP2A6_activity": {
+      "endpoint": "CYP2A6_activity",
+      "target_gene": "CYP2A6",
+      "pool": "unrestricted",
+      "folds": 10,
+      "per_fold": [
+        {
+          "fold": 1,
+          "symbol": "CYP2A24",
+          "feature_id": "10033668699",
+          "abs_spearman": 0.5014,
+          "identity_stratum": "conflicting",
+          "is_the_target_gene": false
+        },
+        {
+          "fold": 2,
+          "symbol": "CYP2A23",
+          "feature_id": "10033668513",
+          "abs_spearman": 0.5244,
+          "identity_stratum": "conflicting",
+          "is_the_target_gene": false
+        },
+        {
+          "fold": 3,
+          "symbol": "CYP2A24",
+          "feature_id": "10033668699",
+          "abs_spearman": 0.5032,
+          "identity_stratum": "conflicting",
+          "is_the_target_gene": false
+        },
+        {
+          "fold": 4,
+          "symbol": "CYP2A24",
+          "feature_id": "10033668699",
+          "abs_spearman": 0.5271,
+          "identity_stratum": "conflicting",
+          "is_the_target_gene": false
+        },
+        {
+          "fold": 5,
+          "symbol": "CYP2A23",
+          "feature_id": "10033668513",
+          "abs_spearman": 0.5419,
+          "identity_stratum": "conflicting",
+          "is_the_target_gene": false
+        },
+        {
+          "fold": 6,
+          "symbol": "CYP2A24",
+          "feature_id": "10033668699",
+          "abs_spearman": 0.525,
+          "identity_stratum": "conflicting",
+          "is_the_target_gene": false
+        },
+        {
+          "fold": 7,
+          "symbol": "CYP2A24",
+          "feature_id": "10033668699",
+          "abs_spearman": 0.5464,
+          "identity_stratum": "conflicting",
+          "is_the_target_gene": false
+        },
+        {
+          "fold": 8,
+          "symbol": "CYP2A23",
+          "feature_id": "10033668513",
+          "abs_spearman": 0.4979,
+          "identity_stratum": "conflicting",
+          "is_the_target_gene": false
+        },
+        {
+          "fold": 9,
+          "symbol": "CYP2A24",
+          "feature_id": "10033668699",
+          "abs_spearman": 0.5306,
+          "identity_stratum": "conflicting",
+          "is_the_target_gene": false
+        },
+        {
+          "fold": 10,
+          "symbol": "CYP2A23",
+          "feature_id": "10033668513",
+          "abs_spearman": 0.5,
+          "identity_stratum": "conflicting",
+          "is_the_target_gene": false
+        }
+      ],
+      "by_replacement": [
+        {
+          "symbol": "CYP2A24",
+          "feature_id": "10033668699",
+          "identity_stratum": "conflicting",
+          "folds": 6
+        },
+        {
+          "symbol": "CYP2A23",
+          "feature_id": "10033668513",
+          "identity_stratum": "conflicting",
+          "folds": 4
+        }
+      ],
+      "picked_the_dead_gene_in_n_folds": 0
+    },
+    "CYP2B6_activity": {
+      "endpoint": "CYP2B6_activity",
+      "target_gene": "CYP2B6",
+      "pool": "unrestricted",
+      "folds": 10,
+      "per_fold": [
+        {
+          "fold": 1,
+          "symbol": "CYP2B7P1",
+          "feature_id": "10033668742",
+          "abs_spearman": 0.4907,
+          "identity_stratum": "admissible_pool_a",
+          "is_the_target_gene": false
+        },
+        {
+          "fold": 2,
+          "symbol": "CYP2B7P1",
+          "feature_id": "10033668742",
+          "abs_spearman": 0.513,
+          "identity_stratum": "admissible_pool_a",
+          "is_the_target_gene": false
+        },
+        {
+          "fold": 3,
+          "symbol": "CYP2B7P1",
+          "feature_id": "10033668742",
+          "abs_spearman": 0.4623,
+          "identity_stratum": "admissible_pool_a",
+          "is_the_target_gene": false
+        },
+        {
+          "fold": 4,
+          "symbol": "CYP2B7P1",
+          "feature_id": "10033668742",
+          "abs_spearman": 0.4662,
+          "identity_stratum": "admissible_pool_a",
+          "is_the_target_gene": false
+        },
+        {
+          "fold": 5,
+          "symbol": "CYP2B7P1",
+          "feature_id": "10033668742",
+          "abs_spearman": 0.5178,
+          "identity_stratum": "admissible_pool_a",
+          "is_the_target_gene": false
+        },
+        {
+          "fold": 6,
+          "symbol": "CYP2B7P1",
+          "feature_id": "10033668742",
+          "abs_spearman": 0.4575,
+          "identity_stratum": "admissible_pool_a",
+          "is_the_target_gene": false
+        },
+        {
+          "fold": 7,
+          "symbol": "CYP2B7P1",
+          "feature_id": "10033668742",
+          "abs_spearman": 0.4928,
+          "identity_stratum": "admissible_pool_a",
+          "is_the_target_gene": false
+        },
+        {
+          "fold": 8,
+          "symbol": "CYP2B7P1",
+          "feature_id": "10033668742",
+          "abs_spearman": 0.4874,
+          "identity_stratum": "admissible_pool_a",
+          "is_the_target_gene": false
+        },
+        {
+          "fold": 9,
+          "symbol": "CYP2B7P1",
+          "feature_id": "10033668742",
+          "abs_spearman": 0.4961,
+          "identity_stratum": "admissible_pool_a",
+          "is_the_target_gene": false
+        },
+        {
+          "fold": 10,
+          "symbol": "CYP2B7P1",
+          "feature_id": "10033668742",
+          "abs_spearman": 0.5164,
+          "identity_stratum": "admissible_pool_a",
+          "is_the_target_gene": false
+        }
+      ],
+      "by_replacement": [
+        {
+          "symbol": "CYP2B7P1",
+          "feature_id": "10033668742",
+          "identity_stratum": "admissible_pool_a",
+          "folds": 10
+        }
+      ],
+      "picked_the_dead_gene_in_n_folds": 0
+    },
+    "CYP2C8_activity": {
+      "endpoint": "CYP2C8_activity",
+      "target_gene": "CYP2C8",
+      "pool": "unrestricted",
+      "folds": 10,
+      "per_fold": [
+        {
+          "fold": 1,
+          "symbol": "SLC27A5",
+          "feature_id": "10025905922",
+          "abs_spearman": 0.5625,
+          "identity_stratum": "admissible_pool_a",
+          "is_the_target_gene": false
+        },
+        {
+          "fold": 2,
+          "symbol": "AKR1D1",
+          "feature_id": "10023818681",
+          "abs_spearman": 0.5578,
+          "identity_stratum": "admissible_pool_a",
+          "is_the_target_gene": false
+        },
+        {
+          "fold": 3,
+          "symbol": "AKR1D1",
+          "feature_id": "10023818681",
+          "abs_spearman": 0.5669,
+          "identity_stratum": "admissible_pool_a",
+          "is_the_target_gene": false
+        },
+        {
+          "fold": 4,
+          "symbol": "CYP3A4",
+          "feature_id": "10025909722",
+          "abs_spearman": 0.553,
+          "identity_stratum": "admissible_pool_a",
+          "is_the_target_gene": false
+        },
+        {
+          "fold": 5,
+          "symbol": "CYP3A4",
+          "feature_id": "10025909722",
+          "abs_spearman": 0.6002,
+          "identity_stratum": "admissible_pool_a",
+          "is_the_target_gene": false
+        },
+        {
+          "fold": 6,
+          "symbol": "SLC27A5",
+          "feature_id": "10025905922",
+          "abs_spearman": 0.5614,
+          "identity_stratum": "admissible_pool_a",
+          "is_the_target_gene": false
+        },
+        {
+          "fold": 7,
+          "symbol": "CYP3A4",
+          "feature_id": "10025909722",
+          "abs_spearman": 0.5752,
+          "identity_stratum": "admissible_pool_a",
+          "is_the_target_gene": false
+        },
+        {
+          "fold": 8,
+          "symbol": "CYP3A4",
+          "feature_id": "10025909722",
+          "abs_spearman": 0.6119,
+          "identity_stratum": "admissible_pool_a",
+          "is_the_target_gene": false
+        },
+        {
+          "fold": 9,
+          "symbol": "CYP3A64",
+          "feature_id": "10033669021",
+          "abs_spearman": 0.5341,
+          "identity_stratum": "undetermined",
+          "is_the_target_gene": false
+        },
+        {
+          "fold": 10,
+          "symbol": "SLC27A5",
+          "feature_id": "10025905922",
+          "abs_spearman": 0.5708,
+          "identity_stratum": "admissible_pool_a",
+          "is_the_target_gene": false
+        }
+      ],
+      "by_replacement": [
+        {
+          "symbol": "CYP3A4",
+          "feature_id": "10025909722",
+          "identity_stratum": "admissible_pool_a",
+          "folds": 4
+        },
+        {
+          "symbol": "SLC27A5",
+          "feature_id": "10025905922",
+          "identity_stratum": "admissible_pool_a",
+          "folds": 3
+        },
+        {
+          "symbol": "AKR1D1",
+          "feature_id": "10023818681",
+          "identity_stratum": "admissible_pool_a",
+          "folds": 2
+        },
+        {
+          "symbol": "CYP3A64",
+          "feature_id": "10033669021",
+          "identity_stratum": "undetermined",
+          "folds": 1
+        }
+      ],
+      "picked_the_dead_gene_in_n_folds": 0
+    },
+    "CYP2C9_activity": {
+      "endpoint": "CYP2C9_activity",
+      "target_gene": "CYP2C9",
+      "pool": "unrestricted",
+      "folds": 10,
+      "per_fold": [
+        {
+          "fold": 1,
+          "symbol": "GLA",
+          "feature_id": "10023827960",
+          "abs_spearman": 0.5175,
+          "identity_stratum": "admissible_pool_a",
+          "is_the_target_gene": false
+        },
+        {
+          "fold": 2,
+          "symbol": "AMT",
+          "feature_id": "10025909268",
+          "abs_spearman": 0.5089,
+          "identity_stratum": "admissible_pool_a",
+          "is_the_target_gene": false
+        },
+        {
+          "fold": 3,
+          "symbol": "AMT",
+          "feature_id": "10025909268",
+          "abs_spearman": 0.5368,
+          "identity_stratum": "admissible_pool_a",
+          "is_the_target_gene": false
+        },
+        {
+          "fold": 4,
+          "symbol": "AMT",
+          "feature_id": "10025909268",
+          "abs_spearman": 0.5163,
+          "identity_stratum": "admissible_pool_a",
+          "is_the_target_gene": false
+        },
+        {
+          "fold": 5,
+          "symbol": "HRG",
+          "feature_id": "10023806166",
+          "abs_spearman": 0.5664,
+          "identity_stratum": "admissible_pool_a",
+          "is_the_target_gene": false
+        },
+        {
+          "fold": 6,
+          "symbol": "AMT",
+          "feature_id": "10025909268",
+          "abs_spearman": 0.5069,
+          "identity_stratum": "admissible_pool_a",
+          "is_the_target_gene": false
+        },
+        {
+          "fold": 7,
+          "symbol": "AMT",
+          "feature_id": "10025909268",
+          "abs_spearman": 0.5276,
+          "identity_stratum": "admissible_pool_a",
+          "is_the_target_gene": false
+        },
+        {
+          "fold": 8,
+          "symbol": "HRG",
+          "feature_id": "10023806166",
+          "abs_spearman": 0.5333,
+          "identity_stratum": "admissible_pool_a",
+          "is_the_target_gene": false
+        },
+        {
+          "fold": 9,
+          "symbol": "TTC18",
+          "feature_id": "10025905453",
+          "abs_spearman": 0.5331,
+          "identity_stratum": "admissible_pool_a",
+          "is_the_target_gene": false
+        },
+        {
+          "fold": 10,
+          "symbol": "AMT",
+          "feature_id": "10025909268",
+          "abs_spearman": 0.5539,
+          "identity_stratum": "admissible_pool_a",
+          "is_the_target_gene": false
+        }
+      ],
+      "by_replacement": [
+        {
+          "symbol": "AMT",
+          "feature_id": "10025909268",
+          "identity_stratum": "admissible_pool_a",
+          "folds": 6
+        },
+        {
+          "symbol": "HRG",
+          "feature_id": "10023806166",
+          "identity_stratum": "admissible_pool_a",
+          "folds": 2
+        },
+        {
+          "symbol": "GLA",
+          "feature_id": "10023827960",
+          "identity_stratum": "admissible_pool_a",
+          "folds": 1
+        },
+        {
+          "symbol": "TTC18",
+          "feature_id": "10025905453",
+          "identity_stratum": "admissible_pool_a",
+          "folds": 1
+        }
+      ],
+      "picked_the_dead_gene_in_n_folds": 0
+    },
+    "CYP2C19_activity": {
+      "endpoint": "CYP2C19_activity",
+      "target_gene": "CYP2C19",
+      "pool": "unrestricted",
+      "folds": 10,
+      "per_fold": [
+        {
+          "fold": 1,
+          "symbol": "APOM",
+          "feature_id": "10023815335",
+          "abs_spearman": 0.5238,
+          "identity_stratum": "admissible_pool_a",
+          "is_the_target_gene": false
+        },
+        {
+          "fold": 2,
+          "symbol": "APOM",
+          "feature_id": "10023815335",
+          "abs_spearman": 0.4995,
+          "identity_stratum": "admissible_pool_a",
+          "is_the_target_gene": false
+        },
+        {
+          "fold": 3,
+          "symbol": "APOM",
+          "feature_id": "10023815335",
+          "abs_spearman": 0.5594,
+          "identity_stratum": "admissible_pool_a",
+          "is_the_target_gene": false
+        },
+        {
+          "fold": 4,
+          "symbol": "APOM",
+          "feature_id": "10023815335",
+          "abs_spearman": 0.5744,
+          "identity_stratum": "admissible_pool_a",
+          "is_the_target_gene": false
+        },
+        {
+          "fold": 5,
+          "symbol": "TTR",
+          "feature_id": "10023815887",
+          "abs_spearman": 0.5511,
+          "identity_stratum": "admissible_pool_a",
+          "is_the_target_gene": false
+        },
+        {
+          "fold": 6,
+          "symbol": "APOM",
+          "feature_id": "10023815335",
+          "abs_spearman": 0.5065,
+          "identity_stratum": "admissible_pool_a",
+          "is_the_target_gene": false
+        },
+        {
+          "fold": 7,
+          "symbol": "APOM",
+          "feature_id": "10023815335",
+          "abs_spearman": 0.5745,
+          "identity_stratum": "admissible_pool_a",
+          "is_the_target_gene": false
+        },
+        {
+          "fold": 8,
+          "symbol": "APOM",
+          "feature_id": "10023815335",
+          "abs_spearman": 0.5622,
+          "identity_stratum": "admissible_pool_a",
+          "is_the_target_gene": false
+        },
+        {
+          "fold": 9,
+          "symbol": "APOM",
+          "feature_id": "10023815335",
+          "abs_spearman": 0.526,
+          "identity_stratum": "admissible_pool_a",
+          "is_the_target_gene": false
+        },
+        {
+          "fold": 10,
+          "symbol": "APOM",
+          "feature_id": "10023815335",
+          "abs_spearman": 0.5453,
+          "identity_stratum": "admissible_pool_a",
+          "is_the_target_gene": false
+        }
+      ],
+      "by_replacement": [
+        {
+          "symbol": "APOM",
+          "feature_id": "10023815335",
+          "identity_stratum": "admissible_pool_a",
+          "folds": 9
+        },
+        {
+          "symbol": "TTR",
+          "feature_id": "10023815887",
+          "identity_stratum": "admissible_pool_a",
+          "folds": 1
+        }
+      ],
+      "picked_the_dead_gene_in_n_folds": 0
+    },
+    "CYP2D6_activity": {
+      "endpoint": "CYP2D6_activity",
+      "target_gene": "CYP2D6",
+      "pool": "unrestricted",
+      "folds": 10,
+      "per_fold": [
+        {
+          "fold": 1,
+          "symbol": "CYP2D17",
+          "feature_id": "10033668425",
+          "abs_spearman": 0.4728,
+          "identity_stratum": "conflicting",
+          "is_the_target_gene": false
+        },
+        {
+          "fold": 2,
+          "symbol": "CYP2D17",
+          "feature_id": "10033668425",
+          "abs_spearman": 0.4684,
+          "identity_stratum": "conflicting",
+          "is_the_target_gene": false
+        },
+        {
+          "fold": 3,
+          "symbol": "CYP2D17",
+          "feature_id": "10033668425",
+          "abs_spearman": 0.5069,
+          "identity_stratum": "conflicting",
+          "is_the_target_gene": false
+        },
+        {
+          "fold": 4,
+          "symbol": "CYP2D17",
+          "feature_id": "10033668425",
+          "abs_spearman": 0.4649,
+          "identity_stratum": "conflicting",
+          "is_the_target_gene": false
+        },
+        {
+          "fold": 5,
+          "symbol": "CYP2D17",
+          "feature_id": "10033668425",
+          "abs_spearman": 0.4555,
+          "identity_stratum": "conflicting",
+          "is_the_target_gene": false
+        },
+        {
+          "fold": 6,
+          "symbol": "CYP2D17",
+          "feature_id": "10033668425",
+          "abs_spearman": 0.4759,
+          "identity_stratum": "conflicting",
+          "is_the_target_gene": false
+        },
+        {
+          "fold": 7,
+          "symbol": "CYP2D17",
+          "feature_id": "10033668425",
+          "abs_spearman": 0.4657,
+          "identity_stratum": "conflicting",
+          "is_the_target_gene": false
+        },
+        {
+          "fold": 8,
+          "symbol": "CYP2D17",
+          "feature_id": "10033668425",
+          "abs_spearman": 0.4509,
+          "identity_stratum": "conflicting",
+          "is_the_target_gene": false
+        },
+        {
+          "fold": 9,
+          "symbol": "CYP2D17",
+          "feature_id": "10033668425",
+          "abs_spearman": 0.5112,
+          "identity_stratum": "conflicting",
+          "is_the_target_gene": false
+        },
+        {
+          "fold": 10,
+          "symbol": "CYP2D17",
+          "feature_id": "10033668425",
+          "abs_spearman": 0.4602,
+          "identity_stratum": "conflicting",
+          "is_the_target_gene": false
+        }
+      ],
+      "by_replacement": [
+        {
+          "symbol": "CYP2D17",
+          "feature_id": "10033668425",
+          "identity_stratum": "conflicting",
+          "folds": 10
+        }
+      ],
+      "picked_the_dead_gene_in_n_folds": 0
+    },
+    "CYP2E1_activity": {
+      "endpoint": "CYP2E1_activity",
+      "target_gene": "CYP2E1",
+      "pool": "unrestricted",
+      "folds": 10,
+      "per_fold": [
+        {
+          "fold": 1,
+          "symbol": "NM_001443_sat",
+          "feature_id": "10033668704",
+          "abs_spearman": 0.3348,
+          "identity_stratum": "admissible_pool_a",
+          "is_the_target_gene": false
+        },
+        {
+          "fold": 2,
+          "symbol": "ACAT2",
+          "feature_id": "10025907217",
+          "abs_spearman": 0.3788,
+          "identity_stratum": "admissible_pool_a",
+          "is_the_target_gene": false
+        },
+        {
+          "fold": 3,
+          "symbol": "hCT2262086",
+          "feature_id": "10025931284",
+          "abs_spearman": 0.343,
+          "identity_stratum": "undetermined",
+          "is_the_target_gene": false
+        },
+        {
+          "fold": 4,
+          "symbol": "C9orf99",
+          "feature_id": "10023841497",
+          "abs_spearman": 0.3207,
+          "identity_stratum": "admissible_pool_a",
+          "is_the_target_gene": false
+        },
+        {
+          "fold": 5,
+          "symbol": "ACAA2",
+          "feature_id": "10023807516",
+          "abs_spearman": 0.3365,
+          "identity_stratum": "admissible_pool_a",
+          "is_the_target_gene": false
+        },
+        {
+          "fold": 6,
+          "symbol": "NM_001443_sat",
+          "feature_id": "10033668704",
+          "abs_spearman": 0.3351,
+          "identity_stratum": "admissible_pool_a",
+          "is_the_target_gene": false
+        },
+        {
+          "fold": 7,
+          "symbol": "hCT2262086",
+          "feature_id": "10025931284",
+          "abs_spearman": 0.3381,
+          "identity_stratum": "undetermined",
+          "is_the_target_gene": false
+        },
+        {
+          "fold": 8,
+          "symbol": "ACAT2",
+          "feature_id": "10025907217",
+          "abs_spearman": 0.3262,
+          "identity_stratum": "admissible_pool_a",
+          "is_the_target_gene": false
+        },
+        {
+          "fold": 9,
+          "symbol": "C9orf99",
+          "feature_id": "10023841497",
+          "abs_spearman": 0.3466,
+          "identity_stratum": "admissible_pool_a",
+          "is_the_target_gene": false
+        },
+        {
+          "fold": 10,
+          "symbol": "ACAT2",
+          "feature_id": "10025907217",
+          "abs_spearman": 0.3821,
+          "identity_stratum": "admissible_pool_a",
+          "is_the_target_gene": false
+        }
+      ],
+      "by_replacement": [
+        {
+          "symbol": "ACAT2",
+          "feature_id": "10025907217",
+          "identity_stratum": "admissible_pool_a",
+          "folds": 3
+        },
+        {
+          "symbol": "NM_001443_sat",
+          "feature_id": "10033668704",
+          "identity_stratum": "admissible_pool_a",
+          "folds": 2
+        },
+        {
+          "symbol": "hCT2262086",
+          "feature_id": "10025931284",
+          "identity_stratum": "undetermined",
+          "folds": 2
+        },
+        {
+          "symbol": "C9orf99",
+          "feature_id": "10023841497",
+          "identity_stratum": "admissible_pool_a",
+          "folds": 2
+        },
+        {
+          "symbol": "ACAA2",
+          "feature_id": "10023807516",
+          "identity_stratum": "admissible_pool_a",
+          "folds": 1
+        }
+      ],
+      "picked_the_dead_gene_in_n_folds": 0
+    },
+    "CYP3A4M_activity": {
+      "endpoint": "CYP3A4M_activity",
+      "target_gene": "CYP3A4",
+      "pool": "unrestricted",
+      "folds": 10,
+      "per_fold": [
+        {
+          "fold": 1,
+          "symbol": "CYP3A64",
+          "feature_id": "10033669021",
+          "abs_spearman": 0.563,
+          "identity_stratum": "undetermined",
+          "is_the_target_gene": false
+        },
+        {
+          "fold": 2,
+          "symbol": "CYP3A64",
+          "feature_id": "10033669021",
+          "abs_spearman": 0.5742,
+          "identity_stratum": "undetermined",
+          "is_the_target_gene": false
+        },
+        {
+          "fold": 3,
+          "symbol": "LOC285626",
+          "feature_id": "10025922707",
+          "abs_spearman": 0.5999,
+          "identity_stratum": "admissible_pool_a",
+          "is_the_target_gene": false
+        },
+        {
+          "fold": 4,
+          "symbol": "LOC285626",
+          "feature_id": "10025922707",
+          "abs_spearman": 0.6154,
+          "identity_stratum": "admissible_pool_a",
+          "is_the_target_gene": false
+        },
+        {
+          "fold": 5,
+          "symbol": "LOC285626",
+          "feature_id": "10025922707",
+          "abs_spearman": 0.5998,
+          "identity_stratum": "admissible_pool_a",
+          "is_the_target_gene": false
+        },
+        {
+          "fold": 6,
+          "symbol": "CYP3A64",
+          "feature_id": "10033669021",
+          "abs_spearman": 0.5854,
+          "identity_stratum": "undetermined",
+          "is_the_target_gene": false
+        },
+        {
+          "fold": 7,
+          "symbol": "LOC285626",
+          "feature_id": "10025922707",
+          "abs_spearman": 0.5925,
+          "identity_stratum": "admissible_pool_a",
+          "is_the_target_gene": false
+        },
+        {
+          "fold": 8,
+          "symbol": "LOC285626",
+          "feature_id": "10025922707",
+          "abs_spearman": 0.5846,
+          "identity_stratum": "admissible_pool_a",
+          "is_the_target_gene": false
+        },
+        {
+          "fold": 9,
+          "symbol": "CYP3A64",
+          "feature_id": "10033669021",
+          "abs_spearman": 0.575,
+          "identity_stratum": "undetermined",
+          "is_the_target_gene": false
+        },
+        {
+          "fold": 10,
+          "symbol": "LOC285626",
+          "feature_id": "10025922707",
+          "abs_spearman": 0.6165,
+          "identity_stratum": "admissible_pool_a",
+          "is_the_target_gene": false
+        }
+      ],
+      "by_replacement": [
+        {
+          "symbol": "LOC285626",
+          "feature_id": "10025922707",
+          "identity_stratum": "admissible_pool_a",
+          "folds": 6
+        },
+        {
+          "symbol": "CYP3A64",
+          "feature_id": "10033669021",
+          "identity_stratum": "undetermined",
+          "folds": 4
+        }
+      ],
+      "picked_the_dead_gene_in_n_folds": 0
+    },
+    "CYP3A4T_activity": {
+      "endpoint": "CYP3A4T_activity",
+      "target_gene": "CYP3A4",
+      "pool": "unrestricted",
+      "folds": 10,
+      "per_fold": [
+        {
+          "fold": 1,
+          "symbol": "LOC285626",
+          "feature_id": "10025922707",
+          "abs_spearman": 0.4878,
+          "identity_stratum": "admissible_pool_a",
+          "is_the_target_gene": false
+        },
+        {
+          "fold": 2,
+          "symbol": "LOC285626",
+          "feature_id": "10025922707",
+          "abs_spearman": 0.5072,
+          "identity_stratum": "admissible_pool_a",
+          "is_the_target_gene": false
+        },
+        {
+          "fold": 3,
+          "symbol": "LOC285626",
+          "feature_id": "10025922707",
+          "abs_spearman": 0.5273,
+          "identity_stratum": "admissible_pool_a",
+          "is_the_target_gene": false
+        },
+        {
+          "fold": 4,
+          "symbol": "LOC285626",
+          "feature_id": "10025922707",
+          "abs_spearman": 0.524,
+          "identity_stratum": "admissible_pool_a",
+          "is_the_target_gene": false
+        },
+        {
+          "fold": 5,
+          "symbol": "LOC285626",
+          "feature_id": "10025922707",
+          "abs_spearman": 0.5501,
+          "identity_stratum": "admissible_pool_a",
+          "is_the_target_gene": false
+        },
+        {
+          "fold": 6,
+          "symbol": "LOC285626",
+          "feature_id": "10025922707",
+          "abs_spearman": 0.4983,
+          "identity_stratum": "admissible_pool_a",
+          "is_the_target_gene": false
+        },
+        {
+          "fold": 7,
+          "symbol": "LOC285626",
+          "feature_id": "10025922707",
+          "abs_spearman": 0.5502,
+          "identity_stratum": "admissible_pool_a",
+          "is_the_target_gene": false
+        },
+        {
+          "fold": 8,
+          "symbol": "LOC285626",
+          "feature_id": "10025922707",
+          "abs_spearman": 0.5233,
+          "identity_stratum": "admissible_pool_a",
+          "is_the_target_gene": false
+        },
+        {
+          "fold": 9,
+          "symbol": "LOC285626",
+          "feature_id": "10025922707",
+          "abs_spearman": 0.497,
+          "identity_stratum": "admissible_pool_a",
+          "is_the_target_gene": false
+        },
+        {
+          "fold": 10,
+          "symbol": "LOC285626",
+          "feature_id": "10025922707",
+          "abs_spearman": 0.5325,
+          "identity_stratum": "admissible_pool_a",
+          "is_the_target_gene": false
+        }
+      ],
+      "by_replacement": [
+        {
+          "symbol": "LOC285626",
+          "feature_id": "10025922707",
+          "identity_stratum": "admissible_pool_a",
+          "folds": 10
+        }
+      ],
+      "picked_the_dead_gene_in_n_folds": 0
+    }
+  }
+}

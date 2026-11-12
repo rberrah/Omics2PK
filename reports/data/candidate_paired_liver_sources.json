@@ -1,0 +1,214 @@
+{
+  "audit": "candidate paired liver sources",
+  "candidates": {
+    "almajdoub_2026_kcat_matched_4": {
+      "citation": "Al-Majdoub ZM, et al. Drug Metab Dispos 2026;54(4). PMID 41855594, PMCID PMC13197946.",
+      "europe_pmc_reverified": {
+        "hasSuppl": "Y",
+        "isOpenAccess": "Y"
+      },
+      "evidence": "Open access, CC BY, supplement retrieved and opened: mmc1.docx (934,810 bytes, SHA-256 prefix 80b321c6f197214c9c741464). Supplemental Tables 8 and 9 DO give intrinsic clearance and Vmax 'from matched individual tissue donors', so the OUTCOME is per donor. But every abundance table -- Supplemental Tables 11, 12, 13 and 14, for liver, intestine and kidney -- reports 'pooled donor' microsomes identified by LOT NUMBER. The abundance-to-activity pairing per donor therefore does not exist in this source at all, independent of its size. FOUR paired donors, and the article's own main comparison excludes one for low intestinal activity, leaving THREE. The commissioning note described this as 'only three donors for some individual comparisons'; the correct reading is that three to four is the whole cohort, not a subset.",
+      "label": "Al-Majdoub 2026, kcat in matched liver and intestine, 4 donors",
+      "layers": [
+        "protein abundance (POOLED commercial lots)",
+        "kcat / specificity constant (per donor)"
+      ],
+      "licence_as_indexed": "cc by",
+      "n_donors": 4,
+      "outcome_kind": "drug_specific_metabolic_activity",
+      "per_donor_layer_and_outcome": false,
+      "reason": "ABSTAIN_NO_PER_DONOR_VALUES",
+      "same_donor_layers": false,
+      "secondary_disqualification": "ABSTAIN_TOO_FEW_DONORS: four donors, three after the article's own exclusion, against a declared floor of ten. Either disqualification alone is sufficient.",
+      "title_as_indexed": "Overlooked aspects of scaling enzyme activity through abundance across tissues and individuals: Insights from k&lt;sub&gt;cat&lt;/sub&gt; measurements in matched liver and intestinal samples.",
+      "usable_as": "published_comparator",
+      "verdict": "ABSTAIN",
+      "why_it_matters": "Scientifically the closest paper to this project's own question — it measures activity PER UNIT of enzyme in matched tissues and concludes that scaling activity through abundance needs care. It is a citation for the argument and cannot be a dataset: no contrast, interval or cross-validation is estimable at n = 3."
+    },
+    "drozdzik_2018_liver_intestine_9": {
+      "citation": "Drozdzik M, Busch D, Lapczuk J, Muller J, Ostrowski M, Kurzawski M, Oswald S. Clin Pharmacol Ther 2018;104(3):515-524.",
+      "europe_pmc_reverified": {
+        "hasSuppl": "N",
+        "inPMC": "N",
+        "isOpenAccess": "N"
+      },
+      "evidence": "Europe PMC records isOpenAccess N, inPMC N and hasSuppl N, so the supplement is not in any open index. The publisher's pages answer HTTP 403 to every automated client (Cloudflare interstitial 'Just a moment...'), both for the article https://ascpt.onlinelibrary.wiley.com/doi/10.1002/cpt.967 and for the downloadSupplement endpoint. A web summary asserted that Table S1 and S2 hold per-donor protein and mRNA for the nine donors; that assertion could NOT be checked against the file and is therefore not treated as a fact.",
+      "label": "Drozdzik 2018, paired liver and intestine, 9 donors",
+      "layers": [
+        "mRNA (qRT-PCR)",
+        "protein (LC-MS/MS)"
+      ],
+      "licence_as_indexed": null,
+      "n_donors": 9,
+      "outcome_kind": null,
+      "per_donor_layer_and_outcome": null,
+      "reason": "ABSTAIN_ACCESS",
+      "same_donor_layers": true,
+      "secondary_disqualification": null,
+      "title_as_indexed": "Protein Abundance of Clinically Relevant Drug-Metabolizing Enzymes in the Human Liver and Intestine: A Comparative Analysis in Paired Tissue Specimens.",
+      "usable_as": "citation_only",
+      "verdict": "ABSTAIN",
+      "why_it_matters": "This is the most conceptually valuable candidate of the seven: mRNA AND protein for CYPs and UGTs in the SAME nine donors would make the project's RNA-versus-protein comparison within-cohort instead of cross-cohort. It fails on access alone."
+    },
+    "drozdzik_2021_pathology_97": {
+      "citation": "Drozdzik M, Lapczuk-Romanska J, Wenzel C, et al. Pharmaceutics 2021;13(9):1334. PMCID PMC8471929. CC BY.",
+      "europe_pmc_reverified": {
+        "hasSuppl": "Y",
+        "isOpenAccess": "Y"
+      },
+      "evidence": "Read from the Europe PMC full text. The paper never states a total in one sentence; the group sizes sum to 97 (controls 20, HCV 21, ALD 20, AIH 20, PBC 10, PSC 6). Its **Data Availability Statement is 'Not applicable'**, and the supplementary tables it names are subject characteristics and BETWEEN-GROUP differences in abundance and mRNA — group-level by description. Both layers come from separate aliquots of the same harvest, which the Methods imply rather than state.",
+      "label": "Drozdzik 2021, liver pathologies, about 97 livers",
+      "layers": [
+        "mRNA (qRT-PCR)",
+        "protein (LC-MS/MS)"
+      ],
+      "licence_as_indexed": "cc by",
+      "n_donors": 97,
+      "outcome_kind": null,
+      "per_donor_layer_and_outcome": false,
+      "reason": "ABSTAIN_NO_PER_DONOR_VALUES",
+      "same_donor_layers": true,
+      "secondary_disqualification": null,
+      "title_as_indexed": "Gene Expression and Protein Abundance of Hepatic Drug Metabolizing Enzymes in Liver Pathology.",
+      "usable_as": "published_comparator",
+      "verdict": "ABSTAIN",
+      "why_it_matters": "It publishes per-enzyme mRNA-to-protein correlations in liver at about 97 samples, which is comparator content for the project's layer question — the same role Grangeon plays for protein-to-activity."
+    },
+    "drozdzik_2023_hcv_58": {
+      "citation": "Drozdzik M, Lapczuk-Romanska J, Wenzel C, et al. Int J Mol Sci 2023;24(5):4543. PMCID PMC10002520. CC BY.",
+      "europe_pmc_reverified": {
+        "hasSuppl": "Y",
+        "isOpenAccess": "Y"
+      },
+      "evidence": "Supplement retrieved and opened: the Europe PMC archive carries ijms-24-04543-s001.zip (133,511 bytes, SHA-256 prefix 537c94b7d60348d9ca689dce), which contains exactly one file, ijms-2146685-supplementary.pdf (141,723 bytes). Supplemental Table S1 reports, per enzyme and per Child-Pugh group, the median, min, max, mean, SD and CV % — GROUP-LEVEL aggregates only. No per-donor row for either layer.",
+      "label": "Drozdzik 2023, hepatitis C livers, 58 samples",
+      "layers": [
+        "mRNA (qRT-PCR)",
+        "protein (LC-MS/MS)"
+      ],
+      "licence_as_indexed": "cc by",
+      "n_donors": 58,
+      "outcome_kind": null,
+      "per_donor_layer_and_outcome": false,
+      "reason": "ABSTAIN_NO_PER_DONOR_VALUES",
+      "same_donor_layers": true,
+      "secondary_disqualification": null,
+      "title_as_indexed": "Protein Abundance of Drug Metabolizing Enzymes in Human Hepatitis C Livers.",
+      "usable_as": "published_comparator",
+      "verdict": "ABSTAIN",
+      "why_it_matters": "CC BY, 58 same-donor livers with both layers measured: on paper the candidate that would have closed the project's biggest gap. It fails because the individual values are not published, which is a sharing decision rather than a measurement limit."
+    },
+    "song_2018_hlm_16": {
+      "citation": "Song W, Yu L, Peng Z. Data Brief 2018;18:831-834. PMCID PMC5996730. CC BY.",
+      "europe_pmc_reverified": {
+        "hasSuppl": "Y",
+        "isOpenAccess": "Y"
+      },
+      "evidence": "Read from the Europe PMC full text. Table 1 is headed 'Individual human liver microsomes (n = 16)' but reports only the maximum, the minimum, the max/min ratio and group means by age and sex — no per-donor row. The supplementary files are Mascot-processed MS identifications in .doc form (S1-S4, one per organ), which are protein identifications rather than per-donor quantification.",
+      "label": "Song 2018, individual liver microsomes, 16 donors",
+      "layers": [
+        "microsomal proteomics",
+        "CYP450, MEH and MGST activities"
+      ],
+      "licence_as_indexed": "cc by",
+      "n_donors": 16,
+      "outcome_kind": "drug_specific_metabolic_activity",
+      "per_donor_layer_and_outcome": false,
+      "reason": "ABSTAIN_NO_PER_DONOR_VALUES",
+      "same_donor_layers": true,
+      "secondary_disqualification": null,
+      "title_as_indexed": "Dataset from proteomic analysis of human liver, lung, kidney and intestine microsomes.",
+      "usable_as": "published_comparator",
+      "verdict": "ABSTAIN",
+      "why_it_matters": "Sixteen individual donors with both proteomics and activity would have been a second Wegler. The activities are summarised across donors, so no donor-level pairing survives."
+    },
+    "wenzel_2024_jejunum_liver_11": {
+      "citation": "Wenzel C, Lapczuk-Romanska J, Malinowski D, Ostrowski M, Drozdzik M, Oswald S. Clin Pharmacol Ther 2024;115(2):221-230.",
+      "europe_pmc_reverified": {
+        "hasSuppl": "N",
+        "isOpenAccess": "N"
+      },
+      "evidence": "Europe PMC records isOpenAccess N and hasSuppl N; the licence is cc by-nc-nd, which would forbid redistributing a derivative even if the file were reachable. Same publisher, same Cloudflare 403.",
+      "label": "Wenzel 2024, intra-subject jejunum and liver, 11 donors",
+      "layers": [
+        "mRNA (qRT-PCR)",
+        "protein (targeted proteomics)"
+      ],
+      "licence_as_indexed": "cc by-nc-nd",
+      "n_donors": 11,
+      "outcome_kind": null,
+      "per_donor_layer_and_outcome": null,
+      "reason": "ABSTAIN_ACCESS",
+      "same_donor_layers": true,
+      "secondary_disqualification": null,
+      "title_as_indexed": "Comparative Intra-Subject Analysis of Gene Expression and Protein Abundance of Major and Minor Drug Metabolizing Enzymes in Healthy Human Jejunum and Liver.",
+      "usable_as": "citation_only",
+      "verdict": "ABSTAIN",
+      "why_it_matters": "The same two layers in the same subjects as Drozdzik 2018, with eleven donors instead of nine, and the same access barrier."
+    },
+    "zhang_2015_mppgl_128": {
+      "citation": "Zhang H, Gao N, Tian X, et al. Sci Rep 2015;5:17671. PMCID PMC4669488. CC BY.",
+      "europe_pmc_reverified": {
+        "hasSuppl": "Y",
+        "isOpenAccess": "Y"
+      },
+      "evidence": "Supplement retrieved from the Springer CDN (41598_2015_BFsrep17671_MOESM1_ESM.pdf, 1,004,095 bytes, SHA-256 23c1ceba3e8e142df50e449cb02b42f506efc2737945b0228553c211efb5bf7b) and read in full: 41 lines of text. It holds ONE table of aggregates — ranges, means, SD and 95 % prediction intervals for five scaling parameters on the n = 78 prediction subset — and three figure captions. NO per-donor value for MPPGL or for any CYP activity. Recovering the individual points would mean digitising scatter figures, which this project forbids.",
+      "label": "Zhang 2015, MPPGL and ten CYP activities, 128 livers",
+      "layers": [
+        "MPPGL",
+        "ten CYP activities in microsomes AND in tissue"
+      ],
+      "licence_as_indexed": "cc by",
+      "n_donors": 128,
+      "outcome_kind": "drug_specific_metabolic_activity",
+      "per_donor_layer_and_outcome": false,
+      "reason": "ABSTAIN_NO_PER_DONOR_VALUES",
+      "same_donor_layers": true,
+      "secondary_disqualification": null,
+      "title_as_indexed": "Content and activity of human liver microsomal protein and prediction of individual hepatic clearance in vivo.",
+      "usable_as": "published_comparator",
+      "verdict": "ABSTAIN",
+      "why_it_matters": "At 128 livers it is by far the largest candidate, and its published direction CONCORDS with this project's own Axis B finding: MPPGL correlates strongly with CYP activity measured in liver TISSUE (r >= 0.6, P < 0.001 for most CYPs) and not at all with activity measured in MICROSOMES (no significant correlation). Concordance in direction between two cohorts is worth recording; it is not a replication, because no per-donor value is available to recompute anything."
+    }
+  },
+  "date": "2026-11-10",
+  "fits_nothing": true,
+  "how_the_two_kinds_of_fact_are_treated": "Access and licence are re-queried from Europe PMC at every run and a disagreement with the recorded value fails the audit. Whether per-donor values exist cannot be read from an index, so it is recorded as evidence naming the file, its checksum and its contents.",
+  "rule": {
+    "a_source_failing_only_on_per_donor_values": "may still be a published_comparator, never a dataset",
+    "a_source_is_usable_only_if_all_four_hold": [
+      "retrievable without subscription, authorisation request or collaboration",
+      "at least one measured layer AND the outcome published or deposited per individual donor; a per-donor outcome paired with a POOLED layer does not satisfy this",
+      "at least 10 donors carrying the required layers",
+      "an admissible outcome kind, or a declared non-pharmacological target for Axis A"
+    ],
+    "admissible_outcomes": [
+      "drug_specific_clint",
+      "drug_specific_metabolic_activity",
+      "clinical_pk",
+      "declared_non_pharmacological_target"
+    ],
+    "donor_floor": 10,
+    "reason_codes": [
+      "ABSTAIN_ACCESS",
+      "ABSTAIN_NO_PER_DONOR_VALUES",
+      "ABSTAIN_TOO_FEW_DONORS",
+      "ABSTAIN_NO_ADMISSIBLE_ENDPOINT"
+    ],
+    "why_the_floor": "Leave-one-donor-out with an inner leave-one-out for the penalty leaves n-2 donors in the inner training set; under ten donors that is under eight, and neither the penalty choice nor the interval is interpretable."
+  },
+  "summary": {
+    "by_reason": {
+      "ABSTAIN_ACCESS": 2,
+      "ABSTAIN_NO_PER_DONOR_VALUES": 5
+    },
+    "finding": "Of seven candidates, NONE qualifies as a dataset. Two fail on access and FIVE on the absence of a per-donor layer paired with a per-donor outcome. SIX of the seven measured both a molecular layer and either the second layer or an activity in the SAME donors, so the measurements exist; what is missing is the individual-level sharing. That is a different obstacle from 'the data has never been collected', and it is the one the funding case should name. The seventh, Al-Majdoub, is the opposite case and worth separating: it PUBLISHES per-donor activity but measured abundance on pooled commercial lots, so no donor-level pairing was ever created.",
+    "n_candidates": 7,
+    "n_usable_as_datasets": 0,
+    "what_this_does_not_claim": [
+      "Not that these studies are flawed; publishing group-level summaries is a normal and legitimate choice.",
+      "Not that no further source exists; this is seven candidates examined, not an exhaustive census.",
+      "Not that a paywalled supplement lacks per-donor values: for Drozdzik 2018 and Wenzel 2024 the contents could not be checked at all, and the verdict is about access and nothing else."
+    ]
+  }
+}

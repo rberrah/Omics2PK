@@ -1,0 +1,56 @@
+{
+  "diagnostic": "selection_criterion_and_redundancy",
+  "generated": "2026-11-10",
+  "status": "POST_HOC, written after the frozen sizing run",
+  "not_part_of": "docs/OMICS2PK_COHORT_SIZING_PRESPECIFICATION_20261110.md",
+  "reference_scenario": {
+    "baseline_r2": 0.3,
+    "target_mae_reduction": 0.1,
+    "n_features": 200,
+    "n_informative": 10,
+    "redundancy": 0.3,
+    "analytical_cv": 0.3,
+    "missing_rate": 0.05,
+    "selected": 10
+  },
+  "power_at_fixed_n_by_redundancy": {
+    "n_800": {
+      "redundancy_0.0": 0.342,
+      "redundancy_0.3": 0.554,
+      "redundancy_0.6": 0.314,
+      "redundancy_0.85": 0.012
+    },
+    "n_1000": {
+      "redundancy_0.0": 0.614,
+      "redundancy_0.3": 0.816,
+      "redundancy_0.6": 0.516,
+      "redundancy_0.85": 0.022
+    }
+  },
+  "power_peaks_at": "redundancy_0.3",
+  "power_is_non_monotone_in_redundancy": true,
+  "selection_quality_by_criterion": {
+    "redundancy_0.0": {
+      "informative_fraction_selecting_on_the_outcome": 0.822,
+      "informative_fraction_selecting_on_the_residual": 0.92
+    },
+    "redundancy_0.3": {
+      "informative_fraction_selecting_on_the_outcome": 0.97,
+      "informative_fraction_selecting_on_the_residual": 0.879
+    },
+    "redundancy_0.6": {
+      "informative_fraction_selecting_on_the_outcome": 0.999,
+      "informative_fraction_selecting_on_the_residual": 0.659
+    },
+    "redundancy_0.85": {
+      "informative_fraction_selecting_on_the_outcome": 1.0,
+      "informative_fraction_selecting_on_the_residual": 0.234
+    }
+  },
+  "selecting_on_the_outcome_rewards_redundancy": true,
+  "selecting_on_the_residual_penalises_redundancy": true,
+  "the_finding": "Selecting candidate features by their absolute correlation with the OUTCOME rewards redundancy with the baseline: a redundant feature correlates with the outcome through the baseline's own signal, so it is easier to select while carrying less incremental information. Selection accuracy therefore RISES with redundancy under that criterion and FALLS under a residual-based one, which is the behaviour an incremental-value question actually wants.",
+  "the_recommendation": "A protocol that tests whether a layer ADDS to a baseline should select the layer's features on the RESIDUAL after the baseline, inside the training folds, not on the raw outcome. Otherwise the selection step is confounded with the question being asked, and a layer can look most useful precisely where it is most redundant.",
+  "what_this_is_not": "not a biological result. It is a property of a feature-selection criterion, and it would apply to any wide block in any domain.",
+  "no_individual_level_data_in_this_artefact": true
+}

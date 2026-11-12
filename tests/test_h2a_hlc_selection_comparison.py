@@ -1,0 +1,646 @@
+"""Contract tests for the H2a selection comparison.
+
+These test the machinery, not the result: fold disjointness, that the shared
+decomposition gives the same numbers as fitting each penalty separately, that
+every per-fold choice is made on training donors only, and that the decoy and
+destroyed-signal constructions are what the protocol says they are. None of
+them needs the source archive, so they run wherever the repository runs.
+"""
+from __future__ import annotations
+
+import importlib.util
+import json
+import shutil
+import tempfile
+import types
+import unittest
+from pathlib import Path
+
+try:
+    import pytest
+except ImportError as exc:  # pragma: no cover - dependency-free CI job only
+    raise unittest.SkipTest(f"pytest is required for this module: {exc}") from exc
+
+try:
+    import numpy as np
+    from sklearn.linear_model import Ridge
+    from sklearn.preprocessing import StandardScaler
+except ImportError as exc:  # pragma: no cover - dependency-free CI job only
+    raise unittest.SkipTest(f"numpy and scikit-learn are required: {exc}") from exc
+
+REPO_ROOT = Path(__file__).resolve().parents[1]
+SCRIPT = REPO_ROOT / "scripts" / "run_h2a_hlc_selection_comparison.py"
+
+
+def load_runner():
+    spec = importlib.util.spec_from_file_location("h2a_runner", SCRIPT)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+H2A = load_runner()
+
+
+class TestFrozenParameters(unittest.TestCase):
+    def test_the_parameters_match_the_protocol(self):
+        self.assertEqual(H2A.SEED, 20261108)
+        self.assertEqual(H2A.OUTER_FOLDS, 5)
+        self.assertEqual(H2A.OUTER_REPEATS, 2)
+        self.assertEqual(H2A.INNER_FOLDS, 3)
+        self.assertEqual(H2A.PANEL_SIZES, (1, 2, 3, 5, 10, 20, 50, 100))
+        self.assertGreaterEqual(H2A.RANDOM_REPLICATIONS, 100)
+        self.assertEqual(H2A.N_DECOYS, 200)
+        self.assertAlmostEqual(H2A.NON_INFERIORITY_MARGIN, 0.05)
+        self.assertAlmostEqual(H2A.TRIM_FRACTION, 0.10)
+        self.assertEqual(H2A.N_BOOTSTRAP, 2000)
+
+    def test_ten_endpoints_are_declared(self):
+        self.assertEqual(len(H2A.ENDPOINTS), 10)
+        self.assertEqual(len(set(H2A.ENDPOINTS)), 10)
+
+    def test_the_wrong_mechanism_rotation_never_maps_an_endpoint_to_itself(self):
+        for endpoint, wrong in H2A.WRONG_SEED_ROTATION.items():
+            self.assertNotEqual(endpoint, wrong)
+        # A rotation, so every endpoint is used exactly once as a wrong seed.
+        self.assertEqual(sorted(H2A.WRONG_SEED_ROTATION.values()),
+                         sorted(H2A.ENDPOINTS))
+
+    def test_only_the_two_documented_substrates_are_declared(self):
+        self.assertEqual(set(H2A.DOCUMENTED_SUBSTRATE),
+                         {"CYP3A4M_activity", "CYP3A4T_activity"})
+
+
+class TestFolds(unittest.TestCase):
+    def test_every_donor_is_tested_once_per_repeat(self):
+        folds = H2A.repeated_folds(97, n_splits=5, n_repeats=2, seed=1)
+        self.assertEqual(len(folds), 10)
+        for repeat in range(2):
+            tested = np.concatenate([folds[repeat * 5 + i][1] for i in range(5)])
+            np.testing.assert_array_equal(np.sort(tested), np.arange(97))
+
+    def test_train_and_test_never_share_a_donor(self):
+        for train, test in H2A.repeated_folds(97, n_splits=5, n_repeats=2, seed=1):
+            self.assertEqual(np.intersect1d(train, test).size, 0)
+            self.assertEqual(train.size + test.size, 97)
+
+    def test_folds_are_reproducible_and_seed_dependent(self):
+        first = H2A.repeated_folds(50, n_splits=5, n_repeats=1, seed=3)
+        again = H2A.repeated_folds(50, n_splits=5, n_repeats=1, seed=3)
+        other = H2A.repeated_folds(50, n_splits=5, n_repeats=1, seed=4)
+        for (a, b), (c, d) in zip(first, again):
+            np.testing.assert_array_equal(a, c)
+            np.testing.assert_array_equal(b, d)
+        self.assertFalse(all(np.array_equal(a[1], b[1])
+                             for a, b in zip(first, other)))
+
+    def test_the_two_repeats_are_not_the_same_partition(self):
+        folds = H2A.repeated_folds(97, n_splits=5, n_repeats=2, seed=1)
+        self.assertFalse(np.array_equal(np.sort(folds[0][1]),
+                                        np.sort(folds[5][1])))
+
+    def test_leaving_one_centre_out_gives_one_fold_per_centre(self):
+        centre = np.array([1, 1, 1, 2, 2, 3])
+        folds = H2A.centre_folds(centre)
+        self.assertEqual(len(folds), 3)
+        for (train, test), value in zip(folds, (1, 2, 3)):
+            np.testing.assert_array_equal(np.unique(centre[test]), [value])
+            self.assertNotIn(value, centre[train])
+
+
+class TestRepeatsAreNotOverwritten(unittest.TestCase):
+    """The defect this guards against reduced a declared design to one pass.
+
+    A donor is tested exactly once per repeat, so storing every fold's
+    out-of-fold error in one vector per arm let the last repeat overwrite the
+    others. A design announced as five folds by two repeats then reported the
+    second repeat alone.
+    """
+
+    def test_each_repeat_gets_its_own_index(self):
+        repeats, assignment = H2A.repeat_assignment(10, n_splits=5, repeated=True)
+        self.assertEqual(repeats, 2)
+        self.assertEqual(assignment, [0] * 5 + [1] * 5)
+
+    def test_a_single_pass_design_has_one_repeat(self):
+        repeats, assignment = H2A.repeat_assignment(3, n_splits=5, repeated=False)
+        self.assertEqual(repeats, 1)
+        self.assertEqual(assignment, [0, 0, 0])
+
+    def test_a_fold_count_that_does_not_factor_is_refused(self):
+        with self.assertRaisesRegex(H2A.H2aError, "does not factor"):
+            H2A.repeat_assignment(7, n_splits=5, repeated=True)
+
+    def test_an_empty_design_is_refused(self):
+        with self.assertRaisesRegex(H2A.H2aError, "at least one fold"):
+            H2A.repeat_assignment(0, n_splits=5, repeated=True)
+
+    def test_the_declared_design_factors_into_the_frozen_parameters(self):
+        repeats, assignment = H2A.repeat_assignment(
+            H2A.OUTER_FOLDS * H2A.OUTER_REPEATS,
+            n_splits=H2A.OUTER_FOLDS, repeated=True)
+        self.assertEqual(repeats, H2A.OUTER_REPEATS)
+        self.assertEqual(len(set(assignment)), H2A.OUTER_REPEATS)
+
+    def test_every_repeat_slot_is_written_exactly_once_per_donor(self):
+        # Simulate the accumulation the runner performs and assert nothing is
+        # overwritten and nothing is left unfilled.
+        donors = 97
+        folds = H2A.repeated_folds(donors, n_splits=5, n_repeats=2, seed=1)
+        repeats, assignment = H2A.repeat_assignment(
+            len(folds), n_splits=5, repeated=True)
+        written = np.zeros((repeats, donors), dtype=int)
+        for fold_number, (_, test) in enumerate(folds):
+            written[assignment[fold_number], test] += 1
+        np.testing.assert_array_equal(written, np.ones((repeats, donors), dtype=int))
+
+    def test_collapsing_repeats_averages_per_donor_and_ignores_gaps(self):
+        block = np.array([[1.0, 4.0, np.nan], [3.0, 6.0, 8.0]])
+        np.testing.assert_allclose(
+            np.nanmean(block, axis=0), [2.0, 5.0, 8.0])
+
+
+class TestNoComparatorIsChosenOnTestFolds(unittest.TestCase):
+    """Picking the statistical comparator by its out-of-fold error uses the
+    test folds twice and credits the winner of three draws."""
+
+    def source(self):
+        return SCRIPT.read_text(encoding="utf-8")
+
+    def test_the_runner_no_longer_selects_a_best_statistical_arm(self):
+        text = self.source()
+        # The selection idiom itself must be gone, not merely renamed.
+        self.assertNotIn("best_statistical = min(", text)
+        self.assertNotIn("minus_best_statistical", text)
+        self.assertNotIn('contrasts[-1]["best_statistical_arm"]', text)
+
+    def test_the_reason_is_recorded_in_the_runner(self):
+        text = self.source()
+        self.assertIn("why_there_is_no_best_statistical_arm", text)
+        self.assertIn("uses the test folds twice", text.replace("\n", " ")
+                      .replace("   ", " ").replace("  ", " "))
+
+    def test_the_margin_must_hold_against_every_statistical_arm(self):
+        text = self.source()
+        self.assertIn("non_inferiority_against_every_statistical_arm", text)
+        self.assertIn("within_margin_against_all", text)
+
+    def test_the_three_statistical_arms_are_each_contrasted(self):
+        text = self.source()
+        for comparator in ("univariate_spearman", "lasso_entry_order",
+                           "xgboost_gain"):
+            self.assertIn(comparator, text)
+        self.assertIn('netpk_target_minus_{comparator}_k{k}', text)
+
+
+class TestRidgePath(unittest.TestCase):
+    def reference(self, x_train, y_train, x_test, alpha):
+        scaler = StandardScaler().fit(x_train)
+        model = Ridge(alpha=alpha).fit(scaler.transform(x_train), y_train)
+        return model.predict(scaler.transform(x_test))
+
+    def test_agrees_with_a_separate_fit_when_donors_outnumber_variables(self):
+        rng = np.random.default_rng(0)
+        x = rng.normal(size=(120, 20))
+        y = x[:, 0] * 2.0 - x[:, 1] + rng.normal(size=120)
+        x_test = rng.normal(size=(15, 20))
+        alphas = (0.01, 1.0, 100.0)
+        for alpha, predicted in zip(
+                alphas, H2A.ridge_path_predictions(x, y, x_test, alphas)):
+            np.testing.assert_allclose(
+                predicted, self.reference(x, y, x_test, alpha), atol=1e-9)
+
+    def test_agrees_with_a_separate_fit_when_variables_outnumber_donors(self):
+        rng = np.random.default_rng(1)
+        x = rng.normal(size=(40, 500))
+        y = x[:, 3] - x[:, 7] + rng.normal(size=40)
+        x_test = rng.normal(size=(9, 500))
+        alphas = (0.1, 10.0, 1000.0)
+        for alpha, predicted in zip(
+                alphas, H2A.ridge_path_predictions(x, y, x_test, alphas)):
+            np.testing.assert_allclose(
+                predicted, self.reference(x, y, x_test, alpha), atol=1e-8)
+
+    def test_a_constant_variable_does_not_divide_by_zero(self):
+        rng = np.random.default_rng(2)
+        x = rng.normal(size=(40, 5))
+        x[:, 2] = 7.0
+        y = rng.normal(size=40)
+        predicted = H2A.ridge_path_predictions(x, y, x[:5], (1.0,))[0]
+        self.assertTrue(np.all(np.isfinite(predicted)))
+
+    def test_a_larger_penalty_shrinks_towards_the_training_mean(self):
+        rng = np.random.default_rng(3)
+        x = rng.normal(size=(60, 4))
+        y = x[:, 0] * 5.0 + rng.normal(size=60)
+        x_test = rng.normal(size=(10, 4))
+        light, heavy = H2A.ridge_path_predictions(x, y, x_test, (0.01, 1e8))
+        self.assertLess(float(np.std(heavy)), float(np.std(light)))
+        np.testing.assert_allclose(heavy, np.full(10, y.mean()), atol=1e-3)
+
+    def test_the_penalty_is_chosen_on_the_training_fold_only(self):
+        rng = np.random.default_rng(4)
+        x = rng.normal(size=(80, 6))
+        y = x[:, 0] + rng.normal(size=80) * 0.1
+        # A test block of absurd values must not change the chosen penalty.
+        quiet = np.zeros((10, 6))
+        wild = np.full((10, 6), 1e6)
+        _, alpha_quiet = H2A.ridge_prediction(x, y, quiet, inner_folds=3, seed=1)
+        _, alpha_wild = H2A.ridge_prediction(x, y, wild, inner_folds=3, seed=1)
+        self.assertEqual(alpha_quiet, alpha_wild)
+
+    def test_the_chosen_penalty_comes_from_the_frozen_grid(self):
+        rng = np.random.default_rng(5)
+        x = rng.normal(size=(60, 4))
+        y = rng.normal(size=60)
+        _, alpha = H2A.ridge_prediction(x, y, x[:6], inner_folds=3, seed=1)
+        self.assertIn(alpha, H2A.RIDGE_ALPHAS)
+
+
+class TestLosses(unittest.TestCase):
+    def test_trimming_removes_the_worst_errors(self):
+        values = np.array([1.0, 2.0, 3.0, 100.0])
+        self.assertAlmostEqual(H2A.trimmed_mean(values, 0.0), 26.5)
+        self.assertAlmostEqual(H2A.trimmed_mean(values, 0.25), 2.0)
+
+    def test_trimming_is_one_sided(self):
+        values = np.array([0.0, 1.0, 2.0, 3.0, 400.0])
+        self.assertAlmostEqual(H2A.trimmed_mean(values, 0.20), 1.5)
+
+    def test_the_log_loss_skips_non_positive_pairs_and_counts_them(self):
+        y_true = np.array([1.0, 2.0, -1.0, 4.0])
+        y_pred = np.array([1.0, 2.0, 1.0, 0.0])
+        errors = np.abs(y_pred - y_true)
+        summary = H2A.loss_summary(errors, y_true, y_pred)
+        self.assertEqual(summary["log_mae_pairs"], 2)
+        self.assertAlmostEqual(summary["log_mae"], 0.0)
+        self.assertEqual(summary["n"], 4)
+        self.assertAlmostEqual(summary["mae"], float(errors.mean()))
+
+
+class TestPairedContrast(unittest.TestCase):
+    def test_a_negative_difference_means_the_first_arm_is_better(self):
+        rng = np.random.default_rng(6)
+        better = rng.normal(10.0, 1.0, size=200)
+        worse = better + 5.0
+        result = H2A.paired_contrast(better, worse, seed=1, label="x")
+        self.assertLess(result["delta_mae"], 0)
+        self.assertTrue(result["interval_excludes_zero"])
+        self.assertIn("Negative means the first arm", result["how_to_read"])
+
+    def test_no_difference_is_not_reported_as_equivalence(self):
+        rng = np.random.default_rng(7)
+        errors = rng.normal(10.0, 3.0, size=120)
+        result = H2A.paired_contrast(errors, errors.copy(), seed=1, label="x")
+        self.assertAlmostEqual(result["delta_mae"], 0.0)
+        self.assertFalse(result["interval_excludes_zero"])
+        self.assertIn("never that there is none", result["how_to_read"])
+
+    def test_non_inferiority_needs_the_whole_interval_inside_the_margin(self):
+        rng = np.random.default_rng(8)
+        reference = rng.normal(10.0, 0.2, size=400)
+        close = reference + 0.001
+        far = reference * 1.5
+        self.assertTrue(H2A.paired_contrast(close, reference, seed=1,
+                                            label="x")["non_inferior_within_margin"])
+        self.assertFalse(H2A.paired_contrast(far, reference, seed=1,
+                                             label="x")["non_inferior_within_margin"])
+
+    def test_the_relative_difference_uses_the_reference_arm(self):
+        a = np.full(50, 9.0)
+        b = np.full(50, 10.0)
+        result = H2A.paired_contrast(a, b, seed=1, label="x")
+        self.assertAlmostEqual(result["reference_mae"], 10.0)
+        self.assertAlmostEqual(result["relative"], -0.1)
+
+
+class TestSpearmanStrength(unittest.TestCase):
+    def test_matches_a_reference_rank_correlation(self):
+        from scipy.stats import spearmanr
+        rng = np.random.default_rng(9)
+        matrix = rng.normal(size=(60, 8))
+        y = matrix[:, 0] * 2.0 + rng.normal(size=60)
+        strength = H2A._spearman_strength(matrix, y)
+        for column in range(matrix.shape[1]):
+            expected = abs(spearmanr(matrix[:, column], y).statistic)
+            self.assertAlmostEqual(strength[column], expected, places=9)
+
+    def test_a_constant_column_scores_zero_rather_than_failing(self):
+        matrix = np.column_stack([np.arange(20.0), np.full(20, 3.0)])
+        strength = H2A._spearman_strength(matrix, np.arange(20.0))
+        self.assertAlmostEqual(strength[0], 1.0)
+        self.assertEqual(strength[1], 0.0)
+
+
+def fake_data(values, symbols, *, age=None, sex=None):
+    n = values.shape[1]
+    return {
+        "values": values,
+        "symbols": np.asarray(symbols, dtype=str),
+        "feature_ids": np.array([f"f{position}" for position in
+                                 range(values.shape[0])], dtype=str),
+        "donors": np.array([f"{1 + i % 3}11{i:04d}" for i in range(n)]),
+        "age": np.full(n, 50.0) if age is None else np.asarray(age, dtype=float),
+        "sex": np.zeros(n) if sex is None else np.asarray(sex, dtype=float),
+        "centre": np.array([1 + i % 3 for i in range(n)]),
+        "phenotype": None,
+    }
+
+
+class TestFoldMatrix(unittest.TestCase):
+    def universe(self, data):
+        by_symbol = {}
+        for position, symbol in enumerate(data["symbols"]):
+            if symbol:
+                by_symbol.setdefault(str(symbol), []).append(position)
+        return {"by_symbol": by_symbol, "genes_on_network": [],
+                "decoy_symbols": [], "decoy_values": np.zeros((0, data["values"].shape[1]))}
+
+    def test_the_probe_with_the_highest_training_mean_represents_its_gene(self):
+        values = np.array([
+            [1.0, 1.0, 1.0, 1.0],      # gene A, low probe
+            [5.0, 5.0, 5.0, 5.0],      # gene A, high probe
+            [2.0, 2.0, 2.0, 2.0],      # gene B
+        ])
+        data = fake_data(values, ["AAA1", "AAA1", "BBB2"])
+        matrix, names, is_decoy = H2A.fold_matrix(
+            data, self.universe(data), np.array([0, 1, 2]), np.arange(4))
+        self.assertEqual(sorted(names), ["AAA1", "BBB2"])
+        column = matrix[:, list(names).index("AAA1")]
+        np.testing.assert_allclose(column, 5.0)
+        self.assertFalse(is_decoy.any())
+
+    def test_the_choice_of_probe_uses_training_donors_only(self):
+        # On the training donors the first probe is higher; over all donors the
+        # second would be. The first must win.
+        values = np.array([
+            [9.0, 9.0, 0.0, 0.0],
+            [1.0, 1.0, 99.0, 99.0],
+        ])
+        data = fake_data(values, ["AAA1", "AAA1"])
+        matrix, names, _ = H2A.fold_matrix(
+            data, self.universe(data), np.array([0, 1]), np.arange(4))
+        np.testing.assert_allclose(matrix[:2, 0], [9.0, 9.0])
+
+    def test_an_unannotated_probe_is_excluded(self):
+        values = np.ones((2, 4))
+        data = fake_data(values, ["AAA1", ""])
+        _, names, _ = H2A.fold_matrix(
+            data, self.universe(data), np.array([0, 1, 2]), np.arange(4))
+        self.assertEqual(list(names), ["AAA1"])
+
+    def test_a_missing_cell_takes_the_training_mean_of_its_probe(self):
+        values = np.array([[2.0, 4.0, np.nan, 10.0]])
+        data = fake_data(values, ["AAA1"])
+        matrix, _, _ = H2A.fold_matrix(
+            data, self.universe(data), np.array([0, 1]), np.arange(4))
+        self.assertAlmostEqual(float(matrix[2, 0]), 3.0)
+        self.assertAlmostEqual(float(matrix[3, 0]), 10.0)
+
+    def test_a_probe_missing_across_most_of_a_training_fold_is_dropped(self):
+        values = np.array([
+            [np.nan, np.nan, np.nan, 1.0],
+            [1.0, 2.0, 3.0, 4.0],
+        ])
+        data = fake_data(values, ["AAA1", "BBB2"])
+        _, names, _ = H2A.fold_matrix(
+            data, self.universe(data), np.array([0, 1, 2]), np.arange(4))
+        self.assertEqual(list(names), ["BBB2"])
+
+    def test_decoys_are_appended_and_flagged(self):
+        values = np.array([[1.0, 2.0, 3.0, 4.0]])
+        data = fake_data(values, ["AAA1"])
+        universe = self.universe(data)
+        universe["decoy_symbols"] = ["ZZZ9"]
+        universe["decoy_values"] = np.array([[4.0, 3.0, 2.0, 1.0]])
+        matrix, names, is_decoy = H2A.fold_matrix(
+            data, universe, np.array([0, 1, 2]), np.arange(4))
+        self.assertEqual(list(names), ["AAA1", "ZZZ9"])
+        np.testing.assert_array_equal(is_decoy, [False, True])
+        self.assertEqual(int(is_decoy.sum()), 1)
+
+
+class TestTheProbeBehindEachSelectionIsTraceable(unittest.TestCase):
+    """A gene symbol does not identify the measurement.
+
+    The probe standing for a gene is chosen per training fold, so a selection
+    recorded as a symbol cannot be checked against a probe-level qualification
+    afterwards. `fold_matrix` therefore records which feature it actually used.
+    """
+
+    def universe(self, data):
+        by_symbol = {}
+        for position, symbol in enumerate(data["symbols"]):
+            if symbol:
+                by_symbol.setdefault(str(symbol), []).append(position)
+        return {"by_symbol": by_symbol, "genes_on_network": [],
+                "decoy_symbols": [],
+                "decoy_values": np.zeros((0, data["values"].shape[1]))}
+
+    def test_the_feature_actually_used_is_recorded(self):
+        values = np.array([[1.0, 1.0, 1.0, 1.0],
+                           [5.0, 5.0, 5.0, 5.0],
+                           [2.0, 2.0, 2.0, 2.0]])
+        data = fake_data(values, ["AAA1", "AAA1", "BBB2"])
+        chosen = {}
+        H2A.fold_matrix(data, self.universe(data), np.array([0, 1, 2]),
+                        np.arange(4), chosen=chosen)
+        self.assertEqual(chosen, {"AAA1": "f1", "BBB2": "f2"})
+
+    def test_a_different_training_fold_can_use_a_different_probe(self):
+        values = np.array([[9.0, 9.0, 0.0, 0.0],
+                           [1.0, 1.0, 99.0, 99.0]])
+        data = fake_data(values, ["AAA1", "AAA1"])
+        first, second = {}, {}
+        H2A.fold_matrix(data, self.universe(data), np.array([0, 1]),
+                        np.arange(4), chosen=first)
+        H2A.fold_matrix(data, self.universe(data), np.array([2, 3]),
+                        np.arange(4), chosen=second)
+        self.assertEqual(first["AAA1"], "f0")
+        self.assertEqual(second["AAA1"], "f1")
+
+    def test_a_decoy_is_recorded_as_having_no_feature(self):
+        data = fake_data(np.array([[1.0, 2.0, 3.0, 4.0]]), ["AAA1"])
+        universe = self.universe(data)
+        universe["decoy_symbols"] = ["ZZZ9"]
+        universe["decoy_values"] = np.array([[4.0, 3.0, 2.0, 1.0]])
+        chosen = {}
+        H2A.fold_matrix(data, universe, np.array([0, 1, 2]), np.arange(4),
+                        chosen=chosen)
+        self.assertEqual(chosen["ZZZ9"], H2A.DECOY_FEATURE_ID)
+        self.assertNotEqual(chosen["AAA1"], H2A.DECOY_FEATURE_ID)
+
+    def test_nothing_is_recorded_when_no_dictionary_is_passed(self):
+        data = fake_data(np.ones((1, 4)), ["AAA1"])
+        matrix, names, _ = H2A.fold_matrix(data, self.universe(data),
+                                           np.array([0, 1, 2]), np.arange(4))
+        self.assertEqual(list(names), ["AAA1"])
+
+
+class TestTheQualifiedPoolRestriction(unittest.TestCase):
+    """Every arm must select from the same analytically admissible probes."""
+
+    def pool_file(self, admissible, name="A_qualified_human"):
+        directory = tempfile.mkdtemp()
+        path = Path(directory) / "pools.json"
+        path.write_text(json.dumps({
+            "rule_version": "probe-identity-1.0.0",
+            "pools": {name: {"admitted_verdicts": ["concordant_human"]}},
+            "admissible_features": {name: list(admissible)},
+        }), encoding="utf-8")
+        self.addCleanup(shutil.rmtree, directory, ignore_errors=True)
+        return path
+
+    def data_and_universe(self):
+        values = np.arange(20.0).reshape(5, 4)
+        data = fake_data(values, ["AAA1", "AAA1", "BBB2", "CCC3", "NegCont_1"])
+        by_symbol = {}
+        for position, symbol in enumerate(data["symbols"]):
+            by_symbol.setdefault(str(symbol), []).append(position)
+        universe = {"by_symbol": by_symbol, "genes_on_network": [],
+                    "decoy_symbols": [], "decoy_values": np.zeros((0, 4))}
+        return data, universe
+
+    def test_a_mixed_gene_keeps_its_admissible_probe(self):
+        data, universe = self.data_and_universe()
+        path = self.pool_file(["f1", "f2"])
+        restricted = H2A.restrict_universe_to_qualified_pool(
+            universe, data, path, "A_qualified_human")
+        self.assertEqual(restricted["by_symbol"]["AAA1"], [1])
+        self.assertEqual(restricted["by_symbol"]["BBB2"], [2])
+        self.assertNotIn("CCC3", restricted["by_symbol"])
+        # One probe of the mixed gene, the whole inadmissible gene and the
+        # control probe: three probes dropped, one gene kept in part.
+        self.assertEqual(restricted["qualified_pool"]["probes_dropped"], 3)
+
+    def test_a_technical_control_in_the_pool_stops_the_run(self):
+        data, universe = self.data_and_universe()
+        path = self.pool_file(["f1", "f4"])
+        with self.assertRaisesRegex(H2A.H2aError, "technical control"):
+            H2A.restrict_universe_to_qualified_pool(
+                universe, data, path, "A_qualified_human")
+
+    def test_an_unknown_pool_name_is_refused_rather_than_ignored(self):
+        data, universe = self.data_and_universe()
+        path = self.pool_file(["f1"])
+        with self.assertRaisesRegex(H2A.H2aError, "no admissible set named"):
+            H2A.restrict_universe_to_qualified_pool(
+                universe, data, path, "B_qualified_human_on_network")
+        with self.assertRaisesRegex(H2A.H2aError, "no admissible set named"):
+            H2A.qualified_pool_features(path, "B_qualified_human_on_network")
+
+    def test_the_feature_set_is_exposed_for_a_selection_level_audit(self):
+        path = self.pool_file(["f1", "f2"])
+        self.assertEqual(H2A.qualified_pool_features(path, "A_qualified_human"),
+                         {"f1", "f2"})
+
+    def test_the_restriction_records_what_it_removed(self):
+        data, universe = self.data_and_universe()
+        path = self.pool_file(["f1", "f2"])
+        record = H2A.restrict_universe_to_qualified_pool(
+            universe, data, path, "A_qualified_human")["qualified_pool"]
+        self.assertEqual(record["pool_name"], "A_qualified_human")
+        self.assertEqual(record["rule_version"], "probe-identity-1.0.0")
+        self.assertEqual(record["symbols_before"], 4)
+        self.assertEqual(record["symbols_after"], 2)
+        self.assertEqual(record["technical_controls_present"], 0)
+
+    def test_a_pool_matching_nothing_stops_the_run(self):
+        data, universe = self.data_and_universe()
+        path = self.pool_file(["not_on_this_array"])
+        with self.assertRaisesRegex(H2A.H2aError, "no admissible probe"):
+            H2A.restrict_universe_to_qualified_pool(
+                universe, data, path, "A_qualified_human")
+
+
+class TestBaselineMatrix(unittest.TestCase):
+    def test_a_missing_age_takes_the_training_median(self):
+        data = fake_data(np.ones((1, 5)), ["AAA1"],
+                         age=[10.0, 20.0, 60.0, np.nan, 99.0])
+        baseline = H2A.baseline_matrix(data, np.arange(5), np.array([0, 1, 2]))
+        self.assertAlmostEqual(float(baseline[3, 0]), 20.0)
+
+    def test_a_missing_sex_takes_the_training_majority(self):
+        data = fake_data(np.ones((1, 5)), ["AAA1"],
+                         sex=[1.0, 1.0, 1.0, np.nan, 0.0])
+        baseline = H2A.baseline_matrix(data, np.arange(5), np.array([0, 1, 2]))
+        self.assertAlmostEqual(float(baseline[3, 1]), 1.0)
+
+    def test_a_covariate_absent_throughout_a_training_fold_is_an_error(self):
+        data = fake_data(np.ones((1, 4)), ["AAA1"],
+                         age=[np.nan, np.nan, 40.0, 50.0])
+        with self.assertRaisesRegex(H2A.H2aError, "absent throughout"):
+            H2A.baseline_matrix(data, np.arange(4), np.array([0, 1]))
+
+
+class TestUniverse(unittest.TestCase):
+    def graph(self, symbols):
+        return types.SimpleNamespace(index={s: i for i, s in enumerate(symbols)})
+
+    def test_decoys_carry_symbols_the_array_does_not_measure(self):
+        H2A_decoys = H2A.N_DECOYS
+        try:
+            H2A.N_DECOYS = 3
+            values = np.arange(40.0).reshape(4, 10)
+            data = fake_data(values, ["AAA1", "BBB2", "CCC3", "DDD4"])
+            graph = self.graph(["AAA1", "BBB2", "OFF1", "OFF2", "OFF3", "OFF4"])
+            universe = H2A.build_universe(data, graph, np.random.default_rng(0))
+            self.assertEqual(len(universe["decoy_symbols"]), 3)
+            for symbol in universe["decoy_symbols"]:
+                self.assertNotIn(symbol, universe["by_symbol"])
+                self.assertIn(symbol, graph.index)
+            self.assertEqual(universe["genes_on_network"], ["AAA1", "BBB2"])
+        finally:
+            H2A.N_DECOYS = H2A_decoys
+
+    def test_a_decoy_keeps_a_real_probe_s_values_in_a_shuffled_order(self):
+        saved = H2A.N_DECOYS
+        try:
+            H2A.N_DECOYS = 1
+            values = np.array([[1.0, 2.0, 3.0, 4.0, 5.0, 6.0]])
+            data = fake_data(values, ["AAA1"])
+            graph = self.graph(["AAA1", "OFF1", "OFF2"])
+            universe = H2A.build_universe(data, graph, np.random.default_rng(1))
+            decoy = universe["decoy_values"][0]
+            np.testing.assert_array_equal(np.sort(decoy), np.sort(values[0]))
+        finally:
+            H2A.N_DECOYS = saved
+
+    def test_too_few_off_array_genes_is_refused_not_worked_around(self):
+        saved = H2A.N_DECOYS
+        try:
+            H2A.N_DECOYS = 5
+            data = fake_data(np.ones((2, 4)), ["AAA1", "BBB2"])
+            graph = self.graph(["AAA1", "BBB2", "OFF1"])
+            with self.assertRaisesRegex(H2A.H2aError, "too few network genes"):
+                H2A.build_universe(data, graph, np.random.default_rng(0))
+        finally:
+            H2A.N_DECOYS = saved
+
+
+class TestFullOrder(unittest.TestCase):
+    def test_seeds_and_candidates_are_ordered_by_proximity_not_by_name(self):
+        ranking = types.SimpleNamespace(
+            seeds=("ZZZ9",), ranked=("AAA1", "MMM5"),
+            scores={"ZZZ9": 0.5, "AAA1": 0.1, "MMM5": 0.3})
+        self.assertEqual(H2A._full_order(ranking), ["ZZZ9", "MMM5", "AAA1"])
+
+    def test_a_tie_falls_back_on_the_name_for_reproducibility(self):
+        ranking = types.SimpleNamespace(
+            seeds=("BBB2", "AAA1"), ranked=(),
+            scores={"BBB2": 0.5, "AAA1": 0.5})
+        self.assertEqual(H2A._full_order(ranking), ["AAA1", "BBB2"])
+
+    def test_a_many_seed_panel_is_not_ordered_alphabetically(self):
+        # The defect this function exists to prevent: a pathway seed set can
+        # hold a hundred genes, and the alphabet must not decide its top-k.
+        scores = {f"G{i:03d}": float(i) for i in range(100)}
+        ranking = types.SimpleNamespace(
+            seeds=tuple(sorted(scores)), ranked=(), scores=scores)
+        order = H2A._full_order(ranking)
+        self.assertEqual(order[0], "G099")
+        self.assertNotEqual(order, sorted(scores))
+
+
+if __name__ == "__main__":  # pragma: no cover
+    unittest.main()

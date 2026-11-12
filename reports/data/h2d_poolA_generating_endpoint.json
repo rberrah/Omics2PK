@@ -1,0 +1,1998 @@
+{
+  "analysis": "H2d: hybrid mechanistic selection",
+  "protocol_version": "1.4.5",
+  "prespecification": "OMICS2PK_H2D_HYBRID_SELECTION_PRESPECIFICATION_20261108.md v1.0.0",
+  "erratum": "OMICS2PK_H2D_ERRATUM_20261108.md v1.0.2",
+  "run_on": "2026-11-09",
+  "endpoint_set": "generating",
+  "endpoint_class": "functional_in_vitro",
+  "endpoint_class_note": "Measured microsomal activity, not clinical pharmacokinetics. The functional analogue of H2; never pooled with a clinical PK result and cannot promote the clinical claim above PARTIALLY_SUPPORTED.",
+  "generating_endpoint": "CYP2D6_activity",
+  "validation_set_independence": {
+    "claim": "validation on endpoints not used to design the rule, NOT independent replication",
+    "same_cohort": true,
+    "pairwise_spearman_median": 0.446,
+    "pairwise_spearman_range": [
+      0.144,
+      0.841
+    ],
+    "first_component_share_of_variance": 0.496,
+    "dependence_index_not_a_replication_count": 3.55,
+    "dependence_index_meaning": "A spectral index of dependence between endpoints, computed from the eigenvalue spread of their correlation matrix. It is NOT a count of independent replications and must never be described as one. It is reported so a tally of agreeing endpoints is read against the dependence among them.",
+    "of_endpoints": 10,
+    "same_enzyme_pair": [
+      "CYP3A4M_activity",
+      "CYP3A4T_activity"
+    ],
+    "same_enzyme_pair_correlation": 0.841,
+    "counting_rule": "The two substrates of one enzyme count as one endpoint. No text may say 'confirmed on nine endpoints'; the admissible form is nine endpoint measurements from a single cohort carrying a dependence index of about three and a half, none of which was used to design the rule.",
+    "why_not_replication": "Independent replication would need another cohort. Section 4.1 of the parent protocol records that no admissible public cohort supplies one for this axis."
+  },
+  "universe": {
+    "candidate_genes": 21634,
+    "candidate_genes_on_network": 11030,
+    "restricted_to_network": false,
+    "qualified_pool": {
+      "pool_file": "QUALIFIED_PROBE_POOLS.json",
+      "pool_name": "A_qualified_human",
+      "rule_version": "probe-identity-1.1.0",
+      "admitted_verdicts": [
+        "concordant_human",
+        "single_source_human"
+      ],
+      "symbols_before": 31862,
+      "symbols_after": 21634,
+      "probes_dropped": 13612,
+      "technical_controls_present": 0
+    },
+    "same_pool_as_h2a": "H2a and H2d are only comparable when both run on the same universe. The pool file and pool name recorded here must match the H2a run the comparison cites; an unrestricted H2d result is not comparable with a pool-restricted H2a result."
+  },
+  "frozen": {
+    "hybrid": {
+      "oversample": 3,
+      "null_permutations": 200,
+      "target_fdr": 0.05,
+      "permutation_seed": 20261108
+    },
+    "inherited_from_h2a": {
+      "seed": 20261108,
+      "outer_folds": 5,
+      "outer_repeats": 2,
+      "inner_folds": 3,
+      "panel_sizes": [
+        1,
+        2,
+        3,
+        5,
+        10,
+        20,
+        50,
+        100
+      ],
+      "bootstrap": 2000,
+      "non_inferiority_margin": 0.05,
+      "baseline_covariates": [
+        "age",
+        "sex"
+      ],
+      "fold_design": "5_fold_x2_repeats"
+    },
+    "collapse_verdict": {
+      "threshold": 0.9,
+      "min_panel_size": 5,
+      "measure": "exact set equality"
+    }
+  },
+  "endpoints": {
+    "CYP2D6_activity": {
+      "endpoint": "CYP2D6_activity",
+      "status_cap": "exploratory",
+      "is_generating_endpoint": true,
+      "fold_design": "5_fold_x2_repeats",
+      "repeats": 2,
+      "n_donors": 397,
+      "folds": 10,
+      "target_gene": "CYP2D6",
+      "target_gene_available_in_folds": 10,
+      "losses_at_budget": {
+        "hybrid_at_budget": {
+          "1": {
+            "mae": 91.42869590282422,
+            "trimmed_mae": 69.96516431410001,
+            "log_mae": 0.7171541043385671,
+            "log_mae_pairs": 385,
+            "n": 397
+          },
+          "2": {
+            "mae": 91.37624486533574,
+            "trimmed_mae": 69.89680313623938,
+            "log_mae": 0.7152002421971307,
+            "log_mae_pairs": 384,
+            "n": 397
+          },
+          "3": {
+            "mae": 91.6130927388456,
+            "trimmed_mae": 70.12076955267874,
+            "log_mae": 0.7185748302759917,
+            "log_mae_pairs": 384,
+            "n": 397
+          },
+          "5": {
+            "mae": 91.87308085441326,
+            "trimmed_mae": 70.23958760091644,
+            "log_mae": 0.7132242133811934,
+            "log_mae_pairs": 384,
+            "n": 397
+          },
+          "10": {
+            "mae": 92.77379208632995,
+            "trimmed_mae": 71.07555365331272,
+            "log_mae": 0.726745569370303,
+            "log_mae_pairs": 386,
+            "n": 397
+          },
+          "20": {
+            "mae": 93.92396579463632,
+            "trimmed_mae": 72.21757306969762,
+            "log_mae": 0.7376752811026076,
+            "log_mae_pairs": 389,
+            "n": 397
+          },
+          "50": {
+            "mae": 94.90480185891835,
+            "trimmed_mae": 73.02218279135771,
+            "log_mae": 0.7516775968231469,
+            "log_mae_pairs": 389,
+            "n": 397
+          },
+          "100": {
+            "mae": 92.57577823119,
+            "trimmed_mae": 71.37361074209456,
+            "log_mae": 0.7335726003931138,
+            "log_mae_pairs": 388,
+            "n": 397
+          }
+        },
+        "blind_mechanistic": {
+          "1": {
+            "mae": 91.42869590282422,
+            "trimmed_mae": 69.96516431410001,
+            "log_mae": 0.7171541043385671,
+            "log_mae_pairs": 385,
+            "n": 397
+          },
+          "2": {
+            "mae": 91.75350471937466,
+            "trimmed_mae": 70.24069888770657,
+            "log_mae": 0.7427792831103983,
+            "log_mae_pairs": 386,
+            "n": 397
+          },
+          "3": {
+            "mae": 91.83513086607711,
+            "trimmed_mae": 70.29094959614473,
+            "log_mae": 0.7300041139858359,
+            "log_mae_pairs": 387,
+            "n": 397
+          },
+          "5": {
+            "mae": 92.4608290470561,
+            "trimmed_mae": 70.95374144249153,
+            "log_mae": 0.7317214320948113,
+            "log_mae_pairs": 386,
+            "n": 397
+          },
+          "10": {
+            "mae": 92.78022298086974,
+            "trimmed_mae": 71.30162056143585,
+            "log_mae": 0.7241078323395227,
+            "log_mae_pairs": 386,
+            "n": 397
+          },
+          "20": {
+            "mae": 94.27881272032164,
+            "trimmed_mae": 72.58240799615285,
+            "log_mae": 0.7267461635359823,
+            "log_mae_pairs": 385,
+            "n": 397
+          },
+          "50": {
+            "mae": 96.64534592629732,
+            "trimmed_mae": 73.63203984359431,
+            "log_mae": 0.740353820058666,
+            "log_mae_pairs": 388,
+            "n": 397
+          },
+          "100": {
+            "mae": 97.23123043470716,
+            "trimmed_mae": 74.34533301527355,
+            "log_mae": 0.7479224267600657,
+            "log_mae_pairs": 388,
+            "n": 397
+          }
+        },
+        "univariate_spearman": {
+          "1": {
+            "mae": 91.42869590282422,
+            "trimmed_mae": 69.96516431410001,
+            "log_mae": 0.7171541043385671,
+            "log_mae_pairs": 385,
+            "n": 397
+          },
+          "2": {
+            "mae": 91.80204570886747,
+            "trimmed_mae": 70.30083217198695,
+            "log_mae": 0.7315214468698445,
+            "log_mae_pairs": 385,
+            "n": 397
+          },
+          "3": {
+            "mae": 91.68255722773586,
+            "trimmed_mae": 70.22890043247848,
+            "log_mae": 0.7167556061461028,
+            "log_mae_pairs": 385,
+            "n": 397
+          },
+          "5": {
+            "mae": 92.06731662398569,
+            "trimmed_mae": 70.5647391242204,
+            "log_mae": 0.7133573196863985,
+            "log_mae_pairs": 386,
+            "n": 397
+          },
+          "10": {
+            "mae": 92.06705054603557,
+            "trimmed_mae": 70.38193538110444,
+            "log_mae": 0.712638290571889,
+            "log_mae_pairs": 386,
+            "n": 397
+          },
+          "20": {
+            "mae": 93.68659022689219,
+            "trimmed_mae": 72.22842133724052,
+            "log_mae": 0.7256938465963041,
+            "log_mae_pairs": 386,
+            "n": 397
+          },
+          "50": {
+            "mae": 96.5119526631432,
+            "trimmed_mae": 74.46925332341216,
+            "log_mae": 0.7490739242428569,
+            "log_mae_pairs": 388,
+            "n": 397
+          },
+          "100": {
+            "mae": 99.39753687212279,
+            "trimmed_mae": 76.385991368366,
+            "log_mae": 0.7644611669692262,
+            "log_mae_pairs": 389,
+            "n": 397
+          }
+        },
+        "lasso_entry_order": {
+          "1": {
+            "mae": 91.42869590282422,
+            "trimmed_mae": 69.96516431410001,
+            "log_mae": 0.7171541043385671,
+            "log_mae_pairs": 385,
+            "n": 397
+          },
+          "2": {
+            "mae": 94.61693037442386,
+            "trimmed_mae": 73.53766795027768,
+            "log_mae": 0.7189822236895216,
+            "log_mae_pairs": 386,
+            "n": 397
+          },
+          "3": {
+            "mae": 93.8495693302096,
+            "trimmed_mae": 72.29895749606024,
+            "log_mae": 0.7117917844373386,
+            "log_mae_pairs": 385,
+            "n": 397
+          },
+          "5": {
+            "mae": 94.98228174063964,
+            "trimmed_mae": 72.80532172180342,
+            "log_mae": 0.7264287932537162,
+            "log_mae_pairs": 384,
+            "n": 397
+          },
+          "10": {
+            "mae": 95.15397168457491,
+            "trimmed_mae": 72.06260953426025,
+            "log_mae": 0.7372598965235249,
+            "log_mae_pairs": 385,
+            "n": 397
+          },
+          "20": {
+            "mae": 100.76358368817208,
+            "trimmed_mae": 77.25914982280509,
+            "log_mae": 0.7296083039154572,
+            "log_mae_pairs": 384,
+            "n": 397
+          },
+          "50": {
+            "mae": 110.35839309731348,
+            "trimmed_mae": 86.60231784186252,
+            "log_mae": 0.7806432860988064,
+            "log_mae_pairs": 380,
+            "n": 397
+          },
+          "100": {
+            "mae": 110.2883114703533,
+            "trimmed_mae": 86.79283609275032,
+            "log_mae": 0.783820518550664,
+            "log_mae_pairs": 375,
+            "n": 397
+          }
+        },
+        "xgboost_gain": {
+          "1": {
+            "mae": 91.42869590282422,
+            "trimmed_mae": 69.96516431410001,
+            "log_mae": 0.7171541043385671,
+            "log_mae_pairs": 385,
+            "n": 397
+          },
+          "2": {
+            "mae": 92.26071054428176,
+            "trimmed_mae": 70.5149508093775,
+            "log_mae": 0.7241531912221703,
+            "log_mae_pairs": 384,
+            "n": 397
+          },
+          "3": {
+            "mae": 92.07049689229821,
+            "trimmed_mae": 70.69076735211831,
+            "log_mae": 0.7350750637000987,
+            "log_mae_pairs": 385,
+            "n": 397
+          },
+          "5": {
+            "mae": 93.2586857957203,
+            "trimmed_mae": 71.58166929074592,
+            "log_mae": 0.7273673408639366,
+            "log_mae_pairs": 386,
+            "n": 397
+          },
+          "10": {
+            "mae": 94.66120077056686,
+            "trimmed_mae": 73.46737346481468,
+            "log_mae": 0.7306712774173052,
+            "log_mae_pairs": 386,
+            "n": 397
+          },
+          "20": {
+            "mae": 97.56026793204933,
+            "trimmed_mae": 76.24649874677286,
+            "log_mae": 0.7600810424998746,
+            "log_mae_pairs": 388,
+            "n": 397
+          },
+          "50": {
+            "mae": 100.28515599041692,
+            "trimmed_mae": 78.42888128230342,
+            "log_mae": 0.7617168661194578,
+            "log_mae_pairs": 388,
+            "n": 397
+          },
+          "100": {
+            "mae": 104.92311535741456,
+            "trimmed_mae": 82.92064165088968,
+            "log_mae": 0.7870047309216834,
+            "log_mae_pairs": 386,
+            "n": 397
+          }
+        }
+      },
+      "losses_at_matched_dimension": {
+        "univariate_spearman": {
+          "1": {
+            "mae": 91.42869590282422,
+            "trimmed_mae": 69.96516431410001,
+            "log_mae": 0.7171541043385671,
+            "log_mae_pairs": 385,
+            "n": 397
+          },
+          "2": {
+            "mae": 91.80204570886747,
+            "trimmed_mae": 70.30083217198695,
+            "log_mae": 0.7315214468698445,
+            "log_mae_pairs": 385,
+            "n": 397
+          },
+          "3": {
+            "mae": 91.68255722773586,
+            "trimmed_mae": 70.22890043247848,
+            "log_mae": 0.7167556061461028,
+            "log_mae_pairs": 385,
+            "n": 397
+          },
+          "5": {
+            "mae": 92.00568161357181,
+            "trimmed_mae": 70.43623721210096,
+            "log_mae": 0.7212035628803593,
+            "log_mae_pairs": 386,
+            "n": 397
+          },
+          "10": {
+            "mae": 92.08257727703884,
+            "trimmed_mae": 70.33543695533719,
+            "log_mae": 0.7133464276740323,
+            "log_mae_pairs": 386,
+            "n": 397
+          },
+          "20": {
+            "mae": 93.68659022689219,
+            "trimmed_mae": 72.22842133724052,
+            "log_mae": 0.7256938465963041,
+            "log_mae_pairs": 386,
+            "n": 397
+          },
+          "50": {
+            "mae": 96.2766131095197,
+            "trimmed_mae": 74.24830508405697,
+            "log_mae": 0.7470760216522365,
+            "log_mae_pairs": 388,
+            "n": 397
+          },
+          "100": {
+            "mae": 99.3185162294646,
+            "trimmed_mae": 76.49960619334547,
+            "log_mae": 0.7619576334414974,
+            "log_mae_pairs": 388,
+            "n": 397
+          }
+        },
+        "lasso_entry_order": {
+          "1": {
+            "mae": 91.42869590282422,
+            "trimmed_mae": 69.96516431410001,
+            "log_mae": 0.7171541043385671,
+            "log_mae_pairs": 385,
+            "n": 397
+          },
+          "2": {
+            "mae": 94.61693037442386,
+            "trimmed_mae": 73.53766795027768,
+            "log_mae": 0.7189822236895216,
+            "log_mae_pairs": 386,
+            "n": 397
+          },
+          "3": {
+            "mae": 93.8495693302096,
+            "trimmed_mae": 72.29895749606024,
+            "log_mae": 0.7117917844373386,
+            "log_mae_pairs": 385,
+            "n": 397
+          },
+          "5": {
+            "mae": 94.78891586057068,
+            "trimmed_mae": 72.54218500830758,
+            "log_mae": 0.7173468408739376,
+            "log_mae_pairs": 384,
+            "n": 397
+          },
+          "10": {
+            "mae": 95.70368670086269,
+            "trimmed_mae": 72.5707211849987,
+            "log_mae": 0.7362433934835148,
+            "log_mae_pairs": 385,
+            "n": 397
+          },
+          "20": {
+            "mae": 100.76358368817208,
+            "trimmed_mae": 77.25914982280509,
+            "log_mae": 0.7296083039154572,
+            "log_mae_pairs": 384,
+            "n": 397
+          },
+          "50": {
+            "mae": 110.4776403763,
+            "trimmed_mae": 86.7721321507892,
+            "log_mae": 0.7806937590029939,
+            "log_mae_pairs": 380,
+            "n": 397
+          },
+          "100": {
+            "mae": 109.66213777693257,
+            "trimmed_mae": 86.02519709218613,
+            "log_mae": 0.7607386593208725,
+            "log_mae_pairs": 373,
+            "n": 397
+          }
+        },
+        "xgboost_gain": {
+          "1": {
+            "mae": 91.42869590282422,
+            "trimmed_mae": 69.96516431410001,
+            "log_mae": 0.7171541043385671,
+            "log_mae_pairs": 385,
+            "n": 397
+          },
+          "2": {
+            "mae": 92.26071054428176,
+            "trimmed_mae": 70.5149508093775,
+            "log_mae": 0.7241531912221703,
+            "log_mae_pairs": 384,
+            "n": 397
+          },
+          "3": {
+            "mae": 92.07049689229821,
+            "trimmed_mae": 70.69076735211831,
+            "log_mae": 0.7350750637000987,
+            "log_mae_pairs": 385,
+            "n": 397
+          },
+          "5": {
+            "mae": 93.2462958030197,
+            "trimmed_mae": 71.55033082395516,
+            "log_mae": 0.7216394105493321,
+            "log_mae_pairs": 386,
+            "n": 397
+          },
+          "10": {
+            "mae": 94.31604266043591,
+            "trimmed_mae": 73.2179902832124,
+            "log_mae": 0.7400379070956438,
+            "log_mae_pairs": 386,
+            "n": 397
+          },
+          "20": {
+            "mae": 97.56026793204933,
+            "trimmed_mae": 76.24649874677286,
+            "log_mae": 0.7600810424998746,
+            "log_mae_pairs": 388,
+            "n": 397
+          },
+          "50": {
+            "mae": 100.43470409564763,
+            "trimmed_mae": 78.64031335596043,
+            "log_mae": 0.7628275372722547,
+            "log_mae_pairs": 388,
+            "n": 397
+          },
+          "100": {
+            "mae": 104.96693141961208,
+            "trimmed_mae": 82.97774115558632,
+            "log_mae": 0.7861005425259089,
+            "log_mae_pairs": 386,
+            "n": 397
+          }
+        }
+      },
+      "retained": {
+        "1": {
+          "budget": 1,
+          "median_retained": 1.0,
+          "mean_retained": 1.0,
+          "min_retained": 1,
+          "max_retained": 1,
+          "abstentions": 0,
+          "folds": 10
+        },
+        "2": {
+          "budget": 2,
+          "median_retained": 2.0,
+          "mean_retained": 2.0,
+          "min_retained": 2,
+          "max_retained": 2,
+          "abstentions": 0,
+          "folds": 10
+        },
+        "3": {
+          "budget": 3,
+          "median_retained": 3.0,
+          "mean_retained": 3.0,
+          "min_retained": 3,
+          "max_retained": 3,
+          "abstentions": 0,
+          "folds": 10
+        },
+        "5": {
+          "budget": 5,
+          "median_retained": 5.0,
+          "mean_retained": 4.4,
+          "min_retained": 2,
+          "max_retained": 5,
+          "abstentions": 0,
+          "folds": 10
+        },
+        "10": {
+          "budget": 10,
+          "median_retained": 10.0,
+          "mean_retained": 9.3,
+          "min_retained": 3,
+          "max_retained": 10,
+          "abstentions": 0,
+          "folds": 10
+        },
+        "20": {
+          "budget": 20,
+          "median_retained": 20.0,
+          "mean_retained": 20.0,
+          "min_retained": 20,
+          "max_retained": 20,
+          "abstentions": 0,
+          "folds": 10
+        },
+        "50": {
+          "budget": 50,
+          "median_retained": 50.0,
+          "mean_retained": 49.7,
+          "min_retained": 48,
+          "max_retained": 50,
+          "abstentions": 0,
+          "folds": 10
+        },
+        "100": {
+          "budget": 100,
+          "median_retained": 100.0,
+          "mean_retained": 91.0,
+          "min_retained": 55,
+          "max_retained": 100,
+          "abstentions": 0,
+          "folds": 10
+        }
+      },
+      "agreement_with_univariate": {
+        "1": {
+          "mean_containment": 1.0,
+          "mean_jaccard": 1.0,
+          "identical_set_fraction": 1.0,
+          "folds_with_a_panel_to_compare": 10
+        },
+        "2": {
+          "mean_containment": 0.5,
+          "mean_jaccard": 0.33333333333333337,
+          "identical_set_fraction": 0.0,
+          "folds_with_a_panel_to_compare": 10
+        },
+        "3": {
+          "mean_containment": 0.33333333333333337,
+          "mean_jaccard": 0.2,
+          "identical_set_fraction": 0.0,
+          "folds_with_a_panel_to_compare": 10
+        },
+        "5": {
+          "mean_containment": 0.26000000000000006,
+          "mean_jaccard": 0.12222222222222223,
+          "identical_set_fraction": 0.0,
+          "folds_with_a_panel_to_compare": 10
+        },
+        "10": {
+          "mean_containment": 0.12333333333333334,
+          "mean_jaccard": 0.0557017543859649,
+          "identical_set_fraction": 0.0,
+          "folds_with_a_panel_to_compare": 10
+        },
+        "20": {
+          "mean_containment": 0.095,
+          "mean_jaccard": 0.050078418499471124,
+          "identical_set_fraction": 0.0,
+          "folds_with_a_panel_to_compare": 10
+        },
+        "50": {
+          "mean_containment": 0.04424829931972789,
+          "mean_jaccard": 0.0225969058351238,
+          "identical_set_fraction": 0.0,
+          "folds_with_a_panel_to_compare": 10
+        },
+        "100": {
+          "mean_containment": 0.06833233433233435,
+          "mean_jaccard": 0.032688455664579966,
+          "identical_set_fraction": 0.0,
+          "folds_with_a_panel_to_compare": 10
+        }
+      },
+      "demoted_on_first_fold": {
+        "1": [
+          "CYP3A4",
+          "CYP2C9"
+        ],
+        "2": [
+          "CYP3A4",
+          "CYP2A6",
+          "CYP1A1",
+          "UGT1A4"
+        ],
+        "3": [
+          "CYP3A4",
+          "CYP2A6",
+          "CYP1A1",
+          "UGT1A6",
+          "UGT1A1",
+          "UGT1A8"
+        ],
+        "5": [
+          "CYP3A4",
+          "CYP2A6",
+          "CYP1A1",
+          "UGT1A6",
+          "UGT1A1",
+          "UGT1A8",
+          "UGT1A7",
+          "PPIG",
+          "CYP2A13",
+          "UGT1A3"
+        ],
+        "10": [
+          "CYP3A4",
+          "CYP2A6",
+          "CYP1A1",
+          "UGT1A6",
+          "UGT1A1",
+          "UGT1A8",
+          "PPIG",
+          "CYP2A13",
+          "UGT1A3",
+          "UGT2B7"
+        ],
+        "20": [
+          "CYP3A4",
+          "CYP2A6",
+          "CYP1A1",
+          "UGT1A6",
+          "UGT1A1",
+          "UGT1A8",
+          "UGT1A7",
+          "PPIG",
+          "CYP2A13",
+          "UGT1A3"
+        ],
+        "50": [
+          "CYP3A4",
+          "CYP2A6",
+          "CYP1A1",
+          "UGT1A6",
+          "UGT1A8",
+          "PPIG",
+          "CYP2A13",
+          "UGT1A3",
+          "UGT2B7",
+          "UGT2B17"
+        ],
+        "100": [
+          "CYP3A4",
+          "CYP2A6",
+          "CYP1A1",
+          "UGT1A6",
+          "UGT1A8",
+          "PPIG",
+          "CYP2A13",
+          "UGT1A3",
+          "UGT2B7",
+          "UGT2B17"
+        ]
+      },
+      "probe_traceability": {
+        "probe_choice_rule": "The probe standing for a gene is chosen on training donors only, by the highest mean among the probes passing the missingness rule, so it can differ between folds. A selection is therefore not traceable from the gene symbol alone.",
+        "qualified_pool_applied": true,
+        "selections_checked": 9454,
+        "selected_features_outside_the_pool": {},
+        "decoy_selections": 218,
+        "features_used_by_the_hybrid_and_the_target": {
+          "AADAC": {
+            "10023809343": 2
+          },
+          "ABCB11": {
+            "10025905459": 4
+          },
+          "ABCG2": {
+            "10033668963": 3
+          },
+          "ADH1A": {
+            "10023841413": 20
+          },
+          "ADH1B": {
+            "10023815929": 20
+          },
+          "ADH1C": {
+            "10023826168": 20
+          },
+          "ADH4": {
+            "10023810494": 19
+          },
+          "ADH6": {
+            "10023809319": 20
+          },
+          "ADH7": {
+            "10023828598": 13
+          },
+          "AKR1A1": {
+            "10025902341": 8
+          },
+          "AKR1C1": {
+            "10023818438": 28
+          },
+          "AKR1C4": {
+            "10023829798": 20
+          },
+          "AKR1D1": {
+            "10023818681": 30
+          },
+          "ALB": {
+            "10023814770": 7
+          },
+          "ALDH2": {
+            "10023817062": 20
+          },
+          "ALDH3A2": {
+            "10023824133": 10
+          },
+          "ALDH7A1": {
+            "10025926775": 7
+          },
+          "ALDH9A1": {
+            "10025912758": 10
+          },
+          "ALG2": {
+            "10023849812": 3
+          },
+          "ALOX5": {
+            "10023806537": 4
+          },
+          "AOC3": {
+            "10023809870": 1
+          },
+          "AOX1": {
+            "10023824186": 5
+          },
+          "B3GAT1": {
+            "10033668915": 10
+          },
+          "B4GALT3": {
+            "10025903299": 2
+          },
+          "BLVRB": {
+            "10023816497": 9
+          },
+          "CALU": {
+            "10025909011": 1
+          },
+          "CBR1": {
+            "10023824309": 4
+          },
+          "CES1": {
+            "10033668757": 20
+          },
+          "CES2": {
+            "10023821636": 16
+          },
+          "CHST10": {
+            "10025910488": 8
+          },
+          "CLCN7": {
+            "10025910006": 4
+          },
+          "COMT": {
+            "10033668679": 1
+          },
+          "CYP1A1": {
+            "10023808927": 40
+          },
+          "CYP1B1": {
+            "10025931874": 30
+          },
+          "CYP26A1": {
+            "10033668852": 1
+          },
+          "CYP2A13": {
+            "10033668806": 1
+          },
+          "CYP2A6": {
+            "10025906751": 16
+          },
+          "CYP2B6": {
+            "10033668783": 15
+          },
+          "CYP2C19": {
+            "10033669006": 33
+          },
+          "CYP2C8": {
+            "10023822987": 30
+          },
+          "CYP2C9": {
+            "10033668581": 51
+          },
+          "CYP2D6": {
+            "10033668469": 90
+          },
+          "CYP2E1": {
+            "10033668556": 30
+          },
+          "CYP2J2": {
+            "10033668689": 20
+          },
+          "CYP3A4": {
+            "10025909722": 16
+          },
+          "CYP3A5": {
+            "10033668746": 25
+          },
+          "CYP3A7": {
+            "10033668518": 2
+          },
+          "CYP4A11": {
+            "10023827250": 1
+          },
+          "CYP4F2": {
+            "10033668962": 18
+          },
+          "CYP7A1": {
+            "10023824109": 20
+          },
+          "CYP8B1": {
+            "10033669040": 10
+          },
+          "DGAT1": {
+            "10023827222": 3
+          },
+          "DHRS4": {
+            "10025907373": 10
+          },
+          "EGFR": {
+            "10025910322": 8
+          },
+          "EPHX1": {
+            "10023821112": 20
+          },
+          "EPHX2": {
+            "10033668621": 10
+          },
+          "ESD": {
+            "10025905149": 1
+          },
+          "F2": {
+            "10023819942": 10
+          },
+          "F7": {
+            "10023809559": 1,
+            "10023819954": 9
+          },
+          "F9": {
+            "10023816412": 5
+          },
+          "FMO2": {
+            "10023822050": 3
+          },
+          "FMO3": {
+            "10023819929": 18
+          },
+          "FMO4": {
+            "10033668745": 23
+          },
+          "FMO5": {
+            "10023813409": 21
+          },
+          "GCLC": {
+            "10023821092": 5
+          },
+          "GGCX": {
+            "10025908314": 7
+          },
+          "GJA5": {
+            "10025904837": 6
+          },
+          "GLO1": {
+            "10025908342": 10
+          },
+          "GRHPR": {
+            "10023819302": 8
+          },
+          "GSR": {
+            "10025907159": 18
+          },
+          "GSTA1": {
+            "10025911121": 11
+          },
+          "GSTA2": {
+            "10025902487": 10
+          },
+          "GSTA5": {
+            "10025904217": 12
+          },
+          "GSTO1": {
+            "10033668907": 1
+          },
+          "GSTZ1": {
+            "10033668823": 10
+          },
+          "GUSB": {
+            "10033668927": 11
+          },
+          "HNMT": {
+            "10033668939": 8
+          },
+          "HPGD": {
+            "10023820318": 5
+          },
+          "HRH2": {
+            "10025905282": 2
+          },
+          "HSD11B1": {
+            "10025911270": 1
+          },
+          "HSD11B2": {
+            "10023823880": 11
+          },
+          "HSD17B3": {
+            "10023811869": 2
+          },
+          "HSD17B4": {
+            "10025905096": 10
+          },
+          "HSD17B6": {
+            "10033668620": 20
+          },
+          "HSD17B8": {
+            "10023833972": 20
+          },
+          "IMPDH1": {
+            "10023823407": 1
+          },
+          "IMPDH2": {
+            "10025909937": 10
+          },
+          "ITPA": {
+            "10025908864": 10
+          },
+          "LHPP": {
+            "10023835247": 9
+          },
+          "MAOA": {
+            "10033668824": 30
+          },
+          "MAOB": {
+            "10033668759": 30
+          },
+          "MCEE": {
+            "10025906277": 8
+          },
+          "MGST2": {
+            "10023822521": 18
+          },
+          "NAT1": {
+            "10025922407": 13
+          },
+          "NAT2": {
+            "10033668827": 12
+          },
+          "NR1I2": {
+            "10025905041": 20
+          },
+          "NR1I3": {
+            "10033668893": 10
+          },
+          "NR3C2": {
+            "10023822235": 1
+          },
+          "POR": {
+            "10025908090": 20
+          },
+          "PPA1": {
+            "10025905511": 4
+          },
+          "PRDX6": {
+            "10023808721": 9
+          },
+          "PROS1": {
+            "10023813538": 7
+          },
+          "PTGES": {
+            "10026394372": 7
+          },
+          "PTGES2": {
+            "10025911649": 7
+          },
+          "SAT2": {
+            "10023846727": 7
+          },
+          "SLC10A1": {
+            "10033668659": 10
+          },
+          "SLC22A1": {
+            "10033668902": 10
+          },
+          "SLC22A7": {
+            "10025906643": 6
+          },
+          "SLCO1B1": {
+            "10023821364": 23
+          },
+          "SLCO1B3": {
+            "10023846686": 1
+          },
+          "SRD5A1": {
+            "10025909575": 13
+          },
+          "SRD5A2": {
+            "10023806717": 6,
+            "10023820385": 11
+          },
+          "SULT1A1": {
+            "10023804824": 18
+          },
+          "SULT1E1": {
+            "10023824130": 2
+          },
+          "SULT2A1": {
+            "10033668910": 20
+          },
+          "TCIRG1": {
+            "10023824773": 3
+          },
+          "TP53": {
+            "10025907209": 10
+          },
+          "UGT1A1": {
+            "10033669017": 29
+          },
+          "UGT1A10": {
+            "10025912097": 44
+          },
+          "UGT1A4": {
+            "10023837351": 41
+          },
+          "UGT1A5": {
+            "10031920078": 26
+          },
+          "UGT1A6": {
+            "10033668786": 11
+          },
+          "UGT1A7": {
+            "10033669016": 28
+          },
+          "UGT1A8": {
+            "10033668701": 9
+          },
+          "UGT1A9": {
+            "10023840114": 22
+          },
+          "UGT2B10": {
+            "10025907699": 13
+          },
+          "UGT2B11": {
+            "10023810610": 28
+          },
+          "UGT2B15": {
+            "10025902322": 32
+          },
+          "UGT2B28": {
+            "10025907848": 3
+          },
+          "UGT2B7": {
+            "10023811174": 25
+          },
+          "VKORC1": {
+            "10023838634": 4
+          },
+          "VKORC1L1": {
+            "10025905932": 1
+          },
+          "XDH": {
+            "10023809967": 4
+          }
+        }
+      },
+      "why_exploratory": "This endpoint's destroyed-signal result generated the hybrid hypothesis, so the rule cannot be confirmed here whatever it produces. Reported for completeness and capped at exploratory.",
+      "collapse_verdict": {
+        "assessed_at_panel_sizes": [
+          5,
+          10,
+          20,
+          50,
+          100
+        ],
+        "threshold": 0.9,
+        "measure": "exact set equality with the univariate top-k",
+        "collapsed": false,
+        "worst_identical_fraction": 0.0,
+        "why_small_k_is_excluded": "At k = 1 every arm already chose the same single transcript in the H2a run, so exact equality there is expected and says nothing about collapse. All three measures are still reported at every k."
+      },
+      "contrasts": [
+        {
+          "label": "hybrid_minus_blind_mechanistic_at_budget_k1",
+          "delta_mae": 0.0,
+          "reference_mae": 91.42869590282422,
+          "relative": 0.0,
+          "ci_low": 0.0,
+          "ci_high": 0.0,
+          "relative_ci_low": 0.0,
+          "relative_ci_high": 0.0,
+          "interval_excludes_zero": false,
+          "non_inferior_within_margin": true,
+          "how_to_read": "Negative means the first arm has the smaller error. interval_excludes_zero false means no difference was DETECTED, never that there is none. non_inferior_within_margin is true only when the whole interval stays below the frozen 5 per cent margin."
+        },
+        {
+          "label": "hybrid_minus_univariate_spearman_at_budget_k1",
+          "delta_mae": 0.0,
+          "reference_mae": 91.42869590282422,
+          "relative": 0.0,
+          "ci_low": 0.0,
+          "ci_high": 0.0,
+          "relative_ci_low": 0.0,
+          "relative_ci_high": 0.0,
+          "interval_excludes_zero": false,
+          "non_inferior_within_margin": true,
+          "how_to_read": "Negative means the first arm has the smaller error. interval_excludes_zero false means no difference was DETECTED, never that there is none. non_inferior_within_margin is true only when the whole interval stays below the frozen 5 per cent margin."
+        },
+        {
+          "label": "hybrid_minus_univariate_spearman_at_matched_dimension_k1",
+          "delta_mae": 0.0,
+          "reference_mae": 91.42869590282422,
+          "relative": 0.0,
+          "ci_low": 0.0,
+          "ci_high": 0.0,
+          "relative_ci_low": 0.0,
+          "relative_ci_high": 0.0,
+          "interval_excludes_zero": false,
+          "non_inferior_within_margin": true,
+          "how_to_read": "Negative means the first arm has the smaller error. interval_excludes_zero false means no difference was DETECTED, never that there is none. non_inferior_within_margin is true only when the whole interval stays below the frozen 5 per cent margin."
+        },
+        {
+          "label": "hybrid_minus_lasso_entry_order_at_budget_k1",
+          "delta_mae": 0.0,
+          "reference_mae": 91.42869590282422,
+          "relative": 0.0,
+          "ci_low": 0.0,
+          "ci_high": 0.0,
+          "relative_ci_low": 0.0,
+          "relative_ci_high": 0.0,
+          "interval_excludes_zero": false,
+          "non_inferior_within_margin": true,
+          "how_to_read": "Negative means the first arm has the smaller error. interval_excludes_zero false means no difference was DETECTED, never that there is none. non_inferior_within_margin is true only when the whole interval stays below the frozen 5 per cent margin."
+        },
+        {
+          "label": "hybrid_minus_lasso_entry_order_at_matched_dimension_k1",
+          "delta_mae": 0.0,
+          "reference_mae": 91.42869590282422,
+          "relative": 0.0,
+          "ci_low": 0.0,
+          "ci_high": 0.0,
+          "relative_ci_low": 0.0,
+          "relative_ci_high": 0.0,
+          "interval_excludes_zero": false,
+          "non_inferior_within_margin": true,
+          "how_to_read": "Negative means the first arm has the smaller error. interval_excludes_zero false means no difference was DETECTED, never that there is none. non_inferior_within_margin is true only when the whole interval stays below the frozen 5 per cent margin."
+        },
+        {
+          "label": "hybrid_minus_xgboost_gain_at_budget_k1",
+          "delta_mae": 0.0,
+          "reference_mae": 91.42869590282422,
+          "relative": 0.0,
+          "ci_low": 0.0,
+          "ci_high": 0.0,
+          "relative_ci_low": 0.0,
+          "relative_ci_high": 0.0,
+          "interval_excludes_zero": false,
+          "non_inferior_within_margin": true,
+          "how_to_read": "Negative means the first arm has the smaller error. interval_excludes_zero false means no difference was DETECTED, never that there is none. non_inferior_within_margin is true only when the whole interval stays below the frozen 5 per cent margin."
+        },
+        {
+          "label": "hybrid_minus_xgboost_gain_at_matched_dimension_k1",
+          "delta_mae": 0.0,
+          "reference_mae": 91.42869590282422,
+          "relative": 0.0,
+          "ci_low": 0.0,
+          "ci_high": 0.0,
+          "relative_ci_low": 0.0,
+          "relative_ci_high": 0.0,
+          "interval_excludes_zero": false,
+          "non_inferior_within_margin": true,
+          "how_to_read": "Negative means the first arm has the smaller error. interval_excludes_zero false means no difference was DETECTED, never that there is none. non_inferior_within_margin is true only when the whole interval stays below the frozen 5 per cent margin."
+        },
+        {
+          "label": "hybrid_minus_blind_mechanistic_at_budget_k2",
+          "delta_mae": -0.37725985403892826,
+          "reference_mae": 91.75350471937466,
+          "relative": -0.004111666962398506,
+          "ci_low": -0.8692801746275611,
+          "ci_high": 0.11669451141889822,
+          "relative_ci_low": -0.009505400296314677,
+          "relative_ci_high": 0.001324952808359872,
+          "interval_excludes_zero": false,
+          "non_inferior_within_margin": true,
+          "how_to_read": "Negative means the first arm has the smaller error. interval_excludes_zero false means no difference was DETECTED, never that there is none. non_inferior_within_margin is true only when the whole interval stays below the frozen 5 per cent margin."
+        },
+        {
+          "label": "hybrid_minus_univariate_spearman_at_budget_k2",
+          "delta_mae": -0.4258008435317334,
+          "reference_mae": 91.80204570886747,
+          "relative": -0.004638250054710969,
+          "ci_low": -1.04963324923365,
+          "ci_high": 0.21174706120193948,
+          "relative_ci_low": -0.011416750036049604,
+          "relative_ci_high": 0.0023636606370909226,
+          "interval_excludes_zero": false,
+          "non_inferior_within_margin": true,
+          "how_to_read": "Negative means the first arm has the smaller error. interval_excludes_zero false means no difference was DETECTED, never that there is none. non_inferior_within_margin is true only when the whole interval stays below the frozen 5 per cent margin."
+        },
+        {
+          "label": "hybrid_minus_univariate_spearman_at_matched_dimension_k2",
+          "delta_mae": -0.4258008435317334,
+          "reference_mae": 91.80204570886747,
+          "relative": -0.004638250054710969,
+          "ci_low": -1.0452291457913194,
+          "ci_high": 0.21535202501115436,
+          "relative_ci_low": -0.011407746505357929,
+          "relative_ci_high": 0.002422565163418546,
+          "interval_excludes_zero": false,
+          "non_inferior_within_margin": true,
+          "how_to_read": "Negative means the first arm has the smaller error. interval_excludes_zero false means no difference was DETECTED, never that there is none. non_inferior_within_margin is true only when the whole interval stays below the frozen 5 per cent margin."
+        },
+        {
+          "label": "hybrid_minus_lasso_entry_order_at_budget_k2",
+          "delta_mae": -3.240685509088133,
+          "reference_mae": 94.61693037442386,
+          "relative": -0.034250588095216104,
+          "ci_low": -5.525997322328083,
+          "ci_high": -1.0254697444406498,
+          "relative_ci_low": -0.05765119177965727,
+          "relative_ci_high": -0.010923225699792207,
+          "interval_excludes_zero": true,
+          "non_inferior_within_margin": true,
+          "how_to_read": "Negative means the first arm has the smaller error. interval_excludes_zero false means no difference was DETECTED, never that there is none. non_inferior_within_margin is true only when the whole interval stays below the frozen 5 per cent margin."
+        },
+        {
+          "label": "hybrid_minus_lasso_entry_order_at_matched_dimension_k2",
+          "delta_mae": -3.240685509088133,
+          "reference_mae": 94.61693037442386,
+          "relative": -0.034250588095216104,
+          "ci_low": -5.629657218040764,
+          "ci_high": -0.9051978445025576,
+          "relative_ci_low": -0.058784366417573196,
+          "relative_ci_high": -0.00953143595628643,
+          "interval_excludes_zero": true,
+          "non_inferior_within_margin": true,
+          "how_to_read": "Negative means the first arm has the smaller error. interval_excludes_zero false means no difference was DETECTED, never that there is none. non_inferior_within_margin is true only when the whole interval stays below the frozen 5 per cent margin."
+        },
+        {
+          "label": "hybrid_minus_xgboost_gain_at_budget_k2",
+          "delta_mae": -0.8844656789460176,
+          "reference_mae": 92.26071054428176,
+          "relative": -0.009586590800441608,
+          "ci_low": -1.9999731914992147,
+          "ci_high": 0.21119028471286305,
+          "relative_ci_low": -0.021807310953870045,
+          "relative_ci_high": 0.0023218208135297354,
+          "interval_excludes_zero": false,
+          "non_inferior_within_margin": true,
+          "how_to_read": "Negative means the first arm has the smaller error. interval_excludes_zero false means no difference was DETECTED, never that there is none. non_inferior_within_margin is true only when the whole interval stays below the frozen 5 per cent margin."
+        },
+        {
+          "label": "hybrid_minus_xgboost_gain_at_matched_dimension_k2",
+          "delta_mae": -0.8844656789460176,
+          "reference_mae": 92.26071054428176,
+          "relative": -0.009586590800441608,
+          "ci_low": -2.073958417827552,
+          "ci_high": 0.2373821217561089,
+          "relative_ci_low": -0.02219534892338502,
+          "relative_ci_high": 0.002683972691550759,
+          "interval_excludes_zero": false,
+          "non_inferior_within_margin": true,
+          "how_to_read": "Negative means the first arm has the smaller error. interval_excludes_zero false means no difference was DETECTED, never that there is none. non_inferior_within_margin is true only when the whole interval stays below the frozen 5 per cent margin."
+        },
+        {
+          "label": "hybrid_minus_blind_mechanistic_at_budget_k3",
+          "delta_mae": -0.22203812723150457,
+          "reference_mae": 91.83513086607711,
+          "relative": -0.002417790720582759,
+          "ci_low": -0.9994640029785002,
+          "ci_high": 0.5204226082288905,
+          "relative_ci_low": -0.010680098213890153,
+          "relative_ci_high": 0.005814434121825842,
+          "interval_excludes_zero": false,
+          "non_inferior_within_margin": true,
+          "how_to_read": "Negative means the first arm has the smaller error. interval_excludes_zero false means no difference was DETECTED, never that there is none. non_inferior_within_margin is true only when the whole interval stays below the frozen 5 per cent margin."
+        },
+        {
+          "label": "hybrid_minus_univariate_spearman_at_budget_k3",
+          "delta_mae": -0.06946448889023871,
+          "reference_mae": 91.68255722773586,
+          "relative": -0.0007576630821683088,
+          "ci_low": -1.1008185807506337,
+          "ci_high": 0.9966384344964292,
+          "relative_ci_low": -0.01193043754965694,
+          "relative_ci_high": 0.010971086800645655,
+          "interval_excludes_zero": false,
+          "non_inferior_within_margin": true,
+          "how_to_read": "Negative means the first arm has the smaller error. interval_excludes_zero false means no difference was DETECTED, never that there is none. non_inferior_within_margin is true only when the whole interval stays below the frozen 5 per cent margin."
+        },
+        {
+          "label": "hybrid_minus_univariate_spearman_at_matched_dimension_k3",
+          "delta_mae": -0.06946448889023871,
+          "reference_mae": 91.68255722773586,
+          "relative": -0.0007576630821683088,
+          "ci_low": -1.14720419710424,
+          "ci_high": 0.9245683246567817,
+          "relative_ci_low": -0.012844527246096436,
+          "relative_ci_high": 0.010107490283073882,
+          "interval_excludes_zero": false,
+          "non_inferior_within_margin": true,
+          "how_to_read": "Negative means the first arm has the smaller error. interval_excludes_zero false means no difference was DETECTED, never that there is none. non_inferior_within_margin is true only when the whole interval stays below the frozen 5 per cent margin."
+        },
+        {
+          "label": "hybrid_minus_lasso_entry_order_at_budget_k3",
+          "delta_mae": -2.236476591364008,
+          "reference_mae": 93.8495693302096,
+          "relative": -0.023830440643738786,
+          "ci_low": -5.051197958115678,
+          "ci_high": 0.3989339233621639,
+          "relative_ci_low": -0.053036604816132205,
+          "relative_ci_high": 0.004342119828584738,
+          "interval_excludes_zero": false,
+          "non_inferior_within_margin": true,
+          "how_to_read": "Negative means the first arm has the smaller error. interval_excludes_zero false means no difference was DETECTED, never that there is none. non_inferior_within_margin is true only when the whole interval stays below the frozen 5 per cent margin."
+        },
+        {
+          "label": "hybrid_minus_lasso_entry_order_at_matched_dimension_k3",
+          "delta_mae": -2.236476591364008,
+          "reference_mae": 93.8495693302096,
+          "relative": -0.023830440643738786,
+          "ci_low": -4.780931228397104,
+          "ci_high": 0.4574761972823333,
+          "relative_ci_low": -0.05094113159931235,
+          "relative_ci_high": 0.005026116224758337,
+          "interval_excludes_zero": false,
+          "non_inferior_within_margin": true,
+          "how_to_read": "Negative means the first arm has the smaller error. interval_excludes_zero false means no difference was DETECTED, never that there is none. non_inferior_within_margin is true only when the whole interval stays below the frozen 5 per cent margin."
+        },
+        {
+          "label": "hybrid_minus_xgboost_gain_at_budget_k3",
+          "delta_mae": -0.45740415345261654,
+          "reference_mae": 92.07049689229821,
+          "relative": -0.0049679774617451735,
+          "ci_low": -2.2184654207857424,
+          "ci_high": 1.2409780160211723,
+          "relative_ci_low": -0.023305761053030914,
+          "relative_ci_high": 0.013846193651215177,
+          "interval_excludes_zero": false,
+          "non_inferior_within_margin": true,
+          "how_to_read": "Negative means the first arm has the smaller error. interval_excludes_zero false means no difference was DETECTED, never that there is none. non_inferior_within_margin is true only when the whole interval stays below the frozen 5 per cent margin."
+        },
+        {
+          "label": "hybrid_minus_xgboost_gain_at_matched_dimension_k3",
+          "delta_mae": -0.45740415345261654,
+          "reference_mae": 92.07049689229821,
+          "relative": -0.0049679774617451735,
+          "ci_low": -2.062649211505555,
+          "ci_high": 1.2393445646689982,
+          "relative_ci_low": -0.022641747539165896,
+          "relative_ci_high": 0.013600134341093046,
+          "interval_excludes_zero": false,
+          "non_inferior_within_margin": true,
+          "how_to_read": "Negative means the first arm has the smaller error. interval_excludes_zero false means no difference was DETECTED, never that there is none. non_inferior_within_margin is true only when the whole interval stays below the frozen 5 per cent margin."
+        },
+        {
+          "label": "hybrid_minus_blind_mechanistic_at_budget_k5",
+          "delta_mae": -0.5877481926428438,
+          "reference_mae": 92.4608290470561,
+          "relative": -0.006356726396469159,
+          "ci_low": -1.962266411815121,
+          "ci_high": 0.6499805120930054,
+          "relative_ci_low": -0.02099558190864031,
+          "relative_ci_high": 0.007268133064836765,
+          "interval_excludes_zero": false,
+          "non_inferior_within_margin": true,
+          "how_to_read": "Negative means the first arm has the smaller error. interval_excludes_zero false means no difference was DETECTED, never that there is none. non_inferior_within_margin is true only when the whole interval stays below the frozen 5 per cent margin."
+        },
+        {
+          "label": "hybrid_minus_univariate_spearman_at_budget_k5",
+          "delta_mae": -0.19423576957243638,
+          "reference_mae": 92.06731662398569,
+          "relative": -0.002109714681548929,
+          "ci_low": -2.0091002390066945,
+          "ci_high": 1.6293095782712388,
+          "relative_ci_low": -0.02171278039200594,
+          "relative_ci_high": 0.0182088940864847,
+          "interval_excludes_zero": false,
+          "non_inferior_within_margin": true,
+          "how_to_read": "Negative means the first arm has the smaller error. interval_excludes_zero false means no difference was DETECTED, never that there is none. non_inferior_within_margin is true only when the whole interval stays below the frozen 5 per cent margin."
+        },
+        {
+          "label": "hybrid_minus_univariate_spearman_at_matched_dimension_k5",
+          "delta_mae": -0.1326007591585482,
+          "reference_mae": 92.00568161357181,
+          "relative": -0.0014412235943805907,
+          "ci_low": -1.8773089368002598,
+          "ci_high": 1.691190884521637,
+          "relative_ci_low": -0.02032445288359826,
+          "relative_ci_high": 0.018922148489647052,
+          "interval_excludes_zero": false,
+          "non_inferior_within_margin": true,
+          "how_to_read": "Negative means the first arm has the smaller error. interval_excludes_zero false means no difference was DETECTED, never that there is none. non_inferior_within_margin is true only when the whole interval stays below the frozen 5 per cent margin."
+        },
+        {
+          "label": "hybrid_minus_lasso_entry_order_at_budget_k5",
+          "delta_mae": -3.1092008862263696,
+          "reference_mae": 94.98228174063964,
+          "relative": -0.03273453563388181,
+          "ci_low": -6.798363158810309,
+          "ci_high": 0.4910973631820716,
+          "relative_ci_low": -0.06895899910737886,
+          "relative_ci_high": 0.005284767361411129,
+          "interval_excludes_zero": false,
+          "non_inferior_within_margin": true,
+          "how_to_read": "Negative means the first arm has the smaller error. interval_excludes_zero false means no difference was DETECTED, never that there is none. non_inferior_within_margin is true only when the whole interval stays below the frozen 5 per cent margin."
+        },
+        {
+          "label": "hybrid_minus_lasso_entry_order_at_matched_dimension_k5",
+          "delta_mae": -2.9158350061574145,
+          "reference_mae": 94.78891586057068,
+          "relative": -0.030761349886588518,
+          "ci_low": -6.176886027632043,
+          "ci_high": 0.7577683552859291,
+          "relative_ci_low": -0.0639081856570056,
+          "relative_ci_high": 0.008405999533360384,
+          "interval_excludes_zero": false,
+          "non_inferior_within_margin": true,
+          "how_to_read": "Negative means the first arm has the smaller error. interval_excludes_zero false means no difference was DETECTED, never that there is none. non_inferior_within_margin is true only when the whole interval stays below the frozen 5 per cent margin."
+        },
+        {
+          "label": "hybrid_minus_xgboost_gain_at_budget_k5",
+          "delta_mae": -1.3856049413070293,
+          "reference_mae": 93.2586857957203,
+          "relative": -0.014857650303395286,
+          "ci_low": -3.7333530742202123,
+          "ci_high": 0.8632639986729624,
+          "relative_ci_low": -0.039820366366640894,
+          "relative_ci_high": 0.009302134082706916,
+          "interval_excludes_zero": false,
+          "non_inferior_within_margin": true,
+          "how_to_read": "Negative means the first arm has the smaller error. interval_excludes_zero false means no difference was DETECTED, never that there is none. non_inferior_within_margin is true only when the whole interval stays below the frozen 5 per cent margin."
+        },
+        {
+          "label": "hybrid_minus_xgboost_gain_at_matched_dimension_k5",
+          "delta_mae": -1.373214948606437,
+          "reference_mae": 93.2462958030197,
+          "relative": -0.014726750663718766,
+          "ci_low": -3.5172644962965105,
+          "ci_high": 0.8222368356358305,
+          "relative_ci_low": -0.03719335332961086,
+          "relative_ci_high": 0.008836394008948525,
+          "interval_excludes_zero": false,
+          "non_inferior_within_margin": true,
+          "how_to_read": "Negative means the first arm has the smaller error. interval_excludes_zero false means no difference was DETECTED, never that there is none. non_inferior_within_margin is true only when the whole interval stays below the frozen 5 per cent margin."
+        },
+        {
+          "label": "hybrid_minus_blind_mechanistic_at_budget_k10",
+          "delta_mae": -0.006430894539798145,
+          "reference_mae": 92.78022298086974,
+          "relative": -6.931320418494925e-05,
+          "ci_low": -0.8161793708757752,
+          "ci_high": 0.7948081253779821,
+          "relative_ci_low": -0.008921342136327646,
+          "relative_ci_high": 0.008648288655465172,
+          "interval_excludes_zero": false,
+          "non_inferior_within_margin": true,
+          "how_to_read": "Negative means the first arm has the smaller error. interval_excludes_zero false means no difference was DETECTED, never that there is none. non_inferior_within_margin is true only when the whole interval stays below the frozen 5 per cent margin."
+        },
+        {
+          "label": "hybrid_minus_univariate_spearman_at_budget_k10",
+          "delta_mae": 0.7067415402943468,
+          "reference_mae": 92.06705054603557,
+          "relative": 0.007676378640379712,
+          "ci_low": -1.4842023002362124,
+          "ci_high": 2.854706254302519,
+          "relative_ci_low": -0.015992425471852284,
+          "relative_ci_high": 0.03164639885139328,
+          "interval_excludes_zero": false,
+          "non_inferior_within_margin": true,
+          "how_to_read": "Negative means the first arm has the smaller error. interval_excludes_zero false means no difference was DETECTED, never that there is none. non_inferior_within_margin is true only when the whole interval stays below the frozen 5 per cent margin."
+        },
+        {
+          "label": "hybrid_minus_univariate_spearman_at_matched_dimension_k10",
+          "delta_mae": 0.6912148092911143,
+          "reference_mae": 92.08257727703884,
+          "relative": 0.007506466801114086,
+          "ci_low": -1.3416154075034745,
+          "ci_high": 2.641954263664257,
+          "relative_ci_low": -0.014624661121198885,
+          "relative_ci_high": 0.028979804251437303,
+          "interval_excludes_zero": false,
+          "non_inferior_within_margin": true,
+          "how_to_read": "Negative means the first arm has the smaller error. interval_excludes_zero false means no difference was DETECTED, never that there is none. non_inferior_within_margin is true only when the whole interval stays below the frozen 5 per cent margin."
+        },
+        {
+          "label": "hybrid_minus_lasso_entry_order_at_budget_k10",
+          "delta_mae": -2.380179598244983,
+          "reference_mae": 95.15397168457491,
+          "relative": -0.025013980563365446,
+          "ci_low": -6.686187244735626,
+          "ci_high": 1.6700402453574767,
+          "relative_ci_low": -0.0675185055688212,
+          "relative_ci_high": 0.018147770624327854,
+          "interval_excludes_zero": false,
+          "non_inferior_within_margin": true,
+          "how_to_read": "Negative means the first arm has the smaller error. interval_excludes_zero false means no difference was DETECTED, never that there is none. non_inferior_within_margin is true only when the whole interval stays below the frozen 5 per cent margin."
+        },
+        {
+          "label": "hybrid_minus_lasso_entry_order_at_matched_dimension_k10",
+          "delta_mae": -2.929894614532747,
+          "reference_mae": 95.70368670086269,
+          "relative": -0.030614229352424062,
+          "ci_low": -7.126787191668723,
+          "ci_high": 1.0581634693428685,
+          "relative_ci_low": -0.07285974861028446,
+          "relative_ci_high": 0.011410907164588696,
+          "interval_excludes_zero": false,
+          "non_inferior_within_margin": true,
+          "how_to_read": "Negative means the first arm has the smaller error. interval_excludes_zero false means no difference was DETECTED, never that there is none. non_inferior_within_margin is true only when the whole interval stays below the frozen 5 per cent margin."
+        },
+        {
+          "label": "hybrid_minus_xgboost_gain_at_budget_k10",
+          "delta_mae": -1.8874086842369235,
+          "reference_mae": 94.66120077056686,
+          "relative": -0.019938566898295443,
+          "ci_low": -4.727722995049277,
+          "ci_high": 0.7818418307878051,
+          "relative_ci_low": -0.04945743010144025,
+          "relative_ci_high": 0.00852997796393956,
+          "interval_excludes_zero": false,
+          "non_inferior_within_margin": true,
+          "how_to_read": "Negative means the first arm has the smaller error. interval_excludes_zero false means no difference was DETECTED, never that there is none. non_inferior_within_margin is true only when the whole interval stays below the frozen 5 per cent margin."
+        },
+        {
+          "label": "hybrid_minus_xgboost_gain_at_matched_dimension_k10",
+          "delta_mae": -1.5422505741059693,
+          "reference_mae": 94.31604266043591,
+          "relative": -0.016351943217746127,
+          "ci_low": -4.237805231493817,
+          "ci_high": 1.0189004568831002,
+          "relative_ci_low": -0.04393012728446016,
+          "relative_ci_high": 0.011216342228007587,
+          "interval_excludes_zero": false,
+          "non_inferior_within_margin": true,
+          "how_to_read": "Negative means the first arm has the smaller error. interval_excludes_zero false means no difference was DETECTED, never that there is none. non_inferior_within_margin is true only when the whole interval stays below the frozen 5 per cent margin."
+        },
+        {
+          "label": "hybrid_minus_blind_mechanistic_at_budget_k20",
+          "delta_mae": -0.3548469256853129,
+          "reference_mae": 94.27881272032164,
+          "relative": -0.003763803504165536,
+          "ci_low": -2.424109726237942,
+          "ci_high": 1.7877981999152721,
+          "relative_ci_low": -0.025599471527701805,
+          "relative_ci_high": 0.019107437788716253,
+          "interval_excludes_zero": false,
+          "non_inferior_within_margin": true,
+          "how_to_read": "Negative means the first arm has the smaller error. interval_excludes_zero false means no difference was DETECTED, never that there is none. non_inferior_within_margin is true only when the whole interval stays below the frozen 5 per cent margin."
+        },
+        {
+          "label": "hybrid_minus_univariate_spearman_at_budget_k20",
+          "delta_mae": 0.23737556774413807,
+          "reference_mae": 93.68659022689219,
+          "relative": 0.002533719790305708,
+          "ci_low": -2.43242674232032,
+          "ci_high": 2.751666977944783,
+          "relative_ci_low": -0.02605178964820317,
+          "relative_ci_high": 0.02948974567593464,
+          "interval_excludes_zero": false,
+          "non_inferior_within_margin": true,
+          "how_to_read": "Negative means the first arm has the smaller error. interval_excludes_zero false means no difference was DETECTED, never that there is none. non_inferior_within_margin is true only when the whole interval stays below the frozen 5 per cent margin."
+        },
+        {
+          "label": "hybrid_minus_univariate_spearman_at_matched_dimension_k20",
+          "delta_mae": 0.23737556774413807,
+          "reference_mae": 93.68659022689219,
+          "relative": 0.002533719790305708,
+          "ci_low": -2.5262625024490464,
+          "ci_high": 3.0104765982085158,
+          "relative_ci_low": -0.027685129542748835,
+          "relative_ci_high": 0.032600663092988605,
+          "interval_excludes_zero": false,
+          "non_inferior_within_margin": true,
+          "how_to_read": "Negative means the first arm has the smaller error. interval_excludes_zero false means no difference was DETECTED, never that there is none. non_inferior_within_margin is true only when the whole interval stays below the frozen 5 per cent margin."
+        },
+        {
+          "label": "hybrid_minus_lasso_entry_order_at_budget_k20",
+          "delta_mae": -6.839617893535744,
+          "reference_mae": 100.76358368817208,
+          "relative": -0.06787787455735954,
+          "ci_low": -12.128936336512115,
+          "ci_high": -1.7059432590848491,
+          "relative_ci_low": -0.11538027344863236,
+          "relative_ci_high": -0.01753231703848588,
+          "interval_excludes_zero": true,
+          "non_inferior_within_margin": true,
+          "how_to_read": "Negative means the first arm has the smaller error. interval_excludes_zero false means no difference was DETECTED, never that there is none. non_inferior_within_margin is true only when the whole interval stays below the frozen 5 per cent margin."
+        },
+        {
+          "label": "hybrid_minus_lasso_entry_order_at_matched_dimension_k20",
+          "delta_mae": -6.839617893535744,
+          "reference_mae": 100.76358368817208,
+          "relative": -0.06787787455735954,
+          "ci_low": -11.775915243957703,
+          "ci_high": -2.0380687762845366,
+          "relative_ci_low": -0.11344514885104934,
+          "relative_ci_high": -0.020961251003255583,
+          "interval_excludes_zero": true,
+          "non_inferior_within_margin": true,
+          "how_to_read": "Negative means the first arm has the smaller error. interval_excludes_zero false means no difference was DETECTED, never that there is none. non_inferior_within_margin is true only when the whole interval stays below the frozen 5 per cent margin."
+        },
+        {
+          "label": "hybrid_minus_xgboost_gain_at_budget_k20",
+          "delta_mae": -3.6363021374130073,
+          "reference_mae": 97.56026793204933,
+          "relative": -0.03727236727092314,
+          "ci_low": -6.881074412992991,
+          "ci_high": -0.5716584054523273,
+          "relative_ci_low": -0.0702501145641454,
+          "relative_ci_high": -0.005992656973057458,
+          "interval_excludes_zero": true,
+          "non_inferior_within_margin": true,
+          "how_to_read": "Negative means the first arm has the smaller error. interval_excludes_zero false means no difference was DETECTED, never that there is none. non_inferior_within_margin is true only when the whole interval stays below the frozen 5 per cent margin."
+        },
+        {
+          "label": "hybrid_minus_xgboost_gain_at_matched_dimension_k20",
+          "delta_mae": -3.6363021374130073,
+          "reference_mae": 97.56026793204933,
+          "relative": -0.03727236727092314,
+          "ci_low": -6.606268904230383,
+          "ci_high": -0.7488040278795317,
+          "relative_ci_low": -0.0665033400071629,
+          "relative_ci_high": -0.007668253155357983,
+          "interval_excludes_zero": true,
+          "non_inferior_within_margin": true,
+          "how_to_read": "Negative means the first arm has the smaller error. interval_excludes_zero false means no difference was DETECTED, never that there is none. non_inferior_within_margin is true only when the whole interval stays below the frozen 5 per cent margin."
+        },
+        {
+          "label": "hybrid_minus_blind_mechanistic_at_budget_k50",
+          "delta_mae": -1.7405440673789914,
+          "reference_mae": 96.64534592629732,
+          "relative": -0.01800960046960096,
+          "ci_low": -5.583630211573168,
+          "ci_high": 1.7319935725463,
+          "relative_ci_low": -0.055943992588491906,
+          "relative_ci_high": 0.018942800078314632,
+          "interval_excludes_zero": false,
+          "non_inferior_within_margin": true,
+          "how_to_read": "Negative means the first arm has the smaller error. interval_excludes_zero false means no difference was DETECTED, never that there is none. non_inferior_within_margin is true only when the whole interval stays below the frozen 5 per cent margin."
+        },
+        {
+          "label": "hybrid_minus_univariate_spearman_at_budget_k50",
+          "delta_mae": -1.6071508042248546,
+          "reference_mae": 96.5119526631432,
+          "relative": -0.016652349889078627,
+          "ci_low": -4.533365477093728,
+          "ci_high": 1.3532592433432304,
+          "relative_ci_low": -0.04634238609289405,
+          "relative_ci_high": 0.014153801533054313,
+          "interval_excludes_zero": false,
+          "non_inferior_within_margin": true,
+          "how_to_read": "Negative means the first arm has the smaller error. interval_excludes_zero false means no difference was DETECTED, never that there is none. non_inferior_within_margin is true only when the whole interval stays below the frozen 5 per cent margin."
+        },
+        {
+          "label": "hybrid_minus_univariate_spearman_at_matched_dimension_k50",
+          "delta_mae": -1.3718112506013669,
+          "reference_mae": 96.2766131095197,
+          "relative": -0.014248644673871729,
+          "ci_low": -4.289992026646276,
+          "ci_high": 1.7304299395906964,
+          "relative_ci_low": -0.043870864101284004,
+          "relative_ci_high": 0.018037342572766263,
+          "interval_excludes_zero": false,
+          "non_inferior_within_margin": true,
+          "how_to_read": "Negative means the first arm has the smaller error. interval_excludes_zero false means no difference was DETECTED, never that there is none. non_inferior_within_margin is true only when the whole interval stays below the frozen 5 per cent margin."
+        },
+        {
+          "label": "hybrid_minus_lasso_entry_order_at_budget_k50",
+          "delta_mae": -15.453591238395134,
+          "reference_mae": 110.35839309731348,
+          "relative": -0.1400309555501432,
+          "ci_low": -20.847858608854764,
+          "ci_high": -10.131829659726787,
+          "relative_ci_low": -0.18522934212449743,
+          "relative_ci_high": -0.0950932443099187,
+          "interval_excludes_zero": true,
+          "non_inferior_within_margin": true,
+          "how_to_read": "Negative means the first arm has the smaller error. interval_excludes_zero false means no difference was DETECTED, never that there is none. non_inferior_within_margin is true only when the whole interval stays below the frozen 5 per cent margin."
+        },
+        {
+          "label": "hybrid_minus_lasso_entry_order_at_matched_dimension_k50",
+          "delta_mae": -15.572838517381687,
+          "reference_mae": 110.4776403763,
+          "relative": -0.1409591883419916,
+          "ci_low": -20.917281761237867,
+          "ci_high": -10.395455207923224,
+          "relative_ci_low": -0.18482464214861646,
+          "relative_ci_high": -0.09691360004539727,
+          "interval_excludes_zero": true,
+          "non_inferior_within_margin": true,
+          "how_to_read": "Negative means the first arm has the smaller error. interval_excludes_zero false means no difference was DETECTED, never that there is none. non_inferior_within_margin is true only when the whole interval stays below the frozen 5 per cent margin."
+        },
+        {
+          "label": "hybrid_minus_xgboost_gain_at_budget_k50",
+          "delta_mae": -5.380354131498593,
+          "reference_mae": 100.28515599041692,
+          "relative": -0.053650553547652954,
+          "ci_low": -8.748726797515296,
+          "ci_high": -1.7128301894841325,
+          "relative_ci_low": -0.08621555684768584,
+          "relative_ci_high": -0.01729866419820707,
+          "interval_excludes_zero": true,
+          "non_inferior_within_margin": true,
+          "how_to_read": "Negative means the first arm has the smaller error. interval_excludes_zero false means no difference was DETECTED, never that there is none. non_inferior_within_margin is true only when the whole interval stays below the frozen 5 per cent margin."
+        },
+        {
+          "label": "hybrid_minus_xgboost_gain_at_matched_dimension_k50",
+          "delta_mae": -5.529902236729304,
+          "reference_mae": 100.43470409564763,
+          "relative": -0.055059675701966286,
+          "ci_low": -9.184584736697827,
+          "ci_high": -2.001929371360984,
+          "relative_ci_low": -0.09100423217933187,
+          "relative_ci_high": -0.019706525522963793,
+          "interval_excludes_zero": true,
+          "non_inferior_within_margin": true,
+          "how_to_read": "Negative means the first arm has the smaller error. interval_excludes_zero false means no difference was DETECTED, never that there is none. non_inferior_within_margin is true only when the whole interval stays below the frozen 5 per cent margin."
+        },
+        {
+          "label": "hybrid_minus_blind_mechanistic_at_budget_k100",
+          "delta_mae": -4.655452203517173,
+          "reference_mae": 97.23123043470716,
+          "relative": -0.04788021485178477,
+          "ci_low": -8.093065635887196,
+          "ci_high": -1.2970031634495471,
+          "relative_ci_low": -0.08121751341114176,
+          "relative_ci_high": -0.013762992972243966,
+          "interval_excludes_zero": true,
+          "non_inferior_within_margin": true,
+          "how_to_read": "Negative means the first arm has the smaller error. interval_excludes_zero false means no difference was DETECTED, never that there is none. non_inferior_within_margin is true only when the whole interval stays below the frozen 5 per cent margin."
+        },
+        {
+          "label": "hybrid_minus_univariate_spearman_at_budget_k100",
+          "delta_mae": -6.821758640932786,
+          "reference_mae": 99.39753687212279,
+          "relative": -0.06863106325973786,
+          "ci_low": -10.257080059992411,
+          "ci_high": -3.519574418206352,
+          "relative_ci_low": -0.10091368338169773,
+          "relative_ci_high": -0.0359502814791081,
+          "interval_excludes_zero": true,
+          "non_inferior_within_margin": true,
+          "how_to_read": "Negative means the first arm has the smaller error. interval_excludes_zero false means no difference was DETECTED, never that there is none. non_inferior_within_margin is true only when the whole interval stays below the frozen 5 per cent margin."
+        },
+        {
+          "label": "hybrid_minus_univariate_spearman_at_matched_dimension_k100",
+          "delta_mae": -6.742737998274609,
+          "reference_mae": 99.3185162294646,
+          "relative": -0.06789003958432331,
+          "ci_low": -10.292139800017411,
+          "ci_high": -3.383362030723821,
+          "relative_ci_low": -0.1004942496988298,
+          "relative_ci_high": -0.03579978434039889,
+          "interval_excludes_zero": true,
+          "non_inferior_within_margin": true,
+          "how_to_read": "Negative means the first arm has the smaller error. interval_excludes_zero false means no difference was DETECTED, never that there is none. non_inferior_within_margin is true only when the whole interval stays below the frozen 5 per cent margin."
+        },
+        {
+          "label": "hybrid_minus_lasso_entry_order_at_budget_k100",
+          "delta_mae": -17.71253323916332,
+          "reference_mae": 110.2883114703533,
+          "relative": -0.16060208922433852,
+          "ci_low": -22.93059514987493,
+          "ci_high": -12.61510784916462,
+          "relative_ci_low": -0.20313166070512995,
+          "relative_ci_high": -0.11946136395030679,
+          "interval_excludes_zero": true,
+          "non_inferior_within_margin": true,
+          "how_to_read": "Negative means the first arm has the smaller error. interval_excludes_zero false means no difference was DETECTED, never that there is none. non_inferior_within_margin is true only when the whole interval stays below the frozen 5 per cent margin."
+        },
+        {
+          "label": "hybrid_minus_lasso_entry_order_at_matched_dimension_k100",
+          "delta_mae": -17.086359545742575,
+          "reference_mae": 109.66213777693257,
+          "relative": -0.15580910505774118,
+          "ci_low": -22.40334278819593,
+          "ci_high": -11.859544881072408,
+          "relative_ci_low": -0.19741684448259583,
+          "relative_ci_high": -0.1131149696291335,
+          "interval_excludes_zero": true,
+          "non_inferior_within_margin": true,
+          "how_to_read": "Negative means the first arm has the smaller error. interval_excludes_zero false means no difference was DETECTED, never that there is none. non_inferior_within_margin is true only when the whole interval stays below the frozen 5 per cent margin."
+        },
+        {
+          "label": "hybrid_minus_xgboost_gain_at_budget_k100",
+          "delta_mae": -12.347337126224563,
+          "reference_mae": 104.92311535741456,
+          "relative": -0.11767985618959244,
+          "ci_low": -16.1696609935524,
+          "ci_high": -8.160329636282402,
+          "relative_ci_low": -0.15219878473993967,
+          "relative_ci_high": -0.08125658742149615,
+          "interval_excludes_zero": true,
+          "non_inferior_within_margin": true,
+          "how_to_read": "Negative means the first arm has the smaller error. interval_excludes_zero false means no difference was DETECTED, never that there is none. non_inferior_within_margin is true only when the whole interval stays below the frozen 5 per cent margin."
+        },
+        {
+          "label": "hybrid_minus_xgboost_gain_at_matched_dimension_k100",
+          "delta_mae": -12.391153188422093,
+          "reference_mae": 104.96693141961208,
+          "relative": -0.11804816070013192,
+          "ci_low": -16.169969826112506,
+          "ci_high": -8.446210400967896,
+          "relative_ci_low": -0.15137802148875795,
+          "relative_ci_high": -0.08202498784145083,
+          "interval_excludes_zero": true,
+          "non_inferior_within_margin": true,
+          "how_to_read": "Negative means the first arm has the smaller error. interval_excludes_zero false means no difference was DETECTED, never that there is none. non_inferior_within_margin is true only when the whole interval stays below the frozen 5 per cent margin."
+        }
+      ],
+      "non_inferiority_against_every_statistical_arm": {
+        "1": {
+          "at_budget": true,
+          "at_matched_dimension": true
+        },
+        "2": {
+          "at_budget": true,
+          "at_matched_dimension": true
+        },
+        "3": {
+          "at_budget": true,
+          "at_matched_dimension": true
+        },
+        "5": {
+          "at_budget": true,
+          "at_matched_dimension": true
+        },
+        "10": {
+          "at_budget": true,
+          "at_matched_dimension": true
+        },
+        "20": {
+          "at_budget": true,
+          "at_matched_dimension": true
+        },
+        "50": {
+          "at_budget": true,
+          "at_matched_dimension": true
+        },
+        "100": {
+          "at_budget": true,
+          "at_matched_dimension": true
+        }
+      },
+      "destroyed_signal_repair": {
+        "gene": "CYP2D6",
+        "folds_examined": 10,
+        "permutation": "within each block separately, per-fold seed",
+        "blind_arm_mae": 109.52704911276282,
+        "hybrid_arm_mae": 107.56414209677833,
+        "univariate_arm_mae": 108.8830782419964,
+        "hybrid_kept_the_dead_gene_in_n_folds": 0,
+        "univariate_kept_the_dead_gene_in_n_folds": 0,
+        "contrast_against_blind": {
+          "label": "hybrid_minus_blind_on_destroyed_signal",
+          "delta_mae": -1.962907015984513,
+          "reference_mae": 109.52704911276282,
+          "relative": -0.01792166439144741,
+          "ci_low": -4.095526042208857,
+          "ci_high": 0.25467785759997513,
+          "relative_ci_low": -0.037550189122355866,
+          "relative_ci_high": 0.002287121587787697,
+          "interval_excludes_zero": false,
+          "non_inferior_within_margin": true,
+          "how_to_read": "Negative means the first arm has the smaller error. interval_excludes_zero false means no difference was DETECTED, never that there is none. non_inferior_within_margin is true only when the whole interval stays below the frozen 5 per cent margin."
+        },
+        "contrast_against_univariate": {
+          "label": "hybrid_minus_univariate_on_destroyed_signal",
+          "delta_mae": -1.3189361452180708,
+          "reference_mae": 108.8830782419964,
+          "relative": -0.012113325289047116,
+          "ci_low": -3.6966250628365063,
+          "ci_high": 1.0074578690950236,
+          "relative_ci_low": -0.03341847941300398,
+          "relative_ci_high": 0.009443680858030778,
+          "interval_excludes_zero": false,
+          "non_inferior_within_margin": true,
+          "how_to_read": "Negative means the first arm has the smaller error. interval_excludes_zero false means no difference was DETECTED, never that there is none. non_inferior_within_margin is true only when the whole interval stays below the frozen 5 per cent margin."
+        },
+        "repair_criterion_met": false,
+        "how_to_read": "The target gene's donor order is permuted within each block, so it keeps its place in the mechanistic ordering while carrying nothing. The blind arm must keep choosing it; the hybrid must demote it. The repair criterion needs BOTH halves: the hybrid within the frozen margin of the univariate arm, and its interval against the blind arm excluding zero on the favourable side. Either one alone is not the repair."
+      }
+    }
+  }
+}

@@ -1,0 +1,3350 @@
+{
+  "run": "hypothesis_dataset_matrix",
+  "generated": "2026-11-12",
+  "no_experiment_was_run": true,
+  "catalogue": {
+    "A_clinical_inputs": {
+      "age": {
+        "role": "covariate",
+        "mechanism": "maturation and decline of enzyme and renal function"
+      },
+      "sex": {
+        "role": "covariate",
+        "mechanism": "enzyme expression differences, body composition"
+      },
+      "weight": {
+        "role": "covariate",
+        "mechanism": "V and allometric scaling of CL"
+      },
+      "renal_function": {
+        "role": "organ function",
+        "mechanism": "renal CL of parent and metabolites"
+      },
+      "hepatic_function": {
+        "role": "organ function",
+        "mechanism": "metabolic CL and first pass"
+      },
+      "inflammation": {
+        "role": "state",
+        "mechanism": "CYP down-regulation, acute-phase binding"
+      },
+      "albumin": {
+        "role": "binding",
+        "mechanism": "fraction unbound, hence CL and V of bound drugs"
+      },
+      "hematocrit": {
+        "role": "matrix",
+        "mechanism": "blood-to-plasma ratio, assay interpretation"
+      },
+      "comedication": {
+        "role": "perturbation",
+        "mechanism": "induction, inhibition, transport"
+      },
+      "ddi": {
+        "role": "perturbation",
+        "mechanism": "a named interaction with a mechanism"
+      },
+      "diet": {
+        "role": "perturbation",
+        "mechanism": "CYP1A2 and CYP3A modulation, absorption"
+      },
+      "dose": {
+        "role": "design",
+        "mechanism": "linearity, saturation"
+      },
+      "formulation": {
+        "role": "design",
+        "mechanism": "ka and F"
+      },
+      "timing": {
+        "role": "design",
+        "mechanism": "what a concentration means"
+      },
+      "adherence": {
+        "role": "design",
+        "mechanism": "whether the dose history is real"
+      },
+      "concentration": {
+        "role": "endpoint",
+        "mechanism": "the PK observation itself"
+      }
+    },
+    "B_biological_inputs": {
+      "snp": {
+        "layer": "genomic",
+        "may_inform": [
+          "CL_metabolic",
+          "F"
+        ]
+      },
+      "diplotype": {
+        "layer": "genomic",
+        "may_inform": [
+          "CL_metabolic",
+          "F"
+        ]
+      },
+      "rare_variant": {
+        "layer": "genomic",
+        "may_inform": [
+          "CL_metabolic"
+        ]
+      },
+      "transcript": {
+        "layer": "transcriptomic",
+        "may_inform": [
+          "CL_metabolic",
+          "F"
+        ]
+      },
+      "splicing": {
+        "layer": "transcriptomic",
+        "may_inform": [
+          "CL_metabolic"
+        ]
+      },
+      "protein": {
+        "layer": "proteomic",
+        "may_inform": [
+          "CL_metabolic",
+          "F",
+          "V"
+        ]
+      },
+      "ptm": {
+        "layer": "proteomic",
+        "may_inform": [
+          "CL_metabolic"
+        ]
+      },
+      "metabolite": {
+        "layer": "metabolomic",
+        "may_inform": [
+          "CL_metabolic",
+          "AUC"
+        ]
+      },
+      "lipid": {
+        "layer": "lipidomic",
+        "may_inform": [
+          "V",
+          "F"
+        ]
+      },
+      "enzyme_activity": {
+        "layer": "functional",
+        "may_inform": [
+          "CL_metabolic"
+        ]
+      },
+      "transporter_activity": {
+        "layer": "functional",
+        "may_inform": [
+          "F",
+          "CL",
+          "V"
+        ]
+      },
+      "binding_protein": {
+        "layer": "proteomic",
+        "may_inform": [
+          "V",
+          "CL"
+        ]
+      }
+    },
+    "C_measurement_context": [
+      "organ",
+      "tissue",
+      "compartment",
+      "cell_type",
+      "sampling_time",
+      "experimental_condition",
+      "drug_or_substrate",
+      "analytical_method",
+      "quantification",
+      "temporal_stability"
+    ],
+    "D_mechanistic_knowledge": {
+      "phase_i_enzymes": {
+        "members": "CYP, FMO, ADH, ALDH, esterases",
+        "may_inform": [
+          "CL_metabolic"
+        ]
+      },
+      "phase_ii_enzymes": {
+        "members": "UGT, SULT, NAT, GST, TPMT",
+        "may_inform": [
+          "CL_metabolic"
+        ]
+      },
+      "efflux_transporters": {
+        "members": "ABCB1, ABCG2, ABCC family",
+        "may_inform": [
+          "F",
+          "CL",
+          "V"
+        ]
+      },
+      "uptake_transporters": {
+        "members": "SLCO, SLC22, SLC47 family",
+        "may_inform": [
+          "F",
+          "CL",
+          "V"
+        ]
+      },
+      "binding_proteins": {
+        "members": "albumin, AAG, lipoproteins",
+        "may_inform": [
+          "V",
+          "CL"
+        ]
+      },
+      "redox_partners": {
+        "members": "POR, cytochrome b5",
+        "may_inform": [
+          "CL_metabolic"
+        ]
+      },
+      "nuclear_receptors": {
+        "members": "PXR, CAR, AhR, induction cascades",
+        "may_inform": [
+          "CL_metabolic"
+        ]
+      },
+      "absorption_machinery": {
+        "members": "gut transporters, gut wall CYP3A",
+        "may_inform": [
+          "F",
+          "ka"
+        ]
+      },
+      "targets": {
+        "members": "the pharmacological target, for PD not PK",
+        "may_inform": []
+      },
+      "complexes_and_pathways": {
+        "members": "protein complexes, signalling cascades",
+        "may_inform": []
+      }
+    },
+    "E_sources": {
+      "STRING": {
+        "kind": "database",
+        "what_it_is": "protein interaction confidence, NOT causality"
+      },
+      "Reactome": {
+        "kind": "database",
+        "what_it_is": "curated pathways"
+      },
+      "KEGG": {
+        "kind": "database",
+        "what_it_is": "curated pathways and drug maps"
+      },
+      "UniProt": {
+        "kind": "database",
+        "what_it_is": "protein annotation, functional sites"
+      },
+      "PharmVar": {
+        "kind": "database",
+        "what_it_is": "star-allele definitions"
+      },
+      "ClinPGx": {
+        "kind": "database",
+        "what_it_is": "pharmacogenomic annotation, successor to PharmGKB"
+      },
+      "CPIC": {
+        "kind": "database",
+        "what_it_is": "genotype-to-phenotype guidelines"
+      },
+      "RCSB": {
+        "kind": "database",
+        "what_it_is": "experimental structures and ligands"
+      },
+      "MaveDB": {
+        "kind": "database",
+        "what_it_is": "deep-mutational-scanning scores"
+      },
+      "GEO": {
+        "kind": "repository",
+        "what_it_is": "transcriptomic series, indexed by ASSAY not phenotype"
+      },
+      "PRIDE": {
+        "kind": "repository",
+        "what_it_is": "proteomic deposits, often beside DMPK papers"
+      },
+      "MetaboLights": {
+        "kind": "repository",
+        "what_it_is": "metabolomic studies"
+      },
+      "MetabolomicsWorkbench": {
+        "kind": "repository",
+        "what_it_is": "metabolomic studies"
+      },
+      "EnsemblVEP": {
+        "kind": "annotation_tool",
+        "what_it_is": "variant consequence prediction"
+      },
+      "DIABLO": {
+        "kind": "method",
+        "what_it_is": "multi-block integration. NOT a biological source"
+      },
+      "mixOmics": {
+        "kind": "method",
+        "what_it_is": "the package DIABLO belongs to"
+      },
+      "ElasticNet": {
+        "kind": "method",
+        "what_it_is": "penalised selection"
+      },
+      "XGBoost_SHAP": {
+        "kind": "method",
+        "what_it_is": "boosted trees plus an attribution"
+      },
+      "Spearman": {
+        "kind": "method",
+        "what_it_is": "rank correlation, the baseline selector"
+      }
+    },
+    "pk_parameters": {
+      "CL": "total clearance",
+      "CL_metabolic": "metabolic clearance, a COMPONENT of CL and not CL",
+      "F": "oral bioavailability",
+      "V": "volume of distribution",
+      "ka": "absorption rate",
+      "AUC": "exposure",
+      "Cmax": "peak concentration",
+      "Cmin": "trough concentration",
+      "concentration": "a measured concentration at a stated time",
+      "half_life": "terminal half-life"
+    },
+    "functional_endpoints": {
+      "enzyme_activity": "probe turnover by an enzyme, in vitro",
+      "clint_in_vitro": "intrinsic clearance in microsomes or hepatocytes. A component of metabolic clearance measured outside a body, with no absorption, binding or blood flow",
+      "transporter_activity": "uptake or efflux rate",
+      "protein_abundance": "quantified protein concentration",
+      "transcript_abundance": "quantified transcript level",
+      "metabolite_ratio": "a metabolic ratio used as a phenotype proxy",
+      "variant_functional_score": "a deep-mutational-scanning score",
+      "binding": "plasma protein or tissue binding, fraction unbound"
+    }
+  },
+  "hypotheses": {
+    "H1": {
+      "question": "do omics add information beyond PGx, clinical and routine biology for PK variability?",
+      "priority": "primary",
+      "endpoint_kind": "pk",
+      "minimum_comparator": "clinical + biology + PGx, same individuals",
+      "needs_pairing": "same_individuals",
+      "needs_abstention_arm": true
+    },
+    "H2": {
+      "question": "can the informative omics be selected automatically, ideally BEFORE acquisition?",
+      "priority": "primary",
+      "endpoint_kind": "pk_or_functional",
+      "minimum_comparator": "Spearman or elastic net on the same pool",
+      "needs_pairing": "same_individuals_or_variants",
+      "needs_abstention_arm": true,
+      "needs_candidate_pool_of_at_least": 5
+    },
+    "H3": {
+      "question": "do omics predict the biological functions involved in PK better than PGx alone? NOT limited to enzymes: transporters, binding proteins, absorption",
+      "priority": "intermediate",
+      "endpoint_kind": "functional",
+      "minimum_comparator": "PGx alone, same individuals or variants",
+      "needs_pairing": "same_individuals_or_variants",
+      "needs_abstention_arm": true
+    },
+    "H4": {
+      "question": "do omic changes explain INTRA-individual PK variability between occasions?",
+      "priority": "longitudinal",
+      "endpoint_kind": "pk",
+      "minimum_comparator": "within-individual change in clinical state",
+      "needs_pairing": "same_individuals_repeated",
+      "needs_abstention_arm": true
+    },
+    "H5": {
+      "question": "does omic integration improve dose personalisation?",
+      "priority": "final_application",
+      "endpoint_kind": "pk",
+      "minimum_comparator": "the dosing rule already in use",
+      "needs_pairing": "same_individuals",
+      "needs_abstention_arm": true
+    }
+  },
+  "legacy_objectives": {
+    "H1": "incremental value of omics (ARIANA)",
+    "H2": "reliability of mechanism-guided selection",
+    "H3": "parsimony and minimal information",
+    "H4": "when omics become HARMFUL",
+    "H5": "biological, analytical and temporal robustness"
+  },
+  "legacy_crosswalk": {
+    "H1": {
+      "maps_to_current": "H1",
+      "why": "compatible: the legacy objective is one drug's instance of the new question"
+    },
+    "H2": {
+      "maps_to_current": "H2",
+      "why": "compatible in spirit; the new H2 adds the prospective, before-acquisition task the legacy one never had"
+    },
+    "H3": {
+      "maps_to_current": null,
+      "why": "legacy H3 is parsimony, a PROPERTY of a selection. The new H3 is a question about functional endpoints. No mapping"
+    },
+    "H4": {
+      "maps_to_current": null,
+      "why": "legacy H4 is when omics become harmful. The new H4 is longitudinal. No mapping, and reusing the tag would claim longitudinal data that does not exist"
+    },
+    "H5": {
+      "maps_to_current": null,
+      "why": "legacy H5 is analytical robustness. The new H5 is dose personalisation. No mapping"
+    }
+  },
+  "searches_run_today": [
+    {
+      "repository": "GEO",
+      "query": "drug clearance AND expression profiling",
+      "hits": 2,
+      "on_target": 0,
+      "verdict": "both hits are off target: a rat Bcrp/Pgp study and a vitamin B2 / AhR study"
+    },
+    {
+      "repository": "GEO",
+      "query": "liver AND cytochrome P450 activity AND Homo sapiens",
+      "hits": 2,
+      "on_target": 0,
+      "verdict": "iPSC-derived hepatocyte bioreactor yields and a toxicogenomics classifier; neither has per-donor PK"
+    },
+    {
+      "repository": "GEO",
+      "query": "pharmacokinetics AND transcriptome",
+      "hits": 3867,
+      "on_target": null,
+      "verdict": "the term matches loosely and the surface is not usable: GEO indexes the ASSAY, not the phenotype, so a per-donor clearance almost never appears in the metadata"
+    },
+    {
+      "repository": "PRIDE",
+      "query": "pharmacokinetics",
+      "hits": 25,
+      "on_target": 1,
+      "verdict": "PXD057282, tucatinib metabolic clearance"
+    },
+    {
+      "repository": "PRIDE",
+      "query": "human liver microsomes / intrinsic clearance / hepatocyte CYP",
+      "hits": 13,
+      "on_target": 4,
+      "verdict": "PXD066482, PXD057282, PXD060653 and PXD014131. PRIDE is the productive seam because proteomics deposits accompany DMPK papers, which carry the PK in their supplements"
+    },
+    {
+      "repository": "MetabolomicsWorkbench",
+      "query": "study title contains 'pharmacokinetic'",
+      "hits": 1,
+      "on_target": 0,
+      "verdict": "ST003436, fasnall in NSG mice. Not human"
+    }
+  ],
+  "searches_2026_11_12": [
+    {
+      "repository": "PRIDE",
+      "query": "transporter",
+      "hits": 60,
+      "on_target": 2,
+      "verdict": "both are in-vitro models -- an MDR1 efflux study in cancer cells and a MASH cell model -- and neither has a PK or a transport-function endpoint"
+    },
+    {
+      "repository": "PRIDE",
+      "query": "jejunum",
+      "hits": 37,
+      "on_target": 5,
+      "verdict": "PXD020987 is the find: 16 patients, ileum AND jejunum, 29 enzymes and 32 transporters. PXD011498 adds a within-subject before/after design"
+    },
+    {
+      "repository": "PRIDE",
+      "query": "intestinal",
+      "hits": 42,
+      "on_target": 5,
+      "verdict": "overlaps the jejunum set"
+    },
+    {
+      "repository": "PRIDE",
+      "query": "albumin",
+      "hits": 60,
+      "on_target": 4,
+      "verdict": "albumin appears as an abundant contaminant or a disease marker, never as a binding measurement paired with a free fraction"
+    },
+    {
+      "repository": "PRIDE",
+      "query": "unbound",
+      "hits": 60,
+      "on_target": 1,
+      "verdict": "no deposit measures a fraction unbound"
+    },
+    {
+      "repository": "PRIDE",
+      "query": "tacrolimus",
+      "hits": 7,
+      "on_target": 0,
+      "verdict": "no tacrolimus omics in PRIDE at all, which closes the most obvious route to a longitudinal TDM cohort"
+    },
+    {
+      "repository": "PRIDE",
+      "query": "longitudinal",
+      "hits": 60,
+      "on_target": 10,
+      "verdict": "plasma proteomic time courses exist -- critical illness, radiotherapy, sarcopenia -- and none carries a drug concentration, so the H4 design exists without the H4 endpoint"
+    },
+    {
+      "repository": "PRIDE",
+      "query": "ABCB1",
+      "hits": 11,
+      "on_target": 1,
+      "verdict": "no human ABCB1 quantification paired with an endpoint"
+    },
+    {
+      "repository": "EuropePMC",
+      "query": "\"fraction unbound\" AND pharmacokinetic* AND OPEN_ACCESS:Y AND HAS_SUPPL:Y",
+      "hits": 2628,
+      "on_target": 0,
+      "verdict": "STRUCTURAL NEGATIVE: the hits are dominated by PBPK and IVIVE modelling papers, which CONSUME a fraction unbound as a model input rather than measure it beside omics in the same subjects. The keyword surface finds the consumers, not the producers"
+    },
+    {
+      "repository": "EuropePMC",
+      "query": "transporter AND (abundance OR proteomic*) AND pharmacokinetic* AND OPEN_ACCESS:Y AND HAS_SUPPL:Y",
+      "hits": 3150,
+      "on_target": 2,
+      "verdict": "same pattern. The two on-axis hits are placental and skeletal-muscle transporter atlases, neither paired with a PK parameter"
+    },
+    {
+      "repository": "EuropePMC",
+      "query": "tacrolimus AND (transcriptom* OR proteom* OR metabolom*) AND trough",
+      "hits": 508,
+      "on_target": 0,
+      "verdict": "reviews, association studies and a BXD mouse systems-genetics paper. No deposited human cohort with repeated omics beside repeated troughs"
+    },
+    {
+      "repository": "GEO",
+      "query": "jejunum AND Homo sapiens",
+      "hits": 2146,
+      "on_target": null,
+      "verdict": "the tissue surface is large and unusable for this purpose, which confirms the earlier finding: GEO indexes the ASSAY, so a per-subject drug concentration never appears in its metadata whatever the query"
+    }
+  ],
+  "axes": {
+    "metabolic_clearance": {
+      "mechanisms": [
+        "phase_i_enzymes",
+        "phase_ii_enzymes",
+        "redox_partners"
+      ],
+      "informs": [
+        "CL_metabolic"
+      ],
+      "note": "the only axis with data. Four experiments and counting on CYP2C8, CYP3A4, CYP3A5, NUDT15 and two RAF kinases"
+    },
+    "transport": {
+      "mechanisms": [
+        "efflux_transporters",
+        "uptake_transporters"
+      ],
+      "informs": [
+        "F",
+        "CL",
+        "V"
+      ],
+      "note": "a transporter abundance does not inform F or ka by itself: the interpretation depends on the mechanism and on the PK model that uses it"
+    },
+    "binding_distribution": {
+      "mechanisms": [
+        "binding_proteins"
+      ],
+      "informs": [
+        "V",
+        "CL"
+      ],
+      "note": "fraction unbound, albumin, AAG, tissue distribution"
+    },
+    "absorption": {
+      "mechanisms": [
+        "absorption_machinery"
+      ],
+      "informs": [
+        "F",
+        "ka"
+      ],
+      "note": "intestinal expression, gut-wall first pass, gut transporters"
+    },
+    "temporal": {
+      "mechanisms": [
+        "nuclear_receptors"
+      ],
+      "informs": [
+        "CL",
+        "F",
+        "V"
+      ],
+      "note": "inflammation, infection, transplantation, comedication. Requires repeated occasions, not a between-group contrast"
+    }
+  },
+  "axis_coverage": {
+    "metabolic_clearance": {
+      "informs": [
+        "CL_metabolic"
+      ],
+      "n_datasets": 11,
+      "n_with_a_pk_endpoint": 3,
+      "n_ready_for_any_hypothesis": 5,
+      "datasets": [
+        "ariana_metoprolol_47",
+        "epa_liver_100",
+        "hlc_syn4499",
+        "jarmusch_midazolam",
+        "lee_jackson_cyp3a_15",
+        "lee_venetoclax_patients_12",
+        "mavedb_araf_abundance_conditions_and_activity",
+        "mavedb_braf_paired_abundance_activity",
+        "mavedb_cyp2c9_paired_abundance_activity",
+        "mavedb_nudt15_paired_stability_activity",
+        "wegler_15"
+      ],
+      "note": "the only axis with data. Four experiments and counting on CYP2C8, CYP3A4, CYP3A5, NUDT15 and two RAF kinases"
+    },
+    "transport": {
+      "informs": [
+        "F",
+        "CL",
+        "V"
+      ],
+      "n_datasets": 2,
+      "n_with_a_pk_endpoint": 0,
+      "n_ready_for_any_hypothesis": 0,
+      "datasets": [
+        "epmc_pmc13683814_placental_transporters",
+        "pride_pxd020987_human_small_intestine"
+      ],
+      "note": "a transporter abundance does not inform F or ka by itself: the interpretation depends on the mechanism and on the PK model that uses it"
+    },
+    "binding_distribution": {
+      "informs": [
+        "V",
+        "CL"
+      ],
+      "n_datasets": 1,
+      "n_with_a_pk_endpoint": 0,
+      "n_ready_for_any_hypothesis": 0,
+      "datasets": [
+        "epmc_pmc13683814_placental_transporters"
+      ],
+      "note": "fraction unbound, albumin, AAG, tissue distribution"
+    },
+    "absorption": {
+      "informs": [
+        "F",
+        "ka"
+      ],
+      "n_datasets": 2,
+      "n_with_a_pk_endpoint": 0,
+      "n_ready_for_any_hypothesis": 0,
+      "datasets": [
+        "pride_pxd011498_jejunum_before_after_gastrectomy",
+        "pride_pxd020987_human_small_intestine"
+      ],
+      "note": "intestinal expression, gut-wall first pass, gut transporters"
+    },
+    "temporal": {
+      "informs": [
+        "CL",
+        "F",
+        "V"
+      ],
+      "n_datasets": 1,
+      "n_with_a_pk_endpoint": 0,
+      "n_ready_for_any_hypothesis": 0,
+      "datasets": [
+        "pride_pxd011498_jejunum_before_after_gastrectomy"
+      ],
+      "note": "inflammation, infection, transplantation, comedication. Requires repeated occasions, not a between-group contrast"
+    }
+  },
+  "new_candidates": {
+    "pride_pxd066482_imatinib_clearance": {
+      "label": "PRIDE PXD066482 - interindividual variability in imatinib metabolism in human liver microsomes and primary human hepatocytes, CYP2C8 and CYP3A phenotypes",
+      "repository": "PRIDE",
+      "accession": "PXD066482",
+      "licence": "CC0",
+      "drug": "imatinib",
+      "endpoint": "clint_in_vitro",
+      "pairing": "same_individuals",
+      "longitudinal": false,
+      "layers": [
+        "proteomics",
+        "functional",
+        "genotype"
+      ],
+      "comparator_available": {
+        "H1": false,
+        "H2": true,
+        "H3": true,
+        "H4": false,
+        "H5": false
+      },
+      "n_candidate_omics": null,
+      "access": "open_public",
+      "n_units": null,
+      "provenance": "PRIDE project description, retrieved 2026-11-12: individual-donor HLM and PHH incubated with imatinib for clearance and N-desmethyl-imatinib formation, with CYP2C8 and CYP3A activity, protein concentration AND genotype on the same donors",
+      "why_it_matters": "the only inventoried source carrying genotype, protein, activity and a clearance on the same units. That is the H3 design, and the PGx comparator H3 needs is present",
+      "what_is_missing": "the PRIDE deposit holds the proteomics; the clearance, activity and genotype tables are in the publication's supplement and are NOT yet verified as public. n per donor is not stated in the deposit metadata"
+    },
+    "pride_pxd057282_tucatinib_clearance": {
+      "label": "PRIDE PXD057282 - impact of variation in CYP3A and CYP2C8 on tucatinib metabolic clearance in human liver microsomes",
+      "repository": "PRIDE",
+      "accession": "PXD057282",
+      "licence": "CC0",
+      "drug": "tucatinib",
+      "endpoint": "clint_in_vitro",
+      "pairing": "same_individuals",
+      "longitudinal": false,
+      "layers": [
+        "proteomics",
+        "functional"
+      ],
+      "comparator_available": {
+        "H1": false,
+        "H2": false,
+        "H3": false,
+        "H4": false,
+        "H5": false
+      },
+      "n_candidate_omics": null,
+      "access": "open_public",
+      "n_units": 21,
+      "provenance": "PRIDE project description, retrieved 2026-11-12: 21 donors, 11 male and 10 female, tucatinib depletion plus CYP2C8, CYP3A4 and CYP3A5 concentrations by QTAP and measured CYP activities",
+      "why_it_matters": "same design as PXD066482 with a different drug, so it is a replication candidate rather than a second discovery set",
+      "what_is_missing": "no genotype stated, so the PGx comparator H3 needs is absent. Commercial microsomes, so no clinical covariates beyond sex"
+    },
+    "pride_pxd060653_alcohol_dme_ensemble": {
+      "label": "PRIDE PXD060653 - effects of chronic alcohol intake on the ensemble of drug-metabolising enzymes",
+      "repository": "PRIDE",
+      "accession": "PXD060653",
+      "licence": null,
+      "drug": "not applicable",
+      "endpoint": "protein_abundance",
+      "pairing": "unknown",
+      "longitudinal": false,
+      "layers": [
+        "proteomics"
+      ],
+      "comparator_available": {
+        "H1": false,
+        "H2": false,
+        "H3": false,
+        "H4": false,
+        "H5": false
+      },
+      "n_candidate_omics": null,
+      "access": "open_public",
+      "n_units": null,
+      "provenance": "PRIDE search, retrieved 2026-11-12",
+      "why_it_matters": "a PERTURBATION of the enzyme proteome, which is the shape H4 needs even though this design is between groups rather than within individuals",
+      "what_is_missing": "no paired PK, no repeated occasions, pairing not asserted. Cannot carry H4 as it stands"
+    },
+    "pride_pxd014131_liver_compartments": {
+      "label": "PRIDE PXD014131 - human liver homogenate, microsomes, low-speed pellet and hepatocytes",
+      "repository": "PRIDE",
+      "accession": "PXD014131",
+      "licence": null,
+      "drug": "not applicable",
+      "endpoint": "protein_abundance",
+      "pairing": "unknown",
+      "longitudinal": false,
+      "layers": [
+        "proteomics"
+      ],
+      "comparator_available": {
+        "H1": false,
+        "H2": false,
+        "H3": false,
+        "H4": false,
+        "H5": false
+      },
+      "n_candidate_omics": null,
+      "access": "open_public",
+      "n_units": null,
+      "provenance": "PRIDE search, retrieved 2026-11-12",
+      "why_it_matters": "four COMPARTMENTS of the same organ, which is the 'which compartment to measure' axis of the brief and the only inventoried source addressing it",
+      "what_is_missing": "no functional endpoint and no PK; pairing unstated"
+    },
+    "pride_pxd020987_human_small_intestine": {
+      "label": "PRIDE PXD020987 - quantitative proteomics of human small intestine: 29 enzymes and 32 transporters in ileum and jejunum mucosa from 16 surgical patients",
+      "repository": "PRIDE",
+      "accession": "PXD020987",
+      "licence": "CC0",
+      "drug": "not applicable",
+      "endpoint": "protein_abundance",
+      "pairing": "same_individuals",
+      "longitudinal": false,
+      "layers": [
+        "proteomics"
+      ],
+      "comparator_available": {
+        "H1": false,
+        "H2": false,
+        "H3": false,
+        "H4": false,
+        "H5": false
+      },
+      "n_candidate_omics": 61,
+      "axes": [
+        "absorption",
+        "transport"
+      ],
+      "access": "open_public",
+      "n_units": 16,
+      "provenance": "PRIDE project description, retrieved 2026-11-12: ileum and jejunum biopsies from 16 patients, mucosal fractions, 29 enzymes, 32 transporters, 6 tight junction proteins, alkaline phosphatase and markers quantified, 60 for the first time",
+      "why_it_matters": "the first inventoried source on the absorption and transport axes at all, and the only one carrying TWO intestinal regions per patient, which is the compartment question the brief asks",
+      "what_is_missing": "no PK, no clearance, no PGx and no independent functional endpoint. An abundance predicting another abundance is axis A, not H3. This is a REFERENCE layer for what intestinal abundance looks like, not a hypothesis-testing cohort"
+    },
+    "pride_pxd011498_jejunum_before_after_gastrectomy": {
+      "label": "PRIDE PXD011498 - peptidomics of human jejunum biopsies before and after gastrectomy",
+      "repository": "PRIDE",
+      "accession": "PXD011498",
+      "licence": null,
+      "drug": "not applicable",
+      "endpoint": "protein_abundance",
+      "pairing": "same_individuals_repeated",
+      "longitudinal": true,
+      "layers": [
+        "proteomics"
+      ],
+      "comparator_available": {
+        "H1": false,
+        "H2": false,
+        "H3": false,
+        "H4": false,
+        "H5": false
+      },
+      "n_candidate_omics": null,
+      "axes": [
+        "absorption",
+        "temporal"
+      ],
+      "access": "open_public",
+      "n_units": null,
+      "provenance": "PRIDE search, retrieved 2026-11-12",
+      "why_it_matters": "the only inventoried source with a genuine WITHIN-SUBJECT repeated design on an axis the programme needs. H4 has had no dataset with that shape at all",
+      "what_is_missing": "peptidomics rather than transporter quantification, and no PK on either occasion, so the design is right and the measurements are the wrong ones"
+    },
+    "epmc_pmc13683814_placental_transporters": {
+      "label": "Europe PMC PMC13683814 - proteomic profiling of xenobiotic and nutrient transporters in human placenta",
+      "repository": "EuropePMC",
+      "accession": "PMC13683814",
+      "licence": "open access",
+      "drug": "not applicable",
+      "endpoint": "protein_abundance",
+      "pairing": "unknown",
+      "longitudinal": false,
+      "layers": [
+        "proteomics"
+      ],
+      "comparator_available": {
+        "H1": false,
+        "H2": false,
+        "H3": false,
+        "H4": false,
+        "H5": false
+      },
+      "n_candidate_omics": null,
+      "axes": [
+        "transport",
+        "binding_distribution"
+      ],
+      "access": "open_public",
+      "n_units": null,
+      "provenance": "Europe PMC search, retrieved 2026-11-12",
+      "why_it_matters": "placental transport is a distribution barrier, so it touches V in a compartment nothing else in the inventory reaches",
+      "what_is_missing": "pairing not asserted, no PK, and a placental barrier informs fetal exposure rather than the maternal parameters the programme predicts"
+    }
+  },
+  "matrix": [
+    {
+      "source": "registry",
+      "dataset": "ariana_metoprolol_47",
+      "label": "ARIANA metoprolol n=47",
+      "hypothesis": "H1",
+      "question": "do omics add information beyond PGx, clinical and routine biology for PK variability?",
+      "drug": "metoprolol",
+      "endpoint": "concentration",
+      "endpoint_kind": "pk",
+      "comparator": "clinical + biology + PGx, same individuals",
+      "pairing": "same_individuals",
+      "pairing_provenance": "H1_ARIANA_INCREMENTAL_OMIC_VALUE_RESULTS_20261107.md: 47 patients with a per-patient concentration and a per-patient targeted metabolite panel",
+      "access": "open_public",
+      "n_units": 47,
+      "status": "READY",
+      "reasons": [
+        "every requirement met and the channel is open"
+      ],
+      "note": "the frozen H1 contrast of this project. Two candidate omic variables only, which is why it cannot carry selection",
+      "axes": [
+        "metabolic_clearance"
+      ]
+    },
+    {
+      "source": "registry",
+      "dataset": "ariana_metoprolol_47",
+      "label": "ARIANA metoprolol n=47",
+      "hypothesis": "H2",
+      "question": "can the informative omics be selected automatically, ideally BEFORE acquisition?",
+      "drug": "metoprolol",
+      "endpoint": "concentration",
+      "endpoint_kind": "pk",
+      "comparator": "Spearman or elastic net on the same pool",
+      "pairing": "same_individuals",
+      "pairing_provenance": "H1_ARIANA_INCREMENTAL_OMIC_VALUE_RESULTS_20261107.md: 47 patients with a per-patient concentration and a per-patient targeted metabolite panel",
+      "access": "open_public",
+      "n_units": 47,
+      "status": "NOT_EVALUABLE",
+      "reasons": [
+        "the minimum comparator is absent: Spearman or elastic net on the same pool",
+        "only 2 candidate omic variables; selection needs at least 5. Choosing 2 out of 2 is not selection"
+      ],
+      "note": "the frozen H1 contrast of this project. Two candidate omic variables only, which is why it cannot carry selection",
+      "axes": [
+        "metabolic_clearance"
+      ]
+    },
+    {
+      "source": "registry",
+      "dataset": "ariana_metoprolol_47",
+      "label": "ARIANA metoprolol n=47",
+      "hypothesis": "H3",
+      "question": "do omics predict the biological functions involved in PK better than PGx alone? NOT limited to enzymes: transporters, binding proteins, absorption",
+      "drug": "metoprolol",
+      "endpoint": "concentration",
+      "endpoint_kind": "pk",
+      "comparator": "PGx alone, same individuals or variants",
+      "pairing": "same_individuals",
+      "pairing_provenance": "H1_ARIANA_INCREMENTAL_OMIC_VALUE_RESULTS_20261107.md: 47 patients with a per-patient concentration and a per-patient targeted metabolite panel",
+      "access": "open_public",
+      "n_units": 47,
+      "status": "NOT_EVALUABLE",
+      "reasons": [
+        "H3 is about functional endpoints; concentration is a PK parameter, which belongs to H1, H4 or H5",
+        "the minimum comparator is absent: PGx alone, same individuals or variants"
+      ],
+      "note": "the frozen H1 contrast of this project. Two candidate omic variables only, which is why it cannot carry selection",
+      "axes": [
+        "metabolic_clearance"
+      ]
+    },
+    {
+      "source": "registry",
+      "dataset": "ariana_metoprolol_47",
+      "label": "ARIANA metoprolol n=47",
+      "hypothesis": "H4",
+      "question": "do omic changes explain INTRA-individual PK variability between occasions?",
+      "drug": "metoprolol",
+      "endpoint": "concentration",
+      "endpoint_kind": "pk",
+      "comparator": "within-individual change in clinical state",
+      "pairing": "same_individuals",
+      "pairing_provenance": "H1_ARIANA_INCREMENTAL_OMIC_VALUE_RESULTS_20261107.md: 47 patients with a per-patient concentration and a per-patient targeted metabolite panel",
+      "access": "open_public",
+      "n_units": 47,
+      "status": "NOT_EVALUABLE",
+      "reasons": [
+        "needs repeated measures; declared same_individuals",
+        "H4 needs repeated occasions; this dataset has none",
+        "the minimum comparator is absent: within-individual change in clinical state"
+      ],
+      "note": "the frozen H1 contrast of this project. Two candidate omic variables only, which is why it cannot carry selection",
+      "axes": [
+        "metabolic_clearance"
+      ]
+    },
+    {
+      "source": "registry",
+      "dataset": "ariana_metoprolol_47",
+      "label": "ARIANA metoprolol n=47",
+      "hypothesis": "H5",
+      "question": "does omic integration improve dose personalisation?",
+      "drug": "metoprolol",
+      "endpoint": "concentration",
+      "endpoint_kind": "pk",
+      "comparator": "the dosing rule already in use",
+      "pairing": "same_individuals",
+      "pairing_provenance": "H1_ARIANA_INCREMENTAL_OMIC_VALUE_RESULTS_20261107.md: 47 patients with a per-patient concentration and a per-patient targeted metabolite panel",
+      "access": "open_public",
+      "n_units": 47,
+      "status": "NOT_EVALUABLE",
+      "reasons": [
+        "the minimum comparator is absent: the dosing rule already in use"
+      ],
+      "note": "the frozen H1 contrast of this project. Two candidate omic variables only, which is why it cannot carry selection",
+      "axes": [
+        "metabolic_clearance"
+      ]
+    },
+    {
+      "source": "registry",
+      "dataset": "hlc_syn4499",
+      "label": "Sage Bionetworks Human Liver Cohort",
+      "hypothesis": "H1",
+      "question": "do omics add information beyond PGx, clinical and routine biology for PK variability?",
+      "drug": "probe substrates, ten CYPs",
+      "endpoint": "enzyme_activity",
+      "endpoint_kind": "functional",
+      "comparator": "clinical + biology + PGx, same individuals",
+      "pairing": "same_individuals",
+      "pairing_provenance": "HLC_ORIGINAL_400_LIVER_CYP_RNA_GENOTYPE_RESULTS: ~390 donors with transcript, activity and two source-verified SNPs on the same donor ids",
+      "access": "public_registered",
+      "n_units": null,
+      "status": "NOT_EVALUABLE",
+      "reasons": [
+        "H1 needs a PK parameter; enzyme_activity is a functional measurement and must not be read as one",
+        "the minimum comparator is absent: clinical + biology + PGx, same individuals"
+      ],
+      "note": "genotype covers 171-172 donors only, so PGx enters as a stratum. Access is Synapse-registered",
+      "axes": [
+        "metabolic_clearance"
+      ]
+    },
+    {
+      "source": "registry",
+      "dataset": "hlc_syn4499",
+      "label": "Sage Bionetworks Human Liver Cohort",
+      "hypothesis": "H2",
+      "question": "can the informative omics be selected automatically, ideally BEFORE acquisition?",
+      "drug": "probe substrates, ten CYPs",
+      "endpoint": "enzyme_activity",
+      "endpoint_kind": "functional",
+      "comparator": "Spearman or elastic net on the same pool",
+      "pairing": "same_individuals",
+      "pairing_provenance": "HLC_ORIGINAL_400_LIVER_CYP_RNA_GENOTYPE_RESULTS: ~390 donors with transcript, activity and two source-verified SNPs on the same donor ids",
+      "access": "public_registered",
+      "n_units": null,
+      "status": "PARTIAL",
+      "reasons": [
+        "public but behind a registration, and the brief admits only channels needing no authorisation"
+      ],
+      "note": "genotype covers 171-172 donors only, so PGx enters as a stratum. Access is Synapse-registered",
+      "axes": [
+        "metabolic_clearance"
+      ]
+    },
+    {
+      "source": "registry",
+      "dataset": "hlc_syn4499",
+      "label": "Sage Bionetworks Human Liver Cohort",
+      "hypothesis": "H3",
+      "question": "do omics predict the biological functions involved in PK better than PGx alone? NOT limited to enzymes: transporters, binding proteins, absorption",
+      "drug": "probe substrates, ten CYPs",
+      "endpoint": "enzyme_activity",
+      "endpoint_kind": "functional",
+      "comparator": "PGx alone, same individuals or variants",
+      "pairing": "same_individuals",
+      "pairing_provenance": "HLC_ORIGINAL_400_LIVER_CYP_RNA_GENOTYPE_RESULTS: ~390 donors with transcript, activity and two source-verified SNPs on the same donor ids",
+      "access": "public_registered",
+      "n_units": null,
+      "status": "PARTIAL",
+      "reasons": [
+        "public but behind a registration, and the brief admits only channels needing no authorisation"
+      ],
+      "note": "genotype covers 171-172 donors only, so PGx enters as a stratum. Access is Synapse-registered",
+      "axes": [
+        "metabolic_clearance"
+      ]
+    },
+    {
+      "source": "registry",
+      "dataset": "hlc_syn4499",
+      "label": "Sage Bionetworks Human Liver Cohort",
+      "hypothesis": "H4",
+      "question": "do omic changes explain INTRA-individual PK variability between occasions?",
+      "drug": "probe substrates, ten CYPs",
+      "endpoint": "enzyme_activity",
+      "endpoint_kind": "functional",
+      "comparator": "within-individual change in clinical state",
+      "pairing": "same_individuals",
+      "pairing_provenance": "HLC_ORIGINAL_400_LIVER_CYP_RNA_GENOTYPE_RESULTS: ~390 donors with transcript, activity and two source-verified SNPs on the same donor ids",
+      "access": "public_registered",
+      "n_units": null,
+      "status": "NOT_EVALUABLE",
+      "reasons": [
+        "H4 needs a PK parameter; enzyme_activity is a functional measurement and must not be read as one",
+        "needs repeated measures; declared same_individuals",
+        "H4 needs repeated occasions; this dataset has none",
+        "the minimum comparator is absent: within-individual change in clinical state"
+      ],
+      "note": "genotype covers 171-172 donors only, so PGx enters as a stratum. Access is Synapse-registered",
+      "axes": [
+        "metabolic_clearance"
+      ]
+    },
+    {
+      "source": "registry",
+      "dataset": "hlc_syn4499",
+      "label": "Sage Bionetworks Human Liver Cohort",
+      "hypothesis": "H5",
+      "question": "does omic integration improve dose personalisation?",
+      "drug": "probe substrates, ten CYPs",
+      "endpoint": "enzyme_activity",
+      "endpoint_kind": "functional",
+      "comparator": "the dosing rule already in use",
+      "pairing": "same_individuals",
+      "pairing_provenance": "HLC_ORIGINAL_400_LIVER_CYP_RNA_GENOTYPE_RESULTS: ~390 donors with transcript, activity and two source-verified SNPs on the same donor ids",
+      "access": "public_registered",
+      "n_units": null,
+      "status": "NOT_EVALUABLE",
+      "reasons": [
+        "H5 needs a PK parameter; enzyme_activity is a functional measurement and must not be read as one",
+        "the minimum comparator is absent: the dosing rule already in use"
+      ],
+      "note": "genotype covers 171-172 donors only, so PGx enters as a stratum. Access is Synapse-registered",
+      "axes": [
+        "metabolic_clearance"
+      ]
+    },
+    {
+      "source": "registry",
+      "dataset": "wegler_15",
+      "label": "Wegler liver donors n=15",
+      "hypothesis": "H1",
+      "question": "do omics add information beyond PGx, clinical and routine biology for PK variability?",
+      "drug": "not applicable",
+      "endpoint": "protein_abundance",
+      "endpoint_kind": "functional",
+      "comparator": "clinical + biology + PGx, same individuals",
+      "pairing": "same_individuals",
+      "pairing_provenance": "registry entry wegler_15, n=15 liver donors",
+      "access": "open_public",
+      "n_units": 15,
+      "status": "NOT_EVALUABLE",
+      "reasons": [
+        "H1 needs a PK parameter; protein_abundance is a functional measurement and must not be read as one",
+        "the minimum comparator is absent: clinical + biology + PGx, same individuals",
+        "only 15 units, below any useful power"
+      ],
+      "note": "proteome without a paired functional endpoint in the deposit",
+      "axes": [
+        "metabolic_clearance"
+      ]
+    },
+    {
+      "source": "registry",
+      "dataset": "wegler_15",
+      "label": "Wegler liver donors n=15",
+      "hypothesis": "H2",
+      "question": "can the informative omics be selected automatically, ideally BEFORE acquisition?",
+      "drug": "not applicable",
+      "endpoint": "protein_abundance",
+      "endpoint_kind": "functional",
+      "comparator": "Spearman or elastic net on the same pool",
+      "pairing": "same_individuals",
+      "pairing_provenance": "registry entry wegler_15, n=15 liver donors",
+      "access": "open_public",
+      "n_units": 15,
+      "status": "NOT_EVALUABLE",
+      "reasons": [
+        "the minimum comparator is absent: Spearman or elastic net on the same pool",
+        "only 15 units, below any useful power"
+      ],
+      "note": "proteome without a paired functional endpoint in the deposit",
+      "axes": [
+        "metabolic_clearance"
+      ]
+    },
+    {
+      "source": "registry",
+      "dataset": "wegler_15",
+      "label": "Wegler liver donors n=15",
+      "hypothesis": "H3",
+      "question": "do omics predict the biological functions involved in PK better than PGx alone? NOT limited to enzymes: transporters, binding proteins, absorption",
+      "drug": "not applicable",
+      "endpoint": "protein_abundance",
+      "endpoint_kind": "functional",
+      "comparator": "PGx alone, same individuals or variants",
+      "pairing": "same_individuals",
+      "pairing_provenance": "registry entry wegler_15, n=15 liver donors",
+      "access": "open_public",
+      "n_units": 15,
+      "status": "NOT_EVALUABLE",
+      "reasons": [
+        "the minimum comparator is absent: PGx alone, same individuals or variants",
+        "only 15 units, below any useful power"
+      ],
+      "note": "proteome without a paired functional endpoint in the deposit",
+      "axes": [
+        "metabolic_clearance"
+      ]
+    },
+    {
+      "source": "registry",
+      "dataset": "wegler_15",
+      "label": "Wegler liver donors n=15",
+      "hypothesis": "H4",
+      "question": "do omic changes explain INTRA-individual PK variability between occasions?",
+      "drug": "not applicable",
+      "endpoint": "protein_abundance",
+      "endpoint_kind": "functional",
+      "comparator": "within-individual change in clinical state",
+      "pairing": "same_individuals",
+      "pairing_provenance": "registry entry wegler_15, n=15 liver donors",
+      "access": "open_public",
+      "n_units": 15,
+      "status": "NOT_EVALUABLE",
+      "reasons": [
+        "H4 needs a PK parameter; protein_abundance is a functional measurement and must not be read as one",
+        "needs repeated measures; declared same_individuals",
+        "H4 needs repeated occasions; this dataset has none",
+        "the minimum comparator is absent: within-individual change in clinical state",
+        "only 15 units, below any useful power"
+      ],
+      "note": "proteome without a paired functional endpoint in the deposit",
+      "axes": [
+        "metabolic_clearance"
+      ]
+    },
+    {
+      "source": "registry",
+      "dataset": "wegler_15",
+      "label": "Wegler liver donors n=15",
+      "hypothesis": "H5",
+      "question": "does omic integration improve dose personalisation?",
+      "drug": "not applicable",
+      "endpoint": "protein_abundance",
+      "endpoint_kind": "functional",
+      "comparator": "the dosing rule already in use",
+      "pairing": "same_individuals",
+      "pairing_provenance": "registry entry wegler_15, n=15 liver donors",
+      "access": "open_public",
+      "n_units": 15,
+      "status": "NOT_EVALUABLE",
+      "reasons": [
+        "H5 needs a PK parameter; protein_abundance is a functional measurement and must not be read as one",
+        "the minimum comparator is absent: the dosing rule already in use",
+        "only 15 units, below any useful power"
+      ],
+      "note": "proteome without a paired functional endpoint in the deposit",
+      "axes": [
+        "metabolic_clearance"
+      ]
+    },
+    {
+      "source": "registry",
+      "dataset": "lee_jackson_cyp3a_15",
+      "label": "Lee / Jackson CYP3A hepatocyte panel n=15",
+      "hypothesis": "H1",
+      "question": "do omics add information beyond PGx, clinical and routine biology for PK variability?",
+      "drug": "midazolam and testosterone probes",
+      "endpoint": "enzyme_activity",
+      "endpoint_kind": "functional",
+      "comparator": "clinical + biology + PGx, same individuals",
+      "pairing": "same_individuals",
+      "pairing_provenance": "registry entry lee_jackson_cyp3a_15, n=15",
+      "access": "open_public",
+      "n_units": 15,
+      "status": "NOT_EVALUABLE",
+      "reasons": [
+        "H1 needs a PK parameter; enzyme_activity is a functional measurement and must not be read as one",
+        "the minimum comparator is absent: clinical + biology + PGx, same individuals",
+        "only 15 units, below any useful power"
+      ],
+      "note": "no genotype in the source, so the PGx comparator is absent",
+      "axes": [
+        "metabolic_clearance"
+      ]
+    },
+    {
+      "source": "registry",
+      "dataset": "lee_jackson_cyp3a_15",
+      "label": "Lee / Jackson CYP3A hepatocyte panel n=15",
+      "hypothesis": "H2",
+      "question": "can the informative omics be selected automatically, ideally BEFORE acquisition?",
+      "drug": "midazolam and testosterone probes",
+      "endpoint": "enzyme_activity",
+      "endpoint_kind": "functional",
+      "comparator": "Spearman or elastic net on the same pool",
+      "pairing": "same_individuals",
+      "pairing_provenance": "registry entry lee_jackson_cyp3a_15, n=15",
+      "access": "open_public",
+      "n_units": 15,
+      "status": "NOT_EVALUABLE",
+      "reasons": [
+        "the minimum comparator is absent: Spearman or elastic net on the same pool",
+        "only 15 units, below any useful power"
+      ],
+      "note": "no genotype in the source, so the PGx comparator is absent",
+      "axes": [
+        "metabolic_clearance"
+      ]
+    },
+    {
+      "source": "registry",
+      "dataset": "lee_jackson_cyp3a_15",
+      "label": "Lee / Jackson CYP3A hepatocyte panel n=15",
+      "hypothesis": "H3",
+      "question": "do omics predict the biological functions involved in PK better than PGx alone? NOT limited to enzymes: transporters, binding proteins, absorption",
+      "drug": "midazolam and testosterone probes",
+      "endpoint": "enzyme_activity",
+      "endpoint_kind": "functional",
+      "comparator": "PGx alone, same individuals or variants",
+      "pairing": "same_individuals",
+      "pairing_provenance": "registry entry lee_jackson_cyp3a_15, n=15",
+      "access": "open_public",
+      "n_units": 15,
+      "status": "NOT_EVALUABLE",
+      "reasons": [
+        "the minimum comparator is absent: PGx alone, same individuals or variants",
+        "only 15 units, below any useful power"
+      ],
+      "note": "no genotype in the source, so the PGx comparator is absent",
+      "axes": [
+        "metabolic_clearance"
+      ]
+    },
+    {
+      "source": "registry",
+      "dataset": "lee_jackson_cyp3a_15",
+      "label": "Lee / Jackson CYP3A hepatocyte panel n=15",
+      "hypothesis": "H4",
+      "question": "do omic changes explain INTRA-individual PK variability between occasions?",
+      "drug": "midazolam and testosterone probes",
+      "endpoint": "enzyme_activity",
+      "endpoint_kind": "functional",
+      "comparator": "within-individual change in clinical state",
+      "pairing": "same_individuals",
+      "pairing_provenance": "registry entry lee_jackson_cyp3a_15, n=15",
+      "access": "open_public",
+      "n_units": 15,
+      "status": "NOT_EVALUABLE",
+      "reasons": [
+        "H4 needs a PK parameter; enzyme_activity is a functional measurement and must not be read as one",
+        "needs repeated measures; declared same_individuals",
+        "H4 needs repeated occasions; this dataset has none",
+        "the minimum comparator is absent: within-individual change in clinical state",
+        "only 15 units, below any useful power"
+      ],
+      "note": "no genotype in the source, so the PGx comparator is absent",
+      "axes": [
+        "metabolic_clearance"
+      ]
+    },
+    {
+      "source": "registry",
+      "dataset": "lee_jackson_cyp3a_15",
+      "label": "Lee / Jackson CYP3A hepatocyte panel n=15",
+      "hypothesis": "H5",
+      "question": "does omic integration improve dose personalisation?",
+      "drug": "midazolam and testosterone probes",
+      "endpoint": "enzyme_activity",
+      "endpoint_kind": "functional",
+      "comparator": "the dosing rule already in use",
+      "pairing": "same_individuals",
+      "pairing_provenance": "registry entry lee_jackson_cyp3a_15, n=15",
+      "access": "open_public",
+      "n_units": 15,
+      "status": "NOT_EVALUABLE",
+      "reasons": [
+        "H5 needs a PK parameter; enzyme_activity is a functional measurement and must not be read as one",
+        "the minimum comparator is absent: the dosing rule already in use",
+        "only 15 units, below any useful power"
+      ],
+      "note": "no genotype in the source, so the PGx comparator is absent",
+      "axes": [
+        "metabolic_clearance"
+      ]
+    },
+    {
+      "source": "registry",
+      "dataset": "lee_venetoclax_patients_12",
+      "label": "Lee 2024 venetoclax CLL patients n=12",
+      "hypothesis": "H1",
+      "question": "do omics add information beyond PGx, clinical and routine biology for PK variability?",
+      "drug": "venetoclax",
+      "endpoint": "concentration",
+      "endpoint_kind": "pk",
+      "comparator": "clinical + biology + PGx, same individuals",
+      "pairing": "same_individuals",
+      "pairing_provenance": "registry entry lee_venetoclax_patients_12, n=12",
+      "access": "open_public",
+      "n_units": 12,
+      "status": "NOT_EVALUABLE",
+      "reasons": [
+        "the minimum comparator is absent: clinical + biology + PGx, same individuals",
+        "only 12 units, below any useful power"
+      ],
+      "note": "twelve patients; below any useful power for a gain contrast",
+      "axes": [
+        "metabolic_clearance"
+      ]
+    },
+    {
+      "source": "registry",
+      "dataset": "lee_venetoclax_patients_12",
+      "label": "Lee 2024 venetoclax CLL patients n=12",
+      "hypothesis": "H2",
+      "question": "can the informative omics be selected automatically, ideally BEFORE acquisition?",
+      "drug": "venetoclax",
+      "endpoint": "concentration",
+      "endpoint_kind": "pk",
+      "comparator": "Spearman or elastic net on the same pool",
+      "pairing": "same_individuals",
+      "pairing_provenance": "registry entry lee_venetoclax_patients_12, n=12",
+      "access": "open_public",
+      "n_units": 12,
+      "status": "NOT_EVALUABLE",
+      "reasons": [
+        "the minimum comparator is absent: Spearman or elastic net on the same pool",
+        "only 12 units, below any useful power"
+      ],
+      "note": "twelve patients; below any useful power for a gain contrast",
+      "axes": [
+        "metabolic_clearance"
+      ]
+    },
+    {
+      "source": "registry",
+      "dataset": "lee_venetoclax_patients_12",
+      "label": "Lee 2024 venetoclax CLL patients n=12",
+      "hypothesis": "H3",
+      "question": "do omics predict the biological functions involved in PK better than PGx alone? NOT limited to enzymes: transporters, binding proteins, absorption",
+      "drug": "venetoclax",
+      "endpoint": "concentration",
+      "endpoint_kind": "pk",
+      "comparator": "PGx alone, same individuals or variants",
+      "pairing": "same_individuals",
+      "pairing_provenance": "registry entry lee_venetoclax_patients_12, n=12",
+      "access": "open_public",
+      "n_units": 12,
+      "status": "NOT_EVALUABLE",
+      "reasons": [
+        "H3 is about functional endpoints; concentration is a PK parameter, which belongs to H1, H4 or H5",
+        "the minimum comparator is absent: PGx alone, same individuals or variants",
+        "only 12 units, below any useful power"
+      ],
+      "note": "twelve patients; below any useful power for a gain contrast",
+      "axes": [
+        "metabolic_clearance"
+      ]
+    },
+    {
+      "source": "registry",
+      "dataset": "lee_venetoclax_patients_12",
+      "label": "Lee 2024 venetoclax CLL patients n=12",
+      "hypothesis": "H4",
+      "question": "do omic changes explain INTRA-individual PK variability between occasions?",
+      "drug": "venetoclax",
+      "endpoint": "concentration",
+      "endpoint_kind": "pk",
+      "comparator": "within-individual change in clinical state",
+      "pairing": "same_individuals",
+      "pairing_provenance": "registry entry lee_venetoclax_patients_12, n=12",
+      "access": "open_public",
+      "n_units": 12,
+      "status": "NOT_EVALUABLE",
+      "reasons": [
+        "needs repeated measures; declared same_individuals",
+        "H4 needs repeated occasions; this dataset has none",
+        "the minimum comparator is absent: within-individual change in clinical state",
+        "only 12 units, below any useful power"
+      ],
+      "note": "twelve patients; below any useful power for a gain contrast",
+      "axes": [
+        "metabolic_clearance"
+      ]
+    },
+    {
+      "source": "registry",
+      "dataset": "lee_venetoclax_patients_12",
+      "label": "Lee 2024 venetoclax CLL patients n=12",
+      "hypothesis": "H5",
+      "question": "does omic integration improve dose personalisation?",
+      "drug": "venetoclax",
+      "endpoint": "concentration",
+      "endpoint_kind": "pk",
+      "comparator": "the dosing rule already in use",
+      "pairing": "same_individuals",
+      "pairing_provenance": "registry entry lee_venetoclax_patients_12, n=12",
+      "access": "open_public",
+      "n_units": 12,
+      "status": "NOT_EVALUABLE",
+      "reasons": [
+        "the minimum comparator is absent: the dosing rule already in use",
+        "only 12 units, below any useful power"
+      ],
+      "note": "twelve patients; below any useful power for a gain contrast",
+      "axes": [
+        "metabolic_clearance"
+      ]
+    },
+    {
+      "source": "registry",
+      "dataset": "jarmusch_midazolam",
+      "label": "Jarmusch CYP3A midazolam metabolomics",
+      "hypothesis": "H1",
+      "question": "do omics add information beyond PGx, clinical and routine biology for PK variability?",
+      "drug": "midazolam",
+      "endpoint": "concentration",
+      "endpoint_kind": "pk",
+      "comparator": "clinical + biology + PGx, same individuals",
+      "pairing": "same_individuals",
+      "pairing_provenance": "OMICS2PK_FIVE_OBJECTIVES_VALIDATION_PROTOCOL.md v1.3.0: the GNPS table joined per donor gives 13 matched subjects at plasma / day 1 / time 0",
+      "access": "open_public",
+      "n_units": null,
+      "status": "NOT_EVALUABLE",
+      "reasons": [
+        "the minimum comparator is absent: clinical + biology + PGx, same individuals"
+      ],
+      "note": "13 matched subjects. A GNPS-named feature is not a confirmed structure",
+      "axes": [
+        "metabolic_clearance"
+      ]
+    },
+    {
+      "source": "registry",
+      "dataset": "jarmusch_midazolam",
+      "label": "Jarmusch CYP3A midazolam metabolomics",
+      "hypothesis": "H2",
+      "question": "can the informative omics be selected automatically, ideally BEFORE acquisition?",
+      "drug": "midazolam",
+      "endpoint": "concentration",
+      "endpoint_kind": "pk",
+      "comparator": "Spearman or elastic net on the same pool",
+      "pairing": "same_individuals",
+      "pairing_provenance": "OMICS2PK_FIVE_OBJECTIVES_VALIDATION_PROTOCOL.md v1.3.0: the GNPS table joined per donor gives 13 matched subjects at plasma / day 1 / time 0",
+      "access": "open_public",
+      "n_units": null,
+      "status": "NOT_EVALUABLE",
+      "reasons": [
+        "the minimum comparator is absent: Spearman or elastic net on the same pool"
+      ],
+      "note": "13 matched subjects. A GNPS-named feature is not a confirmed structure",
+      "axes": [
+        "metabolic_clearance"
+      ]
+    },
+    {
+      "source": "registry",
+      "dataset": "jarmusch_midazolam",
+      "label": "Jarmusch CYP3A midazolam metabolomics",
+      "hypothesis": "H3",
+      "question": "do omics predict the biological functions involved in PK better than PGx alone? NOT limited to enzymes: transporters, binding proteins, absorption",
+      "drug": "midazolam",
+      "endpoint": "concentration",
+      "endpoint_kind": "pk",
+      "comparator": "PGx alone, same individuals or variants",
+      "pairing": "same_individuals",
+      "pairing_provenance": "OMICS2PK_FIVE_OBJECTIVES_VALIDATION_PROTOCOL.md v1.3.0: the GNPS table joined per donor gives 13 matched subjects at plasma / day 1 / time 0",
+      "access": "open_public",
+      "n_units": null,
+      "status": "NOT_EVALUABLE",
+      "reasons": [
+        "H3 is about functional endpoints; concentration is a PK parameter, which belongs to H1, H4 or H5",
+        "the minimum comparator is absent: PGx alone, same individuals or variants"
+      ],
+      "note": "13 matched subjects. A GNPS-named feature is not a confirmed structure",
+      "axes": [
+        "metabolic_clearance"
+      ]
+    },
+    {
+      "source": "registry",
+      "dataset": "jarmusch_midazolam",
+      "label": "Jarmusch CYP3A midazolam metabolomics",
+      "hypothesis": "H4",
+      "question": "do omic changes explain INTRA-individual PK variability between occasions?",
+      "drug": "midazolam",
+      "endpoint": "concentration",
+      "endpoint_kind": "pk",
+      "comparator": "within-individual change in clinical state",
+      "pairing": "same_individuals",
+      "pairing_provenance": "OMICS2PK_FIVE_OBJECTIVES_VALIDATION_PROTOCOL.md v1.3.0: the GNPS table joined per donor gives 13 matched subjects at plasma / day 1 / time 0",
+      "access": "open_public",
+      "n_units": null,
+      "status": "NOT_EVALUABLE",
+      "reasons": [
+        "needs repeated measures; declared same_individuals",
+        "H4 needs repeated occasions; this dataset has none",
+        "the minimum comparator is absent: within-individual change in clinical state"
+      ],
+      "note": "13 matched subjects. A GNPS-named feature is not a confirmed structure",
+      "axes": [
+        "metabolic_clearance"
+      ]
+    },
+    {
+      "source": "registry",
+      "dataset": "jarmusch_midazolam",
+      "label": "Jarmusch CYP3A midazolam metabolomics",
+      "hypothesis": "H5",
+      "question": "does omic integration improve dose personalisation?",
+      "drug": "midazolam",
+      "endpoint": "concentration",
+      "endpoint_kind": "pk",
+      "comparator": "the dosing rule already in use",
+      "pairing": "same_individuals",
+      "pairing_provenance": "OMICS2PK_FIVE_OBJECTIVES_VALIDATION_PROTOCOL.md v1.3.0: the GNPS table joined per donor gives 13 matched subjects at plasma / day 1 / time 0",
+      "access": "open_public",
+      "n_units": null,
+      "status": "NOT_EVALUABLE",
+      "reasons": [
+        "the minimum comparator is absent: the dosing rule already in use"
+      ],
+      "note": "13 matched subjects. A GNPS-named feature is not a confirmed structure",
+      "axes": [
+        "metabolic_clearance"
+      ]
+    },
+    {
+      "source": "registry",
+      "dataset": "epa_liver_100",
+      "label": "EPA liver donor transcript and CYP activity panel n=100",
+      "hypothesis": "H1",
+      "question": "do omics add information beyond PGx, clinical and routine biology for PK variability?",
+      "drug": "eight CYP probes",
+      "endpoint": "enzyme_activity",
+      "endpoint_kind": "functional",
+      "comparator": "clinical + biology + PGx, same individuals",
+      "pairing": "unknown",
+      "pairing_provenance": "no archive is present on this machine; the readers exist but a reader without data is not a cohort",
+      "access": "open_public",
+      "n_units": null,
+      "status": "NOT_EVALUABLE",
+      "reasons": [
+        "H1 needs a PK parameter; enzyme_activity is a functional measurement and must not be read as one",
+        "needs same_individuals; declared unknown",
+        "joint analysis is inadmissible: two layers from different publications are not paired",
+        "no omic layer is available",
+        "the minimum comparator is absent: clinical + biology + PGx, same individuals"
+      ],
+      "note": "NOT_EVALUABLE for want of local data, recorded 2026-11-11",
+      "axes": [
+        "metabolic_clearance"
+      ]
+    },
+    {
+      "source": "registry",
+      "dataset": "epa_liver_100",
+      "label": "EPA liver donor transcript and CYP activity panel n=100",
+      "hypothesis": "H2",
+      "question": "can the informative omics be selected automatically, ideally BEFORE acquisition?",
+      "drug": "eight CYP probes",
+      "endpoint": "enzyme_activity",
+      "endpoint_kind": "functional",
+      "comparator": "Spearman or elastic net on the same pool",
+      "pairing": "unknown",
+      "pairing_provenance": "no archive is present on this machine; the readers exist but a reader without data is not a cohort",
+      "access": "open_public",
+      "n_units": null,
+      "status": "NOT_EVALUABLE",
+      "reasons": [
+        "needs per-individual or per-variant pairing; declared unknown",
+        "joint analysis is inadmissible: two layers from different publications are not paired",
+        "no omic layer is available",
+        "the minimum comparator is absent: Spearman or elastic net on the same pool"
+      ],
+      "note": "NOT_EVALUABLE for want of local data, recorded 2026-11-11",
+      "axes": [
+        "metabolic_clearance"
+      ]
+    },
+    {
+      "source": "registry",
+      "dataset": "epa_liver_100",
+      "label": "EPA liver donor transcript and CYP activity panel n=100",
+      "hypothesis": "H3",
+      "question": "do omics predict the biological functions involved in PK better than PGx alone? NOT limited to enzymes: transporters, binding proteins, absorption",
+      "drug": "eight CYP probes",
+      "endpoint": "enzyme_activity",
+      "endpoint_kind": "functional",
+      "comparator": "PGx alone, same individuals or variants",
+      "pairing": "unknown",
+      "pairing_provenance": "no archive is present on this machine; the readers exist but a reader without data is not a cohort",
+      "access": "open_public",
+      "n_units": null,
+      "status": "NOT_EVALUABLE",
+      "reasons": [
+        "needs per-individual or per-variant pairing; declared unknown",
+        "joint analysis is inadmissible: two layers from different publications are not paired",
+        "no omic layer is available",
+        "the minimum comparator is absent: PGx alone, same individuals or variants"
+      ],
+      "note": "NOT_EVALUABLE for want of local data, recorded 2026-11-11",
+      "axes": [
+        "metabolic_clearance"
+      ]
+    },
+    {
+      "source": "registry",
+      "dataset": "epa_liver_100",
+      "label": "EPA liver donor transcript and CYP activity panel n=100",
+      "hypothesis": "H4",
+      "question": "do omic changes explain INTRA-individual PK variability between occasions?",
+      "drug": "eight CYP probes",
+      "endpoint": "enzyme_activity",
+      "endpoint_kind": "functional",
+      "comparator": "within-individual change in clinical state",
+      "pairing": "unknown",
+      "pairing_provenance": "no archive is present on this machine; the readers exist but a reader without data is not a cohort",
+      "access": "open_public",
+      "n_units": null,
+      "status": "NOT_EVALUABLE",
+      "reasons": [
+        "H4 needs a PK parameter; enzyme_activity is a functional measurement and must not be read as one",
+        "needs repeated measures; declared unknown",
+        "joint analysis is inadmissible: two layers from different publications are not paired",
+        "H4 needs repeated occasions; this dataset has none",
+        "no omic layer is available",
+        "the minimum comparator is absent: within-individual change in clinical state"
+      ],
+      "note": "NOT_EVALUABLE for want of local data, recorded 2026-11-11",
+      "axes": [
+        "metabolic_clearance"
+      ]
+    },
+    {
+      "source": "registry",
+      "dataset": "epa_liver_100",
+      "label": "EPA liver donor transcript and CYP activity panel n=100",
+      "hypothesis": "H5",
+      "question": "does omic integration improve dose personalisation?",
+      "drug": "eight CYP probes",
+      "endpoint": "enzyme_activity",
+      "endpoint_kind": "functional",
+      "comparator": "the dosing rule already in use",
+      "pairing": "unknown",
+      "pairing_provenance": "no archive is present on this machine; the readers exist but a reader without data is not a cohort",
+      "access": "open_public",
+      "n_units": null,
+      "status": "NOT_EVALUABLE",
+      "reasons": [
+        "H5 needs a PK parameter; enzyme_activity is a functional measurement and must not be read as one",
+        "needs same_individuals; declared unknown",
+        "joint analysis is inadmissible: two layers from different publications are not paired",
+        "no omic layer is available",
+        "the minimum comparator is absent: the dosing rule already in use"
+      ],
+      "note": "NOT_EVALUABLE for want of local data, recorded 2026-11-11",
+      "axes": [
+        "metabolic_clearance"
+      ]
+    },
+    {
+      "source": "registry",
+      "dataset": "mavedb_nudt15_paired_stability_activity",
+      "label": "MaveDB NUDT15 stability + activity, same variant library",
+      "hypothesis": "H1",
+      "question": "do omics add information beyond PGx, clinical and routine biology for PK variability?",
+      "drug": "thiopurine",
+      "endpoint": "variant_functional_score",
+      "endpoint_kind": "functional",
+      "comparator": "clinical + biology + PGx, same individuals",
+      "pairing": "same_variants",
+      "pairing_provenance": "registry entry, same variant library in both assays",
+      "access": "open_public",
+      "n_units": 2844,
+      "status": "NOT_EVALUABLE",
+      "reasons": [
+        "H1 needs a PK parameter; variant_functional_score is a functional measurement and must not be read as one",
+        "needs same_individuals; declared same_variants",
+        "the minimum comparator is absent: clinical + biology + PGx, same individuals"
+      ],
+      "note": "a screen score is not a PK quantity and not an individual",
+      "axes": [
+        "metabolic_clearance"
+      ]
+    },
+    {
+      "source": "registry",
+      "dataset": "mavedb_nudt15_paired_stability_activity",
+      "label": "MaveDB NUDT15 stability + activity, same variant library",
+      "hypothesis": "H2",
+      "question": "can the informative omics be selected automatically, ideally BEFORE acquisition?",
+      "drug": "thiopurine",
+      "endpoint": "variant_functional_score",
+      "endpoint_kind": "functional",
+      "comparator": "Spearman or elastic net on the same pool",
+      "pairing": "same_variants",
+      "pairing_provenance": "registry entry, same variant library in both assays",
+      "access": "open_public",
+      "n_units": 2844,
+      "status": "READY",
+      "reasons": [
+        "every requirement met and the channel is open"
+      ],
+      "note": "a screen score is not a PK quantity and not an individual",
+      "axes": [
+        "metabolic_clearance"
+      ]
+    },
+    {
+      "source": "registry",
+      "dataset": "mavedb_nudt15_paired_stability_activity",
+      "label": "MaveDB NUDT15 stability + activity, same variant library",
+      "hypothesis": "H3",
+      "question": "do omics predict the biological functions involved in PK better than PGx alone? NOT limited to enzymes: transporters, binding proteins, absorption",
+      "drug": "thiopurine",
+      "endpoint": "variant_functional_score",
+      "endpoint_kind": "functional",
+      "comparator": "PGx alone, same individuals or variants",
+      "pairing": "same_variants",
+      "pairing_provenance": "registry entry, same variant library in both assays",
+      "access": "open_public",
+      "n_units": 2844,
+      "status": "READY",
+      "reasons": [
+        "every requirement met and the channel is open"
+      ],
+      "note": "a screen score is not a PK quantity and not an individual",
+      "axes": [
+        "metabolic_clearance"
+      ]
+    },
+    {
+      "source": "registry",
+      "dataset": "mavedb_nudt15_paired_stability_activity",
+      "label": "MaveDB NUDT15 stability + activity, same variant library",
+      "hypothesis": "H4",
+      "question": "do omic changes explain INTRA-individual PK variability between occasions?",
+      "drug": "thiopurine",
+      "endpoint": "variant_functional_score",
+      "endpoint_kind": "functional",
+      "comparator": "within-individual change in clinical state",
+      "pairing": "same_variants",
+      "pairing_provenance": "registry entry, same variant library in both assays",
+      "access": "open_public",
+      "n_units": 2844,
+      "status": "NOT_EVALUABLE",
+      "reasons": [
+        "H4 needs a PK parameter; variant_functional_score is a functional measurement and must not be read as one",
+        "needs repeated measures; declared same_variants",
+        "H4 needs repeated occasions; this dataset has none",
+        "the minimum comparator is absent: within-individual change in clinical state"
+      ],
+      "note": "a screen score is not a PK quantity and not an individual",
+      "axes": [
+        "metabolic_clearance"
+      ]
+    },
+    {
+      "source": "registry",
+      "dataset": "mavedb_nudt15_paired_stability_activity",
+      "label": "MaveDB NUDT15 stability + activity, same variant library",
+      "hypothesis": "H5",
+      "question": "does omic integration improve dose personalisation?",
+      "drug": "thiopurine",
+      "endpoint": "variant_functional_score",
+      "endpoint_kind": "functional",
+      "comparator": "the dosing rule already in use",
+      "pairing": "same_variants",
+      "pairing_provenance": "registry entry, same variant library in both assays",
+      "access": "open_public",
+      "n_units": 2844,
+      "status": "NOT_EVALUABLE",
+      "reasons": [
+        "H5 needs a PK parameter; variant_functional_score is a functional measurement and must not be read as one",
+        "needs same_individuals; declared same_variants",
+        "the minimum comparator is absent: the dosing rule already in use"
+      ],
+      "note": "a screen score is not a PK quantity and not an individual",
+      "axes": [
+        "metabolic_clearance"
+      ]
+    },
+    {
+      "source": "registry",
+      "dataset": "mavedb_cyp2c9_paired_abundance_activity",
+      "label": "MaveDB CYP2C9 abundance + activity, two assay systems",
+      "hypothesis": "H1",
+      "question": "do omics add information beyond PGx, clinical and routine biology for PK variability?",
+      "drug": "not applicable",
+      "endpoint": "variant_functional_score",
+      "endpoint_kind": "functional",
+      "comparator": "clinical + biology + PGx, same individuals",
+      "pairing": "same_variants",
+      "pairing_provenance": "registry entry, same variant library in both assays",
+      "access": "open_public",
+      "n_units": 4478,
+      "status": "NOT_EVALUABLE",
+      "reasons": [
+        "H1 needs a PK parameter; variant_functional_score is a functional measurement and must not be read as one",
+        "needs same_individuals; declared same_variants",
+        "the minimum comparator is absent: clinical + biology + PGx, same individuals"
+      ],
+      "note": "abundance in HEK293T, activity in humanised yeast",
+      "axes": [
+        "metabolic_clearance"
+      ]
+    },
+    {
+      "source": "registry",
+      "dataset": "mavedb_cyp2c9_paired_abundance_activity",
+      "label": "MaveDB CYP2C9 abundance + activity, two assay systems",
+      "hypothesis": "H2",
+      "question": "can the informative omics be selected automatically, ideally BEFORE acquisition?",
+      "drug": "not applicable",
+      "endpoint": "variant_functional_score",
+      "endpoint_kind": "functional",
+      "comparator": "Spearman or elastic net on the same pool",
+      "pairing": "same_variants",
+      "pairing_provenance": "registry entry, same variant library in both assays",
+      "access": "open_public",
+      "n_units": 4478,
+      "status": "READY",
+      "reasons": [
+        "every requirement met and the channel is open"
+      ],
+      "note": "abundance in HEK293T, activity in humanised yeast",
+      "axes": [
+        "metabolic_clearance"
+      ]
+    },
+    {
+      "source": "registry",
+      "dataset": "mavedb_cyp2c9_paired_abundance_activity",
+      "label": "MaveDB CYP2C9 abundance + activity, two assay systems",
+      "hypothesis": "H3",
+      "question": "do omics predict the biological functions involved in PK better than PGx alone? NOT limited to enzymes: transporters, binding proteins, absorption",
+      "drug": "not applicable",
+      "endpoint": "variant_functional_score",
+      "endpoint_kind": "functional",
+      "comparator": "PGx alone, same individuals or variants",
+      "pairing": "same_variants",
+      "pairing_provenance": "registry entry, same variant library in both assays",
+      "access": "open_public",
+      "n_units": 4478,
+      "status": "READY",
+      "reasons": [
+        "every requirement met and the channel is open"
+      ],
+      "note": "abundance in HEK293T, activity in humanised yeast",
+      "axes": [
+        "metabolic_clearance"
+      ]
+    },
+    {
+      "source": "registry",
+      "dataset": "mavedb_cyp2c9_paired_abundance_activity",
+      "label": "MaveDB CYP2C9 abundance + activity, two assay systems",
+      "hypothesis": "H4",
+      "question": "do omic changes explain INTRA-individual PK variability between occasions?",
+      "drug": "not applicable",
+      "endpoint": "variant_functional_score",
+      "endpoint_kind": "functional",
+      "comparator": "within-individual change in clinical state",
+      "pairing": "same_variants",
+      "pairing_provenance": "registry entry, same variant library in both assays",
+      "access": "open_public",
+      "n_units": 4478,
+      "status": "NOT_EVALUABLE",
+      "reasons": [
+        "H4 needs a PK parameter; variant_functional_score is a functional measurement and must not be read as one",
+        "needs repeated measures; declared same_variants",
+        "H4 needs repeated occasions; this dataset has none",
+        "the minimum comparator is absent: within-individual change in clinical state"
+      ],
+      "note": "abundance in HEK293T, activity in humanised yeast",
+      "axes": [
+        "metabolic_clearance"
+      ]
+    },
+    {
+      "source": "registry",
+      "dataset": "mavedb_cyp2c9_paired_abundance_activity",
+      "label": "MaveDB CYP2C9 abundance + activity, two assay systems",
+      "hypothesis": "H5",
+      "question": "does omic integration improve dose personalisation?",
+      "drug": "not applicable",
+      "endpoint": "variant_functional_score",
+      "endpoint_kind": "functional",
+      "comparator": "the dosing rule already in use",
+      "pairing": "same_variants",
+      "pairing_provenance": "registry entry, same variant library in both assays",
+      "access": "open_public",
+      "n_units": 4478,
+      "status": "NOT_EVALUABLE",
+      "reasons": [
+        "H5 needs a PK parameter; variant_functional_score is a functional measurement and must not be read as one",
+        "needs same_individuals; declared same_variants",
+        "the minimum comparator is absent: the dosing rule already in use"
+      ],
+      "note": "abundance in HEK293T, activity in humanised yeast",
+      "axes": [
+        "metabolic_clearance"
+      ]
+    },
+    {
+      "source": "registry",
+      "dataset": "mavedb_braf_paired_abundance_activity",
+      "label": "MaveDB BRAF abundance + activity, same C-terminal construct",
+      "hypothesis": "H1",
+      "question": "do omics add information beyond PGx, clinical and routine biology for PK variability?",
+      "drug": "not applicable",
+      "endpoint": "variant_functional_score",
+      "endpoint_kind": "functional",
+      "comparator": "clinical + biology + PGx, same individuals",
+      "pairing": "same_variants",
+      "pairing_provenance": "registry entry, one C-terminal construct",
+      "access": "open_public",
+      "n_units": 6583,
+      "status": "NOT_EVALUABLE",
+      "reasons": [
+        "H1 needs a PK parameter; variant_functional_score is a functional measurement and must not be read as one",
+        "needs same_individuals; declared same_variants",
+        "the minimum comparator is absent: clinical + biology + PGx, same individuals"
+      ],
+      "note": "gain-of-function library; the structural rule is refuted here",
+      "axes": [
+        "metabolic_clearance"
+      ]
+    },
+    {
+      "source": "registry",
+      "dataset": "mavedb_braf_paired_abundance_activity",
+      "label": "MaveDB BRAF abundance + activity, same C-terminal construct",
+      "hypothesis": "H2",
+      "question": "can the informative omics be selected automatically, ideally BEFORE acquisition?",
+      "drug": "not applicable",
+      "endpoint": "variant_functional_score",
+      "endpoint_kind": "functional",
+      "comparator": "Spearman or elastic net on the same pool",
+      "pairing": "same_variants",
+      "pairing_provenance": "registry entry, one C-terminal construct",
+      "access": "open_public",
+      "n_units": 6583,
+      "status": "READY",
+      "reasons": [
+        "every requirement met and the channel is open"
+      ],
+      "note": "gain-of-function library; the structural rule is refuted here",
+      "axes": [
+        "metabolic_clearance"
+      ]
+    },
+    {
+      "source": "registry",
+      "dataset": "mavedb_braf_paired_abundance_activity",
+      "label": "MaveDB BRAF abundance + activity, same C-terminal construct",
+      "hypothesis": "H3",
+      "question": "do omics predict the biological functions involved in PK better than PGx alone? NOT limited to enzymes: transporters, binding proteins, absorption",
+      "drug": "not applicable",
+      "endpoint": "variant_functional_score",
+      "endpoint_kind": "functional",
+      "comparator": "PGx alone, same individuals or variants",
+      "pairing": "same_variants",
+      "pairing_provenance": "registry entry, one C-terminal construct",
+      "access": "open_public",
+      "n_units": 6583,
+      "status": "READY",
+      "reasons": [
+        "every requirement met and the channel is open"
+      ],
+      "note": "gain-of-function library; the structural rule is refuted here",
+      "axes": [
+        "metabolic_clearance"
+      ]
+    },
+    {
+      "source": "registry",
+      "dataset": "mavedb_braf_paired_abundance_activity",
+      "label": "MaveDB BRAF abundance + activity, same C-terminal construct",
+      "hypothesis": "H4",
+      "question": "do omic changes explain INTRA-individual PK variability between occasions?",
+      "drug": "not applicable",
+      "endpoint": "variant_functional_score",
+      "endpoint_kind": "functional",
+      "comparator": "within-individual change in clinical state",
+      "pairing": "same_variants",
+      "pairing_provenance": "registry entry, one C-terminal construct",
+      "access": "open_public",
+      "n_units": 6583,
+      "status": "NOT_EVALUABLE",
+      "reasons": [
+        "H4 needs a PK parameter; variant_functional_score is a functional measurement and must not be read as one",
+        "needs repeated measures; declared same_variants",
+        "H4 needs repeated occasions; this dataset has none",
+        "the minimum comparator is absent: within-individual change in clinical state"
+      ],
+      "note": "gain-of-function library; the structural rule is refuted here",
+      "axes": [
+        "metabolic_clearance"
+      ]
+    },
+    {
+      "source": "registry",
+      "dataset": "mavedb_braf_paired_abundance_activity",
+      "label": "MaveDB BRAF abundance + activity, same C-terminal construct",
+      "hypothesis": "H5",
+      "question": "does omic integration improve dose personalisation?",
+      "drug": "not applicable",
+      "endpoint": "variant_functional_score",
+      "endpoint_kind": "functional",
+      "comparator": "the dosing rule already in use",
+      "pairing": "same_variants",
+      "pairing_provenance": "registry entry, one C-terminal construct",
+      "access": "open_public",
+      "n_units": 6583,
+      "status": "NOT_EVALUABLE",
+      "reasons": [
+        "H5 needs a PK parameter; variant_functional_score is a functional measurement and must not be read as one",
+        "needs same_individuals; declared same_variants",
+        "the minimum comparator is absent: the dosing rule already in use"
+      ],
+      "note": "gain-of-function library; the structural rule is refuted here",
+      "axes": [
+        "metabolic_clearance"
+      ]
+    },
+    {
+      "source": "registry",
+      "dataset": "mavedb_araf_abundance_conditions_and_activity",
+      "label": "MaveDB ARAF activity with abundance under vehicle and HSP90 inhibition, same C-terminal construct",
+      "hypothesis": "H1",
+      "question": "do omics add information beyond PGx, clinical and routine biology for PK variability?",
+      "drug": "not applicable",
+      "endpoint": "variant_functional_score",
+      "endpoint_kind": "functional",
+      "comparator": "clinical + biology + PGx, same individuals",
+      "pairing": "same_variants",
+      "pairing_provenance": "registry entry, one C-terminal construct",
+      "access": "open_public",
+      "n_units": 6105,
+      "status": "NOT_EVALUABLE",
+      "reasons": [
+        "H1 needs a PK parameter; variant_functional_score is a functional measurement and must not be read as one",
+        "needs same_individuals; declared same_variants",
+        "the minimum comparator is absent: clinical + biology + PGx, same individuals"
+      ],
+      "note": "two abundance CONDITIONS, not two omic layers. The structural rule is refuted here too",
+      "axes": [
+        "metabolic_clearance"
+      ]
+    },
+    {
+      "source": "registry",
+      "dataset": "mavedb_araf_abundance_conditions_and_activity",
+      "label": "MaveDB ARAF activity with abundance under vehicle and HSP90 inhibition, same C-terminal construct",
+      "hypothesis": "H2",
+      "question": "can the informative omics be selected automatically, ideally BEFORE acquisition?",
+      "drug": "not applicable",
+      "endpoint": "variant_functional_score",
+      "endpoint_kind": "functional",
+      "comparator": "Spearman or elastic net on the same pool",
+      "pairing": "same_variants",
+      "pairing_provenance": "registry entry, one C-terminal construct",
+      "access": "open_public",
+      "n_units": 6105,
+      "status": "READY",
+      "reasons": [
+        "every requirement met and the channel is open"
+      ],
+      "note": "two abundance CONDITIONS, not two omic layers. The structural rule is refuted here too",
+      "axes": [
+        "metabolic_clearance"
+      ]
+    },
+    {
+      "source": "registry",
+      "dataset": "mavedb_araf_abundance_conditions_and_activity",
+      "label": "MaveDB ARAF activity with abundance under vehicle and HSP90 inhibition, same C-terminal construct",
+      "hypothesis": "H3",
+      "question": "do omics predict the biological functions involved in PK better than PGx alone? NOT limited to enzymes: transporters, binding proteins, absorption",
+      "drug": "not applicable",
+      "endpoint": "variant_functional_score",
+      "endpoint_kind": "functional",
+      "comparator": "PGx alone, same individuals or variants",
+      "pairing": "same_variants",
+      "pairing_provenance": "registry entry, one C-terminal construct",
+      "access": "open_public",
+      "n_units": 6105,
+      "status": "READY",
+      "reasons": [
+        "every requirement met and the channel is open"
+      ],
+      "note": "two abundance CONDITIONS, not two omic layers. The structural rule is refuted here too",
+      "axes": [
+        "metabolic_clearance"
+      ]
+    },
+    {
+      "source": "registry",
+      "dataset": "mavedb_araf_abundance_conditions_and_activity",
+      "label": "MaveDB ARAF activity with abundance under vehicle and HSP90 inhibition, same C-terminal construct",
+      "hypothesis": "H4",
+      "question": "do omic changes explain INTRA-individual PK variability between occasions?",
+      "drug": "not applicable",
+      "endpoint": "variant_functional_score",
+      "endpoint_kind": "functional",
+      "comparator": "within-individual change in clinical state",
+      "pairing": "same_variants",
+      "pairing_provenance": "registry entry, one C-terminal construct",
+      "access": "open_public",
+      "n_units": 6105,
+      "status": "NOT_EVALUABLE",
+      "reasons": [
+        "H4 needs a PK parameter; variant_functional_score is a functional measurement and must not be read as one",
+        "needs repeated measures; declared same_variants",
+        "H4 needs repeated occasions; this dataset has none",
+        "the minimum comparator is absent: within-individual change in clinical state"
+      ],
+      "note": "two abundance CONDITIONS, not two omic layers. The structural rule is refuted here too",
+      "axes": [
+        "metabolic_clearance"
+      ]
+    },
+    {
+      "source": "registry",
+      "dataset": "mavedb_araf_abundance_conditions_and_activity",
+      "label": "MaveDB ARAF activity with abundance under vehicle and HSP90 inhibition, same C-terminal construct",
+      "hypothesis": "H5",
+      "question": "does omic integration improve dose personalisation?",
+      "drug": "not applicable",
+      "endpoint": "variant_functional_score",
+      "endpoint_kind": "functional",
+      "comparator": "the dosing rule already in use",
+      "pairing": "same_variants",
+      "pairing_provenance": "registry entry, one C-terminal construct",
+      "access": "open_public",
+      "n_units": 6105,
+      "status": "NOT_EVALUABLE",
+      "reasons": [
+        "H5 needs a PK parameter; variant_functional_score is a functional measurement and must not be read as one",
+        "needs same_individuals; declared same_variants",
+        "the minimum comparator is absent: the dosing rule already in use"
+      ],
+      "note": "two abundance CONDITIONS, not two omic layers. The structural rule is refuted here too",
+      "axes": [
+        "metabolic_clearance"
+      ]
+    },
+    {
+      "source": "new_candidate",
+      "dataset": "pride_pxd066482_imatinib_clearance",
+      "label": "PRIDE PXD066482 - interindividual variability in imatinib metabolism in human liver microsomes and primary human hepatocytes, CYP2C8 and CYP3A phenotypes",
+      "hypothesis": "H1",
+      "question": "do omics add information beyond PGx, clinical and routine biology for PK variability?",
+      "drug": "imatinib",
+      "endpoint": "clint_in_vitro",
+      "endpoint_kind": "functional",
+      "comparator": "clinical + biology + PGx, same individuals",
+      "pairing": "same_individuals",
+      "pairing_provenance": "PRIDE project description, retrieved 2026-11-12: individual-donor HLM and PHH incubated with imatinib for clearance and N-desmethyl-imatinib formation, with CYP2C8 and CYP3A activity, protein concentration AND genotype on the same donors",
+      "access": "open_public",
+      "n_units": null,
+      "status": "NOT_EVALUABLE",
+      "reasons": [
+        "H1 needs a PK parameter; clint_in_vitro is a functional measurement and must not be read as one",
+        "the minimum comparator is absent: clinical + biology + PGx, same individuals"
+      ],
+      "note": "the PRIDE deposit holds the proteomics; the clearance, activity and genotype tables are in the publication's supplement and are NOT yet verified as public. n per donor is not stated in the deposit metadata",
+      "why_it_matters": "the only inventoried source carrying genotype, protein, activity and a clearance on the same units. That is the H3 design, and the PGx comparator H3 needs is present",
+      "repository": "PRIDE",
+      "accession": "PXD066482",
+      "licence": "CC0",
+      "axes": []
+    },
+    {
+      "source": "new_candidate",
+      "dataset": "pride_pxd066482_imatinib_clearance",
+      "label": "PRIDE PXD066482 - interindividual variability in imatinib metabolism in human liver microsomes and primary human hepatocytes, CYP2C8 and CYP3A phenotypes",
+      "hypothesis": "H2",
+      "question": "can the informative omics be selected automatically, ideally BEFORE acquisition?",
+      "drug": "imatinib",
+      "endpoint": "clint_in_vitro",
+      "endpoint_kind": "functional",
+      "comparator": "Spearman or elastic net on the same pool",
+      "pairing": "same_individuals",
+      "pairing_provenance": "PRIDE project description, retrieved 2026-11-12: individual-donor HLM and PHH incubated with imatinib for clearance and N-desmethyl-imatinib formation, with CYP2C8 and CYP3A activity, protein concentration AND genotype on the same donors",
+      "access": "open_public",
+      "n_units": null,
+      "status": "READY",
+      "reasons": [
+        "every requirement met and the channel is open"
+      ],
+      "note": "the PRIDE deposit holds the proteomics; the clearance, activity and genotype tables are in the publication's supplement and are NOT yet verified as public. n per donor is not stated in the deposit metadata",
+      "why_it_matters": "the only inventoried source carrying genotype, protein, activity and a clearance on the same units. That is the H3 design, and the PGx comparator H3 needs is present",
+      "repository": "PRIDE",
+      "accession": "PXD066482",
+      "licence": "CC0",
+      "axes": []
+    },
+    {
+      "source": "new_candidate",
+      "dataset": "pride_pxd066482_imatinib_clearance",
+      "label": "PRIDE PXD066482 - interindividual variability in imatinib metabolism in human liver microsomes and primary human hepatocytes, CYP2C8 and CYP3A phenotypes",
+      "hypothesis": "H3",
+      "question": "do omics predict the biological functions involved in PK better than PGx alone? NOT limited to enzymes: transporters, binding proteins, absorption",
+      "drug": "imatinib",
+      "endpoint": "clint_in_vitro",
+      "endpoint_kind": "functional",
+      "comparator": "PGx alone, same individuals or variants",
+      "pairing": "same_individuals",
+      "pairing_provenance": "PRIDE project description, retrieved 2026-11-12: individual-donor HLM and PHH incubated with imatinib for clearance and N-desmethyl-imatinib formation, with CYP2C8 and CYP3A activity, protein concentration AND genotype on the same donors",
+      "access": "open_public",
+      "n_units": null,
+      "status": "READY",
+      "reasons": [
+        "every requirement met and the channel is open"
+      ],
+      "note": "the PRIDE deposit holds the proteomics; the clearance, activity and genotype tables are in the publication's supplement and are NOT yet verified as public. n per donor is not stated in the deposit metadata",
+      "why_it_matters": "the only inventoried source carrying genotype, protein, activity and a clearance on the same units. That is the H3 design, and the PGx comparator H3 needs is present",
+      "repository": "PRIDE",
+      "accession": "PXD066482",
+      "licence": "CC0",
+      "axes": []
+    },
+    {
+      "source": "new_candidate",
+      "dataset": "pride_pxd066482_imatinib_clearance",
+      "label": "PRIDE PXD066482 - interindividual variability in imatinib metabolism in human liver microsomes and primary human hepatocytes, CYP2C8 and CYP3A phenotypes",
+      "hypothesis": "H4",
+      "question": "do omic changes explain INTRA-individual PK variability between occasions?",
+      "drug": "imatinib",
+      "endpoint": "clint_in_vitro",
+      "endpoint_kind": "functional",
+      "comparator": "within-individual change in clinical state",
+      "pairing": "same_individuals",
+      "pairing_provenance": "PRIDE project description, retrieved 2026-11-12: individual-donor HLM and PHH incubated with imatinib for clearance and N-desmethyl-imatinib formation, with CYP2C8 and CYP3A activity, protein concentration AND genotype on the same donors",
+      "access": "open_public",
+      "n_units": null,
+      "status": "NOT_EVALUABLE",
+      "reasons": [
+        "H4 needs a PK parameter; clint_in_vitro is a functional measurement and must not be read as one",
+        "needs repeated measures; declared same_individuals",
+        "H4 needs repeated occasions; this dataset has none",
+        "the minimum comparator is absent: within-individual change in clinical state"
+      ],
+      "note": "the PRIDE deposit holds the proteomics; the clearance, activity and genotype tables are in the publication's supplement and are NOT yet verified as public. n per donor is not stated in the deposit metadata",
+      "why_it_matters": "the only inventoried source carrying genotype, protein, activity and a clearance on the same units. That is the H3 design, and the PGx comparator H3 needs is present",
+      "repository": "PRIDE",
+      "accession": "PXD066482",
+      "licence": "CC0",
+      "axes": []
+    },
+    {
+      "source": "new_candidate",
+      "dataset": "pride_pxd066482_imatinib_clearance",
+      "label": "PRIDE PXD066482 - interindividual variability in imatinib metabolism in human liver microsomes and primary human hepatocytes, CYP2C8 and CYP3A phenotypes",
+      "hypothesis": "H5",
+      "question": "does omic integration improve dose personalisation?",
+      "drug": "imatinib",
+      "endpoint": "clint_in_vitro",
+      "endpoint_kind": "functional",
+      "comparator": "the dosing rule already in use",
+      "pairing": "same_individuals",
+      "pairing_provenance": "PRIDE project description, retrieved 2026-11-12: individual-donor HLM and PHH incubated with imatinib for clearance and N-desmethyl-imatinib formation, with CYP2C8 and CYP3A activity, protein concentration AND genotype on the same donors",
+      "access": "open_public",
+      "n_units": null,
+      "status": "NOT_EVALUABLE",
+      "reasons": [
+        "H5 needs a PK parameter; clint_in_vitro is a functional measurement and must not be read as one",
+        "the minimum comparator is absent: the dosing rule already in use"
+      ],
+      "note": "the PRIDE deposit holds the proteomics; the clearance, activity and genotype tables are in the publication's supplement and are NOT yet verified as public. n per donor is not stated in the deposit metadata",
+      "why_it_matters": "the only inventoried source carrying genotype, protein, activity and a clearance on the same units. That is the H3 design, and the PGx comparator H3 needs is present",
+      "repository": "PRIDE",
+      "accession": "PXD066482",
+      "licence": "CC0",
+      "axes": []
+    },
+    {
+      "source": "new_candidate",
+      "dataset": "pride_pxd057282_tucatinib_clearance",
+      "label": "PRIDE PXD057282 - impact of variation in CYP3A and CYP2C8 on tucatinib metabolic clearance in human liver microsomes",
+      "hypothesis": "H1",
+      "question": "do omics add information beyond PGx, clinical and routine biology for PK variability?",
+      "drug": "tucatinib",
+      "endpoint": "clint_in_vitro",
+      "endpoint_kind": "functional",
+      "comparator": "clinical + biology + PGx, same individuals",
+      "pairing": "same_individuals",
+      "pairing_provenance": "PRIDE project description, retrieved 2026-11-12: 21 donors, 11 male and 10 female, tucatinib depletion plus CYP2C8, CYP3A4 and CYP3A5 concentrations by QTAP and measured CYP activities",
+      "access": "open_public",
+      "n_units": 21,
+      "status": "NOT_EVALUABLE",
+      "reasons": [
+        "H1 needs a PK parameter; clint_in_vitro is a functional measurement and must not be read as one",
+        "the minimum comparator is absent: clinical + biology + PGx, same individuals"
+      ],
+      "note": "no genotype stated, so the PGx comparator H3 needs is absent. Commercial microsomes, so no clinical covariates beyond sex",
+      "why_it_matters": "same design as PXD066482 with a different drug, so it is a replication candidate rather than a second discovery set",
+      "repository": "PRIDE",
+      "accession": "PXD057282",
+      "licence": "CC0",
+      "axes": []
+    },
+    {
+      "source": "new_candidate",
+      "dataset": "pride_pxd057282_tucatinib_clearance",
+      "label": "PRIDE PXD057282 - impact of variation in CYP3A and CYP2C8 on tucatinib metabolic clearance in human liver microsomes",
+      "hypothesis": "H2",
+      "question": "can the informative omics be selected automatically, ideally BEFORE acquisition?",
+      "drug": "tucatinib",
+      "endpoint": "clint_in_vitro",
+      "endpoint_kind": "functional",
+      "comparator": "Spearman or elastic net on the same pool",
+      "pairing": "same_individuals",
+      "pairing_provenance": "PRIDE project description, retrieved 2026-11-12: 21 donors, 11 male and 10 female, tucatinib depletion plus CYP2C8, CYP3A4 and CYP3A5 concentrations by QTAP and measured CYP activities",
+      "access": "open_public",
+      "n_units": 21,
+      "status": "NOT_EVALUABLE",
+      "reasons": [
+        "the minimum comparator is absent: Spearman or elastic net on the same pool"
+      ],
+      "note": "no genotype stated, so the PGx comparator H3 needs is absent. Commercial microsomes, so no clinical covariates beyond sex",
+      "why_it_matters": "same design as PXD066482 with a different drug, so it is a replication candidate rather than a second discovery set",
+      "repository": "PRIDE",
+      "accession": "PXD057282",
+      "licence": "CC0",
+      "axes": []
+    },
+    {
+      "source": "new_candidate",
+      "dataset": "pride_pxd057282_tucatinib_clearance",
+      "label": "PRIDE PXD057282 - impact of variation in CYP3A and CYP2C8 on tucatinib metabolic clearance in human liver microsomes",
+      "hypothesis": "H3",
+      "question": "do omics predict the biological functions involved in PK better than PGx alone? NOT limited to enzymes: transporters, binding proteins, absorption",
+      "drug": "tucatinib",
+      "endpoint": "clint_in_vitro",
+      "endpoint_kind": "functional",
+      "comparator": "PGx alone, same individuals or variants",
+      "pairing": "same_individuals",
+      "pairing_provenance": "PRIDE project description, retrieved 2026-11-12: 21 donors, 11 male and 10 female, tucatinib depletion plus CYP2C8, CYP3A4 and CYP3A5 concentrations by QTAP and measured CYP activities",
+      "access": "open_public",
+      "n_units": 21,
+      "status": "NOT_EVALUABLE",
+      "reasons": [
+        "the minimum comparator is absent: PGx alone, same individuals or variants"
+      ],
+      "note": "no genotype stated, so the PGx comparator H3 needs is absent. Commercial microsomes, so no clinical covariates beyond sex",
+      "why_it_matters": "same design as PXD066482 with a different drug, so it is a replication candidate rather than a second discovery set",
+      "repository": "PRIDE",
+      "accession": "PXD057282",
+      "licence": "CC0",
+      "axes": []
+    },
+    {
+      "source": "new_candidate",
+      "dataset": "pride_pxd057282_tucatinib_clearance",
+      "label": "PRIDE PXD057282 - impact of variation in CYP3A and CYP2C8 on tucatinib metabolic clearance in human liver microsomes",
+      "hypothesis": "H4",
+      "question": "do omic changes explain INTRA-individual PK variability between occasions?",
+      "drug": "tucatinib",
+      "endpoint": "clint_in_vitro",
+      "endpoint_kind": "functional",
+      "comparator": "within-individual change in clinical state",
+      "pairing": "same_individuals",
+      "pairing_provenance": "PRIDE project description, retrieved 2026-11-12: 21 donors, 11 male and 10 female, tucatinib depletion plus CYP2C8, CYP3A4 and CYP3A5 concentrations by QTAP and measured CYP activities",
+      "access": "open_public",
+      "n_units": 21,
+      "status": "NOT_EVALUABLE",
+      "reasons": [
+        "H4 needs a PK parameter; clint_in_vitro is a functional measurement and must not be read as one",
+        "needs repeated measures; declared same_individuals",
+        "H4 needs repeated occasions; this dataset has none",
+        "the minimum comparator is absent: within-individual change in clinical state"
+      ],
+      "note": "no genotype stated, so the PGx comparator H3 needs is absent. Commercial microsomes, so no clinical covariates beyond sex",
+      "why_it_matters": "same design as PXD066482 with a different drug, so it is a replication candidate rather than a second discovery set",
+      "repository": "PRIDE",
+      "accession": "PXD057282",
+      "licence": "CC0",
+      "axes": []
+    },
+    {
+      "source": "new_candidate",
+      "dataset": "pride_pxd057282_tucatinib_clearance",
+      "label": "PRIDE PXD057282 - impact of variation in CYP3A and CYP2C8 on tucatinib metabolic clearance in human liver microsomes",
+      "hypothesis": "H5",
+      "question": "does omic integration improve dose personalisation?",
+      "drug": "tucatinib",
+      "endpoint": "clint_in_vitro",
+      "endpoint_kind": "functional",
+      "comparator": "the dosing rule already in use",
+      "pairing": "same_individuals",
+      "pairing_provenance": "PRIDE project description, retrieved 2026-11-12: 21 donors, 11 male and 10 female, tucatinib depletion plus CYP2C8, CYP3A4 and CYP3A5 concentrations by QTAP and measured CYP activities",
+      "access": "open_public",
+      "n_units": 21,
+      "status": "NOT_EVALUABLE",
+      "reasons": [
+        "H5 needs a PK parameter; clint_in_vitro is a functional measurement and must not be read as one",
+        "the minimum comparator is absent: the dosing rule already in use"
+      ],
+      "note": "no genotype stated, so the PGx comparator H3 needs is absent. Commercial microsomes, so no clinical covariates beyond sex",
+      "why_it_matters": "same design as PXD066482 with a different drug, so it is a replication candidate rather than a second discovery set",
+      "repository": "PRIDE",
+      "accession": "PXD057282",
+      "licence": "CC0",
+      "axes": []
+    },
+    {
+      "source": "new_candidate",
+      "dataset": "pride_pxd060653_alcohol_dme_ensemble",
+      "label": "PRIDE PXD060653 - effects of chronic alcohol intake on the ensemble of drug-metabolising enzymes",
+      "hypothesis": "H1",
+      "question": "do omics add information beyond PGx, clinical and routine biology for PK variability?",
+      "drug": "not applicable",
+      "endpoint": "protein_abundance",
+      "endpoint_kind": "functional",
+      "comparator": "clinical + biology + PGx, same individuals",
+      "pairing": "unknown",
+      "pairing_provenance": "PRIDE search, retrieved 2026-11-12",
+      "access": "open_public",
+      "n_units": null,
+      "status": "NOT_EVALUABLE",
+      "reasons": [
+        "H1 needs a PK parameter; protein_abundance is a functional measurement and must not be read as one",
+        "needs same_individuals; declared unknown",
+        "joint analysis is inadmissible: two layers from different publications are not paired",
+        "the minimum comparator is absent: clinical + biology + PGx, same individuals"
+      ],
+      "note": "no paired PK, no repeated occasions, pairing not asserted. Cannot carry H4 as it stands",
+      "why_it_matters": "a PERTURBATION of the enzyme proteome, which is the shape H4 needs even though this design is between groups rather than within individuals",
+      "repository": "PRIDE",
+      "accession": "PXD060653",
+      "licence": null,
+      "axes": []
+    },
+    {
+      "source": "new_candidate",
+      "dataset": "pride_pxd060653_alcohol_dme_ensemble",
+      "label": "PRIDE PXD060653 - effects of chronic alcohol intake on the ensemble of drug-metabolising enzymes",
+      "hypothesis": "H2",
+      "question": "can the informative omics be selected automatically, ideally BEFORE acquisition?",
+      "drug": "not applicable",
+      "endpoint": "protein_abundance",
+      "endpoint_kind": "functional",
+      "comparator": "Spearman or elastic net on the same pool",
+      "pairing": "unknown",
+      "pairing_provenance": "PRIDE search, retrieved 2026-11-12",
+      "access": "open_public",
+      "n_units": null,
+      "status": "NOT_EVALUABLE",
+      "reasons": [
+        "needs per-individual or per-variant pairing; declared unknown",
+        "joint analysis is inadmissible: two layers from different publications are not paired",
+        "the minimum comparator is absent: Spearman or elastic net on the same pool"
+      ],
+      "note": "no paired PK, no repeated occasions, pairing not asserted. Cannot carry H4 as it stands",
+      "why_it_matters": "a PERTURBATION of the enzyme proteome, which is the shape H4 needs even though this design is between groups rather than within individuals",
+      "repository": "PRIDE",
+      "accession": "PXD060653",
+      "licence": null,
+      "axes": []
+    },
+    {
+      "source": "new_candidate",
+      "dataset": "pride_pxd060653_alcohol_dme_ensemble",
+      "label": "PRIDE PXD060653 - effects of chronic alcohol intake on the ensemble of drug-metabolising enzymes",
+      "hypothesis": "H3",
+      "question": "do omics predict the biological functions involved in PK better than PGx alone? NOT limited to enzymes: transporters, binding proteins, absorption",
+      "drug": "not applicable",
+      "endpoint": "protein_abundance",
+      "endpoint_kind": "functional",
+      "comparator": "PGx alone, same individuals or variants",
+      "pairing": "unknown",
+      "pairing_provenance": "PRIDE search, retrieved 2026-11-12",
+      "access": "open_public",
+      "n_units": null,
+      "status": "NOT_EVALUABLE",
+      "reasons": [
+        "needs per-individual or per-variant pairing; declared unknown",
+        "joint analysis is inadmissible: two layers from different publications are not paired",
+        "the minimum comparator is absent: PGx alone, same individuals or variants"
+      ],
+      "note": "no paired PK, no repeated occasions, pairing not asserted. Cannot carry H4 as it stands",
+      "why_it_matters": "a PERTURBATION of the enzyme proteome, which is the shape H4 needs even though this design is between groups rather than within individuals",
+      "repository": "PRIDE",
+      "accession": "PXD060653",
+      "licence": null,
+      "axes": []
+    },
+    {
+      "source": "new_candidate",
+      "dataset": "pride_pxd060653_alcohol_dme_ensemble",
+      "label": "PRIDE PXD060653 - effects of chronic alcohol intake on the ensemble of drug-metabolising enzymes",
+      "hypothesis": "H4",
+      "question": "do omic changes explain INTRA-individual PK variability between occasions?",
+      "drug": "not applicable",
+      "endpoint": "protein_abundance",
+      "endpoint_kind": "functional",
+      "comparator": "within-individual change in clinical state",
+      "pairing": "unknown",
+      "pairing_provenance": "PRIDE search, retrieved 2026-11-12",
+      "access": "open_public",
+      "n_units": null,
+      "status": "NOT_EVALUABLE",
+      "reasons": [
+        "H4 needs a PK parameter; protein_abundance is a functional measurement and must not be read as one",
+        "needs repeated measures; declared unknown",
+        "joint analysis is inadmissible: two layers from different publications are not paired",
+        "H4 needs repeated occasions; this dataset has none",
+        "the minimum comparator is absent: within-individual change in clinical state"
+      ],
+      "note": "no paired PK, no repeated occasions, pairing not asserted. Cannot carry H4 as it stands",
+      "why_it_matters": "a PERTURBATION of the enzyme proteome, which is the shape H4 needs even though this design is between groups rather than within individuals",
+      "repository": "PRIDE",
+      "accession": "PXD060653",
+      "licence": null,
+      "axes": []
+    },
+    {
+      "source": "new_candidate",
+      "dataset": "pride_pxd060653_alcohol_dme_ensemble",
+      "label": "PRIDE PXD060653 - effects of chronic alcohol intake on the ensemble of drug-metabolising enzymes",
+      "hypothesis": "H5",
+      "question": "does omic integration improve dose personalisation?",
+      "drug": "not applicable",
+      "endpoint": "protein_abundance",
+      "endpoint_kind": "functional",
+      "comparator": "the dosing rule already in use",
+      "pairing": "unknown",
+      "pairing_provenance": "PRIDE search, retrieved 2026-11-12",
+      "access": "open_public",
+      "n_units": null,
+      "status": "NOT_EVALUABLE",
+      "reasons": [
+        "H5 needs a PK parameter; protein_abundance is a functional measurement and must not be read as one",
+        "needs same_individuals; declared unknown",
+        "joint analysis is inadmissible: two layers from different publications are not paired",
+        "the minimum comparator is absent: the dosing rule already in use"
+      ],
+      "note": "no paired PK, no repeated occasions, pairing not asserted. Cannot carry H4 as it stands",
+      "why_it_matters": "a PERTURBATION of the enzyme proteome, which is the shape H4 needs even though this design is between groups rather than within individuals",
+      "repository": "PRIDE",
+      "accession": "PXD060653",
+      "licence": null,
+      "axes": []
+    },
+    {
+      "source": "new_candidate",
+      "dataset": "pride_pxd014131_liver_compartments",
+      "label": "PRIDE PXD014131 - human liver homogenate, microsomes, low-speed pellet and hepatocytes",
+      "hypothesis": "H1",
+      "question": "do omics add information beyond PGx, clinical and routine biology for PK variability?",
+      "drug": "not applicable",
+      "endpoint": "protein_abundance",
+      "endpoint_kind": "functional",
+      "comparator": "clinical + biology + PGx, same individuals",
+      "pairing": "unknown",
+      "pairing_provenance": "PRIDE search, retrieved 2026-11-12",
+      "access": "open_public",
+      "n_units": null,
+      "status": "NOT_EVALUABLE",
+      "reasons": [
+        "H1 needs a PK parameter; protein_abundance is a functional measurement and must not be read as one",
+        "needs same_individuals; declared unknown",
+        "joint analysis is inadmissible: two layers from different publications are not paired",
+        "the minimum comparator is absent: clinical + biology + PGx, same individuals"
+      ],
+      "note": "no functional endpoint and no PK; pairing unstated",
+      "why_it_matters": "four COMPARTMENTS of the same organ, which is the 'which compartment to measure' axis of the brief and the only inventoried source addressing it",
+      "repository": "PRIDE",
+      "accession": "PXD014131",
+      "licence": null,
+      "axes": []
+    },
+    {
+      "source": "new_candidate",
+      "dataset": "pride_pxd014131_liver_compartments",
+      "label": "PRIDE PXD014131 - human liver homogenate, microsomes, low-speed pellet and hepatocytes",
+      "hypothesis": "H2",
+      "question": "can the informative omics be selected automatically, ideally BEFORE acquisition?",
+      "drug": "not applicable",
+      "endpoint": "protein_abundance",
+      "endpoint_kind": "functional",
+      "comparator": "Spearman or elastic net on the same pool",
+      "pairing": "unknown",
+      "pairing_provenance": "PRIDE search, retrieved 2026-11-12",
+      "access": "open_public",
+      "n_units": null,
+      "status": "NOT_EVALUABLE",
+      "reasons": [
+        "needs per-individual or per-variant pairing; declared unknown",
+        "joint analysis is inadmissible: two layers from different publications are not paired",
+        "the minimum comparator is absent: Spearman or elastic net on the same pool"
+      ],
+      "note": "no functional endpoint and no PK; pairing unstated",
+      "why_it_matters": "four COMPARTMENTS of the same organ, which is the 'which compartment to measure' axis of the brief and the only inventoried source addressing it",
+      "repository": "PRIDE",
+      "accession": "PXD014131",
+      "licence": null,
+      "axes": []
+    },
+    {
+      "source": "new_candidate",
+      "dataset": "pride_pxd014131_liver_compartments",
+      "label": "PRIDE PXD014131 - human liver homogenate, microsomes, low-speed pellet and hepatocytes",
+      "hypothesis": "H3",
+      "question": "do omics predict the biological functions involved in PK better than PGx alone? NOT limited to enzymes: transporters, binding proteins, absorption",
+      "drug": "not applicable",
+      "endpoint": "protein_abundance",
+      "endpoint_kind": "functional",
+      "comparator": "PGx alone, same individuals or variants",
+      "pairing": "unknown",
+      "pairing_provenance": "PRIDE search, retrieved 2026-11-12",
+      "access": "open_public",
+      "n_units": null,
+      "status": "NOT_EVALUABLE",
+      "reasons": [
+        "needs per-individual or per-variant pairing; declared unknown",
+        "joint analysis is inadmissible: two layers from different publications are not paired",
+        "the minimum comparator is absent: PGx alone, same individuals or variants"
+      ],
+      "note": "no functional endpoint and no PK; pairing unstated",
+      "why_it_matters": "four COMPARTMENTS of the same organ, which is the 'which compartment to measure' axis of the brief and the only inventoried source addressing it",
+      "repository": "PRIDE",
+      "accession": "PXD014131",
+      "licence": null,
+      "axes": []
+    },
+    {
+      "source": "new_candidate",
+      "dataset": "pride_pxd014131_liver_compartments",
+      "label": "PRIDE PXD014131 - human liver homogenate, microsomes, low-speed pellet and hepatocytes",
+      "hypothesis": "H4",
+      "question": "do omic changes explain INTRA-individual PK variability between occasions?",
+      "drug": "not applicable",
+      "endpoint": "protein_abundance",
+      "endpoint_kind": "functional",
+      "comparator": "within-individual change in clinical state",
+      "pairing": "unknown",
+      "pairing_provenance": "PRIDE search, retrieved 2026-11-12",
+      "access": "open_public",
+      "n_units": null,
+      "status": "NOT_EVALUABLE",
+      "reasons": [
+        "H4 needs a PK parameter; protein_abundance is a functional measurement and must not be read as one",
+        "needs repeated measures; declared unknown",
+        "joint analysis is inadmissible: two layers from different publications are not paired",
+        "H4 needs repeated occasions; this dataset has none",
+        "the minimum comparator is absent: within-individual change in clinical state"
+      ],
+      "note": "no functional endpoint and no PK; pairing unstated",
+      "why_it_matters": "four COMPARTMENTS of the same organ, which is the 'which compartment to measure' axis of the brief and the only inventoried source addressing it",
+      "repository": "PRIDE",
+      "accession": "PXD014131",
+      "licence": null,
+      "axes": []
+    },
+    {
+      "source": "new_candidate",
+      "dataset": "pride_pxd014131_liver_compartments",
+      "label": "PRIDE PXD014131 - human liver homogenate, microsomes, low-speed pellet and hepatocytes",
+      "hypothesis": "H5",
+      "question": "does omic integration improve dose personalisation?",
+      "drug": "not applicable",
+      "endpoint": "protein_abundance",
+      "endpoint_kind": "functional",
+      "comparator": "the dosing rule already in use",
+      "pairing": "unknown",
+      "pairing_provenance": "PRIDE search, retrieved 2026-11-12",
+      "access": "open_public",
+      "n_units": null,
+      "status": "NOT_EVALUABLE",
+      "reasons": [
+        "H5 needs a PK parameter; protein_abundance is a functional measurement and must not be read as one",
+        "needs same_individuals; declared unknown",
+        "joint analysis is inadmissible: two layers from different publications are not paired",
+        "the minimum comparator is absent: the dosing rule already in use"
+      ],
+      "note": "no functional endpoint and no PK; pairing unstated",
+      "why_it_matters": "four COMPARTMENTS of the same organ, which is the 'which compartment to measure' axis of the brief and the only inventoried source addressing it",
+      "repository": "PRIDE",
+      "accession": "PXD014131",
+      "licence": null,
+      "axes": []
+    },
+    {
+      "source": "new_candidate",
+      "dataset": "pride_pxd020987_human_small_intestine",
+      "label": "PRIDE PXD020987 - quantitative proteomics of human small intestine: 29 enzymes and 32 transporters in ileum and jejunum mucosa from 16 surgical patients",
+      "hypothesis": "H1",
+      "question": "do omics add information beyond PGx, clinical and routine biology for PK variability?",
+      "drug": "not applicable",
+      "endpoint": "protein_abundance",
+      "endpoint_kind": "functional",
+      "comparator": "clinical + biology + PGx, same individuals",
+      "pairing": "same_individuals",
+      "pairing_provenance": "PRIDE project description, retrieved 2026-11-12: ileum and jejunum biopsies from 16 patients, mucosal fractions, 29 enzymes, 32 transporters, 6 tight junction proteins, alkaline phosphatase and markers quantified, 60 for the first time",
+      "access": "open_public",
+      "n_units": 16,
+      "status": "NOT_EVALUABLE",
+      "reasons": [
+        "H1 needs a PK parameter; protein_abundance is a functional measurement and must not be read as one",
+        "the minimum comparator is absent: clinical + biology + PGx, same individuals",
+        "only 16 units, below any useful power"
+      ],
+      "note": "no PK, no clearance, no PGx and no independent functional endpoint. An abundance predicting another abundance is axis A, not H3. This is a REFERENCE layer for what intestinal abundance looks like, not a hypothesis-testing cohort",
+      "why_it_matters": "the first inventoried source on the absorption and transport axes at all, and the only one carrying TWO intestinal regions per patient, which is the compartment question the brief asks",
+      "repository": "PRIDE",
+      "accession": "PXD020987",
+      "licence": "CC0",
+      "axes": [
+        "absorption",
+        "transport"
+      ]
+    },
+    {
+      "source": "new_candidate",
+      "dataset": "pride_pxd020987_human_small_intestine",
+      "label": "PRIDE PXD020987 - quantitative proteomics of human small intestine: 29 enzymes and 32 transporters in ileum and jejunum mucosa from 16 surgical patients",
+      "hypothesis": "H2",
+      "question": "can the informative omics be selected automatically, ideally BEFORE acquisition?",
+      "drug": "not applicable",
+      "endpoint": "protein_abundance",
+      "endpoint_kind": "functional",
+      "comparator": "Spearman or elastic net on the same pool",
+      "pairing": "same_individuals",
+      "pairing_provenance": "PRIDE project description, retrieved 2026-11-12: ileum and jejunum biopsies from 16 patients, mucosal fractions, 29 enzymes, 32 transporters, 6 tight junction proteins, alkaline phosphatase and markers quantified, 60 for the first time",
+      "access": "open_public",
+      "n_units": 16,
+      "status": "NOT_EVALUABLE",
+      "reasons": [
+        "the minimum comparator is absent: Spearman or elastic net on the same pool",
+        "only 16 units, below any useful power"
+      ],
+      "note": "no PK, no clearance, no PGx and no independent functional endpoint. An abundance predicting another abundance is axis A, not H3. This is a REFERENCE layer for what intestinal abundance looks like, not a hypothesis-testing cohort",
+      "why_it_matters": "the first inventoried source on the absorption and transport axes at all, and the only one carrying TWO intestinal regions per patient, which is the compartment question the brief asks",
+      "repository": "PRIDE",
+      "accession": "PXD020987",
+      "licence": "CC0",
+      "axes": [
+        "absorption",
+        "transport"
+      ]
+    },
+    {
+      "source": "new_candidate",
+      "dataset": "pride_pxd020987_human_small_intestine",
+      "label": "PRIDE PXD020987 - quantitative proteomics of human small intestine: 29 enzymes and 32 transporters in ileum and jejunum mucosa from 16 surgical patients",
+      "hypothesis": "H3",
+      "question": "do omics predict the biological functions involved in PK better than PGx alone? NOT limited to enzymes: transporters, binding proteins, absorption",
+      "drug": "not applicable",
+      "endpoint": "protein_abundance",
+      "endpoint_kind": "functional",
+      "comparator": "PGx alone, same individuals or variants",
+      "pairing": "same_individuals",
+      "pairing_provenance": "PRIDE project description, retrieved 2026-11-12: ileum and jejunum biopsies from 16 patients, mucosal fractions, 29 enzymes, 32 transporters, 6 tight junction proteins, alkaline phosphatase and markers quantified, 60 for the first time",
+      "access": "open_public",
+      "n_units": 16,
+      "status": "NOT_EVALUABLE",
+      "reasons": [
+        "the minimum comparator is absent: PGx alone, same individuals or variants",
+        "only 16 units, below any useful power"
+      ],
+      "note": "no PK, no clearance, no PGx and no independent functional endpoint. An abundance predicting another abundance is axis A, not H3. This is a REFERENCE layer for what intestinal abundance looks like, not a hypothesis-testing cohort",
+      "why_it_matters": "the first inventoried source on the absorption and transport axes at all, and the only one carrying TWO intestinal regions per patient, which is the compartment question the brief asks",
+      "repository": "PRIDE",
+      "accession": "PXD020987",
+      "licence": "CC0",
+      "axes": [
+        "absorption",
+        "transport"
+      ]
+    },
+    {
+      "source": "new_candidate",
+      "dataset": "pride_pxd020987_human_small_intestine",
+      "label": "PRIDE PXD020987 - quantitative proteomics of human small intestine: 29 enzymes and 32 transporters in ileum and jejunum mucosa from 16 surgical patients",
+      "hypothesis": "H4",
+      "question": "do omic changes explain INTRA-individual PK variability between occasions?",
+      "drug": "not applicable",
+      "endpoint": "protein_abundance",
+      "endpoint_kind": "functional",
+      "comparator": "within-individual change in clinical state",
+      "pairing": "same_individuals",
+      "pairing_provenance": "PRIDE project description, retrieved 2026-11-12: ileum and jejunum biopsies from 16 patients, mucosal fractions, 29 enzymes, 32 transporters, 6 tight junction proteins, alkaline phosphatase and markers quantified, 60 for the first time",
+      "access": "open_public",
+      "n_units": 16,
+      "status": "NOT_EVALUABLE",
+      "reasons": [
+        "H4 needs a PK parameter; protein_abundance is a functional measurement and must not be read as one",
+        "needs repeated measures; declared same_individuals",
+        "H4 needs repeated occasions; this dataset has none",
+        "the minimum comparator is absent: within-individual change in clinical state",
+        "only 16 units, below any useful power"
+      ],
+      "note": "no PK, no clearance, no PGx and no independent functional endpoint. An abundance predicting another abundance is axis A, not H3. This is a REFERENCE layer for what intestinal abundance looks like, not a hypothesis-testing cohort",
+      "why_it_matters": "the first inventoried source on the absorption and transport axes at all, and the only one carrying TWO intestinal regions per patient, which is the compartment question the brief asks",
+      "repository": "PRIDE",
+      "accession": "PXD020987",
+      "licence": "CC0",
+      "axes": [
+        "absorption",
+        "transport"
+      ]
+    },
+    {
+      "source": "new_candidate",
+      "dataset": "pride_pxd020987_human_small_intestine",
+      "label": "PRIDE PXD020987 - quantitative proteomics of human small intestine: 29 enzymes and 32 transporters in ileum and jejunum mucosa from 16 surgical patients",
+      "hypothesis": "H5",
+      "question": "does omic integration improve dose personalisation?",
+      "drug": "not applicable",
+      "endpoint": "protein_abundance",
+      "endpoint_kind": "functional",
+      "comparator": "the dosing rule already in use",
+      "pairing": "same_individuals",
+      "pairing_provenance": "PRIDE project description, retrieved 2026-11-12: ileum and jejunum biopsies from 16 patients, mucosal fractions, 29 enzymes, 32 transporters, 6 tight junction proteins, alkaline phosphatase and markers quantified, 60 for the first time",
+      "access": "open_public",
+      "n_units": 16,
+      "status": "NOT_EVALUABLE",
+      "reasons": [
+        "H5 needs a PK parameter; protein_abundance is a functional measurement and must not be read as one",
+        "the minimum comparator is absent: the dosing rule already in use",
+        "only 16 units, below any useful power"
+      ],
+      "note": "no PK, no clearance, no PGx and no independent functional endpoint. An abundance predicting another abundance is axis A, not H3. This is a REFERENCE layer for what intestinal abundance looks like, not a hypothesis-testing cohort",
+      "why_it_matters": "the first inventoried source on the absorption and transport axes at all, and the only one carrying TWO intestinal regions per patient, which is the compartment question the brief asks",
+      "repository": "PRIDE",
+      "accession": "PXD020987",
+      "licence": "CC0",
+      "axes": [
+        "absorption",
+        "transport"
+      ]
+    },
+    {
+      "source": "new_candidate",
+      "dataset": "pride_pxd011498_jejunum_before_after_gastrectomy",
+      "label": "PRIDE PXD011498 - peptidomics of human jejunum biopsies before and after gastrectomy",
+      "hypothesis": "H1",
+      "question": "do omics add information beyond PGx, clinical and routine biology for PK variability?",
+      "drug": "not applicable",
+      "endpoint": "protein_abundance",
+      "endpoint_kind": "functional",
+      "comparator": "clinical + biology + PGx, same individuals",
+      "pairing": "same_individuals_repeated",
+      "pairing_provenance": "PRIDE search, retrieved 2026-11-12",
+      "access": "open_public",
+      "n_units": null,
+      "status": "NOT_EVALUABLE",
+      "reasons": [
+        "H1 needs a PK parameter; protein_abundance is a functional measurement and must not be read as one",
+        "needs same_individuals; declared same_individuals_repeated",
+        "the minimum comparator is absent: clinical + biology + PGx, same individuals"
+      ],
+      "note": "peptidomics rather than transporter quantification, and no PK on either occasion, so the design is right and the measurements are the wrong ones",
+      "why_it_matters": "the only inventoried source with a genuine WITHIN-SUBJECT repeated design on an axis the programme needs. H4 has had no dataset with that shape at all",
+      "repository": "PRIDE",
+      "accession": "PXD011498",
+      "licence": null,
+      "axes": [
+        "absorption",
+        "temporal"
+      ]
+    },
+    {
+      "source": "new_candidate",
+      "dataset": "pride_pxd011498_jejunum_before_after_gastrectomy",
+      "label": "PRIDE PXD011498 - peptidomics of human jejunum biopsies before and after gastrectomy",
+      "hypothesis": "H2",
+      "question": "can the informative omics be selected automatically, ideally BEFORE acquisition?",
+      "drug": "not applicable",
+      "endpoint": "protein_abundance",
+      "endpoint_kind": "functional",
+      "comparator": "Spearman or elastic net on the same pool",
+      "pairing": "same_individuals_repeated",
+      "pairing_provenance": "PRIDE search, retrieved 2026-11-12",
+      "access": "open_public",
+      "n_units": null,
+      "status": "NOT_EVALUABLE",
+      "reasons": [
+        "the minimum comparator is absent: Spearman or elastic net on the same pool"
+      ],
+      "note": "peptidomics rather than transporter quantification, and no PK on either occasion, so the design is right and the measurements are the wrong ones",
+      "why_it_matters": "the only inventoried source with a genuine WITHIN-SUBJECT repeated design on an axis the programme needs. H4 has had no dataset with that shape at all",
+      "repository": "PRIDE",
+      "accession": "PXD011498",
+      "licence": null,
+      "axes": [
+        "absorption",
+        "temporal"
+      ]
+    },
+    {
+      "source": "new_candidate",
+      "dataset": "pride_pxd011498_jejunum_before_after_gastrectomy",
+      "label": "PRIDE PXD011498 - peptidomics of human jejunum biopsies before and after gastrectomy",
+      "hypothesis": "H3",
+      "question": "do omics predict the biological functions involved in PK better than PGx alone? NOT limited to enzymes: transporters, binding proteins, absorption",
+      "drug": "not applicable",
+      "endpoint": "protein_abundance",
+      "endpoint_kind": "functional",
+      "comparator": "PGx alone, same individuals or variants",
+      "pairing": "same_individuals_repeated",
+      "pairing_provenance": "PRIDE search, retrieved 2026-11-12",
+      "access": "open_public",
+      "n_units": null,
+      "status": "NOT_EVALUABLE",
+      "reasons": [
+        "the minimum comparator is absent: PGx alone, same individuals or variants"
+      ],
+      "note": "peptidomics rather than transporter quantification, and no PK on either occasion, so the design is right and the measurements are the wrong ones",
+      "why_it_matters": "the only inventoried source with a genuine WITHIN-SUBJECT repeated design on an axis the programme needs. H4 has had no dataset with that shape at all",
+      "repository": "PRIDE",
+      "accession": "PXD011498",
+      "licence": null,
+      "axes": [
+        "absorption",
+        "temporal"
+      ]
+    },
+    {
+      "source": "new_candidate",
+      "dataset": "pride_pxd011498_jejunum_before_after_gastrectomy",
+      "label": "PRIDE PXD011498 - peptidomics of human jejunum biopsies before and after gastrectomy",
+      "hypothesis": "H4",
+      "question": "do omic changes explain INTRA-individual PK variability between occasions?",
+      "drug": "not applicable",
+      "endpoint": "protein_abundance",
+      "endpoint_kind": "functional",
+      "comparator": "within-individual change in clinical state",
+      "pairing": "same_individuals_repeated",
+      "pairing_provenance": "PRIDE search, retrieved 2026-11-12",
+      "access": "open_public",
+      "n_units": null,
+      "status": "NOT_EVALUABLE",
+      "reasons": [
+        "H4 needs a PK parameter; protein_abundance is a functional measurement and must not be read as one",
+        "the minimum comparator is absent: within-individual change in clinical state"
+      ],
+      "note": "peptidomics rather than transporter quantification, and no PK on either occasion, so the design is right and the measurements are the wrong ones",
+      "why_it_matters": "the only inventoried source with a genuine WITHIN-SUBJECT repeated design on an axis the programme needs. H4 has had no dataset with that shape at all",
+      "repository": "PRIDE",
+      "accession": "PXD011498",
+      "licence": null,
+      "axes": [
+        "absorption",
+        "temporal"
+      ]
+    },
+    {
+      "source": "new_candidate",
+      "dataset": "pride_pxd011498_jejunum_before_after_gastrectomy",
+      "label": "PRIDE PXD011498 - peptidomics of human jejunum biopsies before and after gastrectomy",
+      "hypothesis": "H5",
+      "question": "does omic integration improve dose personalisation?",
+      "drug": "not applicable",
+      "endpoint": "protein_abundance",
+      "endpoint_kind": "functional",
+      "comparator": "the dosing rule already in use",
+      "pairing": "same_individuals_repeated",
+      "pairing_provenance": "PRIDE search, retrieved 2026-11-12",
+      "access": "open_public",
+      "n_units": null,
+      "status": "NOT_EVALUABLE",
+      "reasons": [
+        "H5 needs a PK parameter; protein_abundance is a functional measurement and must not be read as one",
+        "needs same_individuals; declared same_individuals_repeated",
+        "the minimum comparator is absent: the dosing rule already in use"
+      ],
+      "note": "peptidomics rather than transporter quantification, and no PK on either occasion, so the design is right and the measurements are the wrong ones",
+      "why_it_matters": "the only inventoried source with a genuine WITHIN-SUBJECT repeated design on an axis the programme needs. H4 has had no dataset with that shape at all",
+      "repository": "PRIDE",
+      "accession": "PXD011498",
+      "licence": null,
+      "axes": [
+        "absorption",
+        "temporal"
+      ]
+    },
+    {
+      "source": "new_candidate",
+      "dataset": "epmc_pmc13683814_placental_transporters",
+      "label": "Europe PMC PMC13683814 - proteomic profiling of xenobiotic and nutrient transporters in human placenta",
+      "hypothesis": "H1",
+      "question": "do omics add information beyond PGx, clinical and routine biology for PK variability?",
+      "drug": "not applicable",
+      "endpoint": "protein_abundance",
+      "endpoint_kind": "functional",
+      "comparator": "clinical + biology + PGx, same individuals",
+      "pairing": "unknown",
+      "pairing_provenance": "Europe PMC search, retrieved 2026-11-12",
+      "access": "open_public",
+      "n_units": null,
+      "status": "NOT_EVALUABLE",
+      "reasons": [
+        "H1 needs a PK parameter; protein_abundance is a functional measurement and must not be read as one",
+        "needs same_individuals; declared unknown",
+        "joint analysis is inadmissible: two layers from different publications are not paired",
+        "the minimum comparator is absent: clinical + biology + PGx, same individuals"
+      ],
+      "note": "pairing not asserted, no PK, and a placental barrier informs fetal exposure rather than the maternal parameters the programme predicts",
+      "why_it_matters": "placental transport is a distribution barrier, so it touches V in a compartment nothing else in the inventory reaches",
+      "repository": "EuropePMC",
+      "accession": "PMC13683814",
+      "licence": "open access",
+      "axes": [
+        "transport",
+        "binding_distribution"
+      ]
+    },
+    {
+      "source": "new_candidate",
+      "dataset": "epmc_pmc13683814_placental_transporters",
+      "label": "Europe PMC PMC13683814 - proteomic profiling of xenobiotic and nutrient transporters in human placenta",
+      "hypothesis": "H2",
+      "question": "can the informative omics be selected automatically, ideally BEFORE acquisition?",
+      "drug": "not applicable",
+      "endpoint": "protein_abundance",
+      "endpoint_kind": "functional",
+      "comparator": "Spearman or elastic net on the same pool",
+      "pairing": "unknown",
+      "pairing_provenance": "Europe PMC search, retrieved 2026-11-12",
+      "access": "open_public",
+      "n_units": null,
+      "status": "NOT_EVALUABLE",
+      "reasons": [
+        "needs per-individual or per-variant pairing; declared unknown",
+        "joint analysis is inadmissible: two layers from different publications are not paired",
+        "the minimum comparator is absent: Spearman or elastic net on the same pool"
+      ],
+      "note": "pairing not asserted, no PK, and a placental barrier informs fetal exposure rather than the maternal parameters the programme predicts",
+      "why_it_matters": "placental transport is a distribution barrier, so it touches V in a compartment nothing else in the inventory reaches",
+      "repository": "EuropePMC",
+      "accession": "PMC13683814",
+      "licence": "open access",
+      "axes": [
+        "transport",
+        "binding_distribution"
+      ]
+    },
+    {
+      "source": "new_candidate",
+      "dataset": "epmc_pmc13683814_placental_transporters",
+      "label": "Europe PMC PMC13683814 - proteomic profiling of xenobiotic and nutrient transporters in human placenta",
+      "hypothesis": "H3",
+      "question": "do omics predict the biological functions involved in PK better than PGx alone? NOT limited to enzymes: transporters, binding proteins, absorption",
+      "drug": "not applicable",
+      "endpoint": "protein_abundance",
+      "endpoint_kind": "functional",
+      "comparator": "PGx alone, same individuals or variants",
+      "pairing": "unknown",
+      "pairing_provenance": "Europe PMC search, retrieved 2026-11-12",
+      "access": "open_public",
+      "n_units": null,
+      "status": "NOT_EVALUABLE",
+      "reasons": [
+        "needs per-individual or per-variant pairing; declared unknown",
+        "joint analysis is inadmissible: two layers from different publications are not paired",
+        "the minimum comparator is absent: PGx alone, same individuals or variants"
+      ],
+      "note": "pairing not asserted, no PK, and a placental barrier informs fetal exposure rather than the maternal parameters the programme predicts",
+      "why_it_matters": "placental transport is a distribution barrier, so it touches V in a compartment nothing else in the inventory reaches",
+      "repository": "EuropePMC",
+      "accession": "PMC13683814",
+      "licence": "open access",
+      "axes": [
+        "transport",
+        "binding_distribution"
+      ]
+    },
+    {
+      "source": "new_candidate",
+      "dataset": "epmc_pmc13683814_placental_transporters",
+      "label": "Europe PMC PMC13683814 - proteomic profiling of xenobiotic and nutrient transporters in human placenta",
+      "hypothesis": "H4",
+      "question": "do omic changes explain INTRA-individual PK variability between occasions?",
+      "drug": "not applicable",
+      "endpoint": "protein_abundance",
+      "endpoint_kind": "functional",
+      "comparator": "within-individual change in clinical state",
+      "pairing": "unknown",
+      "pairing_provenance": "Europe PMC search, retrieved 2026-11-12",
+      "access": "open_public",
+      "n_units": null,
+      "status": "NOT_EVALUABLE",
+      "reasons": [
+        "H4 needs a PK parameter; protein_abundance is a functional measurement and must not be read as one",
+        "needs repeated measures; declared unknown",
+        "joint analysis is inadmissible: two layers from different publications are not paired",
+        "H4 needs repeated occasions; this dataset has none",
+        "the minimum comparator is absent: within-individual change in clinical state"
+      ],
+      "note": "pairing not asserted, no PK, and a placental barrier informs fetal exposure rather than the maternal parameters the programme predicts",
+      "why_it_matters": "placental transport is a distribution barrier, so it touches V in a compartment nothing else in the inventory reaches",
+      "repository": "EuropePMC",
+      "accession": "PMC13683814",
+      "licence": "open access",
+      "axes": [
+        "transport",
+        "binding_distribution"
+      ]
+    },
+    {
+      "source": "new_candidate",
+      "dataset": "epmc_pmc13683814_placental_transporters",
+      "label": "Europe PMC PMC13683814 - proteomic profiling of xenobiotic and nutrient transporters in human placenta",
+      "hypothesis": "H5",
+      "question": "does omic integration improve dose personalisation?",
+      "drug": "not applicable",
+      "endpoint": "protein_abundance",
+      "endpoint_kind": "functional",
+      "comparator": "the dosing rule already in use",
+      "pairing": "unknown",
+      "pairing_provenance": "Europe PMC search, retrieved 2026-11-12",
+      "access": "open_public",
+      "n_units": null,
+      "status": "NOT_EVALUABLE",
+      "reasons": [
+        "H5 needs a PK parameter; protein_abundance is a functional measurement and must not be read as one",
+        "needs same_individuals; declared unknown",
+        "joint analysis is inadmissible: two layers from different publications are not paired",
+        "the minimum comparator is absent: the dosing rule already in use"
+      ],
+      "note": "pairing not asserted, no PK, and a placental barrier informs fetal exposure rather than the maternal parameters the programme predicts",
+      "why_it_matters": "placental transport is a distribution barrier, so it touches V in a compartment nothing else in the inventory reaches",
+      "repository": "EuropePMC",
+      "accession": "PMC13683814",
+      "licence": "open access",
+      "axes": [
+        "transport",
+        "binding_distribution"
+      ]
+    }
+  ],
+  "summary_by_hypothesis": {
+    "H1": {
+      "READY": [
+        "ariana_metoprolol_47"
+      ],
+      "PARTIAL": [],
+      "ACCESS_REQUIRED": [],
+      "NOT_EVALUABLE": [
+        "hlc_syn4499",
+        "wegler_15",
+        "lee_jackson_cyp3a_15",
+        "lee_venetoclax_patients_12",
+        "jarmusch_midazolam",
+        "epa_liver_100",
+        "mavedb_nudt15_paired_stability_activity",
+        "mavedb_cyp2c9_paired_abundance_activity",
+        "mavedb_braf_paired_abundance_activity",
+        "mavedb_araf_abundance_conditions_and_activity",
+        "pride_pxd066482_imatinib_clearance",
+        "pride_pxd057282_tucatinib_clearance",
+        "pride_pxd060653_alcohol_dme_ensemble",
+        "pride_pxd014131_liver_compartments",
+        "pride_pxd020987_human_small_intestine",
+        "pride_pxd011498_jejunum_before_after_gastrectomy",
+        "epmc_pmc13683814_placental_transporters"
+      ]
+    },
+    "H2": {
+      "READY": [
+        "mavedb_nudt15_paired_stability_activity",
+        "mavedb_cyp2c9_paired_abundance_activity",
+        "mavedb_braf_paired_abundance_activity",
+        "mavedb_araf_abundance_conditions_and_activity",
+        "pride_pxd066482_imatinib_clearance"
+      ],
+      "PARTIAL": [
+        "hlc_syn4499"
+      ],
+      "ACCESS_REQUIRED": [],
+      "NOT_EVALUABLE": [
+        "ariana_metoprolol_47",
+        "wegler_15",
+        "lee_jackson_cyp3a_15",
+        "lee_venetoclax_patients_12",
+        "jarmusch_midazolam",
+        "epa_liver_100",
+        "pride_pxd057282_tucatinib_clearance",
+        "pride_pxd060653_alcohol_dme_ensemble",
+        "pride_pxd014131_liver_compartments",
+        "pride_pxd020987_human_small_intestine",
+        "pride_pxd011498_jejunum_before_after_gastrectomy",
+        "epmc_pmc13683814_placental_transporters"
+      ]
+    },
+    "H3": {
+      "READY": [
+        "mavedb_nudt15_paired_stability_activity",
+        "mavedb_cyp2c9_paired_abundance_activity",
+        "mavedb_braf_paired_abundance_activity",
+        "mavedb_araf_abundance_conditions_and_activity",
+        "pride_pxd066482_imatinib_clearance"
+      ],
+      "PARTIAL": [
+        "hlc_syn4499"
+      ],
+      "ACCESS_REQUIRED": [],
+      "NOT_EVALUABLE": [
+        "ariana_metoprolol_47",
+        "wegler_15",
+        "lee_jackson_cyp3a_15",
+        "lee_venetoclax_patients_12",
+        "jarmusch_midazolam",
+        "epa_liver_100",
+        "pride_pxd057282_tucatinib_clearance",
+        "pride_pxd060653_alcohol_dme_ensemble",
+        "pride_pxd014131_liver_compartments",
+        "pride_pxd020987_human_small_intestine",
+        "pride_pxd011498_jejunum_before_after_gastrectomy",
+        "epmc_pmc13683814_placental_transporters"
+      ]
+    },
+    "H4": {
+      "READY": [],
+      "PARTIAL": [],
+      "ACCESS_REQUIRED": [],
+      "NOT_EVALUABLE": [
+        "ariana_metoprolol_47",
+        "hlc_syn4499",
+        "wegler_15",
+        "lee_jackson_cyp3a_15",
+        "lee_venetoclax_patients_12",
+        "jarmusch_midazolam",
+        "epa_liver_100",
+        "mavedb_nudt15_paired_stability_activity",
+        "mavedb_cyp2c9_paired_abundance_activity",
+        "mavedb_braf_paired_abundance_activity",
+        "mavedb_araf_abundance_conditions_and_activity",
+        "pride_pxd066482_imatinib_clearance",
+        "pride_pxd057282_tucatinib_clearance",
+        "pride_pxd060653_alcohol_dme_ensemble",
+        "pride_pxd014131_liver_compartments",
+        "pride_pxd020987_human_small_intestine",
+        "pride_pxd011498_jejunum_before_after_gastrectomy",
+        "epmc_pmc13683814_placental_transporters"
+      ]
+    },
+    "H5": {
+      "READY": [],
+      "PARTIAL": [],
+      "ACCESS_REQUIRED": [],
+      "NOT_EVALUABLE": [
+        "ariana_metoprolol_47",
+        "hlc_syn4499",
+        "wegler_15",
+        "lee_jackson_cyp3a_15",
+        "lee_venetoclax_patients_12",
+        "jarmusch_midazolam",
+        "epa_liver_100",
+        "mavedb_nudt15_paired_stability_activity",
+        "mavedb_cyp2c9_paired_abundance_activity",
+        "mavedb_braf_paired_abundance_activity",
+        "mavedb_araf_abundance_conditions_and_activity",
+        "pride_pxd066482_imatinib_clearance",
+        "pride_pxd057282_tucatinib_clearance",
+        "pride_pxd060653_alcohol_dme_ensemble",
+        "pride_pxd014131_liver_compartments",
+        "pride_pxd020987_human_small_intestine",
+        "pride_pxd011498_jejunum_before_after_gastrectomy",
+        "epmc_pmc13683814_placental_transporters"
+      ]
+    }
+  },
+  "what_this_is_not": {
+    "a_catalogue_is_not_a_result": "listing what could be measured says nothing about whether it carries information. Every entry here is a candidate until a pre-registered contrast says otherwise.",
+    "an_activity_is_not_a_pk_parameter": "clint_in_vitro has clearance units and is measured with no absorption, no binding and no blood flow. It informs metabolic clearance, which is itself a component of CL.",
+    "pairing_is_never_inferred": "two layers reported in different publications are not paired, however similar their cohorts. The pairing field must be asserted from the source, and `unknown` blocks joint analysis.",
+    "the_legacy_labels_are_a_different_vocabulary": "the registry's H4 is 'when omics become harmful' and its H5 is analytical robustness. Reusing those tags for the longitudinal and dosing hypotheses would claim data that does not exist.",
+    "a_method_is_not_a_source": "DIABLO integrates blocks; it supplies no biology. The kind field exists so a matrix cannot put a statistical choice where a biological fact belongs."
+  }
+}

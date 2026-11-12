@@ -1,0 +1,1320 @@
+{
+  "claims_carried": [
+    "A3_metabolomics_vs_clinical",
+    "A4_both_vs_clinical",
+    "A6_metabolomics_on_top_of_genotype"
+  ],
+  "cohort": "ariana_metoprolol_47",
+  "contrasts": {
+    "A1_genotype_vs_clinical": {
+      "decision": {
+        "adjusted_interval_excludes_zero": false,
+        "carries_a_claim": false,
+        "inconclusive_within_the_family": false,
+        "reaches_the_relative_threshold": false,
+        "rule": "A contrast carries a claim only if the ADJUSTED interval excludes zero and the relative improvement reaches 10%. An unadjusted interval excluding zero while the adjusted one does not is inconclusive within the family, never a positive finding. An interval including zero means no effect was DETECTED, never that there is none.",
+        "unadjusted_interval_excludes_zero": false
+      },
+      "definition": "M1a_clinical_genotype versus M0_clinical, both statistical, ridge, mean absolute error",
+      "exploratory_success_criterion": {
+        "relative_improvement": 0.03840780773130017,
+        "threshold": "at least 10% relative MAE improvement with a descriptive 95 % interval excluding zero, and no reversal on both robustness co-criteria",
+        "threshold_met": false
+      },
+      "family": "A",
+      "influence": {
+        "mean_gain_by_endpoint_quartile": {
+          "Q1": 1.0428049278583604,
+          "Q2": -0.3416542426919389,
+          "Q3": -2.23177753247119,
+          "Q4": 9.871371014871698
+        },
+        "n_improved": 27,
+        "n_worsened": 20,
+        "net_gain": 100.43058425349511,
+        "reading": "A net gain concentrated in a handful of patients, or present in only one endpoint quartile, is reported as such and caps the status at PARTIALLY_SUPPORTED per protocol section 2.1.",
+        "share_of_net_gain_from_five_most_improved": 1.3411689467997898
+      },
+      "multiplicity_adjusted": {
+        "family_size": 11,
+        "interval": [
+          -6.881055015730533,
+          3.1388361335887653
+        ],
+        "interval_excludes_zero": false,
+        "level": "99.55 %",
+        "method": "Bonferroni across the contrasts of this family, applied to the percentiles of the same paired patient bootstrap",
+        "relative_interval_vs_baseline": [
+          -0.12368197675902236,
+          0.056418304582279206
+        ]
+      },
+      "primary_loss": {
+        "best_case_relative_in_interval": -0.1018826721819516,
+        "descriptive_95_interval": [
+          -5.6682492534831415,
+          1.5084000497199659
+        ],
+        "direction": "improvement",
+        "excludes_a_prespecified_size_benefit": false,
+        "how_to_read": "interval_excludes_zero false means no effect was DETECTED, never that there is none. excludes_a_prespecified_size_benefit true means a benefit of at least 10% is incompatible with the interval; false means the design cannot rule one out, which is INCONCLUSIVE rather than NOT_SUPPORTED.",
+        "interval_excludes_zero": false,
+        "mean_difference": -2.136820941563726,
+        "n_bootstrap": 2000,
+        "n_independent_patients": 47,
+        "relative_change_vs_baseline": -0.03840780773130017
+      },
+      "reversal_rule": {
+        "log_mae_reversed": false,
+        "primary_improved": true,
+        "rule": "If the primary loss improves while BOTH robustness co-criteria reverse, the status caps at PARTIALLY_SUPPORTED and the influence analysis becomes mandatory.",
+        "status_capped_at_partially_supported": false,
+        "trimmed_mae_reversed": false
+      },
+      "robustness_co_criteria": {
+        "log_mae": {
+          "best_case_relative_in_interval": -0.15036750824219286,
+          "descriptive_95_interval": [
+            -0.12157002457978518,
+            0.059915828779082164
+          ],
+          "direction": "improvement",
+          "excludes_a_prespecified_size_benefit": false,
+          "how_to_read": "interval_excludes_zero false means no effect was DETECTED, never that there is none. excludes_a_prespecified_size_benefit true means a benefit of at least 10% is incompatible with the interval; false means the design cannot rule one out, which is INCONCLUSIVE rather than NOT_SUPPORTED.",
+          "interval_excludes_zero": false,
+          "mean_difference": -0.0331360446827876,
+          "n_bootstrap": 2000,
+          "n_independent_patients": 47,
+          "relative_change_vs_baseline": -0.04098530447102703
+        },
+        "trimmed_mae_10pct": {
+          "baseline_trimmed_mae": 36.58188518016546,
+          "mean_difference": -2.716491948126965,
+          "new_trimmed_mae": 33.86539323203849
+        }
+      }
+    },
+    "A2_comedication_vs_clinical": {
+      "decision": {
+        "adjusted_interval_excludes_zero": false,
+        "carries_a_claim": false,
+        "inconclusive_within_the_family": false,
+        "reaches_the_relative_threshold": false,
+        "rule": "A contrast carries a claim only if the ADJUSTED interval excludes zero and the relative improvement reaches 10%. An unadjusted interval excluding zero while the adjusted one does not is inconclusive within the family, never a positive finding. An interval including zero means no effect was DETECTED, never that there is none.",
+        "unadjusted_interval_excludes_zero": false
+      },
+      "definition": "M1b_clinical_comedication versus M0_clinical, both statistical, ridge, mean absolute error",
+      "exploratory_success_criterion": {
+        "relative_improvement": 0.008026088308695301,
+        "threshold": "at least 10% relative MAE improvement with a descriptive 95 % interval excluding zero, and no reversal on both robustness co-criteria",
+        "threshold_met": false
+      },
+      "family": "A",
+      "influence": {
+        "mean_gain_by_endpoint_quartile": {
+          "Q1": 1.5790373564004991,
+          "Q2": -0.36412901033233747,
+          "Q3": -0.8403801709710542,
+          "Q4": 1.3440445749965388
+        },
+        "n_improved": 22,
+        "n_worsened": 25,
+        "net_gain": 20.98700201145609,
+        "reading": "A net gain concentrated in a handful of patients, or present in only one endpoint quartile, is reported as such and caps the status at PARTIALLY_SUPPORTED per protocol section 2.1.",
+        "share_of_net_gain_from_five_most_improved": 2.6829268733757585
+      },
+      "multiplicity_adjusted": {
+        "family_size": 11,
+        "interval": [
+          -2.5247313934567837,
+          1.5411846573324175
+        ],
+        "interval_excludes_zero": false,
+        "level": "99.55 %",
+        "method": "Bonferroni across the contrasts of this family, applied to the percentiles of the same paired patient bootstrap",
+        "relative_interval_vs_baseline": [
+          -0.04538021696010874,
+          0.027701677218651462
+        ]
+      },
+      "primary_loss": {
+        "best_case_relative_in_interval": -0.03363445569921503,
+        "descriptive_95_interval": [
+          -1.8712551832946578,
+          0.9787371182805036
+        ],
+        "direction": "improvement",
+        "excludes_a_prespecified_size_benefit": true,
+        "how_to_read": "interval_excludes_zero false means no effect was DETECTED, never that there is none. excludes_a_prespecified_size_benefit true means a benefit of at least 10% is incompatible with the interval; false means the design cannot rule one out, which is INCONCLUSIVE rather than NOT_SUPPORTED.",
+        "interval_excludes_zero": false,
+        "mean_difference": -0.44653195769055515,
+        "n_bootstrap": 2000,
+        "n_independent_patients": 47,
+        "relative_change_vs_baseline": -0.008026088308695301
+      },
+      "reversal_rule": {
+        "log_mae_reversed": false,
+        "primary_improved": true,
+        "rule": "If the primary loss improves while BOTH robustness co-criteria reverse, the status caps at PARTIALLY_SUPPORTED and the influence analysis becomes mandatory.",
+        "status_capped_at_partially_supported": false,
+        "trimmed_mae_reversed": false
+      },
+      "robustness_co_criteria": {
+        "log_mae": {
+          "best_case_relative_in_interval": -0.03723983862416531,
+          "descriptive_95_interval": [
+            -0.030107887999281692,
+            0.028791488703190978
+          ],
+          "direction": "improvement",
+          "excludes_a_prespecified_size_benefit": true,
+          "how_to_read": "interval_excludes_zero false means no effect was DETECTED, never that there is none. excludes_a_prespecified_size_benefit true means a benefit of at least 10% is incompatible with the interval; false means the design cannot rule one out, which is INCONCLUSIVE rather than NOT_SUPPORTED.",
+          "interval_excludes_zero": false,
+          "mean_difference": -0.0006704180723085977,
+          "n_bootstrap": 2000,
+          "n_independent_patients": 47,
+          "relative_change_vs_baseline": -0.0008292265742483101
+        },
+        "trimmed_mae_10pct": {
+          "baseline_trimmed_mae": 36.58188518016546,
+          "mean_difference": -0.0638742989992025,
+          "new_trimmed_mae": 36.518010881166255
+        }
+      }
+    },
+    "A3_metabolomics_vs_clinical": {
+      "decision": {
+        "adjusted_interval_excludes_zero": true,
+        "carries_a_claim": true,
+        "inconclusive_within_the_family": false,
+        "reaches_the_relative_threshold": true,
+        "rule": "A contrast carries a claim only if the ADJUSTED interval excludes zero and the relative improvement reaches 10%. An unadjusted interval excluding zero while the adjusted one does not is inconclusive within the family, never a positive finding. An interval including zero means no effect was DETECTED, never that there is none.",
+        "unadjusted_interval_excludes_zero": true
+      },
+      "definition": "M2_clinical_omic versus M0_clinical, both statistical, ridge, mean absolute error",
+      "exploratory_success_criterion": {
+        "relative_improvement": 0.3830369735920943,
+        "threshold": "at least 10% relative MAE improvement with a descriptive 95 % interval excluding zero, and no reversal on both robustness co-criteria",
+        "threshold_met": true
+      },
+      "family": "A",
+      "influence": {
+        "mean_gain_by_endpoint_quartile": {
+          "Q1": 23.128889797806735,
+          "Q2": 4.1608965040430235,
+          "Q3": 15.273008283625368,
+          "Q4": 41.249239657894265
+        },
+        "n_improved": 33,
+        "n_worsened": 14,
+        "net_gain": 1001.5835144163898,
+        "reading": "A net gain concentrated in a handful of patients, or present in only one endpoint quartile, is reported as such and caps the status at PARTIALLY_SUPPORTED per protocol section 2.1.",
+        "share_of_net_gain_from_five_most_improved": 0.6147628222584524
+      },
+      "multiplicity_adjusted": {
+        "family_size": 11,
+        "interval": [
+          -46.80928410025713,
+          -5.636302671077507
+        ],
+        "interval_excludes_zero": true,
+        "level": "99.55 %",
+        "method": "Bonferroni across the contrasts of this family, applied to the percentiles of the same paired patient bootstrap",
+        "relative_interval_vs_baseline": [
+          -0.8413629559652391,
+          -0.10130845551697927
+        ]
+      },
+      "primary_loss": {
+        "best_case_relative_in_interval": -0.66317980521355,
+        "descriptive_95_interval": [
+          -36.896052638995414,
+          -9.200344540126693
+        ],
+        "direction": "improvement",
+        "excludes_a_prespecified_size_benefit": false,
+        "how_to_read": "interval_excludes_zero false means no effect was DETECTED, never that there is none. excludes_a_prespecified_size_benefit true means a benefit of at least 10% is incompatible with the interval; false means the design cannot rule one out, which is INCONCLUSIVE rather than NOT_SUPPORTED.",
+        "interval_excludes_zero": true,
+        "mean_difference": -21.31028754077425,
+        "n_bootstrap": 2000,
+        "n_independent_patients": 47,
+        "relative_change_vs_baseline": -0.3830369735920943
+      },
+      "reversal_rule": {
+        "log_mae_reversed": false,
+        "primary_improved": true,
+        "rule": "If the primary loss improves while BOTH robustness co-criteria reverse, the status caps at PARTIALLY_SUPPORTED and the influence analysis becomes mandatory.",
+        "status_capped_at_partially_supported": false,
+        "trimmed_mae_reversed": false
+      },
+      "robustness_co_criteria": {
+        "log_mae": {
+          "best_case_relative_in_interval": -0.6052691561347607,
+          "descriptive_95_interval": [
+            -0.48935163619371297,
+            -0.21672833572598182
+          ],
+          "direction": "improvement",
+          "excludes_a_prespecified_size_benefit": false,
+          "how_to_read": "interval_excludes_zero false means no effect was DETECTED, never that there is none. excludes_a_prespecified_size_benefit true means a benefit of at least 10% is incompatible with the interval; false means the design cannot rule one out, which is INCONCLUSIVE rather than NOT_SUPPORTED.",
+          "interval_excludes_zero": true,
+          "mean_difference": -0.3544091087275895,
+          "n_bootstrap": 2000,
+          "n_independent_patients": 47,
+          "relative_change_vs_baseline": -0.4383614691360805
+        },
+        "trimmed_mae_10pct": {
+          "baseline_trimmed_mae": 36.58188518016546,
+          "mean_difference": -14.456367276649868,
+          "new_trimmed_mae": 22.12551790351559
+        }
+      }
+    },
+    "A4_both_vs_clinical": {
+      "decision": {
+        "adjusted_interval_excludes_zero": true,
+        "carries_a_claim": true,
+        "inconclusive_within_the_family": false,
+        "reaches_the_relative_threshold": true,
+        "rule": "A contrast carries a claim only if the ADJUSTED interval excludes zero and the relative improvement reaches 10%. An unadjusted interval excluding zero while the adjusted one does not is inconclusive within the family, never a positive finding. An interval including zero means no effect was DETECTED, never that there is none.",
+        "unadjusted_interval_excludes_zero": true
+      },
+      "definition": "M3a_clinical_genotype_omic versus M0_clinical, both statistical, ridge, mean absolute error",
+      "exploratory_success_criterion": {
+        "relative_improvement": 0.3480179493127863,
+        "threshold": "at least 10% relative MAE improvement with a descriptive 95 % interval excluding zero, and no reversal on both robustness co-criteria",
+        "threshold_met": true
+      },
+      "family": "A",
+      "influence": {
+        "mean_gain_by_endpoint_quartile": {
+          "Q1": 22.304588199415008,
+          "Q2": 3.941577922045033,
+          "Q3": 8.686383224828132,
+          "Q4": 41.23042250037806
+        },
+        "n_improved": 32,
+        "n_worsened": 15,
+        "net_gain": 910.0140842379499,
+        "reading": "A net gain concentrated in a handful of patients, or present in only one endpoint quartile, is reported as such and caps the status at PARTIALLY_SUPPORTED per protocol section 2.1.",
+        "share_of_net_gain_from_five_most_improved": 0.6468296940823155
+      },
+      "multiplicity_adjusted": {
+        "family_size": 11,
+        "interval": [
+          -48.34725958109057,
+          -4.93135252828408
+        ],
+        "interval_excludes_zero": true,
+        "level": "99.55 %",
+        "method": "Bonferroni across the contrasts of this family, applied to the percentiles of the same paired patient bootstrap",
+        "relative_interval_vs_baseline": [
+          -0.8690069505622208,
+          -0.08863748762354941
+        ]
+      },
+      "primary_loss": {
+        "best_case_relative_in_interval": -0.6486137779874119,
+        "descriptive_95_interval": [
+          -36.08567074399249,
+          -7.5747945672911845
+        ],
+        "direction": "improvement",
+        "excludes_a_prespecified_size_benefit": false,
+        "how_to_read": "interval_excludes_zero false means no effect was DETECTED, never that there is none. excludes_a_prespecified_size_benefit true means a benefit of at least 10% is incompatible with the interval; false means the design cannot rule one out, which is INCONCLUSIVE rather than NOT_SUPPORTED.",
+        "interval_excludes_zero": true,
+        "mean_difference": -19.362001792296805,
+        "n_bootstrap": 2000,
+        "n_independent_patients": 47,
+        "relative_change_vs_baseline": -0.3480179493127863
+      },
+      "reversal_rule": {
+        "log_mae_reversed": false,
+        "primary_improved": true,
+        "rule": "If the primary loss improves while BOTH robustness co-criteria reverse, the status caps at PARTIALLY_SUPPORTED and the influence analysis becomes mandatory.",
+        "status_capped_at_partially_supported": false,
+        "trimmed_mae_reversed": false
+      },
+      "robustness_co_criteria": {
+        "log_mae": {
+          "best_case_relative_in_interval": -0.5618858862814347,
+          "descriptive_95_interval": [
+            -0.45427687008183826,
+            -0.1897515552081183
+          ],
+          "direction": "improvement",
+          "excludes_a_prespecified_size_benefit": false,
+          "how_to_read": "interval_excludes_zero false means no effect was DETECTED, never that there is none. excludes_a_prespecified_size_benefit true means a benefit of at least 10% is incompatible with the interval; false means the design cannot rule one out, which is INCONCLUSIVE rather than NOT_SUPPORTED.",
+          "interval_excludes_zero": true,
+          "mean_difference": -0.3204231257371255,
+          "n_bootstrap": 2000,
+          "n_independent_patients": 47,
+          "relative_change_vs_baseline": -0.39632489313716945
+        },
+        "trimmed_mae_10pct": {
+          "baseline_trimmed_mae": 36.58188518016546,
+          "mean_difference": -11.836043463099742,
+          "new_trimmed_mae": 24.745841717065716
+        }
+      }
+    },
+    "A5_pgx_on_top_of_metabolomics": {
+      "decision": {
+        "adjusted_interval_excludes_zero": false,
+        "carries_a_claim": false,
+        "inconclusive_within_the_family": false,
+        "reaches_the_relative_threshold": false,
+        "rule": "A contrast carries a claim only if the ADJUSTED interval excludes zero and the relative improvement reaches 10%. An unadjusted interval excluding zero while the adjusted one does not is inconclusive within the family, never a positive finding. An interval including zero means no effect was DETECTED, never that there is none.",
+        "unadjusted_interval_excludes_zero": false
+      },
+      "definition": "M3a_clinical_genotype_omic versus M2_clinical_omic, both statistical, ridge, mean absolute error",
+      "exploratory_success_criterion": {
+        "relative_improvement": -0.05676032886961879,
+        "threshold": "at least 10% relative MAE improvement with a descriptive 95 % interval excluding zero, and no reversal on both robustness co-criteria",
+        "threshold_met": false
+      },
+      "family": "A",
+      "influence": {
+        "mean_gain_by_endpoint_quartile": {
+          "Q1": -0.8243015983917207,
+          "Q2": -0.21931858199799042,
+          "Q3": -6.58662505879724,
+          "Q4": -0.01881715751621016
+        },
+        "n_improved": 21,
+        "n_worsened": 26,
+        "net_gain": -91.56943017843996,
+        "reading": "A net gain concentrated in a handful of patients, or present in only one endpoint quartile, is reported as such and caps the status at PARTIALLY_SUPPORTED per protocol section 2.1.",
+        "share_of_net_gain_from_five_most_improved": -0.8350900626111193
+      },
+      "multiplicity_adjusted": {
+        "family_size": 11,
+        "interval": [
+          -2.3253087806335966,
+          6.14931874514093
+        ],
+        "interval_excludes_zero": false,
+        "level": "99.55 %",
+        "method": "Bonferroni across the contrasts of this family, applied to the percentiles of the same paired patient bootstrap",
+        "relative_interval_vs_baseline": [
+          -0.06774431893027992,
+          0.17915100727451191
+        ]
+      },
+      "primary_loss": {
+        "best_case_relative_in_interval": -0.031094516426285614,
+        "descriptive_95_interval": [
+          -1.0673124066685304,
+          4.960352204663035
+        ],
+        "direction": "degradation",
+        "excludes_a_prespecified_size_benefit": true,
+        "how_to_read": "interval_excludes_zero false means no effect was DETECTED, never that there is none. excludes_a_prespecified_size_benefit true means a benefit of at least 10% is incompatible with the interval; false means the design cannot rule one out, which is INCONCLUSIVE rather than NOT_SUPPORTED.",
+        "interval_excludes_zero": false,
+        "mean_difference": 1.9482857484774458,
+        "n_bootstrap": 2000,
+        "n_independent_patients": 47,
+        "relative_change_vs_baseline": 0.05676032886961879
+      },
+      "reversal_rule": {
+        "log_mae_reversed": true,
+        "primary_improved": false,
+        "rule": "If the primary loss improves while BOTH robustness co-criteria reverse, the status caps at PARTIALLY_SUPPORTED and the influence analysis becomes mandatory.",
+        "status_capped_at_partially_supported": false,
+        "trimmed_mae_reversed": true
+      },
+      "robustness_co_criteria": {
+        "log_mae": {
+          "best_case_relative_in_interval": -0.0032831335472496255,
+          "descriptive_95_interval": [
+            -0.001490795059725516,
+            0.07244333413229563
+          ],
+          "direction": "degradation",
+          "excludes_a_prespecified_size_benefit": true,
+          "how_to_read": "interval_excludes_zero false means no effect was DETECTED, never that there is none. excludes_a_prespecified_size_benefit true means a benefit of at least 10% is incompatible with the interval; false means the design cannot rule one out, which is INCONCLUSIVE rather than NOT_SUPPORTED.",
+          "interval_excludes_zero": false,
+          "mean_difference": 0.03398598299046402,
+          "n_bootstrap": 2000,
+          "n_independent_patients": 47,
+          "relative_change_vs_baseline": 0.07484631785189287
+        },
+        "trimmed_mae_10pct": {
+          "baseline_trimmed_mae": 22.12551790351559,
+          "mean_difference": 2.620323813550126,
+          "new_trimmed_mae": 24.745841717065716
+        }
+      }
+    },
+    "A6_metabolomics_on_top_of_genotype": {
+      "decision": {
+        "adjusted_interval_excludes_zero": true,
+        "carries_a_claim": true,
+        "inconclusive_within_the_family": false,
+        "reaches_the_relative_threshold": true,
+        "rule": "A contrast carries a claim only if the ADJUSTED interval excludes zero and the relative improvement reaches 10%. An unadjusted interval excluding zero while the adjusted one does not is inconclusive within the family, never a positive finding. An interval including zero means no effect was DETECTED, never that there is none.",
+        "unadjusted_interval_excludes_zero": true
+      },
+      "definition": "M3a_clinical_genotype_omic versus M1a_clinical_genotype, both statistical, ridge, mean absolute error",
+      "exploratory_success_criterion": {
+        "relative_improvement": 0.3219765552078974,
+        "threshold": "at least 10% relative MAE improvement with a descriptive 95 % interval excluding zero, and no reversal on both robustness co-criteria",
+        "threshold_met": true
+      },
+      "family": "A",
+      "influence": {
+        "mean_gain_by_endpoint_quartile": {
+          "Q1": 21.261783271556652,
+          "Q2": 4.283232164736972,
+          "Q3": 10.91816075729932,
+          "Q4": 31.359051485506352
+        },
+        "n_improved": 32,
+        "n_worsened": 15,
+        "net_gain": 809.5834999844548,
+        "reading": "A net gain concentrated in a handful of patients, or present in only one endpoint quartile, is reported as such and caps the status at PARTIALLY_SUPPORTED per protocol section 2.1.",
+        "share_of_net_gain_from_five_most_improved": 0.7146574055387686
+      },
+      "multiplicity_adjusted": {
+        "family_size": 11,
+        "interval": [
+          -43.19932173271,
+          -1.2393864265450223
+        ],
+        "interval_excludes_zero": true,
+        "level": "99.55 %",
+        "method": "Bonferroni across the contrasts of this family, applied to the percentiles of the same paired patient bootstrap",
+        "relative_interval_vs_baseline": [
+          -0.8074904362019322,
+          -0.023166861099946534
+        ]
+      },
+      "primary_loss": {
+        "best_case_relative_in_interval": -0.6209079189792206,
+        "descriptive_95_interval": [
+          -33.2174843884629,
+          -5.27579927171602
+        ],
+        "direction": "improvement",
+        "excludes_a_prespecified_size_benefit": false,
+        "how_to_read": "interval_excludes_zero false means no effect was DETECTED, never that there is none. excludes_a_prespecified_size_benefit true means a benefit of at least 10% is incompatible with the interval; false means the design cannot rule one out, which is INCONCLUSIVE rather than NOT_SUPPORTED.",
+        "interval_excludes_zero": true,
+        "mean_difference": -17.22518085073308,
+        "n_bootstrap": 2000,
+        "n_independent_patients": 47,
+        "relative_change_vs_baseline": -0.3219765552078974
+      },
+      "reversal_rule": {
+        "log_mae_reversed": false,
+        "primary_improved": true,
+        "rule": "If the primary loss improves while BOTH robustness co-criteria reverse, the status caps at PARTIALLY_SUPPORTED and the influence analysis becomes mandatory.",
+        "status_capped_at_partially_supported": false,
+        "trimmed_mae_reversed": false
+      },
+      "robustness_co_criteria": {
+        "log_mae": {
+          "best_case_relative_in_interval": -0.5357997113929264,
+          "descriptive_95_interval": [
+            -0.4154322798327015,
+            -0.15143811132024054
+          ],
+          "direction": "improvement",
+          "excludes_a_prespecified_size_benefit": false,
+          "how_to_read": "interval_excludes_zero false means no effect was DETECTED, never that there is none. excludes_a_prespecified_size_benefit true means a benefit of at least 10% is incompatible with the interval; false means the design cannot rule one out, which is INCONCLUSIVE rather than NOT_SUPPORTED.",
+          "interval_excludes_zero": true,
+          "mean_difference": -0.28728708105433787,
+          "n_bootstrap": 2000,
+          "n_independent_patients": 47,
+          "relative_change_vs_baseline": -0.3705256971793788
+        },
+        "trimmed_mae_10pct": {
+          "baseline_trimmed_mae": 33.86539323203849,
+          "mean_difference": -9.119551514972777,
+          "new_trimmed_mae": 24.745841717065716
+        }
+      }
+    },
+    "B1_statistical_vs_mechanistic_omic_matched": {
+      "decision": {
+        "adjusted_interval_excludes_zero": false,
+        "carries_a_claim": false,
+        "inconclusive_within_the_family": false,
+        "reaches_the_relative_threshold": false,
+        "rule": "A contrast carries a claim only if the ADJUSTED interval excludes zero and the relative improvement reaches 10%. An unadjusted interval excluding zero while the adjusted one does not is inconclusive within the family, never a positive finding. An interval including zero means no effect was DETECTED, never that there is none.",
+        "unadjusted_interval_excludes_zero": false
+      },
+      "definition": "M2_clinical_omic (statistical, ridge) versus M5c_mechanistic_omic_only (mechanistic, panel oh_and_ssda), mean absolute error, identical folds",
+      "exploratory_success_criterion": {
+        "relative_improvement": -0.05016513004257924,
+        "threshold": "at least 10% relative MAE improvement with a descriptive 95 % interval excluding zero, and no reversal on both robustness co-criteria",
+        "threshold_met": false
+      },
+      "family": "B",
+      "influence": {
+        "mean_gain_by_endpoint_quartile": {
+          "Q1": -2.363258717175094,
+          "Q2": 4.105754394022428,
+          "Q3": 9.367925871391064,
+          "Q4": -17.190251835870985
+        },
+        "n_improved": 23,
+        "n_worsened": 24,
+        "net_gain": -77.06371784561347,
+        "reading": "A net gain concentrated in a handful of patients, or present in only one endpoint quartile, is reported as such and caps the status at PARTIALLY_SUPPORTED per protocol section 2.1.",
+        "share_of_net_gain_from_five_most_improved": -3.6913784899052144
+      },
+      "mechanistic_panel": "oh_and_ssda",
+      "multiplicity_adjusted": {
+        "family_size": 11,
+        "interval": [
+          -11.633415197542057,
+          19.146351450945527
+        ],
+        "interval_excludes_zero": false,
+        "level": "99.55 %",
+        "method": "Bonferroni across the contrasts of this family, applied to the percentiles of the same paired patient bootstrap",
+        "relative_interval_vs_baseline": [
+          -0.3559238344492871,
+          0.5857817939459448
+        ]
+      },
+      "panels_are_matched": true,
+      "primary_loss": {
+        "best_case_relative_in_interval": -0.24110551700268468,
+        "descriptive_95_interval": [
+          -7.880564082060408,
+          12.341130808101598
+        ],
+        "direction": "degradation",
+        "excludes_a_prespecified_size_benefit": false,
+        "how_to_read": "interval_excludes_zero false means no effect was DETECTED, never that there is none. excludes_a_prespecified_size_benefit true means a benefit of at least 10% is incompatible with the interval; false means the design cannot rule one out, which is INCONCLUSIVE rather than NOT_SUPPORTED.",
+        "interval_excludes_zero": false,
+        "mean_difference": 1.6396535711832654,
+        "n_bootstrap": 2000,
+        "n_independent_patients": 47,
+        "relative_change_vs_baseline": 0.05016513004257924
+      },
+      "reversal_rule": {
+        "log_mae_reversed": true,
+        "primary_improved": false,
+        "rule": "If the primary loss improves while BOTH robustness co-criteria reverse, the status caps at PARTIALLY_SUPPORTED and the influence analysis becomes mandatory.",
+        "status_capped_at_partially_supported": false,
+        "trimmed_mae_reversed": false
+      },
+      "robustness_co_criteria": {
+        "log_mae": {
+          "best_case_relative_in_interval": -0.20305982645832366,
+          "descriptive_95_interval": [
+            -0.09140423380478725,
+            0.09455115889012837
+          ],
+          "direction": "degradation",
+          "excludes_a_prespecified_size_benefit": false,
+          "how_to_read": "interval_excludes_zero false means no effect was DETECTED, never that there is none. excludes_a_prespecified_size_benefit true means a benefit of at least 10% is incompatible with the interval; false means the design cannot rule one out, which is INCONCLUSIVE rather than NOT_SUPPORTED.",
+          "interval_excludes_zero": false,
+          "mean_difference": 0.003942384957983371,
+          "n_bootstrap": 2000,
+          "n_independent_patients": 47,
+          "relative_change_vs_baseline": 0.008758237688526863
+        },
+        "trimmed_mae_10pct": {
+          "baseline_trimmed_mae": 22.157327352885698,
+          "mean_difference": -0.03180944937010821,
+          "new_trimmed_mae": 22.12551790351559
+        }
+      }
+    },
+    "B2_statistical_vs_mechanistic_with_genotype_matched": {
+      "decision": {
+        "adjusted_interval_excludes_zero": false,
+        "carries_a_claim": false,
+        "inconclusive_within_the_family": false,
+        "reaches_the_relative_threshold": false,
+        "rule": "A contrast carries a claim only if the ADJUSTED interval excludes zero and the relative improvement reaches 10%. An unadjusted interval excluding zero while the adjusted one does not is inconclusive within the family, never a positive finding. An interval including zero means no effect was DETECTED, never that there is none.",
+        "unadjusted_interval_excludes_zero": false
+      },
+      "definition": "M3a_clinical_genotype_omic (statistical, ridge) versus M5_mechanistic_pgx_omic (mechanistic, panel oh_and_ssda), mean absolute error, identical folds",
+      "exploratory_success_criterion": {
+        "relative_improvement": -0.14451628440616868,
+        "threshold": "at least 10% relative MAE improvement with a descriptive 95 % interval excluding zero, and no reversal on both robustness co-criteria",
+        "threshold_met": false
+      },
+      "family": "B",
+      "influence": {
+        "mean_gain_by_endpoint_quartile": {
+          "Q1": 1.700115224044154,
+          "Q2": -1.3804463647389928,
+          "Q3": 2.4352970348869833,
+          "Q4": -20.80889754620273
+        },
+        "n_improved": 21,
+        "n_worsened": 26,
+        "net_gain": -215.266733459388,
+        "reading": "A net gain concentrated in a handful of patients, or present in only one endpoint quartile, is reported as such and caps the status at PARTIALLY_SUPPORTED per protocol section 2.1.",
+        "share_of_net_gain_from_five_most_improved": -0.44033434055438614
+      },
+      "mechanistic_panel": "oh_and_ssda",
+      "multiplicity_adjusted": {
+        "family_size": 11,
+        "interval": [
+          -2.1076903781588903,
+          12.6564133020425
+        ],
+        "interval_excludes_zero": false,
+        "level": "99.55 %",
+        "method": "Bonferroni across the contrasts of this family, applied to the percentiles of the same paired patient bootstrap",
+        "relative_interval_vs_baseline": [
+          -0.0665035053491818,
+          0.3993451118133762
+        ]
+      },
+      "panels_are_matched": true,
+      "primary_loss": {
+        "best_case_relative_in_interval": -0.013981667069866583,
+        "descriptive_95_interval": [
+          -0.44311987765230426,
+          10.304264215397069
+        ],
+        "direction": "degradation",
+        "excludes_a_prespecified_size_benefit": true,
+        "how_to_read": "interval_excludes_zero false means no effect was DETECTED, never that there is none. excludes_a_prespecified_size_benefit true means a benefit of at least 10% is incompatible with the interval; false means the design cannot rule one out, which is INCONCLUSIVE rather than NOT_SUPPORTED.",
+        "interval_excludes_zero": false,
+        "mean_difference": 4.580143265093362,
+        "n_bootstrap": 2000,
+        "n_independent_patients": 47,
+        "relative_change_vs_baseline": 0.14451628440616868
+      },
+      "reversal_rule": {
+        "log_mae_reversed": true,
+        "primary_improved": false,
+        "rule": "If the primary loss improves while BOTH robustness co-criteria reverse, the status caps at PARTIALLY_SUPPORTED and the influence analysis becomes mandatory.",
+        "status_capped_at_partially_supported": false,
+        "trimmed_mae_reversed": true
+      },
+      "robustness_co_criteria": {
+        "log_mae": {
+          "best_case_relative_in_interval": -0.09324496314990499,
+          "descriptive_95_interval": [
+            -0.04226955047428367,
+            0.12049239173311468
+          ],
+          "direction": "degradation",
+          "excludes_a_prespecified_size_benefit": true,
+          "how_to_read": "interval_excludes_zero false means no effect was DETECTED, never that there is none. excludes_a_prespecified_size_benefit true means a benefit of at least 10% is incompatible with the interval; false means the design cannot rule one out, which is INCONCLUSIVE rather than NOT_SUPPORTED.",
+          "interval_excludes_zero": false,
+          "mean_difference": 0.03474561750624737,
+          "n_bootstrap": 2000,
+          "n_independent_patients": 47,
+          "relative_change_vs_baseline": 0.07664746342551765
+        },
+        "trimmed_mae_10pct": {
+          "baseline_trimmed_mae": 21.18288083357203,
+          "mean_difference": 3.562960883493684,
+          "new_trimmed_mae": 24.745841717065716
+        }
+      }
+    },
+    "B3_statistical_vs_mechanistic_genotype_only": {
+      "decision": {
+        "adjusted_interval_excludes_zero": true,
+        "carries_a_claim": false,
+        "inconclusive_within_the_family": false,
+        "reaches_the_relative_threshold": false,
+        "rule": "A contrast carries a claim only if the ADJUSTED interval excludes zero and the relative improvement reaches 10%. An unadjusted interval excluding zero while the adjusted one does not is inconclusive within the family, never a positive finding. An interval including zero means no effect was DETECTED, never that there is none.",
+        "unadjusted_interval_excludes_zero": true
+      },
+      "definition": "M1a_clinical_genotype (statistical, ridge) versus M4_mechanistic_pgx (mechanistic, panel oh_and_ssda), mean absolute error, identical folds",
+      "exploratory_success_criterion": {
+        "relative_improvement": -0.3565133668586548,
+        "threshold": "at least 10% relative MAE improvement with a descriptive 95 % interval excluding zero, and no reversal on both robustness co-criteria",
+        "threshold_met": false
+      },
+      "family": "B",
+      "influence": {
+        "mean_gain_by_endpoint_quartile": {
+          "Q1": -8.772124114979173,
+          "Q2": -1.9183617578957544,
+          "Q3": 0.24219497569799145,
+          "Q4": -44.780661659401225
+        },
+        "n_improved": 16,
+        "n_worsened": 31,
+        "net_gain": -660.8290689210421,
+        "reading": "A net gain concentrated in a handful of patients, or present in only one endpoint quartile, is reported as such and caps the status at PARTIALLY_SUPPORTED per protocol section 2.1.",
+        "share_of_net_gain_from_five_most_improved": -0.13531032991585545
+      },
+      "mechanistic_panel": "oh_and_ssda",
+      "multiplicity_adjusted": {
+        "family_size": 11,
+        "interval": [
+          3.075229538956898,
+          37.17013464252185
+        ],
+        "interval_excludes_zero": true,
+        "level": "99.55 %",
+        "method": "Bonferroni across the contrasts of this family, applied to the percentiles of the same paired patient bootstrap",
+        "relative_interval_vs_baseline": [
+          0.07797620133989948,
+          0.9424941670206426
+        ]
+      },
+      "panels_are_matched": true,
+      "primary_loss": {
+        "best_case_relative_in_interval": 0.12206663185696476,
+        "descriptive_95_interval": [
+          4.814070261915109,
+          27.3158774727669
+        ],
+        "direction": "degradation",
+        "excludes_a_prespecified_size_benefit": true,
+        "how_to_read": "interval_excludes_zero false means no effect was DETECTED, never that there is none. excludes_a_prespecified_size_benefit true means a benefit of at least 10% is incompatible with the interval; false means the design cannot rule one out, which is INCONCLUSIVE rather than NOT_SUPPORTED.",
+        "interval_excludes_zero": true,
+        "mean_difference": 14.060192955766853,
+        "n_bootstrap": 2000,
+        "n_independent_patients": 47,
+        "relative_change_vs_baseline": 0.3565133668586548
+      },
+      "reversal_rule": {
+        "log_mae_reversed": true,
+        "primary_improved": false,
+        "rule": "If the primary loss improves while BOTH robustness co-criteria reverse, the status caps at PARTIALLY_SUPPORTED and the influence analysis becomes mandatory.",
+        "status_capped_at_partially_supported": false,
+        "trimmed_mae_reversed": true
+      },
+      "robustness_co_criteria": {
+        "log_mae": {
+          "best_case_relative_in_interval": 0.1316568018942776,
+          "descriptive_95_interval": [
+            0.0799068276487704,
+            0.25440579230978383
+          ],
+          "direction": "degradation",
+          "excludes_a_prespecified_size_benefit": true,
+          "how_to_read": "interval_excludes_zero false means no effect was DETECTED, never that there is none. excludes_a_prespecified_size_benefit true means a benefit of at least 10% is incompatible with the interval; false means the design cannot rule one out, which is INCONCLUSIVE rather than NOT_SUPPORTED.",
+          "interval_excludes_zero": true,
+          "mean_difference": 0.16841717932493516,
+          "n_bootstrap": 2000,
+          "n_independent_patients": 47,
+          "relative_change_vs_baseline": 0.2774890189789334
+        },
+        "trimmed_mae_10pct": {
+          "baseline_trimmed_mae": 25.921374245554926,
+          "mean_difference": 7.944018986483567,
+          "new_trimmed_mae": 33.86539323203849
+        }
+      }
+    },
+    "B4_the_two_baselines": {
+      "decision": {
+        "adjusted_interval_excludes_zero": false,
+        "carries_a_claim": false,
+        "inconclusive_within_the_family": false,
+        "reaches_the_relative_threshold": false,
+        "rule": "A contrast carries a claim only if the ADJUSTED interval excludes zero and the relative improvement reaches 10%. An unadjusted interval excluding zero while the adjusted one does not is inconclusive within the family, never a positive finding. An interval including zero means no effect was DETECTED, never that there is none.",
+        "unadjusted_interval_excludes_zero": false
+      },
+      "definition": "M0_clinical (statistical, ridge) versus M4c_backbone_only (mechanistic, panel oh_and_ssda), mean absolute error, identical folds",
+      "exploratory_success_criterion": {
+        "relative_improvement": -0.09613555844474082,
+        "threshold": "at least 10% relative MAE improvement with a descriptive 95 % interval excluding zero, and no reversal on both robustness co-criteria",
+        "threshold_met": false
+      },
+      "family": "B",
+      "influence": {
+        "mean_gain_by_endpoint_quartile": {
+          "Q1": -4.864317435288471,
+          "Q2": 9.520367343711202,
+          "Q3": -3.4892359488918987,
+          "Q4": -19.484520368304263
+        },
+        "n_improved": 17,
+        "n_worsened": 30,
+        "net_gain": -229.33284424899225,
+        "reading": "A net gain concentrated in a handful of patients, or present in only one endpoint quartile, is reported as such and caps the status at PARTIALLY_SUPPORTED per protocol section 2.1.",
+        "share_of_net_gain_from_five_most_improved": -0.6388112604764429
+      },
+      "mechanistic_panel": "oh_and_ssda",
+      "multiplicity_adjusted": {
+        "family_size": 11,
+        "interval": [
+          -2.7074948523180002,
+          13.777356981511057
+        ],
+        "interval_excludes_zero": false,
+        "level": "99.55 %",
+        "method": "Bonferroni across the contrasts of this family, applied to the percentiles of the same paired patient bootstrap",
+        "relative_interval_vs_baseline": [
+          -0.05334371939576554,
+          0.27144482443163576
+        ]
+      },
+      "panels_are_matched": true,
+      "primary_loss": {
+        "best_case_relative_in_interval": -0.013149557984130965,
+        "descriptive_95_interval": [
+          -0.6674142889840896,
+          10.675389271133152
+        ],
+        "direction": "degradation",
+        "excludes_a_prespecified_size_benefit": true,
+        "how_to_read": "interval_excludes_zero false means no effect was DETECTED, never that there is none. excludes_a_prespecified_size_benefit true means a benefit of at least 10% is incompatible with the interval; false means the design cannot rule one out, which is INCONCLUSIVE rather than NOT_SUPPORTED.",
+        "interval_excludes_zero": false,
+        "mean_difference": 4.879422218063665,
+        "n_bootstrap": 2000,
+        "n_independent_patients": 47,
+        "relative_change_vs_baseline": 0.09613555844474082
+      },
+      "reversal_rule": {
+        "log_mae_reversed": true,
+        "primary_improved": false,
+        "rule": "If the primary loss improves while BOTH robustness co-criteria reverse, the status caps at PARTIALLY_SUPPORTED and the influence analysis becomes mandatory.",
+        "status_capped_at_partially_supported": false,
+        "trimmed_mae_reversed": true
+      },
+      "robustness_co_criteria": {
+        "log_mae": {
+          "best_case_relative_in_interval": -0.04783810424299146,
+          "descriptive_95_interval": [
+            -0.036190592488994935,
+            0.14083983750156812
+          ],
+          "direction": "degradation",
+          "excludes_a_prespecified_size_benefit": true,
+          "how_to_read": "interval_excludes_zero false means no effect was DETECTED, never that there is none. excludes_a_prespecified_size_benefit true means a benefit of at least 10% is incompatible with the interval; false means the design cannot rule one out, which is INCONCLUSIVE rather than NOT_SUPPORTED.",
+          "interval_excludes_zero": false,
+          "mean_difference": 0.051963698774644,
+          "n_bootstrap": 2000,
+          "n_independent_patients": 47,
+          "relative_change_vs_baseline": 0.06868759718672024
+        },
+        "trimmed_mae_10pct": {
+          "baseline_trimmed_mae": 33.327672069375055,
+          "mean_difference": 3.2542131107904027,
+          "new_trimmed_mae": 36.58188518016546
+        }
+      }
+    },
+    "B5_the_unmatched_panel": {
+      "decision": {
+        "adjusted_interval_excludes_zero": false,
+        "carries_a_claim": false,
+        "inconclusive_within_the_family": false,
+        "reaches_the_relative_threshold": false,
+        "rule": "A contrast carries a claim only if the ADJUSTED interval excludes zero and the relative improvement reaches 10%. An unadjusted interval excluding zero while the adjusted one does not is inconclusive within the family, never a positive finding. An interval including zero means no effect was DETECTED, never that there is none.",
+        "unadjusted_interval_excludes_zero": false
+      },
+      "definition": "M2_clinical_omic (statistical, ridge) versus M5c_mechanistic_omic_only (mechanistic, panel oh_only), mean absolute error, identical folds",
+      "exploratory_success_criterion": {
+        "relative_improvement": -0.05720426102127937,
+        "threshold": "at least 10% relative MAE improvement with a descriptive 95 % interval excluding zero, and no reversal on both robustness co-criteria",
+        "threshold_met": false
+      },
+      "family": "B",
+      "influence": {
+        "mean_gain_by_endpoint_quartile": {
+          "Q1": 3.421588984786775,
+          "Q2": -3.7153564375021335,
+          "Q3": 10.573169515159213,
+          "Q4": -17.863359141117844
+        },
+        "n_improved": 29,
+        "n_worsened": 18,
+        "net_gain": -87.29212850658573,
+        "reading": "A net gain concentrated in a handful of patients, or present in only one endpoint quartile, is reported as such and caps the status at PARTIALLY_SUPPORTED per protocol section 2.1.",
+        "share_of_net_gain_from_five_most_improved": -1.752057750093489
+      },
+      "mechanistic_panel": "oh_only",
+      "multiplicity_adjusted": {
+        "family_size": 11,
+        "interval": [
+          -7.211110238575426,
+          18.428872407263828
+        ],
+        "interval_excludes_zero": false,
+        "level": "99.55 %",
+        "method": "Bonferroni across the contrasts of this family, applied to the percentiles of the same paired patient bootstrap",
+        "relative_interval_vs_baseline": [
+          -0.22210241921812768,
+          0.5676098422708483
+        ]
+      },
+      "panels_are_matched": false,
+      "primary_loss": {
+        "best_case_relative_in_interval": -0.16497949071980375,
+        "descriptive_95_interval": [
+          -5.356471572316111,
+          11.981488730879825
+        ],
+        "direction": "degradation",
+        "excludes_a_prespecified_size_benefit": false,
+        "how_to_read": "interval_excludes_zero false means no effect was DETECTED, never that there is none. excludes_a_prespecified_size_benefit true means a benefit of at least 10% is incompatible with the interval; false means the design cannot rule one out, which is INCONCLUSIVE rather than NOT_SUPPORTED.",
+        "interval_excludes_zero": false,
+        "mean_difference": 1.8572793299273558,
+        "n_bootstrap": 2000,
+        "n_independent_patients": 47,
+        "relative_change_vs_baseline": 0.05720426102127937
+      },
+      "reversal_rule": {
+        "log_mae_reversed": false,
+        "primary_improved": false,
+        "rule": "If the primary loss improves while BOTH robustness co-criteria reverse, the status caps at PARTIALLY_SUPPORTED and the influence analysis becomes mandatory.",
+        "status_capped_at_partially_supported": false,
+        "trimmed_mae_reversed": false
+      },
+      "robustness_co_criteria": {
+        "log_mae": {
+          "best_case_relative_in_interval": -0.2670441940881384,
+          "descriptive_95_interval": [
+            -0.1309764920919268,
+            0.05517143838991437
+          ],
+          "direction": "improvement",
+          "excludes_a_prespecified_size_benefit": false,
+          "how_to_read": "interval_excludes_zero false means no effect was DETECTED, never that there is none. excludes_a_prespecified_size_benefit true means a benefit of at least 10% is incompatible with the interval; false means the design cannot rule one out, which is INCONCLUSIVE rather than NOT_SUPPORTED.",
+          "interval_excludes_zero": false,
+          "mean_difference": -0.03639059019684469,
+          "n_bootstrap": 2000,
+          "n_independent_patients": 47,
+          "relative_change_vs_baseline": -0.07419572532670614
+        },
+        "trimmed_mae_10pct": {
+          "baseline_trimmed_mae": 23.647279745444045,
+          "mean_difference": -1.5217618419284555,
+          "new_trimmed_mae": 22.12551790351559
+        }
+      }
+    }
+  },
+  "differences_detected_in_favour_of_the_baseline": [
+    "B3_statistical_vs_mechanistic_genotype_only"
+  ],
+  "family_a_is_not_a_blind_prespecification": "Family A's contrasts were already computed and visible in the committed reports/data/h1_ariana_trough.json before the protocol was written. Family A is an adjusted reading of an existing computation, never a newly prespecified test.",
+  "family_b_cannot_isolate_the_representation": "A mechanistic arm fits one free parameter on these 47 patients and borrows the rest from the literature; a statistical arm fits a ridge penalty and six to eight coefficients on the same 47. Family B compares transferred structure plus one free parameter against estimation from 47 patients, not representation alone.",
+  "family_size": 11,
+  "free_parameters_fitted_on_this_cohort": {
+    "HY_poppk_published_plus_ml_residual": "1 structural + the ridge penalty and coefficients of the residual stage, all fitted inside the training fold",
+    "M4_mechanistic_pgx": 1,
+    "M4c_backbone_only": 1,
+    "M5_mechanistic_pgx_omic": 1,
+    "M5c_mechanistic_omic_only": 1,
+    "P1_poppk_published_coefficients": 1,
+    "P2_poppk_estimated_coefficients": 3,
+    "P3_poppk_estimated_plus_omic": 4
+  },
+  "how_to_read_the_three_lists": "claims_carried: adjusted interval excludes zero AND the improvement reaches the prespecified size. differences_detected_in_favour_of_the_baseline: the adjusted interval excludes zero but the new arm is WORSE, which is a finding about the baseline and not an absence of effect. nothing_detected: the adjusted interval includes zero, which means no difference was detected and never that there is none.",
+  "imported_machinery": {
+    "matched_panel_columns": [
+      "lnMR OH-solanidine/solanidine",
+      "lnMR SSDA/solanidine"
+    ],
+    "mechanistic_primary_panel": "oh_only",
+    "prohibited_predictor_absent_everywhere": "lnMR OH-metoprolol/metoprolol",
+    "statistical_constants_verified": [
+      "INNER_FOLDS",
+      "N_BOOTSTRAP",
+      "OUTER_FOLDS",
+      "OUTER_REPEATS",
+      "RELATIVE_IMPROVEMENT_THRESHOLD",
+      "SEED",
+      "TRIM_FRACTION"
+    ],
+    "statistical_omic_block": [
+      "lnMR OH-solanidine/solanidine",
+      "lnMR SSDA/solanidine"
+    ]
+  },
+  "inconclusive_within_the_family": [],
+  "losses": {
+    "mechanistic_matched_panel": {
+      "M4_mechanistic_pgx": {
+        "bias": -15.197268088039014,
+        "log_mae": 0.6069327714107532,
+        "mae": 39.43805271498062,
+        "n_patients": 47,
+        "p20_fraction_within_20pct": 0.3191489361702128,
+        "rmse": 63.870130270509264,
+        "trimmed_mae_10pct": 25.921374245554926
+      },
+      "M4c_backbone_only": {
+        "bias": -21.82300280248576,
+        "log_mae": 0.7565222966438319,
+        "mae": 50.755644394247525,
+        "n_patients": 47,
+        "p20_fraction_within_20pct": 0.1702127659574468,
+        "rmse": 88.56425311378555,
+        "trimmed_mae_10pct": 33.327672069375055
+      },
+      "M5_mechanistic_pgx_omic": {
+        "bias": -12.969214008204872,
+        "log_mae": 0.45331725217510305,
+        "mae": 31.692921554921035,
+        "n_patients": 47,
+        "p20_fraction_within_20pct": 0.2978723404255319,
+        "rmse": 50.83157202774856,
+        "trimmed_mae_10pct": 21.18288083357203
+      },
+      "M5c_mechanistic_omic_only": {
+        "bias": -1.7436501324471239,
+        "log_mae": 0.4501345017329029,
+        "mae": 32.685125500353685,
+        "n_patients": 47,
+        "p20_fraction_within_20pct": 0.2978723404255319,
+        "rmse": 50.25588989955594,
+        "trimmed_mae_10pct": 22.157327352885698
+      }
+    },
+    "mechanistic_unmatched_panel": {
+      "M4_mechanistic_pgx": {
+        "bias": -15.197268088039014,
+        "log_mae": 0.6069327714107532,
+        "mae": 39.43805271498062,
+        "n_patients": 47,
+        "p20_fraction_within_20pct": 0.3191489361702128,
+        "rmse": 63.870130270509264,
+        "trimmed_mae_10pct": 25.921374245554926
+      },
+      "M4c_backbone_only": {
+        "bias": -21.82300280248576,
+        "log_mae": 0.7565222966438319,
+        "mae": 50.755644394247525,
+        "n_patients": 47,
+        "p20_fraction_within_20pct": 0.1702127659574468,
+        "rmse": 88.56425311378555,
+        "trimmed_mae_10pct": 33.327672069375055
+      },
+      "M5_mechanistic_pgx_omic": {
+        "bias": -14.63159565563666,
+        "log_mae": 0.49789549875131367,
+        "mae": 32.83139112442235,
+        "n_patients": 47,
+        "p20_fraction_within_20pct": 0.2553191489361702,
+        "rmse": 53.10883811794224,
+        "trimmed_mae_10pct": 21.837185156201315
+      },
+      "M5c_mechanistic_omic_only": {
+        "bias": -8.226814828865752,
+        "log_mae": 0.49046747688773107,
+        "mae": 32.46749974160959,
+        "n_patients": 47,
+        "p20_fraction_within_20pct": 0.2127659574468085,
+        "rmse": 47.90567098459039,
+        "trimmed_mae_10pct": 23.647279745444045
+      }
+    },
+    "statistical_ridge": {
+      "M0_clinical": {
+        "bias": -28.542834049384147,
+        "log_mae": 0.8084859954184759,
+        "mae": 55.63506661231119,
+        "n_patients": 47,
+        "p20_fraction_within_20pct": 0.1276595744680851,
+        "rmse": 95.21213886274906,
+        "trimmed_mae_10pct": 36.58188518016546
+      },
+      "M1_clinical_pgx": {
+        "bias": -27.069427921527225,
+        "log_mae": 0.7693351510226294,
+        "mae": 52.80973582198689,
+        "n_patients": 47,
+        "p20_fraction_within_20pct": 0.1702127659574468,
+        "rmse": 93.89993484592331,
+        "trimmed_mae_10pct": 33.33927914496041
+      },
+      "M1a_clinical_genotype": {
+        "bias": -25.907381807918892,
+        "log_mae": 0.7753499507356882,
+        "mae": 53.49824567074746,
+        "n_patients": 47,
+        "p20_fraction_within_20pct": 0.14893617021276595,
+        "rmse": 93.10533251200395,
+        "trimmed_mae_10pct": 33.86539323203849
+      },
+      "M1b_clinical_comedication": {
+        "bias": -28.880043107623642,
+        "log_mae": 0.8078155773461672,
+        "mae": 55.18853465462064,
+        "n_patients": 47,
+        "p20_fraction_within_20pct": 0.0851063829787234,
+        "rmse": 94.87468346656514,
+        "trimmed_mae_10pct": 36.518010881166255
+      },
+      "M2_clinical_omic": {
+        "bias": -13.257077778532741,
+        "log_mae": 0.45407688669088636,
+        "mae": 34.32477907153695,
+        "n_patients": 47,
+        "p20_fraction_within_20pct": 0.2978723404255319,
+        "rmse": 54.813100500562356,
+        "trimmed_mae_10pct": 22.12551790351559
+      },
+      "M3_clinical_pgx_omic": {
+        "bias": -14.457879755508618,
+        "log_mae": 0.4835450466586423,
+        "mae": 35.84330054422342,
+        "n_patients": 47,
+        "p20_fraction_within_20pct": 0.2978723404255319,
+        "rmse": 54.62649954001375,
+        "trimmed_mae_10pct": 24.478180695260704
+      },
+      "M3a_clinical_genotype_omic": {
+        "bias": -14.347482599742701,
+        "log_mae": 0.48806286968135043,
+        "mae": 36.2730648200144,
+        "n_patients": 47,
+        "p20_fraction_within_20pct": 0.2765957446808511,
+        "rmse": 55.02456089861723,
+        "trimmed_mae_10pct": 24.745841717065716
+      },
+      "M3b_clinical_comedication_omic": {
+        "bias": -12.912268127998646,
+        "log_mae": 0.46432182029160024,
+        "mae": 34.45305568871989,
+        "n_patients": 47,
+        "p20_fraction_within_20pct": 0.2765957446808511,
+        "rmse": 54.28374113732085,
+        "trimmed_mae_10pct": 22.73769239705179
+      }
+    }
+  },
+  "map_be": "excluded by construction; one observation per patient",
+  "n_patients": 47,
+  "no_clinical_pk_proof": "No result here is a clinical-pharmacokinetic proof. It is a comparison of representations on one observed trough concentration in 47 patients from one study.",
+  "no_new_model_was_fitted": "Every arm is imported from the two frozen runners. This protocol adds a declared family, its Bonferroni adjustment and the statistical-against-mechanistic contrasts, nothing else.",
+  "no_person_identifiers_values_or_predictions_exported": true,
+  "nothing_detected": [
+    "A1_genotype_vs_clinical",
+    "A2_comedication_vs_clinical",
+    "A5_pgx_on_top_of_metabolomics",
+    "B1_statistical_vs_mechanistic_omic_matched",
+    "B2_statistical_vs_mechanistic_with_genotype_matched",
+    "B4_the_two_baselines",
+    "B5_the_unmatched_panel"
+  ],
+  "objective": "H1 secondary: the three-way statistical ablation and the statistical-against-mechanistic comparison",
+  "prespecification": {
+    "checked": {
+      "Adjustment": "Bonferroni",
+      "Bootstrap draws": 2000,
+      "Family size": 11,
+      "Fold seed": 20261107,
+      "Matched mechanistic panel": "oh_and_ssda",
+      "Note's named contrast": "A5_pgx_on_top_of_metabolomics",
+      "Outer folds × repeats × inner": [
+        5,
+        2,
+        3
+      ],
+      "Relative MAE threshold": 0.1,
+      "Status ceiling": "exploratory",
+      "Unmatched mechanistic panel": "oh_only"
+    },
+    "prespecification_sha256": "85f96fb19e582002b32d923db9d66d73afc8abcbe8532f8d30dc6ac0bf792105"
+  },
+  "prohibited_predictor_absent": "lnMR OH-metoprolol/metoprolol",
+  "protocol_version": "1.0.0",
+  "source_sha256": "7397b13e43cd546b93f83a20b2dc84b6d49e97633173d56711c39973beedfe37",
+  "statistical_arms": {
+    "M0_clinical": [
+      "Age (years)",
+      "male sex",
+      "weight",
+      "BMI",
+      "Daily Dose Metoprolol"
+    ],
+    "M1_clinical_pgx": [
+      "Age (years)",
+      "male sex",
+      "weight",
+      "BMI",
+      "Daily Dose Metoprolol",
+      "AS",
+      "CYP2D6 inhibitor intake"
+    ],
+    "M1a_clinical_genotype": [
+      "Age (years)",
+      "male sex",
+      "weight",
+      "BMI",
+      "Daily Dose Metoprolol",
+      "AS"
+    ],
+    "M1b_clinical_comedication": [
+      "Age (years)",
+      "male sex",
+      "weight",
+      "BMI",
+      "Daily Dose Metoprolol",
+      "CYP2D6 inhibitor intake"
+    ],
+    "M2_clinical_omic": [
+      "Age (years)",
+      "male sex",
+      "weight",
+      "BMI",
+      "Daily Dose Metoprolol",
+      "lnMR OH-solanidine/solanidine",
+      "lnMR SSDA/solanidine"
+    ],
+    "M3_clinical_pgx_omic": [
+      "Age (years)",
+      "male sex",
+      "weight",
+      "BMI",
+      "Daily Dose Metoprolol",
+      "AS",
+      "CYP2D6 inhibitor intake",
+      "lnMR OH-solanidine/solanidine",
+      "lnMR SSDA/solanidine"
+    ],
+    "M3a_clinical_genotype_omic": [
+      "Age (years)",
+      "male sex",
+      "weight",
+      "BMI",
+      "Daily Dose Metoprolol",
+      "AS",
+      "lnMR OH-solanidine/solanidine",
+      "lnMR SSDA/solanidine"
+    ],
+    "M3b_clinical_comedication_omic": [
+      "Age (years)",
+      "male sex",
+      "weight",
+      "BMI",
+      "Daily Dose Metoprolol",
+      "CYP2D6 inhibitor intake",
+      "lnMR OH-solanidine/solanidine",
+      "lnMR SSDA/solanidine"
+    ]
+  },
+  "status_ceiling": "exploratory. This cohort has been analysed repeatedly by this project, so nothing here is an independent validation, a new cohort, or evidence transferable to another drug.",
+  "target": "c(Metoprolol)[ng/ml]",
+  "target_is": "observed pre-dose metoprolol concentration, ng/mL. NOT an AUC, NOT a clearance, NOT a steady-state exposure metric.",
+  "the_question_the_note_named": {
+    "adjusted_interval": [
+      -2.3253087806335966,
+      6.14931874514093
+    ],
+    "adjusted_interval_excludes_zero": false,
+    "answer": "no detectable complementary information; the point estimate is a degradation",
+    "contrast": "A5_pgx_on_top_of_metabolomics",
+    "direction": "degradation",
+    "point_estimate_mean_absolute_error_difference": 1.9482857484774458,
+    "question": "Does pharmacogenetics add information the metabolomics does not already carry?"
+  },
+  "validation": {
+    "adjustment": "Bonferroni across a declared family of 11",
+    "bootstrap": {
+      "n": 2000,
+      "unit": "patients; a fold repeat is never a second patient"
+    },
+    "fold_fingerprint_sha256": "0cd3597f0d5fc08d0e7e3746139dd324d367d020e57691a2fb211f1bc3cd2eea",
+    "folds_identical_across_both_families": true,
+    "how_identity_is_guaranteed": "the fold list is the primary runner's own make_folds, imported rather than reimplemented",
+    "inner_folds": 3,
+    "outer_folds": 5,
+    "outer_repeats": 2,
+    "seed": 20261107,
+    "why_bonferroni_not_holm": "Bonferroni is uniformly more conservative, so an interval excluding zero after Bonferroni would also exclude it after Holm. It also reuses tested code instead of adding an untested adjustment path."
+  }
+}

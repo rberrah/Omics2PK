@@ -1,0 +1,236 @@
+{
+  "built_on": "2026-11-09",
+  "cases": [
+    {
+      "compartment": "liver tissue RNA; activity in microsomes from the same livers",
+      "fit_allowed": false,
+      "inputs": {
+        "outcome_donors_supplied": true,
+        "protein_donors_supplied": false,
+        "rna_donors_supplied": true,
+        "source_rows_acquired": true
+      },
+      "missing_requirements": [
+        "matched_protein"
+      ],
+      "n_complete_case": 0,
+      "n_outcome": 488,
+      "n_protein": 0,
+      "n_rna": 466,
+      "note": "The project's only transcriptome. No protein layer exists in these donors, so a same-donor RNA-versus-protein comparison is impossible here however large the cohort.",
+      "outcome_kind": "drug_specific_metabolic_activity",
+      "registry_key": "hlc_syn4499",
+      "source_id": "hlc_syn4499",
+      "status": "ABSTAIN_NO_MATCHED_PROTEIN"
+    },
+    {
+      "compartment": "liver microsomes, homogenate and hepatocytes",
+      "fit_allowed": false,
+      "inputs": {
+        "outcome_donors_supplied": false,
+        "protein_donors_supplied": true,
+        "rna_donors_supplied": false,
+        "source_rows_acquired": true
+      },
+      "missing_requirements": [
+        "matched_RNA",
+        "matched_drug_outcome"
+      ],
+      "n_complete_case": 0,
+      "n_outcome": 0,
+      "n_protein": 15,
+      "n_rna": 0,
+      "note": "Individual protein rows are retrievable (PRIDE PXD014131, CC0). No RNA was measured in these donors, and the intrinsic-clearance values are not in the deposit, so the outcome rows are not acquired either.",
+      "outcome_kind": "drug_specific_clint",
+      "registry_key": "wegler_15",
+      "source_id": "wegler_15_microsomes",
+      "status": "ABSTAIN_NO_MATCHED_RNA"
+    },
+    {
+      "compartment": "BLOOD. Leukocyte transcriptome and plasma proteome. Not hepatic, so even a donor-structure pass would say nothing about drug metabolism.",
+      "fit_allowed": false,
+      "inputs": {
+        "outcome_donors_supplied": false,
+        "protein_donors_supplied": true,
+        "rna_donors_supplied": true,
+        "source_rows_acquired": true
+      },
+      "missing_requirements": [
+        "drug_specific_clint_or_activity_or_clinical_pk"
+      ],
+      "n_complete_case": 0,
+      "n_outcome": 0,
+      "n_protein": 0,
+      "n_rna": 0,
+      "note": "The ONLY registered source whose RNA and protein are same-donor: 88 individuals carry both. It fails on the outcome, not on the donors. The gate does not test compartment, so this verdict must be read with the compartment field.",
+      "outcome_kind": "none_measured",
+      "registry_key": "eatris_plus_v4",
+      "source_id": "eatris_plus_v4",
+      "status": "ABSTAIN_NO_DRUG_SPECIFIC_OUTCOME"
+    },
+    {
+      "compartment": "two unrelated cohorts",
+      "fit_allowed": false,
+      "inputs": {
+        "outcome_donors_supplied": true,
+        "protein_donors_supplied": true,
+        "rna_donors_supplied": true,
+        "source_rows_acquired": true
+      },
+      "missing_requirements": [
+        "same_biological_donors_across_all_views"
+      ],
+      "n_complete_case": 0,
+      "n_outcome": 488,
+      "n_protein": 15,
+      "n_rna": 466,
+      "note": "Run deliberately. HLC's 466 liver donors and Wegler's 15 donors are different people in different identifier spaces. This is the exact error the module's docstring names, and it MUST be refused. A fit_allowed of true here would mean the gate is broken.",
+      "outcome_kind": "drug_specific_metabolic_activity",
+      "registry_key": null,
+      "source_id": "INVALID_FUSION_hlc_rna_plus_wegler_protein",
+      "status": "ABSTAIN_NO_SAME_DONOR_INTERSECTION"
+    },
+    {
+      "fit_allowed": false,
+      "inputs": {
+        "outcome_donors_supplied": false,
+        "protein_donors_supplied": false,
+        "rna_donors_supplied": false,
+        "source_rows_acquired": true
+      },
+      "missing_requirements": [
+        "matched_RNA",
+        "matched_protein",
+        "matched_drug_outcome"
+      ],
+      "n_complete_case": 0,
+      "n_outcome": 0,
+      "n_protein": 0,
+      "n_rna": 0,
+      "note": "Individual rows ARE held (the public workbook). The cohort has targeted metabolomics, genotype and clinical PK, and no RNA and no protein, so the layer is what is missing, not the data.",
+      "outcome_kind": "clinical_pk",
+      "registry_key": "ariana_metoprolol_47",
+      "source_id": "ariana_metoprolol_47",
+      "status": "ABSTAIN_NO_MATCHED_RNA"
+    },
+    {
+      "fit_allowed": false,
+      "inputs": {
+        "outcome_donors_supplied": false,
+        "protein_donors_supplied": false,
+        "rna_donors_supplied": false,
+        "source_rows_acquired": true
+      },
+      "missing_requirements": [
+        "matched_RNA",
+        "matched_protein",
+        "matched_drug_outcome"
+      ],
+      "n_complete_case": 0,
+      "n_outcome": 0,
+      "n_protein": 0,
+      "n_rna": 0,
+      "note": "Individual rows ARE held through the GNPS processed output. Untargeted metabolomics and genotype only; no RNA, no protein.",
+      "outcome_kind": "clinical_pk",
+      "registry_key": "jarmusch_midazolam",
+      "source_id": "jarmusch_midazolam",
+      "status": "ABSTAIN_NO_MATCHED_RNA"
+    },
+    {
+      "fit_allowed": false,
+      "inputs": {
+        "outcome_donors_supplied": false,
+        "protein_donors_supplied": false,
+        "rna_donors_supplied": false,
+        "source_rows_acquired": false
+      },
+      "missing_requirements": [
+        "authenticated_individual_source_rows"
+      ],
+      "n_complete_case": 0,
+      "n_outcome": 0,
+      "n_protein": 0,
+      "n_rna": 0,
+      "note": "RNA and activity, no protein layer. Individual rows not on disk in this session, so the refusal is about access as well as layers.",
+      "outcome_kind": "drug_specific_metabolic_activity",
+      "registry_key": "epa_liver_100",
+      "source_id": "epa_liver_100",
+      "status": "ABSTAIN_SOURCE_ROWS_NOT_ACQUIRED"
+    },
+    {
+      "fit_allowed": false,
+      "inputs": {
+        "outcome_donors_supplied": false,
+        "protein_donors_supplied": false,
+        "rna_donors_supplied": false,
+        "source_rows_acquired": false
+      },
+      "missing_requirements": [
+        "authenticated_individual_source_rows"
+      ],
+      "n_complete_case": 0,
+      "n_outcome": 0,
+      "n_protein": 0,
+      "n_rna": 0,
+      "note": "Protein and activity, no RNA layer. Individual rows not on disk in this session.",
+      "outcome_kind": "drug_specific_clint",
+      "registry_key": "latham_tki_donors",
+      "source_id": "latham_tki_donors",
+      "status": "ABSTAIN_SOURCE_ROWS_NOT_ACQUIRED"
+    },
+    {
+      "fit_allowed": false,
+      "inputs": {
+        "outcome_donors_supplied": false,
+        "protein_donors_supplied": false,
+        "rna_donors_supplied": false,
+        "source_rows_acquired": false
+      },
+      "missing_requirements": [
+        "authenticated_individual_source_rows"
+      ],
+      "n_complete_case": 0,
+      "n_outcome": 0,
+      "n_protein": 0,
+      "n_rna": 0,
+      "note": "Metabolomics and clinical PK; no RNA, no protein. Individual rows not on disk in this session.",
+      "outcome_kind": "clinical_pk",
+      "registry_key": "rotroff_metformin_33",
+      "source_id": "rotroff_metformin_33",
+      "status": "ABSTAIN_SOURCE_ROWS_NOT_ACQUIRED"
+    },
+    {
+      "fit_allowed": false,
+      "inputs": {
+        "outcome_donors_supplied": false,
+        "protein_donors_supplied": false,
+        "rna_donors_supplied": false,
+        "source_rows_acquired": false
+      },
+      "missing_requirements": [
+        "authenticated_individual_source_rows"
+      ],
+      "n_complete_case": 0,
+      "n_outcome": 0,
+      "n_protein": 0,
+      "n_rna": 0,
+      "note": "Protein AND activity were measured in the same 16 donors, which would be half of what the gate needs -- but NO per-donor value is published, so the rows cannot be acquired at all without digitising scatter figures. This is the one source whose refusal is caused by the publication rather than by the biology.",
+      "outcome_kind": "drug_specific_metabolic_activity",
+      "registry_key": "grangeon_2025_cyp_protein",
+      "source_id": "grangeon_2025_cyp_protein",
+      "status": "ABSTAIN_SOURCE_ROWS_NOT_ACQUIRED"
+    }
+  ],
+  "headline": "No registered source permits a same-donor RNA-versus-protein comparison against a drug-specific outcome. EATRIS-Plus is the only source with RNA and protein in the same individuals and it has no pharmacological outcome and is blood rather than liver; HLC has the transcriptome and no protein; Wegler has the protein and no transcriptome. The gate refuses the HLC-plus-Wegler fusion, which is the error it was written to prevent.",
+  "how_to_read": "fit_allowed is the only field that licenses an analysis. A status beginning ABSTAIN_ is a recorded scientific result, not a failure of execution. The gate tests donor structure and outcome presence; it does NOT test tissue compartment, so the compartment field must be read beside every verdict.",
+  "label": "GATE_EXECUTION",
+  "module": "src/omics2pk/hepatic_multiview_readiness.py",
+  "report": "same-donor hepatic multiview readiness, executed against every registered source",
+  "verdict": {
+    "cross_cohort_fusion_refused": true,
+    "fit_allowed": 0,
+    "fit_allowed_sources": [],
+    "sources_assessed": 10
+  },
+  "what_this_is": "The first execution of a gate that has existed with unit tests but had never been run on a registered source. It fits no model and produces no performance number; it records which cohorts can carry a same-donor RNA-plus-protein-plus-outcome comparison."
+}

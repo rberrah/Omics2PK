@@ -1,0 +1,249 @@
+{
+  "audit": "independent_repository_search",
+  "generated": "2026-11-10",
+  "repositories_queried": {
+    "PRIDE": {
+      "api": "https://www.ebi.ac.uk/pride/ws/archive/v3/search/projects",
+      "queries": [
+        "human liver proteome",
+        "liver intestine drug metabolizing",
+        "Oswald",
+        "Drozdzik",
+        "Al-Majdoub",
+        "Wegler",
+        "hepatocyte microsome proteomics"
+      ],
+      "outcome": "one deposition of the cohort this project already holds, and eight depositions of per-donor liver microsome proteomics with no deposited per-donor outcome"
+    },
+    "ProteomeXchange": {
+      "api": "https://proteomecentral.proteomexchange.org/api/proxi/v0.1/datasets",
+      "queries": [
+        "liver cytochrome"
+      ],
+      "outcome": "no dataset beyond what PRIDE returned; the PROXI endpoint indexes the same depositions"
+    },
+    "GEO": {
+      "api": "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi",
+      "queries": [
+        "human liver cytochrome P450 activity",
+        "human liver CYP3A4 activity genotype",
+        "human liver RNA-seq drug metabolism donors",
+        "liver bank pharmacogenomics expression"
+      ],
+      "outcome": "nothing relevant: the hits are cell lines, organoids, iPSC-derived hepatocytes and unrelated disease series"
+    },
+    "BioStudies_ArrayExpress": {
+      "api": "https://www.ebi.ac.uk/biostudies/api/v1/search",
+      "queries": [
+        "liver cytochrome P450 proteomics",
+        "individual liver donors CYP abundance activity",
+        "hepatic intrinsic clearance donor"
+      ],
+      "outcome": "the most productive index of the eight, because its S-EPMC records wrap the supplementary files of PMC articles and expose them over the EBI FTP mirror"
+    },
+    "MetaboLights": {
+      "api": "https://www.ebi.ac.uk/metabolights/ws/studies",
+      "queries": [
+        "pharmacokinetics metabolomics plasma concentration"
+      ],
+      "outcome": "no study pairing metabolomics with a drug concentration in the same individuals beyond MTBLS3128, already held"
+    },
+    "Zenodo": {
+      "api": "https://zenodo.org/api/records",
+      "queries": [
+        "intrinsic clearance human liver donors",
+        "cytochrome P450 abundance activity individual",
+        "pharmacokinetics omics individual concentrations"
+      ],
+      "outcome": "no human liver dataset; the hits are reviews and figures"
+    },
+    "Figshare": {
+      "api": "https://api.figshare.com/v2/articles/search",
+      "queries": [
+        "human liver cytochrome P450 abundance activity individual donors"
+      ],
+      "outcome": "no hit mentioning human liver, an individual donor or an enzyme activity; the index returns unrelated chemistry and ecology records"
+    },
+    "Dryad": {
+      "api": "https://datadryad.org/api/v2/search",
+      "queries": [
+        "cytochrome P450 liver clearance"
+      ],
+      "outcome": "no human liver dataset. Dryad does hold individual-level clinical pharmacokinetic datasets -- a morphine study in neonates was returned -- but none with a molecular layer in the same individuals"
+    }
+  },
+  "n_repositories": 8,
+  "pride_depositions": {
+    "PXD014131": {
+      "title": "Human liver homogenate, liver microsomes, low-speed centrifugation pellet  and hepatocytes LC-MS/MS from 15 matched donors",
+      "submitters": [
+        "Christine Wegler"
+      ],
+      "verdict": "ALREADY_HELD",
+      "note": "this is the Wegler cohort itself. Its raw mass spectrometry is deposited; the per-donor clearances this project needed came from the article supplement, not from PRIDE. Finding it here confirms the cohort and adds nothing analysable."
+    },
+    "PXD020910": {
+      "title": "Quantitative LC-MS/MS Proteomics of human liver microsomes",
+      "submitters": [
+        "Jill Barber"
+      ],
+      "verdict": "LAYER_WITHOUT_OUTCOME",
+      "note": "per-donor proteomics as raw files, with no per-donor activity or clearance deposited anywhere. A layer without an outcome cannot answer a protein-to-function question, however many donors it holds."
+    },
+    "PXD021025": {
+      "title": "Quantitative LC-MS/MS Proteomics of microsomal fractions from adult human livers",
+      "submitters": [
+        "Brahim Achour"
+      ],
+      "verdict": "LAYER_WITHOUT_OUTCOME",
+      "note": "same group, same limitation"
+    },
+    "PXD038776": {
+      "title": "Quantitative LC-MS/MS Proteomics of human liver microsomes (healthy controls and normal-tumour from cancer patients)",
+      "submitters": [
+        "Areti-Maria Vasilogianni"
+      ],
+      "verdict": "LAYER_WITHOUT_OUTCOME",
+      "note": "the proteomics behind Clin Pharmacol Ther 2022 (PMC9540503), whose article publishes aggregates"
+    }
+  },
+  "articles": {
+    "PMC9926076": {
+      "label": "Lee 2023, ibrutinib, CYP3A panel",
+      "title": "Formation of CYP3A-specific metabolites of ibrutinib in vitro is correlated with hepatic CYP3A activity and 4β-hydroxycholesterol/cholesterol ratio.",
+      "journal": "Clinical and translational science",
+      "year": "2023",
+      "licence": "cc by-nc-nd",
+      "is_open_access": "Y",
+      "has_supplement": "Y",
+      "n_donors": 15,
+      "verdict": "DATASET_USABLE",
+      "note": "per-donor hepatic CYP3A4 and CYP3A5 abundance (Table S2), per-donor plasma 4-beta-hydroxycholesterol and cholesterol (MAIN-TEXT Table 1), and per-donor midazolam 1'-hydroxylation and ibrutinib metabolite formation (Table S3). Qualified separately in docs/OMICS2PK_LEE_JACKSON_CYP3A_PANEL_QUALIFICATION_20261110.md."
+    },
+    "PMC11645475": {
+      "label": "Lee 2024, venetoclax: the same in-vitro donors AND twelve new patients",
+      "title": "Interindividual variability in CYP3A-mediated venetoclax metabolism in vitro and in vivo in patients with chronic lymphocytic leukemia.",
+      "journal": "Clinical and translational science",
+      "year": "2024",
+      "licence": "cc by-nc-nd",
+      "is_open_access": "Y",
+      "has_supplement": "Y",
+      "n_donors": 15,
+      "verdict": "DATASET_USABLE",
+      "note": "TWO cohorts in one article, and they must be separated. (1) Its IN VITRO half is the same fifteen hepatocyte donors and the same twenty microsome lots as PMC9926076, with venetoclax as a further substrate -- ONE cohort with two substrates, and counting it as a second cohort is exactly the error the brief forbids. (2) Its IN VIVO half is a DIFFERENT set of people: twelve patients with chronic lymphocytic leukaemia whose per-patient venetoclax dose and plasma concentration are in a main-text table and whose per-patient plasma 4-beta-hydroxycholesterol, cholesterol and ratio are in supplement TABLE S3, reached through the BioStudies channel. That is a clinical pharmacokinetic endpoint paired with a plasma metabolite in the same individuals -- the first such source outside ARIANA. An earlier note in this audit inferred from a truncated download that those values were figure-only; that was wrong and is struck."
+    },
+    "PMC6222000": {
+      "label": "Bhatt 2019, UGT abundance and activity, 171 donors",
+      "title": "Age- and Genotype-Dependent Variability in the Protein Abundance and Activity of Six Major Uridine Diphosphate-Glucuronosyltransferases in Human Liver.",
+      "journal": "Clinical pharmacology and therapeutics",
+      "year": "2019",
+      "licence": null,
+      "is_open_access": "N",
+      "has_supplement": "Y",
+      "n_donors": 171,
+      "verdict": "ABSTAIN_NO_PER_DONOR_VALUES",
+      "note": "the largest paired abundance-and-activity liver cohort in the public literature, and the most instructive negative. Europe PMC refuses its supplement as 'not open access'; NCBI gates the author-manuscript file behind a proof-of-work challenge; the EBI FTP mirror that BioStudies redirects to serves the same 2,547,704-byte PDF without restriction. Opened: Table S2 gives abundance and activity as means and SDs BY AGE CATEGORY, and Table S3 gives a per-donor row whose Activity and Proteomics columns are availability TICKS, not values. So the barrier was never access."
+    },
+    "PMC9310776": {
+      "label": "matched jejunum and liver proteome, 37 donors",
+      "title": "Drug Disposition Protein Quantification in Matched Human Jejunum and Liver From Donors With Obesity.",
+      "journal": "Clinical pharmacology and therapeutics",
+      "year": "2022",
+      "licence": "cc by-nc",
+      "is_open_access": "Y",
+      "has_supplement": "Y",
+      "n_donors": 37,
+      "verdict": "DATASET_USABLE",
+      "note": "supplementary workbook CPT-111-1142-s002.xlsx, 11,163,005 bytes over the EBI FTP mirror against under 1 MB and a corrupt archive from the Europe PMC endpoint, carries per-donor columns: 9,027 proteins x 37 jejunum donors and 6,982 proteins x 37 liver donors, fmol/ug protein. The article's own tables publish medians and ranges only. It has NO pharmacological endpoint, so it can support a cross-compartment redundancy question and nothing about drug metabolism."
+    },
+    "PMC12735975": {
+      "label": "16 CYPs and 2 CES, individual preparations",
+      "title": "Protein Levels of 16 Cytochrome P450s and 2 Carboxyl Esterases Using Absolute Quantitative Proteomics: CYP2C9 and CYP3A4 Are the Most Abundant Isoforms in Human Liver and Intestine, Respectively.",
+      "journal": "Pharmaceuticals (Basel, Switzerland)",
+      "year": "2025",
+      "licence": "cc by",
+      "is_open_access": "Y",
+      "has_supplement": "Y",
+      "n_donors": 20,
+      "verdict": "ABSTAIN_NO_PER_DONOR_VALUES",
+      "note": "measured abundance AND activity in twenty individual hepatocyte donors, sixteen genotyped microsome lots and fifteen intestinal mucosa lots, and publishes per-donor demographics (Table 1) and per-donor GENOTYPE (Table S1) while reporting abundance as means and ranges (Table 2) and the pairing as Spearman coefficients (Table 3). Its twenty-eight published correlations are the transferable input to the question-A sizing and are not a dataset."
+    },
+    "PMC12673578": {
+      "label": "CES1 and clopidogrel oxidation",
+      "title": "Confounding Effect of Hepatic Carboxylesterase 1 (CES1) Variability on Clopidogrel Oxidation.",
+      "journal": "Molecular pharmaceutics",
+      "year": "2025",
+      "licence": "cc by",
+      "is_open_access": "Y",
+      "has_supplement": "Y",
+      "n_donors": null,
+      "verdict": "NOT_HUMAN_OR_NOT_RELEVANT",
+      "note": "recombinant enzymes and POOLED microsomes; no individual donor anywhere"
+    }
+  },
+  "biostudies_file_listings": {
+    "S-EPMC6222000": {
+      "file": "NIHMS965499-supplement-Supp_info.pdf",
+      "size_bytes": 2547704,
+      "served_over": "https://ftp.ebi.ac.uk/pub/databases/biostudies/ -- BioStudies redirects its file endpoint there"
+    },
+    "S-EPMC9310776": {
+      "file": "CPT-111-1142-s002.xlsx",
+      "size_bytes": 11163005,
+      "served_over": "https://ftp.ebi.ac.uk/pub/databases/biostudies/ -- BioStudies redirects its file endpoint there"
+    }
+  },
+  "still_inaccessible_after_this_search": {
+    "29205295": {
+      "label": "Drozdzik 2018, paired liver and intestine, n=9",
+      "pmcid": null,
+      "in_pmc": "N",
+      "is_open_access": "N",
+      "verdict": "ABSTAIN_ACCESS",
+      "channels_tried": [
+        "publisher landing page and supplement endpoint: HTTP 403 to every automated client",
+        "Europe PMC: not indexed as full text, no supplement",
+        "BioStudies: has no S-EPMC record, because it has no PMCID",
+        "EBI FTP mirror: nothing to mirror"
+      ],
+      "what_would_change_it": "a PMCID appearing, or a deposition under either author's name in a repository. This audit re-checks both on every run."
+    },
+    "37739780": {
+      "label": "Wenzel 2024, intra-subject jejunum and liver, n=11",
+      "pmcid": null,
+      "in_pmc": "N",
+      "is_open_access": "N",
+      "verdict": "ABSTAIN_ACCESS",
+      "channels_tried": [
+        "publisher landing page and supplement endpoint: HTTP 403 to every automated client",
+        "Europe PMC: not indexed as full text, no supplement",
+        "BioStudies: has no S-EPMC record, because it has no PMCID",
+        "EBI FTP mirror: nothing to mirror"
+      ],
+      "what_would_change_it": "a PMCID appearing, or a deposition under either author's name in a repository. This audit re-checks both on every run."
+    }
+  },
+  "datasets_now_usable": [
+    "PMC9926076",
+    "PMC11645475",
+    "PMC9310776"
+  ],
+  "n_datasets_now_usable": 3,
+  "corrects_an_earlier_claim": {
+    "claim": "the candidate qualification of 2026-11-10 concluded that step 2 of the commissioning order -- execute the comparisons that are genuinely identifiable -- had 'nothing to run'.",
+    "status": "WITHDRAWN",
+    "why": "that conclusion followed a publisher-first search over seven named citations. A search over the repositories and over the Europe PMC open-access-plus-supplement filter found a cohort with two per-donor layers and a per-donor outcome in the same fifteen donors. The earlier search was too narrow, not the public record too thin."
+  },
+  "the_access_lesson": {
+    "finding": "an HTTP 403 from a publisher, and even Europe PMC's own 'not open access' flag, do not establish that individual-level data is unavailable. The ladder that worked was publisher -> Europe PMC -> NCBI -> BioStudies -> EBI FTP mirror.",
+    "but": "climbing it did not produce a usable dataset from the 171-donor study. Once the file was open, the barrier was the same as in five of the seven earlier candidates: aggregates instead of rows. The access ladder changed a wrong REASON into a right one; it did not change the verdict.",
+    "what_was_not_done": "NCBI's proof-of-work challenge on the author-manuscript download endpoint was not defeated, and the author-manuscript bulk collection requires registration, which the standing constraint on authorisation-free sources excludes."
+  },
+  "the_pattern_now_stands_at": {
+    "sources_that_measured_a_per_donor_pairing": 9,
+    "sources_that_published_the_per_donor_rows": 3,
+    "named": "Wegler 2021, Lee 2023 and Lee 2024. All three published rows by accident of format rather than by policy: Wegler's Table S3 happens to be a per-donor table, Lee 2023's plasma values happen to sit in a main-text table, and Lee 2024's patient biomarkers sit in a supplement that one retrieval channel delivers as images and another delivers whole."
+  },
+  "this_audit_fits_nothing": true,
+  "no_individual_level_data_in_this_artefact": true
+}

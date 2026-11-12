@@ -1,0 +1,315 @@
+{
+  "run": "latham_imatinib_protocol",
+  "generated": "2026-11-12",
+  "protocol": "OMICS2PK_LATHAM_IMATINIB_PREREGISTRATION_20261112.md v1.2.0",
+  "frozen": {
+    "margin": 0.05,
+    "family_size": 4,
+    "ridge_penalty": 1.0,
+    "seed": 20261112,
+    "k_grid": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "validation": "leave-one-donor-out, outer and inner",
+    "loss": "absolute error",
+    "resampling_unit": "the donor, which IS the row here, so the cluster and row bootstraps coincide"
+  },
+  "cohort": {
+    "n": 13,
+    "donors": [
+      "BGY",
+      "BJY",
+      "BVT",
+      "DZS",
+      "EYN",
+      "FXF",
+      "IXN",
+      "QJK",
+      "SAR",
+      "TLK",
+      "UJX",
+      "XKN",
+      "YWT"
+    ],
+    "excluded_by_the_data": [
+      "GKP"
+    ],
+    "completeness_per_block": {
+      "clinical": 14,
+      "activities": 14,
+      "proteomics": 13,
+      "clearance": 14,
+      "metabolite": 14
+    }
+  },
+  "endpoint_is_not_a_pk_parameter": "hepatocyte intrinsic clearance, measured with no absorption, no plasma binding, no hepatic blood flow and no renal excretion. Nothing here is extrapolated to CL, F, V or an AUC in patients.",
+  "h2_status": "NOT_EVALUABLE: three quantified CYP proteins against a floor of five independent candidates, set before this dataset existed",
+  "contrasts": {
+    "primary_clearance": {
+      "contrast": "primary_clearance_proteomics_added",
+      "n": 13,
+      "verdict": "NO_DETECTABLE_GAIN_UNDERPOWERED",
+      "relative_gain": -0.14249247741486212,
+      "minimum_interesting_gain": 0.026231342106845495,
+      "reference_mean_loss": 0.5246268421369099,
+      "richer_mean_loss": 0.599382220591334,
+      "gap": -0.07475537845442407,
+      "interval": [
+        -0.25842050450698256,
+        0.048715710980584935
+      ],
+      "excludes_zero": false,
+      "level": "98.75 %",
+      "family_size": 4,
+      "n_bootstrap": 2000,
+      "n_resampling_units": 13,
+      "resampling_unit": "individual",
+      "hypothesis": "H1-in-vitro",
+      "baseline_blocks": [
+        "clinical",
+        "pgx"
+      ],
+      "k_chosen_per_fold": "3, 2, 1, 2, 2, 0, 2, 2, 0, 0, 2, 0, 2",
+      "k_tally": {
+        "0": 4,
+        "1": 1,
+        "2": 7,
+        "3": 1
+      },
+      "n_folds_that_abstained": 4
+    },
+    "h3_activity_cyp2c8": {
+      "contrast": "h3_activity_cyp2c8_proteomics_added",
+      "n": 13,
+      "verdict": "NO_DETECTABLE_GAIN_UNDERPOWERED",
+      "relative_gain": 0.26081023675288767,
+      "minimum_interesting_gain": 0.03377882759743328,
+      "reference_mean_loss": 0.6755765519486656,
+      "richer_mean_loss": 0.4993792714902345,
+      "gap": 0.176197280458431,
+      "interval": [
+        -0.14055202967842173,
+        0.4684153508094292
+      ],
+      "excludes_zero": false,
+      "level": "98.75 %",
+      "family_size": 4,
+      "n_bootstrap": 2000,
+      "n_resampling_units": 13,
+      "resampling_unit": "individual",
+      "hypothesis": "H3",
+      "baseline_blocks": [
+        "pgx"
+      ],
+      "k_chosen_per_fold": "1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1",
+      "k_tally": {
+        "1": 13
+      },
+      "n_folds_that_abstained": 0
+    },
+    "h3_activity_cyp3a_midazolam": {
+      "contrast": "h3_activity_cyp3a_midazolam_proteomics_added",
+      "n": 13,
+      "verdict": "GAIN_REACHES_MARGIN",
+      "relative_gain": 0.541433424199311,
+      "minimum_interesting_gain": 0.041990458732392016,
+      "reference_mean_loss": 0.8398091746478402,
+      "richer_mean_loss": 0.385108417544263,
+      "gap": 0.4547007571035773,
+      "interval": [
+        0.15259711734488074,
+        0.8016718225974605
+      ],
+      "excludes_zero": true,
+      "level": "98.75 %",
+      "family_size": 4,
+      "n_bootstrap": 2000,
+      "n_resampling_units": 13,
+      "resampling_unit": "individual",
+      "hypothesis": "H3",
+      "baseline_blocks": [
+        "pgx"
+      ],
+      "k_chosen_per_fold": "3, 3, 3, 3, 3, 3, 3, 3, 2, 2, 2, 3, 3",
+      "k_tally": {
+        "2": 3,
+        "3": 10
+      },
+      "n_folds_that_abstained": 0
+    },
+    "secondary_metabolite": {
+      "contrast": "secondary_metabolite_proteomics_added",
+      "n": 13,
+      "verdict": "NO_DETECTABLE_GAIN_UNDERPOWERED",
+      "relative_gain": 0.046973770625813656,
+      "minimum_interesting_gain": 0.02792157162958533,
+      "reference_mean_loss": 0.5584314325917066,
+      "richer_mean_loss": 0.5321998025668992,
+      "gap": 0.026231630024807346,
+      "interval": [
+        -0.15116464201094643,
+        0.17457337504636802
+      ],
+      "excludes_zero": false,
+      "level": "98.75 %",
+      "family_size": 4,
+      "n_bootstrap": 2000,
+      "n_resampling_units": 13,
+      "resampling_unit": "individual",
+      "hypothesis": "secondary",
+      "baseline_blocks": [
+        "clinical",
+        "pgx"
+      ],
+      "k_chosen_per_fold": "1, 3, 3, 3, 3, 2, 3, 3, 2, 3, 3, 3, 3",
+      "k_tally": {
+        "1": 1,
+        "2": 2,
+        "3": 10
+      },
+      "n_folds_that_abstained": 0
+    },
+    "sensitivity_activity_cyp3a_testosterone": {
+      "contrast": "sensitivity_activity_cyp3a_testosterone_proteomics_added",
+      "n": 13,
+      "verdict": "GAIN_REACHES_MARGIN",
+      "relative_gain": 0.5672208448864403,
+      "minimum_interesting_gain": 0.04766266813997891,
+      "reference_mean_loss": 0.9532533627995782,
+      "richer_mean_loss": 0.41254818496156087,
+      "gap": 0.5407051778380172,
+      "interval": [
+        0.060746856981153195,
+        1.0337487556862448
+      ],
+      "excludes_zero": true,
+      "level": "98.75 %",
+      "family_size": 4,
+      "n_bootstrap": 2000,
+      "n_resampling_units": 13,
+      "resampling_unit": "individual",
+      "hypothesis": "sensitivity",
+      "baseline_blocks": [
+        "pgx"
+      ],
+      "k_chosen_per_fold": "1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 2",
+      "k_tally": {
+        "1": 11,
+        "2": 2
+      },
+      "n_folds_that_abstained": 0
+    }
+  },
+  "influence_analysis": {
+    "primary_clearance": {
+      "verdict_with_every_donor": "NO_DETECTABLE_GAIN_UNDERPOWERED",
+      "verdict_per_donor_dropped": {
+        "BGY": "NO_DETECTABLE_GAIN_UNDERPOWERED",
+        "BJY": "NO_DETECTABLE_GAIN_UNDERPOWERED",
+        "BVT": "NO_DETECTABLE_GAIN_UNDERPOWERED",
+        "DZS": "NO_DETECTABLE_GAIN_UNDERPOWERED",
+        "EYN": "NO_DETECTABLE_GAIN_UNDERPOWERED",
+        "FXF": "REFUTED_GAIN_BELOW_MARGIN",
+        "IXN": "NO_DETECTABLE_GAIN_UNDERPOWERED",
+        "QJK": "NO_DETECTABLE_GAIN_UNDERPOWERED",
+        "SAR": "NO_DETECTABLE_GAIN_UNDERPOWERED",
+        "TLK": "REFUTED_GAIN_BELOW_MARGIN",
+        "UJX": "REFUTED_GAIN_BELOW_MARGIN",
+        "XKN": "REFUTED_GAIN_BELOW_MARGIN",
+        "YWT": "REFUTED_GAIN_BELOW_MARGIN"
+      },
+      "n_exclusions_that_change_the_verdict": 5,
+      "reading": "if any exclusion changes the verdict, the contrast is reported INCONCLUSIVE rather than positive with a caveat, as declared in the protocol"
+    },
+    "h3_activity_cyp2c8": {
+      "verdict_with_every_donor": "NO_DETECTABLE_GAIN_UNDERPOWERED",
+      "verdict_per_donor_dropped": {
+        "BGY": "NO_DETECTABLE_GAIN_UNDERPOWERED",
+        "BJY": "NO_DETECTABLE_GAIN_UNDERPOWERED",
+        "BVT": "NO_DETECTABLE_GAIN_UNDERPOWERED",
+        "DZS": "NO_DETECTABLE_GAIN_UNDERPOWERED",
+        "EYN": "NO_DETECTABLE_GAIN_UNDERPOWERED",
+        "FXF": "NO_DETECTABLE_GAIN_UNDERPOWERED",
+        "IXN": "NO_DETECTABLE_GAIN_UNDERPOWERED",
+        "QJK": "NO_DETECTABLE_GAIN_UNDERPOWERED",
+        "SAR": "NO_DETECTABLE_GAIN_UNDERPOWERED",
+        "TLK": "NO_DETECTABLE_GAIN_UNDERPOWERED",
+        "UJX": "NO_DETECTABLE_GAIN_UNDERPOWERED",
+        "XKN": "NO_DETECTABLE_GAIN_UNDERPOWERED",
+        "YWT": "NO_DETECTABLE_GAIN_UNDERPOWERED"
+      },
+      "n_exclusions_that_change_the_verdict": 0,
+      "reading": "if any exclusion changes the verdict, the contrast is reported INCONCLUSIVE rather than positive with a caveat, as declared in the protocol"
+    },
+    "h3_activity_cyp3a_midazolam": {
+      "verdict_with_every_donor": "GAIN_REACHES_MARGIN",
+      "verdict_per_donor_dropped": {
+        "BGY": "NO_DETECTABLE_GAIN_UNDERPOWERED",
+        "BJY": "GAIN_REACHES_MARGIN",
+        "BVT": "GAIN_REACHES_MARGIN",
+        "DZS": "GAIN_REACHES_MARGIN",
+        "EYN": "GAIN_REACHES_MARGIN",
+        "FXF": "GAIN_REACHES_MARGIN",
+        "IXN": "GAIN_REACHES_MARGIN",
+        "QJK": "GAIN_REACHES_MARGIN",
+        "SAR": "GAIN_REACHES_MARGIN",
+        "TLK": "GAIN_REACHES_MARGIN",
+        "UJX": "GAIN_REACHES_MARGIN",
+        "XKN": "GAIN_REACHES_MARGIN",
+        "YWT": "GAIN_REACHES_MARGIN"
+      },
+      "n_exclusions_that_change_the_verdict": 1,
+      "reading": "if any exclusion changes the verdict, the contrast is reported INCONCLUSIVE rather than positive with a caveat, as declared in the protocol"
+    },
+    "secondary_metabolite": {
+      "verdict_with_every_donor": "NO_DETECTABLE_GAIN_UNDERPOWERED",
+      "verdict_per_donor_dropped": {
+        "BGY": "NO_DETECTABLE_GAIN_UNDERPOWERED",
+        "BJY": "NO_DETECTABLE_GAIN_UNDERPOWERED",
+        "BVT": "NO_DETECTABLE_GAIN_UNDERPOWERED",
+        "DZS": "NO_DETECTABLE_GAIN_UNDERPOWERED",
+        "EYN": "NO_DETECTABLE_GAIN_UNDERPOWERED",
+        "FXF": "NO_DETECTABLE_GAIN_UNDERPOWERED",
+        "IXN": "NO_DETECTABLE_GAIN_UNDERPOWERED",
+        "QJK": "GAIN_PRESENT_MARGIN_UNDECIDED",
+        "SAR": "NO_DETECTABLE_GAIN_UNDERPOWERED",
+        "TLK": "NO_DETECTABLE_GAIN_UNDERPOWERED",
+        "UJX": "NO_DETECTABLE_GAIN_UNDERPOWERED",
+        "XKN": "NO_DETECTABLE_GAIN_UNDERPOWERED",
+        "YWT": "NO_DETECTABLE_GAIN_UNDERPOWERED"
+      },
+      "n_exclusions_that_change_the_verdict": 1,
+      "reading": "if any exclusion changes the verdict, the contrast is reported INCONCLUSIVE rather than positive with a caveat, as declared in the protocol"
+    },
+    "sensitivity_activity_cyp3a_testosterone": {
+      "verdict_with_every_donor": "GAIN_REACHES_MARGIN",
+      "verdict_per_donor_dropped": {
+        "BGY": "GAIN_REACHES_MARGIN",
+        "BJY": "GAIN_REACHES_MARGIN",
+        "BVT": "GAIN_PRESENT_MARGIN_UNDECIDED",
+        "DZS": "GAIN_REACHES_MARGIN",
+        "EYN": "GAIN_PRESENT_MARGIN_UNDECIDED",
+        "FXF": "GAIN_PRESENT_MARGIN_UNDECIDED",
+        "IXN": "GAIN_REACHES_MARGIN",
+        "QJK": "GAIN_REACHES_MARGIN",
+        "SAR": "GAIN_PRESENT_MARGIN_UNDECIDED",
+        "TLK": "GAIN_REACHES_MARGIN",
+        "UJX": "GAIN_REACHES_MARGIN",
+        "XKN": "NO_DETECTABLE_GAIN_UNDERPOWERED",
+        "YWT": "GAIN_REACHES_MARGIN"
+      },
+      "n_exclusions_that_change_the_verdict": 5,
+      "reading": "if any exclusion changes the verdict, the contrast is reported INCONCLUSIVE rather than positive with a caveat, as declared in the protocol"
+    }
+  },
+  "what_this_is_not": {
+    "a_dash_is_not_a_zero": "U+2212 MINUS SIGN marks three absent concentrations in this table. A completeness check built on a hand-written token list read them as present and produced the claim that the article contradicted itself. Missingness is decided by Unicode category here, and an unrecognised token raises.",
+    "n_is_per_block_not_per_table": "activity comes from 14 donors and protein quantitation from 13. Reporting one n for the dataset would hide which contrast rests on which donors.",
+    "an_in_vitro_clearance_is_not_a_clearance": "the endpoint is hepatocyte intrinsic clearance, measured with no absorption, no plasma binding, no hepatic blood flow and no renal excretion.",
+    "a_singleton_category_is_not_an_effect": "one *1/*15 carrier and one normal CYP3A5 expressor. In the fold that holds either out, the column is constant in training. The encoding tolerates that by design; it does not make the category estimable."
+  },
+  "no_individual_level_data_in_this_artefact": true
+}

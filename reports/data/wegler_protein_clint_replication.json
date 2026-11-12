@@ -1,0 +1,240 @@
+{
+  "endpoint_difference": "Grangeon and the HLC compare protein or transcript against a probe ACTIVITY; this cohort compares protein against an intrinsic CLEARANCE measured by substrate depletion. Those are related but not the same quantity, and the comparison is descriptive.",
+  "how_to_read": "n = 15 gives wide intervals, so this cohort rarely EXCLUDES a value. A published value falling outside the interval is therefore a strong statement; a transcript value falling inside it means this cohort cannot tell protein from transcript as an explanation of function for that enzyme.",
+  "interval": "2000-draw donor bootstrap, seed 20261110",
+  "label": "INDEPENDENT_REPLICATION_ATTEMPT",
+  "no_person_identifiers_values_or_predictions_exported": true,
+  "per_pair": {
+    "Bufuralol": {
+      "comparison_in_microsomes": {
+        "grangeon_inside_this_cohorts_interval": true,
+        "grangeon_published_hlm_r": 0.8291,
+        "hlc_transcript_inside_this_cohorts_interval": true,
+        "hlc_transcript_interval_in_its_own_cohort": [
+          0.4670462430168664,
+          0.6209893225659553
+        ],
+        "hlc_transcript_n_donors": 397,
+        "hlc_transcript_rho": 0.5480317858580546,
+        "intervals_overlap_with_the_transcript": true,
+        "why_microsomes": "Grangeon's figure is microsomal, so the microsomal system is the like-for-like comparison. The hepatocyte system is reported beside it and is a different preparation."
+      },
+      "cyp": "CYP2D6",
+      "hlc_endpoint": "CYP2D6_activity",
+      "systems": {
+        "HH": {
+          "bootstrap_95_interval": [
+            -0.1919,
+            0.8189
+          ],
+          "n_donors": 15,
+          "n_not_determined": 0,
+          "spearman_rho": 0.3728
+        },
+        "HLM": {
+          "bootstrap_95_interval": [
+            -0.2773,
+            0.9045
+          ],
+          "n_donors": 13,
+          "n_not_determined": 2,
+          "spearman_rho": 0.4121
+        }
+      }
+    },
+    "Bupropion": {
+      "comparison_in_microsomes": {
+        "grangeon_inside_this_cohorts_interval": false,
+        "grangeon_published_hlm_r": 0.9794,
+        "hlc_transcript_inside_this_cohorts_interval": true,
+        "hlc_transcript_interval_in_its_own_cohort": [
+          0.45994124499352257,
+          0.6114372860602663
+        ],
+        "hlc_transcript_n_donors": 398,
+        "hlc_transcript_rho": 0.5394941829680698,
+        "intervals_overlap_with_the_transcript": true,
+        "why_microsomes": "Grangeon's figure is microsomal, so the microsomal system is the like-for-like comparison. The hepatocyte system is reported beside it and is a different preparation."
+      },
+      "cyp": "CYP2B6",
+      "hlc_endpoint": "CYP2B6_activity",
+      "systems": {
+        "HH": {
+          "bootstrap_95_interval": [
+            -0.2997,
+            0.775
+          ],
+          "n_donors": 15,
+          "n_not_determined": 0,
+          "spearman_rho": 0.3345
+        },
+        "HLM": {
+          "bootstrap_95_interval": [
+            -0.44,
+            0.6314
+          ],
+          "n_donors": 15,
+          "n_not_determined": 0,
+          "spearman_rho": 0.1464
+        }
+      }
+    },
+    "Diclofenac": {
+      "comparison_in_microsomes": {
+        "grangeon_inside_this_cohorts_interval": true,
+        "grangeon_published_hlm_r": 0.65,
+        "hlc_transcript_inside_this_cohorts_interval": true,
+        "hlc_transcript_interval_in_its_own_cohort": [
+          0.3384231000543401,
+          0.5127398864134176
+        ],
+        "hlc_transcript_n_donors": 398,
+        "hlc_transcript_rho": 0.4309981626742068,
+        "intervals_overlap_with_the_transcript": true,
+        "why_microsomes": "Grangeon's figure is microsomal, so the microsomal system is the like-for-like comparison. The hepatocyte system is reported beside it and is a different preparation."
+      },
+      "cyp": "CYP2C9",
+      "hlc_endpoint": "CYP2C9_activity",
+      "systems": {
+        "HH": {
+          "bootstrap_95_interval": [
+            0.439,
+            0.9307
+          ],
+          "n_donors": 15,
+          "n_not_determined": 0,
+          "spearman_rho": 0.7679
+        },
+        "HLM": {
+          "bootstrap_95_interval": [
+            -0.4891,
+            0.6963
+          ],
+          "n_donors": 15,
+          "n_not_determined": 0,
+          "spearman_rho": 0.1107
+        }
+      }
+    },
+    "Midazolam": {
+      "comparison_in_microsomes": {
+        "grangeon_inside_this_cohorts_interval": true,
+        "grangeon_published_hlm_r": 0.8168,
+        "hlc_transcript_inside_this_cohorts_interval": true,
+        "hlc_transcript_interval_in_its_own_cohort": [
+          0.5139111036388687,
+          0.6524408238809967
+        ],
+        "hlc_transcript_n_donors": 397,
+        "hlc_transcript_rho": 0.586410819381251,
+        "intervals_overlap_with_the_transcript": true,
+        "why_microsomes": "Grangeon's figure is microsomal, so the microsomal system is the like-for-like comparison. The hepatocyte system is reported beside it and is a different preparation."
+      },
+      "cyp": "CYP3A4",
+      "hlc_endpoint": "CYP3A4M_activity",
+      "systems": {
+        "HH": {
+          "bootstrap_95_interval": [
+            0.6196,
+            0.9963
+          ],
+          "n_donors": 15,
+          "n_not_determined": 0,
+          "spearman_rho": 0.8893
+        },
+        "HLM": {
+          "bootstrap_95_interval": [
+            0.3297,
+            0.9526
+          ],
+          "n_donors": 15,
+          "n_not_determined": 0,
+          "spearman_rho": 0.7643
+        }
+      }
+    },
+    "Omeprazole": {
+      "comparison_in_microsomes": {
+        "grangeon_inside_this_cohorts_interval": false,
+        "grangeon_published_hlm_r": 0.95,
+        "hlc_transcript_inside_this_cohorts_interval": true,
+        "hlc_transcript_interval_in_its_own_cohort": [
+          0.35509251740955317,
+          0.5180503998910241
+        ],
+        "hlc_transcript_n_donors": 398,
+        "hlc_transcript_rho": 0.43895761328331934,
+        "intervals_overlap_with_the_transcript": true,
+        "why_microsomes": "Grangeon's figure is microsomal, so the microsomal system is the like-for-like comparison. The hepatocyte system is reported beside it and is a different preparation."
+      },
+      "cyp": "CYP2C19",
+      "hlc_endpoint": "CYP2C19_activity",
+      "systems": {
+        "HH": {
+          "bootstrap_95_interval": [
+            0.6569,
+            0.989
+          ],
+          "n_donors": 15,
+          "n_not_determined": 0,
+          "spearman_rho": 0.8964
+        },
+        "HLM": {
+          "bootstrap_95_interval": [
+            -0.1444,
+            0.83
+          ],
+          "n_donors": 15,
+          "n_not_determined": 0,
+          "spearman_rho": 0.4714
+        }
+      }
+    }
+  },
+  "question": "Does an independent cohort with recomputable per-donor data reproduce the published protein-explains-activity figure?",
+  "statistic": "Spearman rho, average ranks for ties, no model",
+  "summary": {
+    "grangeon_published_microsomal_median": 0.9441,
+    "hepatocyte_max": 0.8964,
+    "hepatocyte_median_spearman": 0.7679,
+    "hepatocyte_min": 0.3345,
+    "hlc_transcript_median": 0.5084861427264367,
+    "microsomal_max": 0.7643,
+    "microsomal_median_spearman": 0.4121,
+    "microsomal_min": 0.1107,
+    "n_pairs": 5,
+    "pairs_where_grangeon_falls_inside_this_cohorts_interval": [
+      "Midazolam",
+      "Diclofenac",
+      "Bufuralol"
+    ],
+    "pairs_where_grangeon_falls_outside": [
+      "Omeprazole",
+      "Bupropion"
+    ],
+    "pairs_where_the_hlc_transcript_falls_inside_this_cohorts_interval": [
+      "Midazolam",
+      "Omeprazole",
+      "Diclofenac",
+      "Bupropion",
+      "Bufuralol"
+    ]
+  },
+  "this_cohort": "Wegler et al., Mol Pharm 2021, 18(4):1792-1805, Table S3: 15 donors, five probe substrates, CYP concentration and intrinsic clearance in the same donors, in microsomes and hepatocytes.",
+  "verification_of_this_cohorts_transcription": {
+    "anchors_agreeing": 20,
+    "anchors_total": 20,
+    "median_check": {
+      "agrees": true,
+      "n_donors": 15,
+      "published_in_results": 375.0,
+      "recomputed": 374.7
+    }
+  },
+  "what_this_is_not": [
+    "Not a model, not a prediction, not a validation.",
+    "Not a like-for-like replication: the endpoints differ (activity against intrinsic clearance), the probes differ for some enzymes, and the preparations differ.",
+    "Not a statement about clinical pharmacokinetics.",
+    "Not a correction of Grangeon's arithmetic: Grangeon publishes no per-donor value, so its correlations cannot be recomputed at all."
+  ]
+}
