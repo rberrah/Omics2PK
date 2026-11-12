@@ -63,6 +63,7 @@ jobs:
           tests/test_cluster_resampling.py
           tests/test_supervised_screening_selection.py
           tests/test_input_catalogue.py
+          tests/test_latham_imatinib_cohort.py
       - name: Fail if a pytest module was collected but ran nothing
         run: |
           set -euo pipefail
@@ -107,9 +108,10 @@ jobs:
             tests/test_cluster_resampling.py \
             tests/test_supervised_screening_selection.py \
             tests/test_input_catalogue.py \
+            tests/test_latham_imatinib_cohort.py \
             | grep -c '::' || true)
           echo "collected $count pytest tests"
-          if [ "$count" -lt 1900 ]; then
-            echo "ERROR: expected at least 1900 collected tests, got $count." >&2
+          if [ "$count" -lt 1940 ]; then
+            echo "ERROR: expected at least 1940 collected tests, got $count." >&2
             exit 1
           fi

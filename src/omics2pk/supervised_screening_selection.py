@@ -414,7 +414,8 @@ def draw_from_neighbours(lists, *, rng, neighbourhood=None):
 
 
 def pool_arm_loss(target, design, groups, *, baseline_columns, pool_for_fold,
-                  k_grid=None, seed=None, n_outer=None, n_inner=None):
+                  k_grid=None, seed=None, n_outer=None, n_inner=None,
+                  min_scored=20, min_train=10):
     """Out-of-fold loss of "a pool delimits, Spearman orders, inner folds pick k".
 
     `pool_for_fold(train_rows, fold_index)` returns the candidate pool for that
@@ -422,6 +423,16 @@ def pool_arm_loss(target, design, groups, *, baseline_columns, pool_for_fold,
     or drawn (a matched replicate). When it is drawn, it is drawn from the
     rows handed to it, which are the **training** rows -- that is what makes
     this arm inductive rather than transductive.
+
+    **`min_scored` and `min_train` are the two size floors, and they are
+    parameters rather than constants so that a very small cohort has to be
+    asked for explicitly.** The defaults of 20 and 10 were calibrated for the
+    HLC and MaveDB scales and they silently made a 13-donor cohort unrunnable:
+    leave-one-donor-out leaves 12 training rows, an inner split of those
+    leaves about 9, and the inner loop skipped every fold. Lowering them
+    globally would remove the guard for every other caller, so a caller that
+    accepts a tiny cohort passes the numbers itself and they appear in its
+    artefact.
 
     Written as its own routine rather than as a `screen()` call because a
     thousand replicates through the general harness is not computable.
@@ -456,7 +467,7 @@ def pool_arm_loss(target, design, groups, *, baseline_columns, pool_for_fold,
     for fold in np.unique(outer):
         held = np.flatnonzero(outer == fold)
         keep = np.flatnonzero(outer != fold)
-        if keep.size < 10 or held.size == 0:
+        if keep.size < min_train or held.size == 0:
             continue
         pool = np.asarray(pool_for_fold(keep, int(fold)), dtype=int)
         grid = tuple(k for k in k_grid if k <= pool.size) or (0,)
@@ -469,7 +480,7 @@ def pool_arm_loss(target, design, groups, *, baseline_columns, pool_for_fold,
             for inner_fold in np.unique(inner):
                 inner_held = keep[inner == inner_fold]
                 inner_keep = keep[inner != inner_fold]
-                if inner_keep.size < 10 or inner_held.size == 0:
+                if inner_keep.size < min_train or inner_held.size == 0:
                     continue
                 columns = np.asarray(sorted(
                     set(int(c) for c in ordered(pool, inner_keep)[:k])
@@ -493,13 +504,17 @@ def pool_arm_loss(target, design, groups, *, baseline_columns, pool_for_fold,
         # panel and says nothing.
         selected.append([int(c) for c in columns if int(c) not in set(baseline)])
     complete = np.isfinite(scored)
-    _check(complete.sum() >= 20,
-           f"only {int(complete.sum())} rows were scored by the pool arm")
+    _check(complete.sum() >= min_scored,
+           f"only {int(complete.sum())} rows were scored by the pool arm, "
+           f"below the declared floor of {min_scored}. Pass min_scored and "
+           "min_train explicitly if a cohort this small is intended")
     losses = np.abs(scored[complete] - target[complete])
     return {"mean_loss": float(losses.mean()), "losses": losses,
             "scored_rows": complete, "k_chosen_per_fold": budgets,
             "selected_per_fold": selected,
-            "n_folds_that_abstained": int(sum(1 for k in budgets if k == 0))}
+            "n_folds_that_abstained": int(sum(1 for k in budgets if k == 0)),
+            "min_scored": int(min_scored), "min_train": int(min_train),
+            "size_floors_were_relaxed": bool(min_scored < 20 or min_train < 10)}
 
 
 def variance_profile(design, pool, *, prefilter_n, matched_pools=(),
