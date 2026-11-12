@@ -262,3 +262,110 @@ class TestTheMatrixIsHonestAboutWhatIsMissing:
                 ).read_text(encoding="utf-8")
         assert "qu'un seul véhicule public et il est déjà consommé" in text
         assert "aucun endpoint de transporteur" in text
+
+
+class TestAxisCoverage:
+    """The four gaps the programme is short of data on, counted not asserted.
+
+    "We have no transporter data" is a claim that must be re-derivable from
+    the matrix at any time, so coverage is computed. The first version counted
+    hypothesis-by-dataset ROWS and multiplied every dataset by five, which
+    reported coverage that does not exist.
+    """
+
+    def test_the_axes_name_the_pk_parameters_they_inform(self, cat):
+        for axis, spec in cat.AXES.items():
+            assert spec["informs"], axis
+            for parameter in spec["informs"]:
+                assert parameter in cat.PK_PARAMETERS, (axis, parameter)
+
+    def test_only_one_axis_informs_metabolic_clearance(self, cat):
+        informing = [a for a, s in cat.AXES.items()
+                     if s["informs"] == ("CL_metabolic",)]
+        assert informing == ["metabolic_clearance"]
+
+    def test_absorption_informs_f_and_ka_and_not_clearance(self, cat):
+        assert set(cat.AXES["absorption"]["informs"]) == {"F", "ka"}
+
+    def test_every_mechanism_class_maps_to_an_axis_or_to_none(self, cat):
+        for mechanism in cat.MECHANISTIC_KNOWLEDGE:
+            axis = cat.axis_of(mechanism)
+            assert axis is None or axis in cat.AXES, mechanism
+
+    def test_a_pharmacological_target_belongs_to_no_axis(self, cat):
+        assert cat.axis_of("targets") is None
+
+    def test_coverage_counts_datasets_not_rows(self, cat):
+        rows = [
+            {"dataset": "a", "axes": ("transport",), "endpoint_kind":
+             "functional", "status": "NOT_EVALUABLE", "hypothesis": "H1"},
+            {"dataset": "a", "axes": ("transport",), "endpoint_kind":
+             "functional", "status": "NOT_EVALUABLE", "hypothesis": "H2"},
+            {"dataset": "b", "axes": ("transport",), "endpoint_kind": "pk",
+             "status": "READY", "hypothesis": "H1"},
+        ]
+        out = cat.axis_coverage(rows)
+        assert out["transport"]["n_datasets"] == 2
+        assert out["transport"]["n_with_a_pk_endpoint"] == 1
+        assert out["transport"]["n_ready_for_any_hypothesis"] == 1
+
+    def test_the_transport_axis_has_no_pk_endpoint_in_the_matrix(self,
+                                                                 matrix):
+        for axis in ("transport", "binding_distribution", "absorption",
+                     "temporal"):
+            block = matrix["axis_coverage"][axis]
+            assert block["n_with_a_pk_endpoint"] == 0, axis
+            assert block["n_ready_for_any_hypothesis"] == 0, axis
+
+    def test_the_absorption_axis_is_no_longer_empty(self, matrix):
+        """The search did fill the measurement side of two gaps."""
+        assert matrix["axis_coverage"]["absorption"]["n_datasets"] >= 2
+        assert matrix["axis_coverage"]["transport"]["n_datasets"] >= 2
+
+    def test_a_transporter_abundance_does_not_claim_to_inform_f(self, cat):
+        assert "does not inform F or ka by itself" in \
+            cat.AXES["transport"]["note"]
+
+    def test_the_negative_searches_are_recorded_with_their_reason(self,
+                                                                   matrix):
+        searches = matrix["searches_2026_11_12"]
+        assert len(searches) >= 10
+        structural = [s for s in searches
+                      if "STRUCTURAL NEGATIVE" in s["verdict"]]
+        assert structural, "the PBPK-consumer finding must be recorded"
+        tacrolimus = [s for s in searches if s["query"] == "tacrolimus"]
+        assert tacrolimus and tacrolimus[0]["on_target"] == 0
+
+    def test_the_longitudinal_design_exists_without_its_endpoint(self,
+                                                                 matrix):
+        candidate = matrix["new_candidates"][
+            "pride_pxd011498_jejunum_before_after_gastrectomy"]
+        assert candidate["longitudinal"] is True
+        assert "no PK on either occasion" in candidate["what_is_missing"]
+
+    def test_the_document_records_the_two_structural_negatives(self):
+        """A negative nobody wrote down gets re-searched by the next run."""
+        text = (ROOT / "docs"
+                / "OMICS2PK_CATALOGUE_ET_ENDPOINTS_VERIFIABLES_20261112.md"
+                ).read_text(encoding="utf-8")
+        assert "saturé par les consommateurs" in text
+        assert "Aucune omique de tacrolimus dans PRIDE" in text
+
+    def test_the_document_states_the_programme_question_it_raises(self):
+        """H1 and H4 lack a DESIGN, which is not an absence of effect."""
+        text = (ROOT / "docs"
+                / "OMICS2PK_CATALOGUE_ET_ENDPOINTS_VERIFIABLES_20261112.md"
+                ).read_text(encoding="utf-8")
+        assert "H1 et H4 sont inatteignables" in text
+        assert "l'absence du **dessin expérimental**" in text
+
+    def test_the_intestinal_source_is_a_reference_layer_not_a_cohort(self,
+                                                                     matrix):
+        """An abundance predicting another abundance is axis A, not H3."""
+        candidate = matrix["new_candidates"][
+            "pride_pxd020987_human_small_intestine"]
+        assert "REFERENCE layer" in candidate["what_is_missing"]
+        assert "no independent "               "functional endpoint" in candidate["what_is_missing"]
+        rows = [r for r in matrix["matrix"]
+                if r["dataset"] == "pride_pxd020987_human_small_intestine"]
+        assert rows and all(r["status"] == "NOT_EVALUABLE" for r in rows)

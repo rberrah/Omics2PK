@@ -275,6 +275,92 @@ CANDIDATES = {
     },
 }
 
+#: Found in the autonomous search of 2026-11-12, across the four named gaps.
+#: Nothing is downloaded. Every `axes` tag is from the deposit's own
+#: description, and every endpoint is the strongest one the deposit carries.
+CANDIDATES_2026_11_12 = {
+    "pride_pxd020987_human_small_intestine": {
+        "label": ("PRIDE PXD020987 - quantitative proteomics of human small "
+                  "intestine: 29 enzymes and 32 transporters in ileum and "
+                  "jejunum mucosa from 16 surgical patients"),
+        "repository": "PRIDE", "accession": "PXD020987", "licence": "CC0",
+        "drug": "not applicable",
+        "endpoint": "protein_abundance",
+        "pairing": "same_individuals",
+        "longitudinal": False,
+        "layers": ("proteomics",),
+        "comparator_available": {"H1": False, "H2": False, "H3": False,
+                                 "H4": False, "H5": False},
+        "n_candidate_omics": 61,
+        "axes": ("absorption", "transport"),
+        "access": "open_public",
+        "n_units": 16,
+        "provenance": ("PRIDE project description, retrieved 2026-11-12: "
+                       "ileum and jejunum biopsies from 16 patients, mucosal "
+                       "fractions, 29 enzymes, 32 transporters, 6 tight "
+                       "junction proteins, alkaline phosphatase and markers "
+                       "quantified, 60 for the first time"),
+        "why_it_matters": ("the first inventoried source on the absorption "
+                           "and transport axes at all, and the only one "
+                           "carrying TWO intestinal regions per patient, "
+                           "which is the compartment question the brief asks"),
+        "what_is_missing": ("no PK, no clearance, no PGx and no independent "
+                            "functional endpoint. An abundance predicting "
+                            "another abundance is axis A, not H3. This is a "
+                            "REFERENCE layer for what intestinal abundance "
+                            "looks like, not a hypothesis-testing cohort"),
+    },
+    "pride_pxd011498_jejunum_before_after_gastrectomy": {
+        "label": ("PRIDE PXD011498 - peptidomics of human jejunum biopsies "
+                  "before and after gastrectomy"),
+        "repository": "PRIDE", "accession": "PXD011498", "licence": None,
+        "drug": "not applicable",
+        "endpoint": "protein_abundance",
+        "pairing": "same_individuals_repeated",
+        "longitudinal": True,
+        "layers": ("proteomics",),
+        "comparator_available": {"H1": False, "H2": False, "H3": False,
+                                 "H4": False, "H5": False},
+        "n_candidate_omics": None,
+        "axes": ("absorption", "temporal"),
+        "access": "open_public",
+        "n_units": None,
+        "provenance": "PRIDE search, retrieved 2026-11-12",
+        "why_it_matters": ("the only inventoried source with a genuine "
+                           "WITHIN-SUBJECT repeated design on an axis the "
+                           "programme needs. H4 has had no dataset with that "
+                           "shape at all"),
+        "what_is_missing": ("peptidomics rather than transporter "
+                            "quantification, and no PK on either occasion, "
+                            "so the design is right and the measurements are "
+                            "the wrong ones"),
+    },
+    "epmc_pmc13683814_placental_transporters": {
+        "label": ("Europe PMC PMC13683814 - proteomic profiling of xenobiotic "
+                  "and nutrient transporters in human placenta"),
+        "repository": "EuropePMC", "accession": "PMC13683814",
+        "licence": "open access",
+        "drug": "not applicable",
+        "endpoint": "protein_abundance",
+        "pairing": "unknown",
+        "longitudinal": False,
+        "layers": ("proteomics",),
+        "comparator_available": {"H1": False, "H2": False, "H3": False,
+                                 "H4": False, "H5": False},
+        "n_candidate_omics": None,
+        "axes": ("transport", "binding_distribution"),
+        "access": "open_public",
+        "n_units": None,
+        "provenance": "Europe PMC search, retrieved 2026-11-12",
+        "why_it_matters": ("placental transport is a distribution barrier, so "
+                           "it touches V in a compartment nothing else in the "
+                           "inventory reaches"),
+        "what_is_missing": ("pairing not asserted, no PK, and a placental "
+                            "barrier informs fetal exposure rather than the "
+                            "maternal parameters the programme predicts"),
+    },
+}
+
 #: Searches run today, with what they returned. Negative results included.
 SEARCHES = [
     {"repository": "GEO", "query": "drug clearance AND expression profiling",
@@ -304,6 +390,68 @@ SEARCHES = [
      "query": "study title contains 'pharmacokinetic'", "hits": 1,
      "on_target": 0,
      "verdict": "ST003436, fasnall in NSG mice. Not human"},
+]
+
+#: The autonomous search of 2026-11-12, aimed at the four named gaps.
+#: The negatives are the substance here: two channels are structurally unable
+#: to reach what the programme needs, and that is worth knowing once.
+SEARCHES_2026_11_12 = [
+    {"repository": "PRIDE", "query": "transporter", "hits": 60,
+     "on_target": 2,
+     "verdict": ("both are in-vitro models -- an MDR1 efflux study in cancer "
+                 "cells and a MASH cell model -- and neither has a PK or a "
+                 "transport-function endpoint")},
+    {"repository": "PRIDE", "query": "jejunum", "hits": 37, "on_target": 5,
+     "verdict": ("PXD020987 is the find: 16 patients, ileum AND jejunum, 29 "
+                 "enzymes and 32 transporters. PXD011498 adds a within-"
+                 "subject before/after design")},
+    {"repository": "PRIDE", "query": "intestinal", "hits": 42,
+     "on_target": 5, "verdict": "overlaps the jejunum set"},
+    {"repository": "PRIDE", "query": "albumin", "hits": 60, "on_target": 4,
+     "verdict": ("albumin appears as an abundant contaminant or a disease "
+                 "marker, never as a binding measurement paired with a free "
+                 "fraction")},
+    {"repository": "PRIDE", "query": "unbound", "hits": 60, "on_target": 1,
+     "verdict": "no deposit measures a fraction unbound"},
+    {"repository": "PRIDE", "query": "tacrolimus", "hits": 7, "on_target": 0,
+     "verdict": ("no tacrolimus omics in PRIDE at all, which closes the most "
+                 "obvious route to a longitudinal TDM cohort")},
+    {"repository": "PRIDE", "query": "longitudinal", "hits": 60,
+     "on_target": 10,
+     "verdict": ("plasma proteomic time courses exist -- critical illness, "
+                 "radiotherapy, sarcopenia -- and none carries a drug "
+                 "concentration, so the H4 design exists without the H4 "
+                 "endpoint")},
+    {"repository": "PRIDE", "query": "ABCB1", "hits": 11, "on_target": 1,
+     "verdict": "no human ABCB1 quantification paired with an endpoint"},
+    {"repository": "EuropePMC",
+     "query": ("\"fraction unbound\" AND pharmacokinetic* AND OPEN_ACCESS:Y "
+               "AND HAS_SUPPL:Y"),
+     "hits": 2628, "on_target": 0,
+     "verdict": ("STRUCTURAL NEGATIVE: the hits are dominated by PBPK and "
+                 "IVIVE modelling papers, which CONSUME a fraction unbound as "
+                 "a model input rather than measure it beside omics in the "
+                 "same subjects. The keyword surface finds the consumers, not "
+                 "the producers")},
+    {"repository": "EuropePMC",
+     "query": ("transporter AND (abundance OR proteomic*) AND "
+               "pharmacokinetic* AND OPEN_ACCESS:Y AND HAS_SUPPL:Y"),
+     "hits": 3150, "on_target": 2,
+     "verdict": ("same pattern. The two on-axis hits are placental and "
+                 "skeletal-muscle transporter atlases, neither paired with "
+                 "a PK parameter")},
+    {"repository": "EuropePMC",
+     "query": "tacrolimus AND (transcriptom* OR proteom* OR metabolom*) AND trough",
+     "hits": 508, "on_target": 0,
+     "verdict": ("reviews, association studies and a BXD mouse systems-"
+                 "genetics paper. No deposited human cohort with repeated "
+                 "omics beside repeated troughs")},
+    {"repository": "GEO", "query": "jejunum AND Homo sapiens", "hits": 2146,
+     "on_target": None,
+     "verdict": ("the tissue surface is large and unusable for this purpose, "
+                 "which confirms the earlier finding: GEO indexes the ASSAY, "
+                 "so a per-subject drug concentration never appears in its "
+                 "metadata whatever the query")},
 ]
 
 
@@ -338,16 +486,20 @@ def main(argv=None):
                 "access": access, "n_units": n_units,
                 "status": status, "reasons": reasons,
                 "note": declared["note"],
+                "axes": list(declared.get("axes")
+                             or ("metabolic_clearance",)),
             })
 
-    for key, candidate in CANDIDATES.items():
+    for key, candidate in {**CANDIDATES, **CANDIDATES_2026_11_12}.items():
         for hypothesis in CAT.HYPOTHESES:
             status, reasons = CAT.feasibility(
                 hypothesis, endpoint=candidate["endpoint"],
                 pairing=candidate["pairing"], access=candidate["access"],
                 layers_available=candidate["layers"],
-                comparator_available=candidate["comparator_available"][
-                    hypothesis],
+                comparator_available=(
+                    candidate["comparator_available"][hypothesis]
+                    if isinstance(candidate["comparator_available"], dict)
+                    else candidate["comparator_available"]),
                 n_units=candidate["n_units"],
                 longitudinal=candidate["longitudinal"],
                 n_candidate_omics=candidate.get("n_candidate_omics"))
@@ -367,6 +519,7 @@ def main(argv=None):
                 "repository": candidate["repository"],
                 "accession": candidate["accession"],
                 "licence": candidate["licence"],
+                "axes": list(candidate.get("axes") or ()),
             })
 
     summary = {}
@@ -400,7 +553,10 @@ def main(argv=None):
         "legacy_crosswalk": {k: {"maps_to_current": v[0], "why": v[1]}
                              for k, v in CAT.LEGACY_CROSSWALK.items()},
         "searches_run_today": SEARCHES,
-        "new_candidates": CANDIDATES,
+        "searches_2026_11_12": SEARCHES_2026_11_12,
+        "axes": CAT.AXES,
+        "axis_coverage": CAT.axis_coverage(rows),
+        "new_candidates": {**CANDIDATES, **CANDIDATES_2026_11_12},
         "matrix": rows,
         "summary_by_hypothesis": summary,
         "what_this_is_not": CAT.what_this_module_does_not_do(),
@@ -411,6 +567,15 @@ def main(argv=None):
                               default=str) + "\n", encoding="utf-8")
 
     print(f"artefact: {out}\n")
+    print("axis coverage -- datasets reaching each mechanism, and how many "
+          "carry an endpoint at all:")
+    for axis, block in payload["axis_coverage"].items():
+        print("  %-22s informs %-14s datasets %2d  with a PK endpoint %2d  "
+              "READY anywhere %2d" % (axis, ",".join(block["informs"]),
+                                      block["n_datasets"],
+                                      block["n_with_a_pk_endpoint"],
+                                      block["n_ready_for_any_hypothesis"]))
+    print()
     for hypothesis, block in summary.items():
         counts = {s: len(v) for s, v in block.items() if v}
         print(f"{hypothesis}  {CAT.HYPOTHESES[hypothesis]['priority']:<18} "

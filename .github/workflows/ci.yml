@@ -111,7 +111,7 @@ jobs:
             tests/test_latham_imatinib_cohort.py \
             | grep -c '::' || true)
           echo "collected $count pytest tests"
-          if [ "$count" -lt 1940 ]; then
-            echo "ERROR: expected at least 1940 collected tests, got $count." >&2
+          if [ "$count" -lt 1950 ]; then
+            echo "ERROR: expected at least 1950 collected tests, got $count." >&2
             exit 1
           fi

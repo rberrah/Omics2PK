@@ -1,7 +1,6 @@
 # Catalogue, recherche de données et endpoints vérifiables
 
-**Version 1.0.0 — 2026-11-12.** Phases 1 et 2 du recentrage. **Aucune
-expérience n'a été lancée.** Module : `src/omics2pk/input_catalogue.py`.
+**Version 2.0.0 — 2026-11-12.** Phases 1 et 2, puis la recherche autonome des quatre axes manquants (§6). **Aucune expérience n'a été lancée.** Module : `src/omics2pk/input_catalogue.py`.
 Script : `scripts/build_hypothesis_dataset_matrix.py`. Artefact :
 `reports/data/hypothesis_dataset_matrix.json`.
 
@@ -244,6 +243,87 @@ CYP2C8 et CYP3A sont des enzymes.
 
 ---
 
+## 6. Recherche autonome des quatre axes manquants
+
+Douze recherches le 2026-11-12, sur les transporteurs, la liaison plasmatique,
+l'absorption et la variabilité temporelle. **Les négatifs sont la substance.**
+
+### 6.1 Couverture par axe, comptée et non affirmée
+
+| Axe | informe | jeux | avec endpoint PK | `READY` |
+|---|---|---|---|---|
+| clairance métabolique | `CL_metabolic` | **11** | 3 | 5 |
+| **transport** | `F, CL, V` | **2** | **0** | **0** |
+| **liaison / distribution** | `V, CL` | **1** | **0** | **0** |
+| **absorption** | `F, ka` | **2** | **0** | **0** |
+| **temporel** | `CL, F, V` | **1** | **0** | **0** |
+
+`axis_coverage` compte des **jeux distincts**. Sa première version comptait les
+lignes hypothèse × jeu et multipliait chaque jeu par cinq, annonçant une
+couverture inexistante.
+
+**Les quatre axes visés passent de 0 à 6 jeux côté mesure et restent à 0 côté
+endpoint.** Le déséquilibre du programme est désormais chiffré.
+
+### 6.2 Ce qui a été trouvé
+
+**`PXD020987` — protéomique quantitative de l'intestin grêle humain.** CC0,
+**16 patients**, biopsies **iléon et jéjunum**, **29 enzymes et 32
+transporteurs** quantifiés, plus 6 protéines de jonction serrée et la
+phosphatase alcaline. C'est la première source inventoriée sur les axes
+absorption et transport, et la seule portant **deux régions intestinales par
+patient** — la question du compartiment que le cahier des charges pose.
+
+**Ce qu'elle n'est pas :** aucune PK, aucune clairance, aucune PGx et **aucun
+endpoint fonctionnel indépendant**. Une abondance qui prédit une autre
+abondance est l'axe A, pas H3. C'est une **couche de référence** pour ce à quoi
+ressemble l'abondance intestinale, pas une cohorte de test, et la matrice la
+classe `NOT_EVALUABLE` sur les cinq hypothèses.
+
+**`PXD011498` — jéjunum avant et après gastrectomie.** Le premier dessin
+**intra-sujet répété** de tout l'inventaire, c'est-à-dire la forme exacte dont
+H4 a besoin. **Mais les mesures sont les mauvaises** : peptidomique, et aucune
+concentration de médicament à l'une ou l'autre occasion. *Le dessin existe
+enfin ; l'endpoint, non.*
+
+**`PMC13683814` — transporteurs placentaires.** Une barrière de distribution
+qu'aucune autre source n'atteint, mais appariement non affirmé, aucune PK, et
+une barrière placentaire informe l'exposition fœtale plutôt que les paramètres
+maternels que le programme prédit.
+
+### 6.3 Deux négatifs structurels, qui valent d'être sus une fois
+
+**Europe PMC est saturé par les consommateurs du paramètre, pas par ses
+producteurs.** « fraction unbound AND pharmacokinetic* », en accès ouvert avec
+supplément : **2 628** articles, dominés par des travaux **PBPK et IVIVE qui
+utilisent `fu` comme entrée de modèle** au lieu de le mesurer à côté d'omiques
+chez les mêmes sujets. Même motif pour l'abondance de transporteurs, **3 150**
+articles. Une recherche par mots-clés trouve ceux qui *consomment* le
+paramètre.
+
+**Aucune omique de tacrolimus dans PRIDE** — 7 projets, **0** sur cible — et
+508 articles Europe PMC sans cohorte déposée. Cela ferme la route la plus
+évidente vers une cohorte longitudinale de suivi thérapeutique.
+
+Accessoirement : des séries protéomiques plasmatiques longitudinales existent
+bien (réanimation, radiothérapie, sarcopénie, **10 sur 60**) et **aucune ne
+porte une concentration de médicament**.
+
+### 6.4 La question de programme que cela pose
+
+Les quatre axes manquent d'endpoint, et le canal qui en porterait n'est pas un
+dépôt d'omiques : ce sont les **essais de bioéquivalence et de pharmacologie
+clinique**, où `F`, `ka` et les concentrations sont mesurés — et où les omiques
+sont presque toujours absentes. L'exact inverse des dépôts.
+
+**Si la règle « ne jamais supposer que des données de publications différentes
+sont appariées » tient — et elle doit tenir — alors H1 et H4 sont inatteignables
+sur les données publiques inventoriées.** Ce n'est pas une absence de preuve
+d'un effet : c'est l'absence du **dessin expérimental** capable de le mesurer.
+À énoncer comme un résultat de programme plutôt qu'à poursuivre indéfiniment.
+
+---
+
 ## 5. Ce que je recommande, et ce que je ne fais pas
 
 **Je ne lance rien.** Trois constats me paraissent devoir précéder toute
@@ -272,4 +352,5 @@ que ce comparateur serait disponible.
 
 | Version | Date | Change |
 |---|---|---|
+| **2.0.0** | **2026-11-12** | **Recherche autonome des quatre axes manquants (§6), douze recherches.** Le catalogue gagne **cinq axes mécanistiques** avec un compteur de couverture par **jeux distincts** — sa première version comptait les lignes hypothèse × jeu et multipliait chaque jeu par cinq. Résultat : les axes transport, liaison, absorption et temporel passent de **0 à 6 jeux côté mesure et restent à 0 côté endpoint**. Trouvés : **`PXD020987`** (16 patients, iléon et jéjunum, 29 enzymes et 32 transporteurs, CC0) qui est une **couche de référence** et non une cohorte de test ; **`PXD011498`** (jéjunum avant/après gastrectomie), premier dessin **intra-sujet** de l'inventaire mais sans aucune PK ; et `PMC13683814`, transporteurs placentaires. Deux négatifs structurels : Europe PMC est saturé par les articles **PBPK qui consomment `fu`** au lieu de le mesurer (2 628 et 3 150 résultats), et il n'existe **aucune omique de tacrolimus dans PRIDE**. §6.4 pose la question de programme : si la règle de non-appariement inter-publications tient, **H1 et H4 sont inatteignables sur les données publiques inventoriées**, par absence de dessin et non par absence d'effet. |
 | 1.0.0 | 2026-11-12 | Phases 1 et 2. Catalogue structuré (16 entrées cliniques, 12 biologiques, 10 descripteurs de contexte, 10 classes mécanistiques dont transporteurs, liaison et absorption, 19 sources typées). Trois refus codés : PK et fonctionnel disjoints, appariement affirmé avec provenance et jamais déduit, méthode distincte de source. Conflit d'étiquettes `H1`–`H5` ancien/nouveau documenté et gardé par assertion. Six recherches publiques dont les négatifs GEO. Quatre candidats PRIDE, dont `PXD066482` qui porte génotype + protéine + activité + clairance sur les mêmes donneurs. Matrice 15 × 5 calculée : **H1 1 `READY`, H2 et H3 5 `READY`, H4 et H5 0**. Deux cellules annoncées `READY` à tort puis corrigées par un comparateur par hypothèse et un plancher de pool pour H2. Aucune expérience lancée. |

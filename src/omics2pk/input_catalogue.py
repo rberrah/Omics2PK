@@ -223,6 +223,43 @@ LEGACY_CROSSWALK = {
                  "personalisation. No mapping"),
 }
 
+#: The four mechanistic axes the programme is short of data on, named so that
+#: coverage can be counted rather than asserted. Each says which PK parameters
+#: it informs, and metabolic clearance is deliberately absent from three of
+#: them: that is the point of listing them.
+AXES = {
+    "metabolic_clearance": {
+        "mechanisms": ("phase_i_enzymes", "phase_ii_enzymes",
+                       "redox_partners"),
+        "informs": ("CL_metabolic",),
+        "note": ("the only axis with data. Four experiments and counting on "
+                 "CYP2C8, CYP3A4, CYP3A5, NUDT15 and two RAF kinases"),
+    },
+    "transport": {
+        "mechanisms": ("efflux_transporters", "uptake_transporters"),
+        "informs": ("F", "CL", "V"),
+        "note": ("a transporter abundance does not inform F or ka by itself: "
+                 "the interpretation depends on the mechanism and on the PK "
+                 "model that uses it"),
+    },
+    "binding_distribution": {
+        "mechanisms": ("binding_proteins",),
+        "informs": ("V", "CL"),
+        "note": "fraction unbound, albumin, AAG, tissue distribution",
+    },
+    "absorption": {
+        "mechanisms": ("absorption_machinery",),
+        "informs": ("F", "ka"),
+        "note": "intestinal expression, gut-wall first pass, gut transporters",
+    },
+    "temporal": {
+        "mechanisms": ("nuclear_receptors",),
+        "informs": ("CL", "F", "V"),
+        "note": ("inflammation, infection, transplantation, comedication. "
+                 "Requires repeated occasions, not a between-group contrast"),
+    },
+}
+
 #: The four statuses a dataset can have against one hypothesis.
 STATUSES = ("READY", "PARTIAL", "ACCESS_REQUIRED", "NOT_EVALUABLE")
 
@@ -378,6 +415,43 @@ def feasibility(hypothesis, *, endpoint, pairing, access, layers_available,
         return "PARTIAL", ["public but behind a registration, and the brief "
                            "admits only channels needing no authorisation"]
     return "READY", ["every requirement met and the channel is open"]
+
+
+def axis_of(mechanism):
+    """Which mechanistic axis a knowledge class belongs to."""
+    _check(mechanism in MECHANISTIC_KNOWLEDGE,
+           f"unknown mechanism {mechanism!r}")
+    for axis, spec in AXES.items():
+        if mechanism in spec["mechanisms"]:
+            return axis
+    return None
+
+
+def axis_coverage(rows):
+    """How many datasets reach each axis, and with what kind of endpoint.
+
+    Counting rather than asserting, because "we have no transporter data" is a
+    claim that should be re-derivable from the matrix at any time.
+    """
+    out = {}
+    for axis, spec in AXES.items():
+        here = [r for r in rows if axis in (r.get("axes") or ())]
+        # Rows are hypothesis x dataset, so a dataset appears once per
+        # hypothesis. Counting rows would multiply every dataset by five and
+        # report a coverage that does not exist.
+        datasets = {r["dataset"] for r in here}
+        with_pk = {r["dataset"] for r in here
+                   if r.get("endpoint_kind") == "pk"}
+        ready = {r["dataset"] for r in here if r.get("status") == "READY"}
+        out[axis] = {
+            "informs": list(spec["informs"]),
+            "n_datasets": len(datasets),
+            "n_with_a_pk_endpoint": len(with_pk),
+            "n_ready_for_any_hypothesis": len(ready),
+            "datasets": sorted(datasets),
+            "note": spec["note"],
+        }
+    return out
 
 
 def what_this_module_does_not_do():
