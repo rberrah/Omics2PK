@@ -1,6 +1,6 @@
 # Pré-enregistration : la protéomique ajoute-t-elle à la PGx sur une clairance mesurée ?
 
-**Version 1.0.0 — 2026-11-12.** Statut : **DÉCLARÉ, AUCUNE VALEUR LUE.**
+**Version 1.1.0 — 2026-11-12.** Statut : **DÉCLARÉ. Extraction faite, aucune valeur encore analysée ; un écart est consigné en §7.1 avant tout ajustement.**
 
 Ce document est commité **avant l'extraction de la moindre valeur par donneur**.
 Seules la **structure** du tableau source, les effectifs et le régime de licence
@@ -114,7 +114,8 @@ les mêmes donneurs.
 | Paramètre | Valeur |
 |---|---|
 | cohorte | donneurs d'hépatocytes primaires du tableau 4, **complets sur les trois concentrations protéiques** |
-| n attendu | **13 sur 14** d'après le rapport externe ; **à recompter à l'extraction** et à consigner si l'écart apparaît |
+| n | **14**, le tableau 4 étant la seule source portant des valeurs par donneur. L'écart avec le « n = 13 » du texte est consigné en §7.1 et traité par l'analyse d'influence de la §7.2 |
+| analyse d'influence | **obligatoire** : 14 réexécutions, chaque donneur retiré à son tour |
 | validation | **leave-one-donor-out**, chaque donneur étant son propre pli |
 | unité de rééchantillonnage | le **donneur** — et une ligne *est* un donneur, donc bootstrap par grappes et par lignes coïncident, ce qui est dit plutôt que supposé |
 | estimateur | **ridge**, pénalité 1,0, identique à tous les bras |
@@ -179,7 +180,58 @@ bras ne sera ajouté et aucune marge déplacée après lecture des valeurs ; tou
 
 ## 7. Écarts
 
-*Aucun. Section en ajout seul.*
+Section en ajout seul. **Consigné avant tout ajustement de modèle.**
+
+### 7.1 La source se contredit sur l'effectif protéomique, et je ne devine pas
+
+Le §4 annonçait « n attendu **13 sur 14** d'après le rapport externe ; **à
+recompter à l'extraction** et à consigner si l'écart apparaît ». Il apparaît,
+et il est dans la source elle-même.
+
+| Source | Ce qu'elle dit |
+|---|---|
+| **texte de l'article** | « P450 activity measures were from n=14 donors, and **P450 protein quantitation was from n=13 donors** » |
+| **tableau 4** | **14 lignes**, et les trois concentrations CYP2C8, CYP3A4, CYP3A5 sont **renseignées sur les 14**, sans aucune cellule vide ni marqueur de manquant |
+
+Vérifications faites pour trancher, en vain :
+
+* **aucune ligne n'est un pool.** Les 14 identifiants sont des codes de donneur
+  à trois lettres ; le pool à 5 donneurs mentionné dans les méthodes ne figure
+  pas dans le tableau.
+* **aucune colonne du tableau 4 n'a de valeur manquante**, sur les 18.
+* Le texte ne nomme pas le donneur concerné.
+
+**La contradiction n'est donc pas résoluble depuis les sources disponibles.**
+
+### 7.2 Comment je la traite : une analyse d'influence, pas un choix arbitraire
+
+Retirer « le » donneur exigerait de savoir lequel, et le choisir au hasard
+introduirait une décision arbitraire dans le contraste principal.
+
+**Déclaré ici, avant tout ajustement :**
+
+1. **Le contraste principal tourne sur les 14 donneurs** du tableau 4, qui est
+   la seule source portant des valeurs par donneur.
+2. **Une analyse d'influence accompagne obligatoirement le résultat** : le
+   contraste est recalculé **14 fois, chaque donneur retiré à son tour**, et le
+   verdict de chacune des 14 exclusions est rapporté.
+3. **Lecture déclarée d'avance :** si **aucune** des 14 exclusions ne change le
+   verdict, la contradiction de la source est **sans effet** sur la conclusion
+   et c'est dit ainsi. Si **au moins une** le change, alors le résultat dépend
+   d'un donneur dont la quantification protéique n'est peut-être pas soutenue
+   par le texte de l'article, et **le contraste est rapporté comme non
+   concluant** — pas comme positif avec une réserve.
+
+Cette analyse est presque gratuite ici : la validation est déjà
+leave-one-donor-out, donc 14 réexécutions coûtent 14 fois un ajustement sur
+13 lignes.
+
+### 7.3 Extraction : ce qui est sorti et où
+
+Tableau 4 extrait depuis le XML PMC par le canal eutils vers
+`Latham2025_imatinib_PHH/latham2025_table4_phh_per_donor.csv`, **hors du
+dépôt**. 18 colonnes, 14 lignes, largeur uniforme. Conformément à la §1.1,
+**aucune ligne par donneur n'entrera dans un artefact commité.**
 
 ---
 
@@ -187,4 +239,5 @@ bras ne sera ajouté et aucune marge déplacée après lecture des valeurs ; tou
 
 | Version | Date | Change |
 |---|---|---|
+| **1.1.0** | **2026-11-12** | **Écart consigné avant tout ajustement (§7).** La source se contredit : son texte dit que la quantification protéique porte sur **n = 13** donneurs, et son tableau 4 porte **14 lignes dont les trois concentrations sont renseignées sans aucun manquant**. Vérifié qu'aucune ligne n'est le pool à 5 donneurs, qu'aucune des 18 colonnes n'a de valeur manquante, et que le texte ne nomme pas le donneur concerné : **la contradiction n'est pas résoluble depuis les sources**. Traitée non par un retrait arbitraire mais par une **analyse d'influence obligatoire sur les 14 exclusions**, avec une lecture déclarée d'avance : si au moins une exclusion change le verdict, le contraste est **non concluant** et non positif-avec-réserve. Tableau 4 extrait **hors du dépôt**. |
 | 1.0.0 | 2026-11-12 | Déclaré, **aucune valeur lue**. Structure du tableau 4 vérifiée : 14 donneurs d'hépatocytes primaires avec Donor ID, âge, sexe, IMC, génotypes CYP2C8/3A4/3A5, statut métaboliseur CYP3A5, concentrations CYP2C8/3A4/3A5/3A, trois activités et la clairance de l'imatinib. Licence PMC : extraction pour analyse autorisée, **redistribution non**, donc valeurs par donneur hors du dépôt. Primaire **H1-in-vitro** nommé ainsi pour qu'il ne soit pas confondu avec H1 du programme, qui exige un paramètre PK chez des individus. CYP3A total exclu du bloc protéomique comme somme de CYP3A4 et CYP3A5. **H2 déclaré `NOT_EVALUABLE`** : trois candidats contre un plancher de cinq fixé avant ce jeu. Validation leave-one-donor-out, marge 5 %, famille 4. **La prédiction principale est un non-résultat**, et la §5.1 déclare d'avance qu'un intervalle contenant zéro et dépassant la marge ne répond à rien. |
