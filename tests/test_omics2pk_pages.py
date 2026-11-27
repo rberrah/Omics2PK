@@ -24,7 +24,7 @@ class Omics2PKPagesTests(unittest.TestCase):
     def pages(self):
         return ["index.html","demo/index.html","guide/index.html","learn/index.html",
                 "analyze/index.html","ecosystem/index.html","disciplines/index.html",
-                "resources/index.html"]
+                "resources/index.html","game/index.html","practice/index.html"]
 
     def test_static_pages_declare_their_public_canonical_url(self):
         origin="https://rberrah.github.io/Omics2PK/"
@@ -47,8 +47,10 @@ class Omics2PKPagesTests(unittest.TestCase):
             self.assertIn('data-fr="Analyze"',html,page)
             self.assertIn('data-fr="Écosystème"',html,page)
             self.assertIn('data-fr="Ressources"',html,page)
-            self.assertIn('data-fr="Objectif"',html,page)
-            self.assertIn('data-fr="Démo guidée"',html,page)
+            for fr,en in (("Cours","Learn"),("Exercices","Practice"),("Illustrations","Explore"),("Omics2PK Game","Omics2PK Game")):
+                self.assertIn(f'data-fr="{fr}" data-en="{en}"',html,page)
+            for route in ("game/","guide/","practice/","demo/","analyze/"):
+                self.assertRegex(html, r'href="(?:\./|\.\./)'+re.escape(route)+'"')
             self.assertIn("site-header",html)
             self.assertIn('data-testid="logo-link"',html)
             self.assertIn('data-testid="language-toggle"',html)
@@ -153,10 +155,25 @@ class Omics2PKPagesTests(unittest.TestCase):
         self.assertNotIn("fetch(",js)
         self.assertNotIn("google-analytics",css+js)
 
+    def test_game_and_practice_use_real_aggregate_evidence_and_distinct_formats(self):
+        game=(self.root/"game/index.html").read_text(encoding="utf-8")
+        practice=(self.root/"practice/index.html").read_text(encoding="utf-8")
+        for value in ("2826.0472","2825.0240","115.1113","118.1449"):
+            self.assertIn(value,game)
+        self.assertIn("physical units unconfirmed",game)
+        self.assertIn("3,0336",practice)
+        self.assertIn("31 personnes",practice)
+        self.assertEqual(practice.count('data-fr="Voir la correction"'),3)
+        self.assertGreaterEqual(game.count('<details class="method-note">'),8)
+        self.assertIn("data-en=",game)
+        self.assertIn("data-en=",practice)
+
     def test_built_site_sitemap_uses_canonical_new_routes(self):
         self.assertTrue((self.root/".nojekyll").exists())
         sitemap=(self.root/"sitemap.xml").read_text()
-        self.assertEqual(sitemap.count("<loc>"),7)
+        self.assertEqual(sitemap.count("<loc>"),9)
+        self.assertIn("https://rberrah.github.io/Omics2PK/game/",sitemap)
+        self.assertIn("https://rberrah.github.io/Omics2PK/practice/",sitemap)
         self.assertIn("https://rberrah.github.io/Omics2PK/demo/",sitemap)
         self.assertIn("https://rberrah.github.io/Omics2PK/guide/",sitemap)
         self.assertIn("https://rberrah.github.io/Omics2PK/analyze/",sitemap)

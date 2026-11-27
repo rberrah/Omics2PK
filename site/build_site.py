@@ -45,8 +45,10 @@ def lucide(name, size=16):
 def nav(base,page):
     groups = [
       ("learn","Apprendre","Learn",[
-         ("demo/","Objectif","Objective",False),
-         ("guide/","Démo guidée","Guided demo",False)
+         ("game/","Omics2PK Game","Omics2PK Game",False),
+         ("guide/","Cours","Learn",False),
+         ("practice/","Exercices","Practice",False),
+         ("demo/","Illustrations","Explore",False)
       ]),
       ("analyze","Analyze","Analyze",[
          ("analyze/","En cours de développement","In development",False)
@@ -66,7 +68,7 @@ def nav(base,page):
     for key,fr,en,links in groups:
         inner="".join(a(path,lfr,len_,base=base,external=ext) for path,lfr,len_,ext in links)
         details.append('<details class="goal" name="site-objective" data-testid="goal-'+key+'">'
-          '<summary'+(' class="active"' if (page==key or (key=="learn" and page in ("demo","guide","learn")) or (key=="disciplines" and page=="ecosystem")) else '')+'>'+lucide(key,16)
+          '<summary'+(' class="active"' if (page==key or (key=="learn" and page in ("demo","guide","learn","game","practice")) or (key=="disciplines" and page=="ecosystem")) else '')+'>'+lucide(key,16)
           +t(fr,en)+lucide("down",13)+'</summary><div class="goal-links">'+inner+'</div></details>')
     return ('<header class="site-header"><a class="logo" href="'+base+'" aria-label="Omics2PK, accueil" data-testid="logo-link">'
         '<span class="mark" aria-hidden="true">oP</span><span class="word">Omics<em>2PK</em></span></a>'
@@ -87,21 +89,29 @@ def card(kicker,title_fr,title_en,desc_fr,desc_en,href,link_fr,link_en,*,base):
 
 def home(base):
     return (
-        '<section class="hero"><p class="eyebrow">Omics2PK · research laboratory</p>'
+        '<section class="hero"><p class="eyebrow">Omics2PK · integrated learning &amp; research</p>'
         +t("Des omiques à la PK : une hypothèse à tester, pas une promesse.",
            "From omics to PK: a hypothesis to test, not a promise.",'h1')
         +t("Omics2PK demande si un état moléculaire mesuré chez un individu apporte une information pharmacocinétique au-delà des covariables cliniques et pharmacogénétiques. Le site sépare volontairement la question scientifique, la méthode pour y répondre et le futur outil d’analyse.",
            "Omics2PK asks whether an individual's measured molecular state adds pharmacokinetic information beyond clinical and pharmacogenetic covariates. The site deliberately separates the scientific question, the method used to test it, and the future analysis tool.",'p','lede')
-        +'<div class="cta">'+a("demo/","Comprendre l’objectif","Understand the objective",base=base)
+        +'<div class="cta">'+a("game/","Jouer à Omics2PK Game","Play Omics2PK Game",base=base)
         +'<a class="btn btn-outline" href="'+base+'guide/" data-fr="Suivre la démo guidée" data-en="Follow the guided demo">Suivre la démo guidée</a></div>'
         +t("Recherche exploratoire — valeur ajoutée des omiques en PK non démontrée de façon générale ; aucun modèle de dose clinique validé.",
            "Exploratory research — general added value of omics for PK is not established; no clinically validated dosing model.",'p','hero-note')+'</section>'
+        +'<section class="section"><p class="eyebrow">Connected disciplines</p>'
+        +t('Relier deux disciplines','Connect two disciplines','h2')
+        +'<div class="cards">'
+        +card('01 · PK','PMx Explain','PMx Explain','Comprendre la clairance, l’exposition et les modèles de population.','Understand clearance, exposure and population models.',PMX,'Étudier la pharmacométrie','Learn pharmacometrics',base=base)
+        +card('02 · OMICS','Omics Explain / MultiOmics','Omics Explain / MultiOmics','Comprendre les matrices moléculaires, le plan d’étude et les représentations omiques.','Understand molecular matrices, study design and omics representations.',MULTIOMICS,'Étudier les omiques','Learn omics',base=base)
+        +card('03 · INTEGRATE','Omics2PK Game','Omics2PK Game','Relier les données moléculaires à une cible PK mesurée et évaluer leur valeur ajoutée.','Link molecular data to a measured PK endpoint and evaluate added value.','game/','Commencer le parcours intégré','Start the integrated journey',base=base)
+        +'</div></section>'
         +'<section class="objectives" aria-labelledby="objective-title">'+t("Par où commencer ?", "Where should I start?",'h2')+
         '<div class="objectives-grid">'+
-        a('demo/','Objectif : pourquoi tester les omiques en PK ?','Objective: why test omics in PK?',base=base)+
-        a('guide/','Démo guidée : comment concevoir l’étude ?','Guided demo: how should the study be designed?',base=base)+
-        a('analyze/','Analyze — en cours','Analyze — in development',base=base)+
-        a('ecosystem/','Voir l’écosystème','Explore the ecosystem',base=base)+
+        a('game/','Game · prendre des décisions','Game · make decisions',base=base)+
+        a('guide/','Cours · concevoir une étude','Learn · design a study',base=base)+
+        a('practice/','Exercices · résoudre des problèmes','Practice · solve problems',base=base)+
+        a('analyze/','Outils · en développement','Tools · in development',base=base)+
+        a('demo/','Illustrations · explorer les preuves','Explore · examine the evidence',base=base)+
         '</div></section><section class="section"><p class="eyebrow">Scientific status</p>'
         +t('Ce que les données actuelles permettent déjà de dire', 'What current evidence already allows us to say','h2')
         +'<div class="cards">'
@@ -262,6 +272,56 @@ def guide(base):
         +'<a class="btn btn-outline" href="'+MULTIOMICS+'" target="_blank" rel="noopener noreferrer" data-fr="Préparer les omiques dans MultiOmics ↗" data-en="Prepare omics in MultiOmics ↗">Préparer les omiques dans MultiOmics ↗</a></div>'
         +'</div></section>')
 
+def game(base):
+    # The figures are the same aggregate results already presented in demo/#metformin.
+    # No individual-level data or new research findings are embedded.
+    questions = [
+      ("01", "Quelle mesure constitue une cible PK clinique ?", "Which measurement is a clinical PK endpoint?",
+       [("Activité CYP in vitro", "In-vitro CYP activity", False), ("AUC du médicament mesurée chez l’individu", "Measured drug AUC in the individual", True)],
+       "L’activité CYP est un intermédiaire mécanistique ; l’AUC est une mesure d’exposition au médicament.", "CYP activity is a mechanistic intermediate; AUC measures drug exposure."),
+      ("02", "Quel prélèvement omique utiliser pour prédire la PK après la dose ?", "Which omics sample should predict PK after dosing?",
+       [("Prélèvement avant la dose index", "Sample before the index dose", True), ("Prélèvement après la dose index", "Sample after the index dose", False)],
+       "Un prélèvement post-dose peut incorporer la réponse au traitement et créer une fuite temporelle.", "A post-dose sample may incorporate drug response and cause temporal leakage."),
+      ("03", "Où apprendre la PCA et la normalisation ?", "Where should PCA and scaling be fitted?",
+       [("Sur l’ensemble avant la validation", "On the full dataset before validation", False), ("Dans chaque pli d’apprentissage uniquement", "Inside each training fold only", True)],
+       "Le sujet tenu à l’écart ne doit intervenir dans aucun prétraitement appris.", "The held-out subject must not contribute to any learned preprocessing."),
+      ("04", "Les résultats metformine ci-dessous démontrent-ils une amélioration incrémentale ?", "Do the metformin results below demonstrate incremental improvement?",
+       [("Oui : le MAE AUC diminue légèrement", "Yes: AUC MAE decreases slightly", False), ("Non : le gain n’est pas clairement démontré", "No: added value is not clearly established", True)],
+       "Le gain AUC est négligeable, le MAE CLr augmente et il s’agit d’une validation interne. Il faut examiner l’incertitude et une cohorte indépendante.", "AUC gain is negligible, CLr MAE increases, and validation is internal. Uncertainty and an independent cohort matter.")
+    ]
+    out = '<section class="small-hero">'+a('', 'Retour à Omics2PK','Back to Omics2PK',base=base)+t('Omics2PK Game','Omics2PK Game','h1')+t('Explorez une application de MultiOmics enrichie par les concepts de PMx Explain. Les résultats agrégés sont ceux déjà présentés dans le démonstrateur metformine (32 personnes, 384 variables pré-dose).','Explore a MultiOmics application enriched by concepts from PMx Explain. Aggregate results are those already presented in the metformin demonstration (32 people, 384 predose features).','p','lede')+'</section>'
+    for number,fr,en,answers,why_fr,why_en in questions:
+        out += '<section class="course-step"><div class="step-number">'+number+'</div><div>'+t(fr,en,'h2')
+        if number == "04":
+            out += '<table><caption>'+t('MAE, unités numériques du tableau source (unités physiques non confirmées)','MAE, numeric source-table units (physical units unconfirmed)')+'</caption><thead><tr><th scope="col">PK</th><th scope="col">'+t('Clinique','Clinical')+'</th><th scope="col">'+t('Clinique + omiques','Clinical + omics')+'</th></tr></thead><tbody><tr><th scope="row">AUClast 0–24</th><td>2826.0472</td><td>2825.0240</td></tr><tr><th scope="row">CLr</th><td>115.1113</td><td>118.1449</td></tr></tbody></table>'+a('demo/#metformin','Source et limites','Source and limitations',base=base)
+        for afr,aen,correct in answers:
+            out += '<details class="method-note"><summary>'+t(afr,aen)+'</summary>'+t('Correct.' if correct else 'À revoir.', 'Correct.' if correct else 'Try again.','strong')+t(why_fr,why_en,'p')+'</details>'
+        out += '</div></section>'
+    return out+'<section class="section">'+t('Poursuivre','Continue','h2')+a('guide/','Étudier la méthode complète','Study the full method',base=base)+' · '+a('demo/','Consulter les preuves','Review the evidence',base=base)+'</section>'
+
+def practice(base):
+    exercises = [
+      ('Débutant','Beginner','Identifier la cible PK','Identify the PK endpoint',
+       'Dans une étude, vous mesurez l’activité CYP sur hépatocytes, l’AUC du médicament chez des volontaires et un score ARN. Quelle mesure constitue une cible PK clinique ?',
+       'A study measures CYP activity in hepatocytes, drug AUC in volunteers and an RNA score. Which measurement is a clinical PK endpoint?',
+       'L’AUC du médicament mesurée chez les volontaires. L’activité CYP est un intermédiaire mécanistique ; le score ARN est un prédicteur candidat.',
+       'Drug AUC measured in volunteers. CYP activity is a mechanistic intermediate; the RNA score is a candidate predictor.'),
+      ('Intermédiaire','Intermediate','Calculer un gain incrémental','Calculate incremental gain',
+       'Dans le benchmark metformine public, le MAE de CLr est de 115,1113 avec les covariables cliniques et de 118,1449 avec les omiques en plus. Calculez la différence et interprétez son signe.',
+       'In the public metformin benchmark, CLr MAE is 115.1113 with clinical covariates and 118.1449 with added omics. Calculate the difference and interpret its sign.',
+       '118,1449 − 115,1113 = +3,0336 (environ +2,64 %). Le MAE augmente ; la valeur ajoutée n’est pas démontrée. Unités numériques de la source ; unités physiques non confirmées.',
+       '118.1449 − 115.1113 = +3.0336 (about +2.64%). MAE increases; added value is not established. Numeric source units; physical units unconfirmed.'),
+      ('Avancé','Advanced','Éviter la fuite temporelle et statistique','Avoid temporal and statistical leakage',
+       'Dans un plan avec 32 participants, trois prélèvements par personne (avant et après dose) et validation leave-one-person-out, décrivez les données autorisées pour apprendre une PCA pré-dose.',
+       'In a 32-person study with three samples per person (pre- and postdose) and leave-one-person-out validation, describe the data allowed for fitting a predose PCA.',
+       'Utiliser uniquement les prélèvements pré-dose des 31 personnes d’apprentissage. Imputation, normalisation et PCA sont apprises dans ce pli ; le sujet laissé de côté est projeté sans réestimation.',
+       'Use only predose samples from the 31 training people. Fit imputation, scaling and PCA within this fold; project the held-out person without refitting.')
+    ]
+    out = '<section class="small-hero">'+a('','Retour à Omics2PK','Back to Omics2PK',base=base)+t('Exercices','Practice','h1')+t('Résolvez chaque problème indépendamment avant de consulter sa correction.','Solve each problem independently before revealing its worked answer.','p','lede')+'</section>'
+    for lfr,len_,hfr,hen,qfr,qen,afr,aen in exercises:
+        out += '<section class="course-step"><div class="step-number">?</div><div>'+t(lfr,len_,'p')+t(hfr,hen,'h2')+t(qfr,qen,'p')+'<details class="method-note"><summary>'+t('Voir la correction','Reveal worked answer')+'</summary>'+t(afr,aen,'p')+'</details></div></section>'
+    return out+'<section class="section">'+a('guide/','Revoir le cours','Review the course',base=base)+' · '+a('demo/#metformin','Consulter le benchmark public','Review the public benchmark',base=base)+'</section>'
+
 def learn(base):
     # Legacy route kept for old links; the navigation now points to /guide/.
     return guide(base)
@@ -337,6 +397,8 @@ def resources(base):
 def document(page,body,base):
     titles={'home':'Omics2PK – omiques vers pharmacocinétique',
             'demo':'Objectif – Omics2PK',
+            'game':'Omics2PK Game – Omics2PK',
+            'practice':'Exercices – Omics2PK',
             'guide':'Démo guidée – Omics2PK',
             'learn':'Démo guidée – Omics2PK',
             'analyze':'Analyze – en cours – Omics2PK',
@@ -365,6 +427,8 @@ def render(out):
     out=Path(out)
     mapping={'home':(Path('index.html'),'.',home),
              'demo':(Path('demo/index.html'),'..',demo),
+             'game':(Path('game/index.html'),'..',game),
+             'practice':(Path('practice/index.html'),'..',practice),
              'guide':(Path('guide/index.html'),'..',guide),
              'learn':(Path('learn/index.html'),'..',learn),
              'analyze':(Path('analyze/index.html'),'..',analyze),
@@ -381,7 +445,7 @@ def render(out):
     shutil.copytree(asset,out/'assets',dirs_exist_ok=True)
     (out/'.nojekyll').write_text('',encoding='utf-8')
     (out/'robots.txt').write_text('User-agent: *\nAllow: /\n',encoding='utf-8')
-    canonical=('','demo','guide','analyze','ecosystem','disciplines','resources')
+    canonical=('','demo','game','practice','guide','analyze','ecosystem','disciplines','resources')
     (out/'sitemap.xml').write_text(
       '<?xml version="1.0" encoding="UTF-8"?>'
       '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'
