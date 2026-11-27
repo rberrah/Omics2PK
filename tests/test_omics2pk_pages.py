@@ -168,6 +168,25 @@ class Omics2PKPagesTests(unittest.TestCase):
         self.assertIn("data-en=",game)
         self.assertIn("data-en=",practice)
 
+    def test_metformin_component_reused_in_game_and_demo(self):
+        for route,prefix in (("game","game-metformin"),("demo","demo-metformin")):
+            html=(self.root/route/"index.html").read_text(encoding="utf-8")
+            self.assertEqual(html.count('data-testid="metformin-explore"'),1)
+            for key in ("auc","clr"):
+                self.assertIn('id="'+prefix+'-'+key+'"',html)
+                self.assertIn('for="'+prefix+'-'+key+'"',html)
+            for value in ("2826.0472","2825.0240","115.1113","118.1449","-592.8109","681.0661","-11.9687","21.6041"):
+                self.assertIn(value,html)
+            self.assertIn("Descriptive 95% bootstrap interval",html)
+        self.assertIn(".metformin-choice.auc:checked",(self.root/"assets/styles.css").read_text())
+
+    def test_home_navigation_is_non_linear_and_has_heading_label(self):
+        html=(self.root/"index.html").read_text(encoding="utf-8")
+        self.assertIn('id="objective-title"',html)
+        self.assertNotIn('aria-label="Omics2PK, accueil"',html)
+        for label in ("01 · PK","02 · OMICS","03 · INTEGRATE"):
+            self.assertNotIn(label,html)
+
     def test_built_site_sitemap_uses_canonical_new_routes(self):
         self.assertTrue((self.root/".nojekyll").exists())
         sitemap=(self.root/"sitemap.xml").read_text()
