@@ -70,7 +70,7 @@ def nav(base,page):
         details.append('<details class="goal" name="site-objective" data-testid="goal-'+key+'">'
           '<summary'+(' class="active"' if (page==key or (key=="learn" and page in ("demo","guide","learn","game","practice")) or (key=="disciplines" and page=="ecosystem")) else '')+'>'+lucide(key,16)
           +t(fr,en)+lucide("down",13)+'</summary><div class="goal-links">'+inner+'</div></details>')
-    return ('<header class="site-header"><a class="logo" href="'+base+'" aria-label="Omics2PK, accueil" data-testid="logo-link">'
+    return ('<header class="site-header"><a class="logo" href="'+base+'" data-testid="logo-link">'
         '<span class="mark" aria-hidden="true">oP</span><span class="word">Omics<em>2PK</em></span></a>'
         '<button class="burger" type="button" aria-label="Ouvrir le menu" aria-controls="site-nav" aria-expanded="false" data-testid="nav-toggle"><span></span><span></span><span></span></button>'
         '<nav id="site-nav" aria-label="Navigation principale" data-testid="primary-nav">'
@@ -101,11 +101,11 @@ def home(base):
         +'<section class="section"><p class="eyebrow">Connected disciplines</p>'
         +t('Relier deux disciplines','Connect two disciplines','h2')
         +'<div class="cards">'
-        +card('01 · PK','PMx Explain','PMx Explain','Comprendre la clairance, l’exposition et les modèles de population.','Understand clearance, exposure and population models.',PMX,'Étudier la pharmacométrie','Learn pharmacometrics',base=base)
-        +card('02 · OMICS','Omics Explain / MultiOmics','Omics Explain / MultiOmics','Comprendre les matrices moléculaires, le plan d’étude et les représentations omiques.','Understand molecular matrices, study design and omics representations.',MULTIOMICS,'Étudier les omiques','Learn omics',base=base)
-        +card('03 · INTEGRATE','Omics2PK Game','Omics2PK Game','Relier les données moléculaires à une cible PK mesurée et évaluer leur valeur ajoutée.','Link molecular data to a measured PK endpoint and evaluate added value.','game/','Commencer le parcours intégré','Start the integrated journey',base=base)
+        +card('OMICS','Omics Explain / MultiOmics','Omics Explain / MultiOmics','Comprendre les matrices moléculaires, le plan d’étude et les représentations omiques.','Understand molecular matrices, study design and omics representations.',MULTIOMICS,'Étudier les omiques','Learn omics',base=base)
+        +card('PK','PMx Explain','PMx Explain','Comprendre la clairance, l’exposition et les modèles de population.','Understand clearance, exposure and population models.',PMX,'Étudier la pharmacométrie','Learn pharmacometrics',base=base)
+        +card('APPLICATION','Omics2PK Game','Omics2PK Game','Relier les données moléculaires à une cible PK mesurée et évaluer leur valeur ajoutée.','Link molecular data to a measured PK endpoint and evaluate added value.','game/','Commencer le parcours intégré','Start the integrated journey',base=base)
         +'</div></section>'
-        +'<section class="objectives" aria-labelledby="objective-title">'+t("Par où commencer ?", "Where should I start?",'h2')+
+        +'<section class="objectives" aria-labelledby="objective-title">'+t("Par où commencer ?", "Where should I start?",'h2').replace('<h2 ', '<h2 id="objective-title" ',1)+
         '<div class="objectives-grid">'+
         a('game/','Game · prendre des décisions','Game · make decisions',base=base)+
         a('guide/','Cours · concevoir une étude','Learn · design a study',base=base)+
@@ -127,7 +127,7 @@ def home(base):
     )
 
 def demo(base):
-    metformin=REPO+'/blob/main/docs/E3_REAL_METFORMIN33_PREDOSE_384_OMICS_AUC_CLR_HELDOUT_20261018.md'
+    metformin=REPO+'/blob/c7c8a3b0c1b3304fc921a1c564332139d3e93750/docs/E3_REAL_METFORMIN33_PREDOSE_384_OMICS_AUC_CLR_HELDOUT_20261018.md'
     epa=REPO+'/blob/main/docs/EPA_100_LIVER_EIGHT_CYP_BONFERRONI_REAL_RESULTS_20261017.md'
     jarmusch=REPO+'/blob/main/docs/JARMUSCH14_ORIGINAL_GNPS_BIOM_TO_REAL_MIDAZOLAM_PK_20261019.md'
     wegler=REPO+'/blob/main/docs/WEGLER_SOURCE_STRUCTURE_RESULTS_20261016.md'
@@ -186,9 +186,7 @@ def demo(base):
         +t('Quatrième raison : quand on teste enfin Omics→PK chez de vrais patients, le résultat peut être négatif','Fourth reason: when Omics→PK is finally tested in real patients, the result may be negative','h2')
         +t('Le benchmark metformine relie 32 personnes à une métabolomique pré-dose authentique de 384 variables et à deux critères PK mesurés. Les PCA, normalisations et modèles sont réappris dans chaque pli laissé de côté. Le test primaire compare clinique + omiques contre clinique seule.',
            'The metformin benchmark links 32 people to authentic 384-feature predose metabolomics and two measured PK endpoints. PCA, normalization and models are refit inside each held-out fold. The primary test compares clinical + omics with clinical alone.','p')
-        +'<table><thead><tr><th>PK mesurée</th><th>Clinique MAE</th><th>Clinique + omiques MAE</th><th>ΔMAE</th></tr></thead><tbody>'
-        '<tr><td>AUClast 0–24</td><td>2826.0472</td><td>2825.0240</td><td>−1.0232 (~0.04%)</td></tr>'
-        '<tr><td>CLr</td><td>115.1113</td><td>118.1449</td><td>+3.0336 (worse)</td></tr></tbody></table>'
+        +metformin_explore(base,'demo-metformin')
         +t('Les unités physiques absolues de la table source doivent encore être vérifiées ; l’interprétation porte donc sur la comparaison des erreurs, pas sur leur unité clinique. Pour l’AUC, l’intervalle descriptif de ΔMAE traverse largement zéro ; pour CLr, l’ajout omique est numériquement moins bon.',
            'Absolute physical units in the source table still require verification; interpretation therefore concerns relative prediction errors rather than clinical units. For AUC, the descriptive ΔMAE interval widely crosses zero; for CLr, adding omics is numerically worse.','p','note')
         +'<div class="takeaway"><strong>'+t('Résultat scientifique','Scientific result')+'</strong>'
@@ -272,6 +270,35 @@ def guide(base):
         +'<a class="btn btn-outline" href="'+MULTIOMICS+'" target="_blank" rel="noopener noreferrer" data-fr="Préparer les omiques dans MultiOmics ↗" data-en="Prepare omics in MultiOmics ↗">Préparer les omiques dans MultiOmics ↗</a></div>'
         +'</div></section>')
 
+
+# Public aggregate evidence from the original E3 report; no individual records.
+METFORMIN = {
+    'auc': ('AUClast 0–24', 2826.0472, 2825.0240, -1.023245, -592.810886, 681.066112),
+    'clr': ('CLr', 115.1113, 118.1449, 3.033606, -11.968748, 21.604118),
+}
+
+def metformin_explore(base, prefix):
+    # Each endpoint has its own scale; native radio state is preserved by FR/EN and theme changes.
+    out = '<fieldset class="metformin-explore" data-testid="metformin-explore"><legend>'+t('Explorer les résultats metformine','Explore the metformin results')+'</legend>'
+    out += t('32 personnes, 384 variables pré-dose. Validation interne leave-one-person-out. Unités numériques de la source ; unités physiques non confirmées.','32 people, 384 predose features. Internal leave-one-person-out validation. Numeric source units; physical units unconfirmed.','p','note')
+    for key in METFORMIN:
+        out += f'<input type="radio" name="{prefix}-endpoint" id="{prefix}-{key}" class="metformin-choice {key}"'+(' checked' if key=='auc' else '')+'><label for="'+prefix+'-'+key+'">'+METFORMIN[key][0]+'</label>'
+    for key,(label,clinical,augmented,delta,lo,hi) in METFORMIN.items():
+        maxval=max(clinical,augmented)*1.12
+        span=max(abs(lo),abs(hi))*1.12
+        position=lambda x: 50+50*x/span
+        out += f'<div class="metformin-panel {key}"><h3>{label}</h3>'
+        for fr,en,val in [('Clinique','Clinical',clinical),('Clinique + omiques','Clinical + omics',augmented)]:
+            out += '<div class="metric-row">'+t(fr,en)+f'<span>{val:.4f}</span><span class="mae-track" aria-hidden="true"><span style="width:{100*val/maxval:.4f}%"></span></span></div>'
+        out += '<p>'+t('Différence de MAE (ajout − référence)','MAE difference (augmented − reference)')+f' : {delta:+.4f} ({100*delta/clinical:+.2f} %)</p>'
+        out += '<div class="ci-track" aria-hidden="true"><span class="ci-zero"></span>'+f'<span class="ci-line" style="left:{position(lo):.4f}%;width:{position(hi)-position(lo):.4f}%"></span><span class="ci-dot" style="left:{position(delta):.4f}%"></span></div>'
+        out += '<div class="ci-directions" aria-hidden="true">'+t('MAE plus faible','Lower MAE')+'<span>0</span>'+t('MAE plus élevée','Higher MAE')+'</div>'
+        out += '<p>'+t('Intervalle bootstrap descriptif à 95 % de ΔMAE','Descriptive 95% bootstrap interval for ΔMAE')+f' : [{lo:.4f} ; {hi:.4f}]. '+t('La ligne verticale indique zéro.','The vertical line indicates zero.')+'</p>'
+        out += t('L’intervalle traverse zéro ; une valeur ajoutée n’est pas démontrée.','The interval crosses zero; added value is not established.','p','note')+'</div>'
+    out += '<details class="method-note"><summary>'+t('Tableau des deux critères','Table of both endpoints')+'</summary><table><thead><tr><th scope="col">PK</th><th scope="col">'+t('Clinique','Clinical')+'</th><th scope="col">'+t('Clinique + omiques','Clinical + omics')+'</th></tr></thead><tbody>'
+    for label,clinical,augmented,*_ in METFORMIN.values():out+=f'<tr><th scope="row">{label}</th><td>{clinical:.4f}</td><td>{augmented:.4f}</td></tr>'
+    return out+'</tbody></table></details></fieldset>'
+
 def game(base):
     # The figures are the same aggregate results already presented in demo/#metformin.
     # No individual-level data or new research findings are embedded.
@@ -293,7 +320,7 @@ def game(base):
     for number,fr,en,answers,why_fr,why_en in questions:
         out += '<section class="course-step"><div class="step-number">'+number+'</div><div>'+t(fr,en,'h2')
         if number == "04":
-            out += '<table><caption>'+t('MAE, unités numériques du tableau source (unités physiques non confirmées)','MAE, numeric source-table units (physical units unconfirmed)')+'</caption><thead><tr><th scope="col">PK</th><th scope="col">'+t('Clinique','Clinical')+'</th><th scope="col">'+t('Clinique + omiques','Clinical + omics')+'</th></tr></thead><tbody><tr><th scope="row">AUClast 0–24</th><td>2826.0472</td><td>2825.0240</td></tr><tr><th scope="row">CLr</th><td>115.1113</td><td>118.1449</td></tr></tbody></table>'+a('demo/#metformin','Source et limites','Source and limitations',base=base)
+            out += metformin_explore(base,'game-metformin')+a('demo/#metformin','Source et limites','Source and limitations',base=base)
         for afr,aen,correct in answers:
             out += '<details class="method-note"><summary>'+t(afr,aen)+'</summary>'+t('Correct.' if correct else 'À revoir.', 'Correct.' if correct else 'Try again.','strong')+t(why_fr,why_en,'p')+'</details>'
         out += '</div></section>'
