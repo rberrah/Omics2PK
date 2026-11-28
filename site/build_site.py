@@ -6,6 +6,7 @@ The legacy /learn/ route is retained as a compatibility alias for the guided cou
 """
 from __future__ import annotations
 import argparse
+import json
 from html import escape
 from pathlib import Path
 
@@ -15,6 +16,18 @@ MAIN = "https://rberrah.github.io/"
 MULTIOMICS = "https://rberrah.github.io/multiomics/"
 REPO = "https://github.com/rberrah/Omics2PK"
 ROOT = "https://rberrah.github.io/Omics2PK/"
+ECOSYSTEM = json.loads((Path(__file__).parent / "ecosystem.json").read_text(encoding="utf-8"))
+
+def ecosystem_links():
+    links=[]
+    for item in ECOSYSTEM:
+        url=item["url"]+("?lang=fr" if item["localized"] else "")
+        link=a(url,item["fr"],item["en"],base="",external=True)
+        if item["localized"]:
+            link=link.replace("<a ", '<a data-ecosystem-localized="true" ',1)
+        links.append(link)
+    return "".join(links)
+
 
 def t(fr,en, tag="span", classes=""):
     attr = (" class='"+escape(classes,quote=True)+"'") if classes else ""
@@ -53,11 +66,7 @@ def nav(base,page):
       ("analyze","Analyze","Analyze",[
          ("analyze/","En cours de développement","In development",False)
       ]),
-      ("disciplines","Écosystème","Ecosystem",[
-         ("ecosystem/","Vue d’ensemble","Ecosystem overview",False),
-         (PMX,"PMx Explain ↗","PMx Explain ↗",True),
-         (MULTIOMICS,"MultiOmics ↗","MultiOmics ↗",True)
-      ]),
+      ("disciplines","Écosystème","Ecosystem",[]),
       ("resources","Ressources","Resources",[
          ("resources/","Références et documentation","References and documentation",False),
          (REPO,"Code source et rapports ↗","Source code and reports ↗",True),
@@ -66,7 +75,7 @@ def nav(base,page):
     ]
     details=[]
     for key,fr,en,links in groups:
-        inner="".join(a(path,lfr,len_,base=base,external=ext) for path,lfr,len_,ext in links)
+        inner=ecosystem_links() if key=="disciplines" else "".join(a(path,lfr,len_,base=base,external=ext) for path,lfr,len_,ext in links)
         details.append('<details class="goal" name="site-objective" data-testid="goal-'+key+'">'
           '<summary'+(' class="active"' if (page==key or (key=="learn" and page in ("demo","guide","learn","game","practice")) or (key=="disciplines" and page=="ecosystem")) else '')+'>'+lucide(key,16)
           +t(fr,en)+lucide("down",13)+'</summary><div class="goal-links">'+inner+'</div></details>')
@@ -317,13 +326,20 @@ def game(base):
        "Le gain AUC est négligeable, le MAE CLr augmente et il s’agit d’une validation interne. Il faut examiner l’incertitude et une cohorte indépendante.", "AUC gain is negligible, CLr MAE increases, and validation is internal. Uncertainty and an independent cohort matter.")
     ]
     out = '<section class="small-hero">'+a('', 'Retour à Omics2PK','Back to Omics2PK',base=base)+t('Omics2PK Game','Omics2PK Game','h1')+t('Explorez une application de MultiOmics enrichie par les concepts de PMx Explain. Les résultats agrégés sont ceux déjà présentés dans le démonstrateur metformine (32 personnes, 384 variables pré-dose).','Explore a MultiOmics application enriched by concepts from PMx Explain. Aggregate results are those already presented in the metformin demonstration (32 people, 384 predose features).','p','lede')+'</section>'
+    out += '<nav class="cta" aria-label="Game">'+a('game/#study-design','Préparer l’étude','Prepare the study',base=base)+' · '+a('game/#interpret-results','Interpréter les résultats','Interpret results',base=base)+'</nav>'
     for number,fr,en,answers,why_fr,why_en in questions:
+        if number == "01":
+            out += '<h2 id="study-design">'+t('Parcours : préparer l’étude','Journey: prepare the study')+'</h2>'
+        if number == "04":
+            out += '<section class="section" id="interpret-results">'+t('Parcours : interpréter les résultats','Journey: interpret results','h2')+t('Vous relisez le rapport metformine. Comparez les deux critères et leur incertitude avant de formuler une conclusion.','You are reviewing the metformin report. Compare both endpoints and their uncertainty before drawing a conclusion.','p','lede')+'</section>'
         out += '<section class="course-step"><div class="step-number">'+number+'</div><div>'+t(fr,en,'h2')
         if number == "04":
             out += metformin_explore(base,'game-metformin')+a('demo/#metformin','Source et limites','Source and limitations',base=base)
         for afr,aen,correct in answers:
             out += '<details class="method-note"><summary>'+t(afr,aen)+'</summary>'+t('Correct.' if correct else 'À revoir.', 'Correct.' if correct else 'Try again.','strong')+t(why_fr,why_en,'p')+'</details>'
         out += '</div></section>'
+    out += '<section class="course-step"><div class="step-number">05</div><div>'+t('Que signifie un intervalle de ΔMAE traversant zéro ?','What does a ΔMAE interval crossing zero mean?','h2')+'<details class="method-note"><summary>'+t('Les modèles sont équivalents','The models are equivalent')+'</summary>'+t('À revoir : l’absence de gain démontré ne prouve pas une équivalence. Il faudrait une marge et un protocole adaptés.','Try again: absence of demonstrated gain does not establish equivalence. A margin and an appropriate design would be needed.','p')+'</details><details class="method-note"><summary>'+t('Le gain reste incertain','Added value remains uncertain')+'</summary>'+t('Correct : dans cette validation interne, l’incertitude est compatible avec un gain ou une détérioration. Ne pas généraliser à d’autres cohortes.','Correct: in this internal validation, uncertainty is compatible with improvement or deterioration. Do not generalize to other cohorts.','p')+'</details></div></section>'
+    out += '<section class="course-step"><div class="step-number">06</div><div>'+t('Quelle preuve chercher ensuite ?','What evidence should come next?','h2')+'<details class="method-note"><summary>'+t('Réajuster la PCA sur tous les sujets et annoncer le meilleur MAE','Refit PCA on all subjects and report the best MAE')+'</summary>'+t('À revoir : ce serait utiliser les données de test pour optimiser la méthode.','Try again: this would use test data to optimize the method.','p')+'</details><details class="method-note"><summary>'+t('Geler le pipeline et tester une cohorte indépendante','Freeze the pipeline and test an independent cohort')+'</summary>'+t('Correct : comparer sur les mêmes sujets, avec mesures PK authentiques et prétraitement gelé. Une évaluation d’utilité clinique constitue une question supplémentaire.','Correct: compare on the same subjects, with genuine PK measurements and frozen preprocessing. Clinical utility is a separate question.','p')+'</details>'+t('Conclusion : les données de ce benchmark ne démontrent pas de valeur ajoutée générale des omiques.','Conclusion: this benchmark does not establish general added value of omics.','p')+'</div></section>'
     return out+'<section class="section">'+t('Poursuivre','Continue','h2')+a('guide/','Étudier la méthode complète','Study the full method',base=base)+' · '+a('demo/','Consulter les preuves','Review the evidence',base=base)+'</section>'
 
 def practice(base):
@@ -375,31 +391,12 @@ def analyze(base):
 
 def disciplines(base):
     return ('<section class="small-hero"><p class="eyebrow">Ecosystem / Écosystème</p>'
-         +t('Apprendre. Analyser. Intégrer.','Learn. Analyze. Integrate.','h1')
-         +t('PMx Explain, MultiOmics et Omics2PK sont trois outils séparés reliés par une même logique de reproductibilité, de provenance et de niveaux de preuve explicites.',
-           'PMx Explain, MultiOmics and Omics2PK are separate tools connected by shared principles of reproducibility, provenance and explicit evidence levels.','p','lede')+'</section>'
-         +'<figure class="ecosystem-figure"><img src="'+base+'assets/ecosystem-graphical-abstract.svg" alt="PMx Explain for learning, MultiOmics for analysis and Omics2PK for PK integration">'
-         +t('Parcours commun ; dépôts et responsabilités scientifiques séparés.','Shared journey; separate repositories and scientific responsibilities.','figcaption')+'</figure>'
-         +'<div class="cards section">'
-         +card('01 · Learn / Apprendre','PMx Explain','PMx Explain',
-           'Comprendre PK/PD, PopPK, covariables et MIPD avant d’interpréter un signal biologique.',
-           'Understand PK/PD, PopPK, covariates and MIPD before interpreting a biological signal.',
-           PMX,'Ouvrir','Open',base=base)
-         +card('02 · Analyze / Analyser','MultiOmics','MultiOmics',
-           'Contrôler la qualité et produire des analyses, signatures et exports omiques traçables.',
-           'Quality-control omics data and produce traceable analyses, signatures and exports.',
-           MULTIOMICS,'Ouvrir','Open',base=base)
-         +card('03 · Integrate / Intégrer','Omics2PK','Omics2PK',
-           'Tester si des états moléculaires individuels améliorent une question PK au-delà des données cliniques et pharmacogénétiques.',
-           'Test whether individual molecular states improve a PK question beyond clinical and pharmacogenetic information.',
-           'demo/','Voir la recherche','See the research',base=base)
-         +'</div>'
-         +'<section class="ecosystem-boundary">'
-         +t('La chaîne scientifique','Scientific handoff','p','eyebrow')
-         +t('Échange moléculaire vérifié ≠ bénéfice PK démontré','Verified molecular exchange ≠ demonstrated PK benefit','h2')
-         +t('MultiOmics peut fournir des mesures et métadonnées individuelles traçables. Omics2PK exige ensuite les mêmes sujets avec chronologie, covariables de référence, doses et concentrations authentiques. La compatibilité technique seule ne valide ni une covariable ni une recommandation de dose.',
-           'MultiOmics can provide traceable individual measurements and metadata. Omics2PK then requires the same subjects with timing, reference covariates and genuine dose/concentration observations. Technical compatibility alone validates neither a covariate nor a dosing recommendation.','p')
-         +'</section>')
+         +t('Les plateformes Explain','The Explain platforms','h1')
+         +t('Choisissez votre question scientifique : les disciplines sont complémentaires, pas une succession obligatoire.','Choose your scientific question: disciplines are complementary, not a mandatory sequence.','p','lede')+'</section>'
+         +'<nav class="cta section" data-testid="ecosystem-links" aria-label="Ecosystem">'+ecosystem_links()+'</nav>'
+         +'<section class="ecosystem-boundary">'+t('Application de MultiOmics : Omics2PK','An application of MultiOmics: Omics2PK','h2')
+         +t('Une intégration moléculaire traçable doit encore être confrontée aux doses, concentrations, chronologies et covariables authentiques chez les mêmes sujets. La compatibilité technique ne démontre ni gain PK ni validité clinique.','Traceable molecular integration still needs genuine dose, concentration, timing and covariate data in the same subjects. Technical compatibility demonstrates neither PK gain nor clinical validity.','p')
+         +a('demo/','Voir les preuves actuelles','Review current evidence',base=base)+'</section>')
 
 def resources(base):
     refs=[

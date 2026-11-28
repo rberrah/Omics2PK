@@ -1,0 +1,37 @@
+[
+  {
+    "key": "overview",
+    "url": "https://rberrah.github.io/pharmacometrie/ecosystem/",
+    "fr": "Vue d’ensemble de l’écosystème",
+    "en": "Ecosystem overview",
+    "localized": true
+  },
+  {
+    "key": "pmx",
+    "url": "https://rberrah.github.io/pharmacometrie/",
+    "fr": "PMx Explain",
+    "en": "PMx Explain",
+    "localized": true
+  },
+  {
+    "key": "omics",
+    "url": "https://rberrah.github.io/multiomics/",
+    "fr": "Omics Explain",
+    "en": "Omics Explain",
+    "localized": true
+  },
+  {
+    "key": "stats",
+    "url": "https://rberrah.github.io/stats/",
+    "fr": "Stat & Biologie",
+    "en": "Stat & Biologie",
+    "localized": false
+  },
+  {
+    "key": "omics2pk",
+    "url": "https://rberrah.github.io/Omics2PK/",
+    "fr": "Omics2PK",
+    "en": "Omics2PK",
+    "localized": true
+  }
+]
