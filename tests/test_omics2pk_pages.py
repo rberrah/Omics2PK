@@ -127,7 +127,13 @@ class Omics2PKPagesTests(unittest.TestCase):
         from html.parser import HTMLParser
         expected=json.loads((Path(__file__).resolve().parents[1]/"site/ecosystem.json").read_text(encoding="utf-8"))
         urls=[row["url"]+("?lang=fr" if row["localized"] else "") for row in expected]
-        self.assertEqual(len(urls),5)
+        self.assertEqual(urls,[
+            "https://rberrah.github.io/ecosystem/?lang=fr",
+            "https://rberrah.github.io/pharmacometrie/?lang=fr",
+            "https://rberrah.github.io/multiomics/?lang=fr",
+            "https://rberrah.github.io/stats/",
+            "https://rberrah.github.io/Omics2PK/?lang=fr",
+        ])
         for page in ("index.html","ecosystem/index.html","disciplines/index.html"):
             html=(self.root/page).read_text(encoding="utf-8")
             group=html.split('data-testid="goal-disciplines"',1)[1].split('</details>',1)[0]
