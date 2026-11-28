@@ -28,6 +28,11 @@
       button.classList.toggle('active', active);
       button.setAttribute('aria-pressed', String(active));
     });
+    document.querySelectorAll('a[data-ecosystem-localized]').forEach(link => {
+      const url = new URL(link.href);
+      url.searchParams.set('lang', lang);
+      link.href = url.href;
+    });
     store('pharmacometrie-language', lang);
     changeQueryLang(lang);
     updateThemeLabel();

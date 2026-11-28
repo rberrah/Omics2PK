@@ -122,20 +122,27 @@ class Omics2PKPagesTests(unittest.TestCase):
         self.assertNotIn('type="file"',analyze.lower())
         self.assertNotIn('type="submit"',analyze.lower())
 
-    def test_ecosystem_destinations_and_graphical_abstract(self):
+    def test_ecosystem_destinations_and_common_registry(self):
+        import json
+        from html.parser import HTMLParser
+        expected=json.loads((Path(__file__).resolve().parents[1]/"site/ecosystem.json").read_text(encoding="utf-8"))
+        urls=[row["url"]+("?lang=fr" if row["localized"] else "") for row in expected]
+        self.assertEqual(len(urls),5)
         for page in ("index.html","ecosystem/index.html","disciplines/index.html"):
             html=(self.root/page).read_text(encoding="utf-8")
-            self.assertIn('https://rberrah.github.io/',html)
-            self.assertIn('https://rberrah.github.io/multiomics/',html)
-            self.assertIn('https://github.com/rberrah/Omics2PK',html)
+            group=html.split('data-testid="goal-disciplines"',1)[1].split('</details>',1)[0]
+            positions=[group.index('href="'+url+'"') for url in urls]
+            self.assertEqual(positions,sorted(positions))
         ecosystem=(self.root/"ecosystem/index.html").read_text(encoding="utf-8")
-        self.assertIn('Ecosystem / Écosystème',ecosystem)
-        self.assertIn('PMx Explain',ecosystem)
-        self.assertIn('MultiOmics',ecosystem)
-        self.assertIn('Omics2PK',ecosystem)
-        self.assertIn('ecosystem-graphical-abstract.svg',ecosystem)
+        self.assertIn('data-testid="ecosystem-links"',ecosystem)
         self.assertIn('../demo/',ecosystem)
-        self.assertTrue((self.root/"assets/ecosystem-graphical-abstract.svg").is_file())
+        self.assertIn('data-ecosystem-localized="true"',ecosystem)
+
+    def test_independent_results_interpretation_journey(self):
+        html=(self.root/"game/index.html").read_text(encoding="utf-8")
+        self.assertIn('id="interpret-results"',html)
+        self.assertIn('The models are equivalent',html)
+        self.assertIn('Freeze the pipeline and test an independent cohort',html)
 
     def test_theme_css_and_behavior_and_no_tracking(self):
         css=(self.root/"assets/styles.css").read_text()
